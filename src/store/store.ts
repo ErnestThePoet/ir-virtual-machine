@@ -1,7 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
+import localeReducer from "./reducers/locale/locale";
 
 const store = configureStore({
-    reducer: {}
+    reducer: {
+        locale: localeReducer
+    }
 });
 
 export type RootState = ReturnType<typeof store.getState>;
