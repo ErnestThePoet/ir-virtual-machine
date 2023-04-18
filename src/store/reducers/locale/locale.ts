@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { RootState } from "@/store/store";
 import type { AppLocale } from "@/locales";
 import locales from "@/locales";
 
