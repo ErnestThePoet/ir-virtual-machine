@@ -1,37 +1,40 @@
-import { toInt32, toUint32, Alu } from "./alu";
+import { Aint32 } from "./data_types/aint32";
+import { Uint32 } from "./data_types/uint32";
+import { Alu } from "./alu";
 import { Mmu } from "./mmu";
+import type { DecodedInstruction } from "./decoder";
+import type { AppLocaleKey } from "@/locales";
 
 // VM Table element types
 interface VmLabel {
-    address: number;
+    address: Uint32;
 }
 
 interface VmFunction {
-    address: number;
+    address: Uint32;
 }
 
 type VmVariableLocation = "BSS" | "STACK";
-type VmVariableType = "INT32" | "UINT32" | "BLOCK";
 
 interface VmVariable {
-    address: number;
-    size: number;
+    address: Uint32;
+    size: Uint32;
     location: VmVariableLocation;
-    type: VmVariableType;
 }
 
 // VM Component types
 interface VmMemory {
-    text: string[];
+    instructions: string[];
+    text: DecodedInstruction[];
     bss: Uint8Array;
     stack: Uint8Array;
 }
 
 interface VmRegisters {
-    eax: number;
-    ebp: number;
-    esp: number;
-    eip: number;
+    eax: Uint32;
+    ebp: Uint32;
+    esp: Uint32;
+    eip: Uint32;
 }
 
 interface VmTables {
@@ -51,26 +54,28 @@ type VmExecutionState =
 interface VmExecutionStatus {
     stepCount: number;
     state: VmExecutionState;
-    message: string;
+    messageKeys: AppLocaleKey[];
 }
 
 // IrVm uses a custom calling convention called "irdecl".
 // Description:
-// text is the storage area for IR instructions
+// instructions is the storage area for raw string IR instructions
+// text is the storage area for decoded IR instructions
 // bss is the storage area for (uninitialized) global variables
 // stack is what we know as stack
 
 const initialMemory: VmMemory = {
+    instructions: [],
     text: [],
     bss: new Uint8Array([]),
     stack: new Uint8Array([])
 };
 
 const initialRegisters: VmRegisters = {
-    eax: 0,
-    ebp: 0,
-    esp: 0,
-    eip: 0
+    eax: new Uint32(0),
+    ebp: new Uint32(0),
+    esp: new Uint32(0),
+    eip: new Uint32(0)
 };
 
 const initialTables: VmTables = {
@@ -83,7 +88,7 @@ const initialTables: VmTables = {
 const initialExecutionStatus: VmExecutionStatus = {
     stepCount: 0,
     state: "INITIAL",
-    message: ""
+    messageKeys: []
 };
 
 // VM Options type
@@ -141,21 +146,22 @@ class Vm {
      * @public
      */
     reset() {
-        this.memory.bss = initialMemory.bss;
-        this.memory.stack = initialMemory.stack;
-        this.registers = initialRegisters;
-        this.tables = initialTables;
-        this.executionStatus = initialExecutionStatus;
+        Object.assign(this.memory.text, initialMemory.text);
+        Object.assign(this.memory.bss, initialMemory.bss);
+        Object.assign(this.memory.stack, initialMemory.stack);
+        Object.assign(this.registers, initialRegisters);
+        Object.assign(this.tables, initialTables);
+        Object.assign(this.executionStatus, initialExecutionStatus);
     }
 
     /**
      * Reset rest of the VM to initial state and load new instructions into memory.
-     * @param text - The new IR instructions.
+     * @param instructions - The new IR instructions.
      * @public
      */
-    loadNewText(text: string[]) {
+    loadNewInstructions(instructions: string[]) {
         this.reset();
-        this.memory.text = text;
+        Object.assign(this.memory.instructions, instructions);
     }
 
     /**
@@ -178,8 +184,7 @@ class Vm {
         }
         // Go through each line of IR code
         for (const i of this.memory.text) {
-            const a = new Uint8Array([])
-            a.
+            const a = new Uint8Array([]);
         }
     }
 }
