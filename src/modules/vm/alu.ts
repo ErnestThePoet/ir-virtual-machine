@@ -1,26 +1,6 @@
-// the two typed arrays are used to facilitate integer truncations.
-const int32Buffer = new Uint32Array(1);
-const uint32Buffer = new Uint32Array(1);
-
-/**
- * Truncate the given integer to 32 bit and interprete as signed integer.
- * @param x - The given integer.
- * @returns The truncated and interpreted int32 value.
- */
-export function toInt32(x: number): number {
-    int32Buffer[0] = x;
-    return int32Buffer[0];
-}
-
-/**
- * Truncate the given integer to 32 bit and interprete as unsigned integer.
- * @param x - The given integer.
- * @returns The truncated and interpreted uint32 value.
- */
-export function toUint32(x: number): number {
-    uint32Buffer[0] = x;
-    return int32Buffer[0];
-}
+import { Aint32 } from "./data_types/aint32";
+import { Int32 } from "./data_types/int32";
+import { Uint32 } from "./data_types/uint32";
 
 /**
  * Offers arithmetic and logic computation functionalties
@@ -33,8 +13,8 @@ export class Alu {
      * @returns (int32)((int32)a + (int32)b)
      * @public
      */
-    addInt32(a: number, b: number): number {
-        return toInt32(toInt32(a) + toInt32(b));
+    addInt32(a: Int32, b: Int32): Int32 {
+        return new Int32(a.value + b.value);
     }
 
     /**
@@ -44,8 +24,8 @@ export class Alu {
      * @returns (int32)((int32)a - (int32)b)
      * @public
      */
-    subInt32(a: number, b: number): number {
-        return toInt32(toInt32(a) - toInt32(b));
+    subInt32(a: Int32, b: Int32): Int32 {
+        return new Int32(a.value - b.value);
     }
 
     /**
@@ -55,8 +35,8 @@ export class Alu {
      * @returns (int32)((int32)a * (int32)b)
      * @public
      */
-    mulInt32(a: number, b: number): number {
-        return toInt32(toInt32(a) * toInt32(b));
+    mulInt32(a: Int32, b: Int32): Int32 {
+        return new Int32(a.value * b.value);
     }
 
     /**
@@ -66,8 +46,8 @@ export class Alu {
      * @returns (int32)((int32)a / (int32)b)
      * @public
      */
-    divInt32(a: number, b: number): number {
-        return toInt32(Math.floor(toInt32(a) / toInt32(b)));
+    divInt32(a: Int32, b: Int32): Int32 {
+        return new Int32(Math.floor(a.value / b.value));
     }
 
     /**
@@ -77,8 +57,8 @@ export class Alu {
      * @returns (uint32)((uint32)a + (uint32)b)
      * @public
      */
-    addUint32(a: number, b: number): number {
-        return toUint32(toUint32(a) + toUint32(b));
+    addUint32(a: Uint32, b: Uint32): Uint32 {
+        return new Uint32(a.value + b.value);
     }
 
     /**
@@ -88,8 +68,8 @@ export class Alu {
      * @returns (uint32)((uint32)a - (uint32)b)
      * @public
      */
-    subUint32(a: number, b: number): number {
-        return toUint32(toUint32(a) - toUint32(b));
+    subUint32(a: Uint32, b: Uint32): Uint32 {
+        return new Uint32(a.value - b.value);
     }
 
     /**
@@ -99,8 +79,8 @@ export class Alu {
      * @returns (uint32)((uint32)a * (uint32)b)
      * @public
      */
-    mulUint32(a: number, b: number): number {
-        return toUint32(toUint32(a) * toUint32(b));
+    mulUint32(a: Uint32, b: Uint32): Uint32 {
+        return new Uint32(a.value * b.value);
     }
 
     /**
@@ -110,8 +90,8 @@ export class Alu {
      * @returns (uint32)((uint32)a / (uint32)b)
      * @public
      */
-    divUint32(a: number, b: number): number {
-        return toUint32(Math.floor(toUint32(a) / toUint32(b)));
+    divUint32(a: Uint32, b: Uint32): Uint32 {
+        return new Uint32(Math.floor(a.value / b.value));
     }
 
     /**
@@ -121,8 +101,8 @@ export class Alu {
      * @returns (uint32)a==(uint32)b
      * @public
      */
-    eq(a: number, b: number): boolean {
-        return toUint32(a) === toUint32(b);
+    eq(a: Aint32, b: Aint32): boolean {
+        return new Uint32(a.value).value === new Uint32(b.value).value;
     }
 
     /**
@@ -132,8 +112,8 @@ export class Alu {
      * @returns (uint32)a!=(uint32)b
      * @public
      */
-    ne(a: number, b: number): boolean {
-        return toUint32(a) !== toUint32(b);
+    ne(a: Aint32, b: Aint32): boolean {
+        return new Uint32(a.value).value !== new Uint32(b.value).value;
     }
 
     /**
@@ -143,8 +123,8 @@ export class Alu {
      * @returns (int32)a>(int32)b
      * @public
      */
-    gtInt32(a: number, b: number): boolean {
-        return toInt32(a) > toInt32(b);
+    gtInt32(a: Int32, b: Int32): boolean {
+        return a.value > b.value;
     }
 
     /**
@@ -154,8 +134,8 @@ export class Alu {
      * @returns (int32)a>=(int32)b
      * @public
      */
-    geInt32(a: number, b: number): boolean {
-        return toInt32(a) >= toInt32(b);
+    geInt32(a: Int32, b: Int32): boolean {
+        return a.value >= b.value;
     }
 
     /**
@@ -165,8 +145,8 @@ export class Alu {
      * @returns (int32)a<(int32)b
      * @public
      */
-    ltInt32(a: number, b: number): boolean {
-        return toInt32(a) < toInt32(b);
+    ltInt32(a: Int32, b: Int32): boolean {
+        return a.value < b.value;
     }
 
     /**
@@ -176,8 +156,8 @@ export class Alu {
      * @returns (int32)a<=(int32)b
      * @public
      */
-    leInt32(a: number, b: number): boolean {
-        return toInt32(a) <= toInt32(b);
+    leInt32(a: Int32, b: Int32): boolean {
+        return a.value <= b.value;
     }
 
     /**
@@ -187,8 +167,8 @@ export class Alu {
      * @returns (uint32)a>(uint32)b
      * @public
      */
-    gtUint32(a: number, b: number): boolean {
-        return toUint32(a) > toUint32(b);
+    gtUint32(a: Uint32, b: Uint32): boolean {
+        return a.value > b.value;
     }
 
     /**
@@ -198,8 +178,8 @@ export class Alu {
      * @returns (uint32)a>=(uint32)b
      * @public
      */
-    geUint32(a: number, b: number): boolean {
-        return toUint32(a) >= toUint32(b);
+    geUint32(a: Uint32, b: Uint32): boolean {
+        return a.value >= b.value;
     }
 
     /**
@@ -209,8 +189,8 @@ export class Alu {
      * @returns (uint32)a<(uint32)b
      * @public
      */
-    ltUint32(a: number, b: number): boolean {
-        return toUint32(a) < toUint32(b);
+    ltUint32(a: Uint32, b: Uint32): boolean {
+        return a.value < b.value;
     }
 
     /**
@@ -220,7 +200,7 @@ export class Alu {
      * @returns (uint32)a<=(uint32)b
      * @public
      */
-    leUint32(a: number, b: number): boolean {
-        return toUint32(a) <= toUint32(b);
+    leUint32(a: Uint32, b: Uint32): boolean {
+        return a.value <= b.value;
     }
 }

@@ -1,11 +1,11 @@
-import { toUint32 } from "./alu";
+import { Uint32 } from "./data_types/uint32";
 
 type MmuLoadStatus = "SUCCESS" | "OUT_OF_BOUND";
 type MmuStoreStatus = "SUCCESS" | "OUT_OF_BOUND";
 
 interface MmuLoadResult {
     status: MmuLoadStatus;
-    value: number;
+    value: Uint32;
 }
 
 interface MmuStoreResult {
@@ -23,22 +23,22 @@ export class Mmu {
      * @returns Load result. If unsuccessful, value=`0`
      * @public
      */
-    load32(address: number, memory: Uint8Array): MmuLoadResult {
-        if (address < 0 || address + 4 > memory.length) {
+    load32(address: Uint32, memory: Uint8Array): MmuLoadResult {
+        if (address.value + 4 > memory.length) {
             return {
                 status: "OUT_OF_BOUND",
-                value: 0
+                value: new Uint32(0)
             };
         }
 
         // Little endian
         return {
             status: "SUCCESS",
-            value: toUint32(
-                memory[address] |
-                    (memory[address + 1] << 8) |
-                    (memory[address + 2] << 16) |
-                    (memory[address + 3] << 24)
+            value: new Uint32(
+                memory[address.value] |
+                    (memory[address.value + 1] << 8) |
+                    (memory[address.value + 2] << 16) |
+                    (memory[address.value + 3] << 24)
             )
         };
     }
@@ -52,20 +52,20 @@ export class Mmu {
      * @public
      */
     store32(
-        value: number,
-        address: number,
+        value: Uint32,
+        address: Uint32,
         memory: Uint8Array
     ): MmuStoreResult {
-        if (address < 0 || address + 4 > memory.length) {
+        if (address.value + 4 > memory.length) {
             return {
                 status: "OUT_OF_BOUND"
             };
         }
 
-        memory[address] = value & 0x000000ff;
-        memory[address + 1] = (value & 0x0000ff00) >>> 8;
-        memory[address + 2] = (value & 0x00ff0000) >>> 16;
-        memory[address + 3] = (value & 0xff000000) >>> 24;
+        memory[address.value] = value.value & 0x000000ff;
+        memory[address.value + 1] = (value.value & 0x0000ff00) >>> 8;
+        memory[address.value + 2] = (value.value & 0x00ff0000) >>> 16;
+        memory[address.value + 3] = (value.value & 0xff000000) >>> 24;
 
         return {
             status: "SUCCESS"
