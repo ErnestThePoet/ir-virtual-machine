@@ -35,9 +35,9 @@
 - 定义`LValue`为可出现在赋值符号左侧的值：  
 `LValue -> ID | *ID`
 - 定义`RValue`为一个可出现在赋值符号右侧的值（函数调用在表中被单独列出）：  
-`RValue -> Singular | Singular BinaryMathOp Singluar`
+`RValue -> Singular | Singular BinaryMathOp Singular`
 - 定义`CondValue`为一个可出现在`IF`指令条件处的值：  
-`CondValue -> Singular BinaryRelOp Singluar`
+`CondValue -> Singular BinaryRelOp Singular`
 
 中间代码的语法定义如下表所示。请注意一行中间代码内各个元素之间均由一个空格或制表符`'\t'`隔开。
 
