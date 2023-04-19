@@ -1,9 +1,5 @@
-type VmExecutionState =
-    | "INITIAL"
-    | "BUSY"
-    | "FREE" // 2023.04.18-22:20 就在刚才，我收到她的消息了。我的心情复杂而又幸福。我感到圆满了。一切都值了。请允许我把此时此刻的感受永远记录在这里——与本项目无关。
-    | "EXITED_NORMALLY"
-    | "EXITED_ABNORMALLY";
+import { toInt32, toUint32, Alu } from "./alu";
+import { Mmu } from "./mmu";
 
 // VM Table element types
 interface VmLabel {
@@ -14,15 +10,21 @@ interface VmFunction {
     address: number;
 }
 
+type VmVariableLocation = "BSS" | "STACK";
+type VmVariableType = "INT32" | "UINT32" | "BLOCK";
+
 interface VmVariable {
     address: number;
     size: number;
+    location: VmVariableLocation;
+    type: VmVariableType;
 }
 
 // VM Component types
 interface VmMemory {
-    instructions: string[];
-    stack: string[];
+    text: string[];
+    bss: Uint8Array;
+    stack: Uint8Array;
 }
 
 interface VmRegisters {
@@ -39,6 +41,13 @@ interface VmTables {
     variableTableStack: { [name: string]: VmVariable }[];
 }
 
+type VmExecutionState =
+    | "INITIAL"
+    | "BUSY"
+    | "FREE" // 2023.04.18-22:20 就在刚才，我收到她的消息了。我的心情复杂而又幸福。我感到圆满了。一切都值了。请允许我把此时此刻的感受永远记录在这里——与本项目无关。
+    | "EXITED_NORMALLY"
+    | "EXITED_ABNORMALLY";
+
 interface VmExecutionStatus {
     stepCount: number;
     state: VmExecutionState;
@@ -47,11 +56,14 @@ interface VmExecutionStatus {
 
 // IrVm uses a custom calling convention called "irdecl".
 // Description:
-// All variables are global variable
+// text is the storage area for IR instructions
+// bss is the storage area for (uninitialized) global variables
+// stack is what we know as stack
 
 const initialMemory: VmMemory = {
-    instructions: [],
-    stack: []
+    text: [],
+    bss: new Uint8Array([]),
+    stack: new Uint8Array([])
 };
 
 const initialRegisters: VmRegisters = {
@@ -129,6 +141,7 @@ class Vm {
      * @public
      */
     reset() {
+        this.memory.bss = initialMemory.bss;
         this.memory.stack = initialMemory.stack;
         this.registers = initialRegisters;
         this.tables = initialTables;
@@ -137,12 +150,12 @@ class Vm {
 
     /**
      * Reset rest of the VM to initial state and load new instructions into memory.
-     * @param instructions - The new IR instructions.
+     * @param text - The new IR instructions.
      * @public
      */
-    loadNewInstructions(instructions: string[]) {
+    loadNewText(text: string[]) {
         this.reset();
-        this.memory.instructions = instructions;
+        this.memory.text = text;
     }
 
     /**
@@ -164,7 +177,9 @@ class Vm {
             return;
         }
         // Go through each line of IR code
-        for (const i of this.memory.instructions) {
+        for (const i of this.memory.text) {
+            const a = new Uint8Array([])
+            a.
         }
     }
 }
