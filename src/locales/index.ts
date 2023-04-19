@@ -4,6 +4,7 @@ import zhCn from "./zhcn";
 //////////////////////////////////
 
 export type AppLocale = typeof zhCn;
+export type AppLocaleKey = keyof typeof zhCn;
 
 const locales: { name: string; locale: AppLocale }[] = [
     {
