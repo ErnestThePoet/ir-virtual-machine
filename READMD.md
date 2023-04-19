@@ -28,9 +28,9 @@
 `Size = (\d)+`  
 - 定义`Singular`为`ID`本身或前置了一个解引用运算符`*`或取地址运算符`&`的`ID`：  
 `Singular -> ID | *ID | &ID`  
-- 定义`BinaryMathOp`为四则运算符之一：  
+- 定义`BinaryMathOp`为二元四则运算符之一：  
 `BinaryMathOp -> + | - | * | /`
-- 定义`BinaryRelOp`为关系运算符之一：  
+- 定义`BinaryRelOp`为二元关系运算符之一：  
 `BinaryRelOp -> == | != | < | <= | > | >=`
 - 定义`LValue`为可出现在赋值符号左侧的值：  
 `LValue -> ID | *ID`
@@ -57,3 +57,5 @@
 |RETURN **Singular**|退出当前函数并返回给定值|
 |READ **LValue**|从控制台读取一个整数储存在给定变量中|
 |WRITE **RValue**|向控制台输出给定整数|
+
+虚拟机将所有地址变量和表示空间大小的立即数均视为32位无符号整数。当二元四则运算符的操作数中有一个为无符号数时，其结果也将被看做一个无符号数。
