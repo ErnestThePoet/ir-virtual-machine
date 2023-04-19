@@ -54,5 +54,5 @@
 |**LValue** := CALL **ID**|调用函数并存储返回值|
 |PARAM **ID**|声明函数形参|
 |RETURN **Singular**|退出当前函数并返回给定值|
-|READ **ID**|从控制台读取一个整数储存在给定变量中|
+|READ **LValue**|从控制台读取一个整数储存在给定变量中|
 |WRITE **RValue**|向控制台输出给定整数|
