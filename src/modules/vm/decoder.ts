@@ -2,7 +2,7 @@ import { Int32, Uint32 } from "./data_types";
 import type { AppLocaleKey } from "@/locales";
 
 // Component types
-interface Singular {
+export interface Singular {
     type: "IMM" | "ID" | "ADDRESS_ID" | "DEREF_ID";
     imm?: Int32;
     id?: string;
@@ -11,12 +11,12 @@ interface Singular {
 type BinaryMathOp = "+" | "-" | "*" | "/";
 type BinaryRelOp = "==" | "!=" | "<" | "<=" | ">" | ">=";
 
-interface LValue {
+export interface LValue {
     type: "ID" | "DEREF_ID";
     id: string;
 }
 
-interface RValue {
+export interface RValue {
     type: "SINGULAR" | "BINARY_MATH_OP";
     singular?: Singular;
     singularL?: Singular;
@@ -24,7 +24,7 @@ interface RValue {
     singularR?: Singular;
 }
 
-interface CondValue {
+export interface CondValue {
     singluarL: Singular;
     binaryRelOp: BinaryRelOp;
     singularR: Singular;
