@@ -97,7 +97,7 @@ interface VmOptions {
     maxExecutionStepCount: number;
 }
 
-type VmOptionsOptional = Partial<VmOptions>;
+type VmOptionsPartial = Partial<VmOptions>;
 
 export const VM_DEFAULT_MAX_EXECUTION_STEP_COUNT = 3000;
 export const VM_MIN_MAX_EXECUTION_STEP_COUNT = 100;
@@ -125,7 +125,7 @@ class Vm {
      * @param options - The new VM options.
      * @public
      */
-    configure(options: VmOptionsOptional) {
+    configure(options: VmOptionsPartial) {
         if (options.maxExecutionStepCount !== undefined) {
             options.maxExecutionStepCount = Math.max(
                 options.maxExecutionStepCount,
