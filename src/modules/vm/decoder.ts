@@ -116,6 +116,11 @@ type InstructionType =
     | "EMPTY"
     | "ERROR";
 
+export type ExecutableInstructionType = Exclude<
+    InstructionType,
+    "FUNCTION" | "LABEL" | "EMPTY" | "ERROR"
+>;
+
 type InstructionValue =
     | DecodedFunction
     | DecodedAssign
