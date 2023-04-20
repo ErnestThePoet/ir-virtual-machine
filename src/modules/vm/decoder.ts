@@ -379,6 +379,13 @@ export class Decoder {
             };
         }
 
+        if (!Number.isSafeInteger(parseInt(splitResult[2]))) {
+            return {
+                type: "ERROR",
+                messageKey: "DEC_SIZE_TOO_LARGE"
+            };
+        }
+
         if (size.value % 4 !== 0) {
             return {
                 type: "ERROR",
@@ -413,6 +420,13 @@ export class Decoder {
             return {
                 type: "ERROR",
                 messageKey: "GLOBAL_DEC_ILLEGAL_SIZE_FORMAT"
+            };
+        }
+
+        if (!Number.isSafeInteger(parseInt(splitResult[2]))) {
+            return {
+                type: "ERROR",
+                messageKey: "GLOBAL_DEC_SIZE_TOO_LARGE"
             };
         }
 
