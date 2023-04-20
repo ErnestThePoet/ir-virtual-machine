@@ -2,6 +2,7 @@ import { Aint32 } from "./data_types/aint32";
 import { Uint32 } from "./data_types/uint32";
 import { Alu } from "./alu";
 import { Mmu } from "./mmu";
+import { Decoder } from "./decoder";
 import type { DecodedInstruction } from "./decoder";
 import type { AppLocaleKey } from "@/locales";
 
@@ -95,23 +96,41 @@ const initialExecutionStatus: VmExecutionStatus = {
 interface VmOptions {
     checkDuplicateVariableName: boolean;
     maxExecutionStepCount: number;
+    stackSize: number;
 }
 
 type VmOptionsPartial = Partial<VmOptions>;
 
-export const VM_DEFAULT_MAX_EXECUTION_STEP_COUNT = 3000;
-export const VM_MIN_MAX_EXECUTION_STEP_COUNT = 100;
-export const VM_MAX_MAX_EXECUTION_STEP_COUNT = 100000;
+type VmNumberOptionKeys = {
+    [K in keyof VmOptions]: VmOptions[K] extends number ? K : never;
+}[keyof VmOptions];
+const vmOptionLimits: {
+    [K in VmNumberOptionKeys]: { min: number; max: number };
+} = {
+    maxExecutionStepCount: {
+        min: 100,
+        max: 100000
+    },
+    stackSize: {
+        min: 1024,
+        max: 1024 * 1024
+    }
+};
 
 const defaultOptions: VmOptions = {
     checkDuplicateVariableName: true,
-    maxExecutionStepCount: VM_DEFAULT_MAX_EXECUTION_STEP_COUNT
+    maxExecutionStepCount: 3000,
+    stackSize: 1024
 };
 
 /**
  * An IR Virtual Machine instance.
  */
 class Vm {
+    private alu: Alu = new Alu();
+    private mmu: Mmu = new Mmu();
+    private decoder: Decoder = new Decoder();
+
     private memory: VmMemory = initialMemory;
     private registers: VmRegisters = initialRegisters;
     private tables: VmTables = initialTables;
@@ -129,12 +148,12 @@ class Vm {
         if (options.maxExecutionStepCount !== undefined) {
             options.maxExecutionStepCount = Math.max(
                 options.maxExecutionStepCount,
-                VM_MIN_MAX_EXECUTION_STEP_COUNT
+                vmOptionLimits.maxExecutionStepCount.min
             );
 
             options.maxExecutionStepCount = Math.min(
                 options.maxExecutionStepCount,
-                VM_MAX_MAX_EXECUTION_STEP_COUNT
+                vmOptionLimits.maxExecutionStepCount.max
             );
         }
 
@@ -166,6 +185,7 @@ class Vm {
 
     /**
      * Read instructions when the VM is in `"INITIAL"` state and do the following:
+     * - Decode instructions into text, reporting errors
      * - Construct label table
      * - Construct function table
      * - Construct global variable table
@@ -173,9 +193,9 @@ class Vm {
      *
      * If successful, `this.executionStatus.state` will be set to `"FREE"`;
      * If an error is detected, `this.executionStatus.state` will be set to
-     * `"EXITED_ABNORMALLY"` with an message in `this.executionStatus.message`.
+     * `"EXITED_ABNORMALLY"` with message keys in `this.executionStatus.messageKeys`.
      *
-     * Note that syntax error in IR code is examined at runtime, not here.
+     * Note that runtime errors are not examined here.
      * @public
      */
     preprocessInstructions() {
@@ -183,9 +203,9 @@ class Vm {
             return;
         }
         // Go through each line of IR code
-        for (const i of this.memory.text) {
-            const a = new Uint8Array([]);
-        }
+        this.memory.instructions.forEach((x, i) => {
+            const decoded = this.decoder.decode(x, i);
+        });
     }
 }
 
