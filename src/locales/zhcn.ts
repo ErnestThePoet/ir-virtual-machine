@@ -35,7 +35,12 @@ const zhCn = {
     NO_MAIN_FUNCTION: "未定义main函数",
 
     // Runtime error messages
-    GLOBAL_VARIABLE_SEGMENT_OVERFLOW: "全局变量空间溢出"
+    RUNTIME_ERROR_PREFIX: "[第{lineNumber}行]运行时错误：",
+    GLOBAL_VARIABLE_SEGMENT_OVERFLOW: "全局变量空间溢出",
+    STACK_OVERFLOW: "栈空间溢出",
+    VARIABLE_NOT_FOUND: "找不到变量'{id}'",
+    MEMORY_READ_OUT_OF_BOUND: "向地址{address}写入4字节时超出了地址空间",
+    MEMORY_WRITE_OUT_OF_BOUND: "从地址{address}读入4字节时超出了地址空间"
 };
 
 export default zhCn;

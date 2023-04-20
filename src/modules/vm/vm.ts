@@ -1,10 +1,29 @@
-import { Aint32, Uint32 } from "./data_types";
+import { Aint32, Int32, Uint32 } from "./data_types";
 import { Alu } from "./alu";
 import { Mmu } from "./mmu";
-import { DecodedGlobalDec, DecodedLabel, Decoder } from "./decoder";
-import type { DecodedFunction } from "./decoder";
-import type { DecodedInstruction } from "./decoder";
+import { Decoder } from "./decoder";
+import type {
+    Singular,
+    LValue,
+    RValue,
+    DecodedFunction,
+    DecodedAssign,
+    DecodedDec,
+    DecodedGlobalDec,
+    DecodedLabel,
+    DecodedGoto,
+    DecodedIf,
+    DecodedArg,
+    DecodedCall,
+    DecodedAssignCall,
+    DecodedParam,
+    DecodedReturn,
+    DecodedRead,
+    DecodedWrite,
+    DecodedExecutableInstruction
+} from "./decoder";
 import type { AppLocaleKey, FormattableMessage } from "@/locales";
+import { toHex } from "../utils";
 
 // VM Table element types
 interface VmLabel {
@@ -23,7 +42,7 @@ interface VmVariable {
 // VM Component types
 interface VmMemory {
     instructions: string[];
-    text: DecodedInstruction[];
+    text: DecodedExecutableInstruction[];
     memory: Uint8Array;
 }
 
@@ -253,7 +272,7 @@ class Vm {
     /**
      * Decode each instruction loaded into the VM and do the following:
      * - Fill text section of VM memory(`DecodedInstruction.type` in text
-     * is guaranteed neither `"ERROR"` nor `"EMPTY"`)
+     * is guaranteed to be none of `"LABEL", "FUNCTION", "ERROR", "EMPTY"`)
      * - Construct label table
      * - Construct function table
      * - Check the existence of main function
@@ -266,7 +285,11 @@ class Vm {
     private decodeInstructions() {
         // Go through each line of IR code
         for (let i = 0; i < this.memory.instructions.length; i++) {
-            const decoded = this.decoder.decode(this.memory.instructions[i], i);
+            const decoded = this.decoder.decode(
+                this.memory.instructions[i],
+                i + 1
+            );
+
             if (decoded.type === "EMPTY") {
                 continue;
             }
@@ -290,7 +313,6 @@ class Vm {
                 continue;
             }
 
-            this.memory.text.push(decoded);
             const currentAddress = new Uint32(this.memory.text.length - 1);
 
             switch (decoded.type) {
@@ -306,6 +328,11 @@ class Vm {
                         {
                             address: currentAddress
                         };
+                    break;
+                default:
+                    this.memory.text.push(
+                        decoded as DecodedExecutableInstruction
+                    );
                     break;
             }
         }
@@ -339,6 +366,8 @@ class Vm {
         this.memory.memory = new Uint8Array(this.options.memorySize).fill(
             Math.random() * 256
         );
+
+        // esp initially points to one byte outside
         this.registers.esp = new Uint32(this.options.memorySize);
 
         for (const i of this.memory.text) {
@@ -348,10 +377,9 @@ class Vm {
                 if (
                     !this.checkGlobalVariableSegmentSize(decodedGlobalDec.size)
                 ) {
-                    this.executionStatus.messages.push({
+                    this.recordRuntimeError({
                         key: "GLOBAL_VARIABLE_SEGMENT_OVERFLOW"
                     });
-                    this.executionStatus.state = "RUNTIME_ERROR";
                     return;
                 }
 
@@ -427,12 +455,106 @@ class Vm {
         return true;
     }
 
+    private recordRuntimeError(message: FormattableMessage) {
+        this.executionStatus.messages.push(
+            {
+                key: "RUNTIME_ERROR_PREFIX",
+                values: {
+                    lineNumber:
+                        this.memory.text[this.registers.eip.value].lineNumber
+                }
+            },
+            message
+        );
+
+        this.executionStatus.state = "RUNTIME_ERROR";
+    }
+
+    /**
+     * Get the Int32 or Uint32 value of given singular. If the singular
+     * contains an `ID` which can't be found, or `*ID` caused an MMU
+     * `OUT_OF_BOUND` error, `null` is returned and error info will be set.
+     * @param singular - The Singular object.
+     * @returns An `Aint32` value or `null`
+     * @public
+     */
+    private getSingularValue(singular: Singular): Aint32 | null {
+        switch (singular.type) {
+            case "IMM":
+                return singular.imm!;
+            default: {
+                let variable: VmVariable;
+                if (
+                    this.tables.variableTableStack.length > 0 &&
+                    singular.id! in
+                        this.tables.variableTableStack[
+                            this.tables.variableTableStack.length - 1
+                        ]
+                ) {
+                    variable =
+                        this.tables.variableTableStack[
+                            this.tables.variableTableStack.length - 1
+                        ][singular.id!];
+                } else if (singular.id! in this.tables.globalVariableTable) {
+                    variable = this.tables.globalVariableTable[singular.id!];
+                } else {
+                    this.recordRuntimeError({
+                        key: "VARIABLE_NOT_FOUND",
+                        values: {
+                            id: singular.id!
+                        }
+                    });
+
+                    return null;
+                }
+
+                if (singular.type === "ADDRESS_ID") {
+                    return variable.address;
+                }
+
+                const value = this.mmu.load32(
+                    variable.address,
+                    this.memory.memory
+                );
+                if (value.status === "OUT_OF_BOUND") {
+                    this.recordRuntimeError({
+                        key: "MEMORY_READ_OUT_OF_BOUND",
+                        values: {
+                            address: toHex(variable.address)
+                        }
+                    });
+
+                    return null;
+                }
+
+                if (singular.type === "ID") {
+                    return value.value!;
+                }
+
+                const derefValue = this.mmu.load32(
+                    value.value!,
+                    this.memory.memory
+                );
+                if (derefValue.status === "OUT_OF_BOUND") {
+                    this.recordRuntimeError({
+                        key: "MEMORY_READ_OUT_OF_BOUND",
+                        values: {
+                            address: toHex(value.value!)
+                        }
+                    });
+
+                    return null;
+                }
+
+                return derefValue.value!;
+            }
+        }
+    }
+
     /**
      * Execute single step.
      * If a runtime error is detected, `this.executionStatus.state` will be set to
      * `"RUNTIME_ERROR"` with error message set.
-     *
-     * Note that runtime errors are not examined here.
      * @public
      */
     executeSingleStep() {
@@ -442,6 +564,15 @@ class Vm {
 
         if (this.executionStatus.state !== "FREE") {
             return;
+        }
+
+        for (let i = 0; i < this.memory.text.length; i++) {
+            const ir = this.memory.text[i];
+            switch (ir.type) {
+                case "ARG": {
+                    const value = <DecodedArg>ir.value;
+                }
+            }
         }
     }
 }
