@@ -145,7 +145,7 @@ type DecodedInstructionNoMeta = Omit<DecodedInstruction, "lineNumber">;
 /**
  * Decoder breaks down an IR instruction
  */
-class Decoder {
+export class Decoder {
     // Named group is an ES2018 feature and we want some polyfill.
     private readonly patternId = new RegExp(/^(?<id>[a-zA-Z_]\\w*)$/);
 
