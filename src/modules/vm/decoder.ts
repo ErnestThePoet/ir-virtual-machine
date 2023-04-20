@@ -116,7 +116,7 @@ type InstructionType =
     | "EMPTY"
     | "ERROR";
 
-export type ExecutableInstructionType = Exclude<
+type ExecutableInstructionType = Exclude<
     InstructionType,
     "FUNCTION" | "LABEL" | "EMPTY" | "ERROR"
 >;
@@ -137,11 +137,21 @@ type InstructionValue =
     | DecodedRead
     | DecodedWrite;
 
+type ExecutableInstructionValue = Exclude<
+    InstructionValue,
+    DecodedFunction | DecodedLabel
+>;
+
 export interface DecodedInstruction {
     type: InstructionType;
     lineNumber: number; // Line number in original instruction sequence
     messageKey?: AppLocaleKey;
     value?: InstructionValue;
+}
+
+export interface DecodedExecutableInstruction extends DecodedInstruction {
+    type: ExecutableInstructionType;
+    value?: ExecutableInstructionValue;
 }
 
 type DecodedInstructionNoMeta = Omit<DecodedInstruction, "lineNumber">;
