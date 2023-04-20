@@ -40,7 +40,7 @@ export class Alu {
     /**
      * Performs int32 division operation on given operands.
      * @param a - The left operand.
-     * @param b - The right operand.
+     * @param b - The right operand. Vm checks whether b===0
      * @returns (int32)((int32)a / (int32)b)
      * @public
      */
@@ -84,7 +84,7 @@ export class Alu {
     /**
      * Performs uint32 division operation on given operands.
      * @param a - The left operand.
-     * @param b - The right operand.
+     * @param b - The right operand. Vm checks whether b===0
      * @returns (uint32)((uint32)a / (uint32)b)
      * @public
      */
