@@ -34,7 +34,9 @@ export class Alu {
      * @public
      */
     mulInt32(a: Int32, b: Int32): Int32 {
-        return new Int32(a.value * b.value);
+        return new Int32(
+            this.mulUint32(new Uint32(a.value), new Uint32(b.value)).value
+        );
     }
 
     /**
@@ -78,7 +80,22 @@ export class Alu {
      * @public
      */
     mulUint32(a: Uint32, b: Uint32): Uint32 {
-        return new Uint32(a.value * b.value);
+        // We must limit each step of our calculation within 2^53 to
+        // avoid precision loss. So we perform 16bit multiplication.
+        // a*b
+        // = (ah*2^16+al)*(bh*2^16+bl)
+        // = (ah*bh*2^32)+(ah*bl*2^16)+(al*bh*2^16)+(al*bl)
+        //   [64bit, lowest 32bit are 0s]
+        //   [48bit, lowest 16bit are 0s]
+        //   [48bit, lowest 16bit are 0s]
+        //   [32bit]
+        // = (ah*bl*2^16)+(al*bh*2^16)+(al*bl)
+        // = (ah*bl+al*bh)*2^16+al*bl
+        const ah = (a.value & 0xffff0000) >>> 16;
+        const al = a.value & 0x0000ffff;
+        const bh = (b.value & 0xffff0000) >>> 16;
+        const bl = b.value & 0x0000ffff;
+        return new Uint32(((ah * bl + al * bh) << 16) + al * bl);
     }
 
     /**
