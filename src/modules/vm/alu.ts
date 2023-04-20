@@ -1,6 +1,4 @@
-import { Aint32 } from "./data_types/aint32";
-import { Int32 } from "./data_types/int32";
-import { Uint32 } from "./data_types/uint32";
+import { Aint32, Int32, Uint32 } from "./data_types";
 
 /**
  * Offers arithmetic and logic computation functionalties

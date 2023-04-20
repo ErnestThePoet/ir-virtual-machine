@@ -1,5 +1,4 @@
-import { Int32 } from "./data_types/int32";
-import { Uint32 } from "./data_types/uint32";
+import { Int32, Uint32 } from "./data_types";
 import type { AppLocaleKey } from "@/locales";
 
 // Component types

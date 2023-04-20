@@ -1,4 +1,4 @@
-import { Uint32 } from "./data_types/uint32";
+import { Uint32 } from "./data_types";
 
 type MmuLoadStatus = "SUCCESS" | "OUT_OF_BOUND";
 type MmuStoreStatus = "SUCCESS" | "OUT_OF_BOUND";

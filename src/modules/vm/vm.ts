@@ -1,5 +1,4 @@
-import { Aint32 } from "./data_types/aint32";
-import { Uint32 } from "./data_types/uint32";
+import { Aint32, Uint32 } from "./data_types";
 import { Alu } from "./alu";
 import { Mmu } from "./mmu";
 import { Decoder } from "./decoder";
