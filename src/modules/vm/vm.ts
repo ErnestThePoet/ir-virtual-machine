@@ -472,7 +472,7 @@ class Vm {
 
     /**
      * Get the Int32 or Uint32 value of given singular. If the singular
-     * contains an `ID` which can't be found, or `*ID` caused an MMU
+     * contains an `ID` which can't be found, or memory reading caused an MMU
      * `OUT_OF_BOUND` error, `null` is returned and error info will be set.
      * @param singular - The Singular object.
      * @returns An `Aint32` value or `null`
