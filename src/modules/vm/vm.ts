@@ -1,9 +1,10 @@
 import { Aint32, Uint32 } from "./data_types";
 import { Alu } from "./alu";
 import { Mmu } from "./mmu";
-import { Decoder } from "./decoder";
+import { DecodedGlobalDec, DecodedLabel, Decoder } from "./decoder";
+import type { DecodedFunction } from "./decoder";
 import type { DecodedInstruction } from "./decoder";
-import type { AppLocaleKey } from "@/locales";
+import type { AppLocaleKey, FormattableMessage } from "@/locales";
 
 // VM Table element types
 interface VmLabel {
@@ -48,13 +49,16 @@ type VmExecutionState =
     | "INITIAL"
     | "BUSY"
     | "FREE" // 2023.04.18-22:20 就在刚才，我收到她的消息了。我的心情复杂而又幸福。我感到圆满了。一切都值了。请允许我把此时此刻的感受永远记录在这里——与本项目无关。
+    | "STATIC_CHECK_FAILED"
+    | "RUNTIME_ERROR"
     | "EXITED_NORMALLY"
     | "EXITED_ABNORMALLY";
 
 interface VmExecutionStatus {
     stepCount: number;
     state: VmExecutionState;
-    messageKeys: AppLocaleKey[];
+    messages: FormattableMessage[];
+    staticErrors: { [lineNumber: string | number]: AppLocaleKey };
 }
 
 // IrVm uses a custom calling convention called "irdecl".
@@ -88,7 +92,8 @@ const initialTables: VmTables = {
 const initialExecutionStatus: VmExecutionStatus = {
     stepCount: 0,
     state: "INITIAL",
-    messageKeys: []
+    messages: [],
+    staticErrors: {}
 };
 
 // VM Options type
@@ -103,6 +108,7 @@ type VmOptionsPartial = Partial<VmOptions>;
 type VmNumberOptionKeys = {
     [K in keyof VmOptions]: VmOptions[K] extends number ? K : never;
 }[keyof VmOptions];
+
 const vmOptionLimits: {
     [K in VmNumberOptionKeys]: { min: number; max: number };
 } = {
@@ -192,19 +198,83 @@ class Vm {
      *
      * If successful, `this.executionStatus.state` will be set to `"FREE"`;
      * If an error is detected, `this.executionStatus.state` will be set to
-     * `"EXITED_ABNORMALLY"` with message keys in `this.executionStatus.messageKeys`.
+     * `"STATIC_CHECK_FAILED"` with error message(s) set.
      *
      * Note that runtime errors are not examined here.
      * @public
      */
-    preprocessInstructions() {
+    decodeInstructions() {
         if (this.executionStatus.state != "INITIAL") {
             return;
         }
         // Go through each line of IR code
-        this.memory.instructions.forEach((x, i) => {
-            const decoded = this.decoder.decode(x, i);
-        });
+        for (let i = 0; i < this.memory.instructions.length; i++) {
+            const decoded = this.decoder.decode(this.memory.instructions[i], i);
+            if (decoded.type === "EMPTY") {
+                continue;
+            }
+
+            if (decoded.type === "ERROR") {
+                this.executionStatus.state = "STATIC_CHECK_FAILED";
+
+                this.executionStatus.messages.push({
+                    key: "DECODE_ERROR_PREFIX",
+                    values: {
+                        lineNumber: i + 1
+                    }
+                });
+
+                this.executionStatus.messages.push({
+                    key: decoded.messageKey!
+                });
+
+                this.executionStatus.staticErrors[i] = decoded.messageKey!;
+
+                continue;
+            }
+
+            this.memory.text.push(decoded);
+            const currentAddress = new Uint32(this.memory.text.length - 1);
+
+            switch (decoded.type) {
+                case "FUNCTION":
+                    this.tables.functionTable[
+                        (<DecodedFunction>decoded.value!).id
+                    ] = {
+                        address: currentAddress
+                    };
+                    break;
+                case "LABEL":
+                    this.tables.labelTable[(<DecodedLabel>decoded.value!).id] =
+                        {
+                            address: currentAddress
+                        };
+                    break;
+                case "GLOBAL_DEC":
+                    this.tables.globalVariableTable[
+                        (<DecodedGlobalDec>decoded.value!).id
+                    ] = {
+                        address: currentAddress,
+                        size: (<DecodedGlobalDec>decoded.value!).size,
+                        location: "BSS"
+                    };
+                    break;
+            }
+        }
+
+        if (!("main" in this.tables.functionTable)) {
+            this.executionStatus.state = "STATIC_CHECK_FAILED";
+
+            this.executionStatus.messages.push({
+                key: "NO_MAIN_FUNCTION"
+            });
+
+            return;
+        }
+
+        if (this.executionStatus.state === "INITIAL") {
+            this.executionStatus.state = "FREE";
+        }
     }
 }
 

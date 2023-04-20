@@ -3,6 +3,7 @@ const zhCn = {
     APP_TITLE: "编译原理IR虚拟机",
 
     // Static error check messages
+    DECODE_ERROR_PREFIX: "[第{lineNumber}行]指令解码错误：",
     UNRECOGNIZED_INSTRUCTION: "无法识别的IR指令",
     ILLEGAL_INSTRUCTION_FORMAT: "指令格式非法",
     FUNCTION_ILLEGAL_ID: "FUNCTION指令函数名非法",
@@ -28,7 +29,8 @@ const zhCn = {
     PARAM_ILLEGAL_ID: "PARAM指令形参名非法",
     RETURN_ILLEGAL: "RETURN指令一元值返回值非法",
     READ_ILLEGAL: "提供给READ函数的写入目标非法",
-    WRITE_ILLEGAL: "提供给WRITE函数的一元值非法"
+    WRITE_ILLEGAL: "提供给WRITE函数的一元值非法",
+    NO_MAIN_FUNCTION: "未定义main函数"
 };
 
 export default zhCn;
