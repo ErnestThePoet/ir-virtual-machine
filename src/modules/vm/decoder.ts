@@ -137,11 +137,6 @@ type InstructionValue =
     | DecodedRead
     | DecodedWrite;
 
-type ExecutableInstructionValue = Exclude<
-    InstructionValue,
-    DecodedFunction | DecodedLabel
->;
-
 export interface DecodedInstruction {
     type: InstructionType;
     lineNumber: number; // Line number in original instruction sequence
@@ -151,7 +146,7 @@ export interface DecodedInstruction {
 
 export interface DecodedExecutableInstruction extends DecodedInstruction {
     type: ExecutableInstructionType;
-    value?: ExecutableInstructionValue;
+    value?: InstructionValue;
 }
 
 type DecodedInstructionNoMeta = Omit<DecodedInstruction, "lineNumber">;
