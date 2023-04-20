@@ -13,8 +13,16 @@ test("(int32)-15", () => {
     expect(new Int32(-15).value).toEqual(-15);
 });
 
+test("(int32)2147483647", () => {
+    expect(new Int32(2147483647).value).toEqual(2147483647);
+});
+
 test("(int32)2147483648", () => {
     expect(new Int32(2147483648).value).toEqual(-2147483648);
+});
+
+test("(int32)-2147483648", () => {
+    expect(new Int32(-2147483648).value).toEqual(-2147483648);
 });
 
 test("(int32)-2147483649", () => {
@@ -31,6 +39,10 @@ test("(uint32)0", () => {
 
 test("(uint32)-1", () => {
     expect(new Uint32(-1).value).toEqual(4294967295);
+});
+
+test("(uint32)4294967295", () => {
+    expect(new Uint32(4294967295).value).toEqual(4294967295);
 });
 
 test("(uint32)4294967296", () => {
