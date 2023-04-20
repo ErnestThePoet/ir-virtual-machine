@@ -150,15 +150,23 @@ class Vm {
      * @public
      */
     configure(options: VmOptionsPartial) {
-        if (options.maxExecutionStepCount !== undefined) {
-            options.maxExecutionStepCount = Math.max(
-                options.maxExecutionStepCount,
-                vmOptionLimits.maxExecutionStepCount.min
-            );
+        const limitRange = (x: number, limit: { min: number; max: number }) => {
+            x = Math.max(x, limit.min);
+            x = Math.min(x, limit.max);
+            return x;
+        };
 
-            options.maxExecutionStepCount = Math.min(
+        if (options.maxExecutionStepCount !== undefined) {
+            options.maxExecutionStepCount = limitRange(
                 options.maxExecutionStepCount,
-                vmOptionLimits.maxExecutionStepCount.max
+                vmOptionLimits.maxExecutionStepCount
+            );
+        }
+
+        if (options.stackSize !== undefined) {
+            options.stackSize = limitRange(
+                options.stackSize,
+                vmOptionLimits.stackSize
             );
         }
 
