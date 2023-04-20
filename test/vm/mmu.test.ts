@@ -1,6 +1,6 @@
 import { test, expect } from "@jest/globals";
 import { Mmu } from "../../src/modules/vm/mmu";
-import { Uint32, Int32 } from "../../src/modules/vm/data_types";
+import { Uint32 } from "../../src/modules/vm/data_types";
 
 const mmu = new Mmu();
 
