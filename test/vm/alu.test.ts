@@ -55,6 +55,10 @@ test("(int32)-2147483648-(int32)1===(int32)2147483647", () => {
 });
 
 // mulInt32
+test("(int32)0*(int32)7===(int32)0", () => {
+    expect(alu.mulInt32(new Int32(0), new Int32(7))).toEqual(new Int32(0));
+});
+
 test("(int32)5*(int32)7===(int32)35", () => {
     expect(alu.mulInt32(new Int32(5), new Int32(7))).toEqual(new Int32(35));
 });
@@ -78,6 +82,10 @@ test("(int32)-50000*(int32)-70000===(int32)-794967296", () => {
 });
 
 // divInt32
+test("(int32)0/(int32)7===(int32)0", () => {
+    expect(alu.divInt32(new Int32(0), new Int32(7))).toEqual(new Int32(0));
+});
+
 test("(int32)5/(int32)7===(int32)0", () => {
     expect(alu.divInt32(new Int32(5), new Int32(7))).toEqual(new Int32(0));
 });
@@ -129,4 +137,69 @@ test("(uint32)4294967295+(uint32)1===(uint32)0", () => {
     expect(alu.addUint32(new Uint32(4294967295), new Uint32(1))).toEqual(
         new Uint32(0)
     );
+});
+
+// subUint32
+test("(uint32)0-(uint32)1===(uint32)4294967295", () => {
+    expect(alu.subUint32(new Uint32(0), new Uint32(1))).toEqual(
+        new Uint32(4294967295)
+    );
+});
+
+test("(uint32)7-(uint32)5===(uint32)2", () => {
+    expect(alu.subUint32(new Uint32(7), new Uint32(5))).toEqual(new Uint32(2));
+});
+
+// mulUint32
+test("(uint32)0*(uint32)7===(uint32)0", () => {
+    expect(alu.mulUint32(new Uint32(0), new Uint32(7))).toEqual(new Uint32(0));
+});
+
+test("(uint32)5*(uint32)7===(uint32)35", () => {
+    expect(alu.mulUint32(new Uint32(5), new Uint32(7))).toEqual(new Uint32(35));
+});
+
+test("(uint32)50000*(uint32)700000===(uint32)640261632", () => {
+    expect(alu.mulUint32(new Uint32(50000), new Uint32(700000))).toEqual(
+        new Uint32(640261632)
+    );
+});
+
+test("(uint32)-50000*(uint32)700000===(uint32)3654705664", () => {
+    expect(alu.mulUint32(new Uint32(-50000), new Uint32(700000))).toEqual(
+        new Uint32(3654705664)
+    );
+});
+
+test("(uint32)-50000*(uint32)-700000===(uint32)640261632", () => {
+    expect(
+        alu.mulUint32(new Uint32(4294917296), new Uint32(4294267296))
+    ).toEqual(new Uint32(640261632));
+});
+
+// divUint32
+test("(uint32)0/(uint32)7===(uint32)0", () => {
+    expect(alu.divUint32(new Uint32(0), new Uint32(7))).toEqual(new Uint32(0));
+});
+
+test("(uint32)5/(uint32)7===(uint32)0", () => {
+    expect(alu.divUint32(new Uint32(5), new Uint32(7))).toEqual(new Uint32(0));
+});
+
+test("(uint32)-5/(uint32)7===(uint32)613566755", () => {
+    expect(alu.divUint32(new Uint32(-5), new Uint32(7))).toEqual(
+        new Uint32(613566755)
+    );
+});
+
+test("(uint32)5/(uint32)5===(uint32)1", () => {
+    expect(alu.divUint32(new Uint32(5), new Uint32(5))).toEqual(new Uint32(1));
+});
+
+test("(uint32)7/(uint32)5===(uint32)1", () => {
+    expect(alu.divUint32(new Uint32(7), new Uint32(5))).toEqual(new Uint32(1));
+});
+
+test("(uint32)12/(uint32)5===(uint32)2", () => {
+    expect(alu.divUint32(new Uint32(12), new Uint32(5))).toEqual(new Uint32(2));
 });
