@@ -32,7 +32,10 @@ const zhCn = {
     RETURN_ILLEGAL: "RETURN指令一元值返回值非法",
     READ_ILLEGAL: "提供给READ函数的写入目标非法",
     WRITE_ILLEGAL: "提供给WRITE函数的一元值非法",
-    NO_MAIN_FUNCTION: "未定义main函数"
+    NO_MAIN_FUNCTION: "未定义main函数",
+
+    // Runtime error messages
+    GLOBAL_VARIABLE_SEGMENT_OVERFLOW: "全局变量空间溢出"
 };
 
 export default zhCn;

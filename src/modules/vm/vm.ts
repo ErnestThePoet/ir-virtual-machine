@@ -15,24 +15,21 @@ interface VmFunction {
     address: Uint32;
 }
 
-type VmVariableLocation = "BSS" | "STACK";
-
 interface VmVariable {
     address: Uint32;
     size: Uint32;
-    location: VmVariableLocation;
 }
 
 // VM Component types
 interface VmMemory {
     instructions: string[];
     text: DecodedInstruction[];
-    bss: Uint8Array;
-    stack: Uint8Array;
+    memory: Uint8Array;
 }
 
 interface VmRegisters {
     eax: Uint32;
+    ebx: Uint32;
     ebp: Uint32;
     esp: Uint32;
     eip: Uint32;
@@ -61,22 +58,15 @@ interface VmExecutionStatus {
     staticErrors: { [lineNumber: string | number]: AppLocaleKey };
 }
 
-// IrVm uses a custom calling convention called "irdecl".
-// Description:
-// instructions is the storage area for raw string IR instructions
-// text is the storage area for decoded IR instructions
-// bss is the storage area for (uninitialized) global variables
-// stack is what we know as stack
-
 const initialMemory: VmMemory = {
     instructions: [],
     text: [],
-    bss: new Uint8Array([]),
-    stack: new Uint8Array([])
+    memory: new Uint8Array([])
 };
 
 const initialRegisters: VmRegisters = {
     eax: new Uint32(0),
+    ebx: new Uint32(0),
     ebp: new Uint32(0),
     esp: new Uint32(0),
     eip: new Uint32(0)
@@ -98,8 +88,8 @@ const initialExecutionStatus: VmExecutionStatus = {
 
 // VM Options type
 interface VmOptions {
-    checkDuplicateVariableName: boolean;
     maxExecutionStepCount: number;
+    memorySize: number;
     stackSize: number;
 }
 
@@ -116,6 +106,10 @@ const vmOptionLimits: {
         min: 100,
         max: 100000
     },
+    memorySize: {
+        min: 2 * 1024,
+        max: 2 * 1024 * 1024
+    },
     stackSize: {
         min: 1024,
         max: 1024 * 1024
@@ -123,13 +117,58 @@ const vmOptionLimits: {
 };
 
 const defaultOptions: VmOptions = {
-    checkDuplicateVariableName: true,
     maxExecutionStepCount: 3000,
-    stackSize: 1024
+    memorySize: 4 * 1024,
+    stackSize: 2 * 1024
 };
 
 /**
  * An IR Virtual Machine instance.
+ *
+ * Registers:
+ * eax - pass return values
+ * ebx - indicate top address of global variable segment
+ * ebp
+ * esp
+ * eip
+ *
+ * Memory layout(memory.memory) of a running IR VM:
+ * ----------------------------------
+ * |                                | <- options.memorySize-1
+ * |             Stack              |
+ * |                                |
+ * |           Grows down           |
+ * |         v     v     v          | <- esp
+ * |--------------------------------|
+ * |
+ * |
+ * |
+ * |
+ * |--------------------------------|
+ * |                                | <- ebx
+ * |    Global variable segment     |
+ * |                                | <- 0
+ * |--------------------------------|
+ *
+ * IrVm uses cdecl calling convention.
+ * The stack layout when calling a new function is like below.
+ * |--------------------------------|
+ * |           Saved eax            |
+ * |--------------------------------|
+ * |             Arg n              |
+ * |--------------------------------|
+ * |              ...               |
+ * |--------------------------------|
+ * |             Arg 0              |
+ * |--------------------------------|
+ * |         Return address         |
+ * |--------------------------------|
+ * |          Saved ebp             |
+ * |--------------------------------|
+ * |                                |
+ * |          Local vars            |
+ * |                                |
+ * |              ...               |
  */
 class Vm {
     private alu: Alu = new Alu();
@@ -161,6 +200,17 @@ class Vm {
                 options.maxExecutionStepCount,
                 vmOptionLimits.maxExecutionStepCount
             );
+
+            this.options.maxExecutionStepCount = options.maxExecutionStepCount;
+        }
+
+        if (options.memorySize !== undefined) {
+            options.memorySize = limitRange(
+                options.memorySize,
+                vmOptionLimits.memorySize
+            );
+
+            this.options.memorySize = options.memorySize;
         }
 
         if (options.stackSize !== undefined) {
@@ -168,9 +218,14 @@ class Vm {
                 options.stackSize,
                 vmOptionLimits.stackSize
             );
-        }
 
-        Object.assign(this.options, options);
+            options.stackSize = limitRange(options.stackSize, {
+                min: vmOptionLimits.stackSize.min,
+                max: this.options.memorySize
+            });
+
+            this.options.stackSize = options.stackSize;
+        }
     }
 
     /**
@@ -179,8 +234,7 @@ class Vm {
      */
     reset() {
         Object.assign(this.memory.text, initialMemory.text);
-        Object.assign(this.memory.bss, initialMemory.bss);
-        Object.assign(this.memory.stack, initialMemory.stack);
+        Object.assign(this.memory.memory, initialMemory.memory);
         Object.assign(this.registers, initialRegisters);
         Object.assign(this.tables, initialTables);
         Object.assign(this.executionStatus, initialExecutionStatus);
@@ -197,24 +251,19 @@ class Vm {
     }
 
     /**
-     * Read instructions when the VM is in `"INITIAL"` state and do the following:
-     * - Decode instructions into text, reporting errors
+     * Decode each instruction loaded into the VM and do the following:
+     * - Fill text section of VM memory(`DecodedInstruction.type` in text
+     * is guaranteed neither `"ERROR"` nor `"EMPTY"`)
      * - Construct label table
      * - Construct function table
-     * - Construct global variable table
      * - Check the existence of main function
      *
-     * If successful, `this.executionStatus.state` will be set to `"FREE"`;
      * If an error is detected, `this.executionStatus.state` will be set to
      * `"STATIC_CHECK_FAILED"` with error message(s) set.
      *
      * Note that runtime errors are not examined here.
-     * @public
      */
-    decodeInstructions() {
-        if (this.executionStatus.state != "INITIAL") {
-            return;
-        }
+    private decodeInstructions() {
         // Go through each line of IR code
         for (let i = 0; i < this.memory.instructions.length; i++) {
             const decoded = this.decoder.decode(this.memory.instructions[i], i);
@@ -258,15 +307,6 @@ class Vm {
                             address: currentAddress
                         };
                     break;
-                case "GLOBAL_DEC":
-                    this.tables.globalVariableTable[
-                        (<DecodedGlobalDec>decoded.value!).id
-                    ] = {
-                        address: currentAddress,
-                        size: (<DecodedGlobalDec>decoded.value!).size,
-                        location: "BSS"
-                    };
-                    break;
             }
         }
 
@@ -279,9 +319,129 @@ class Vm {
 
             return;
         }
+    }
 
+    /**
+     * Initialize register eip and ebp to program entry;
+     * allocate, initialize global variables and construct global variable table.
+     */
+    private initializeMemoryRegister() {
+        this.registers.ebp = this.alu.addUint32(
+            this.tables.functionTable["main"].address,
+            new Uint32(1)
+        );
+        this.registers.eip = this.alu.addUint32(
+            this.tables.functionTable["main"].address,
+            new Uint32(1)
+        );
+
+        // Fill memory with a random number
+        this.memory.memory = new Uint8Array(this.options.memorySize).fill(
+            Math.random() * 256
+        );
+        this.registers.esp = new Uint32(this.options.memorySize);
+
+        for (const i of this.memory.text) {
+            if (i.type === "GLOBAL_DEC") {
+                const decodedGlobalDec = <DecodedGlobalDec>i.value;
+
+                if (
+                    !this.checkGlobalVariableSegmentSize(decodedGlobalDec.size)
+                ) {
+                    this.executionStatus.messages.push({
+                        key: "GLOBAL_VARIABLE_SEGMENT_OVERFLOW"
+                    });
+                    this.executionStatus.state = "RUNTIME_ERROR";
+                    return;
+                }
+
+                this.memory.memory
+                    .subarray(
+                        this.registers.ebx.value,
+                        this.registers.ebx.value + decodedGlobalDec.size.value
+                    )
+                    .fill(0);
+
+                this.tables.globalVariableTable[decodedGlobalDec.id] = {
+                    size: decodedGlobalDec.size,
+                    address: this.registers.ebx
+                };
+
+                this.registers.ebx = this.alu.addUint32(
+                    this.registers.ebx,
+                    decodedGlobalDec.size
+                );
+            }
+        }
+    }
+
+    /**
+     * Prepare the VM to execute first instruction.
+     *
+     * If successful, `this.executionStatus.state` will be set to `"FREE"`;
+     * If an error is detected, `this.executionStatus.state` and error message(s) will be set.
+     */
+    private prepareExcution() {
+        this.decodeInstructions();
+
+        if (this.executionStatus.state !== "INITIAL") {
+            return;
+        }
+
+        this.initializeMemoryRegister();
+
+        if (this.executionStatus.state !== "INITIAL") {
+            return;
+        }
+
+        this.executionStatus.state = "FREE";
+    }
+
+    private checkStackSize(size: Uint32): boolean {
+        if (this.alu.ltUint32(this.registers.esp, size)) {
+            return false;
+        }
+
+        if (
+            this.alu.leUint32(
+                this.alu.subUint32(this.registers.esp, size),
+                this.registers.ebx
+            )
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private checkGlobalVariableSegmentSize(size: Uint32) {
+        const newEbx = this.alu.addUint32(this.registers.ebx, size);
+        if (this.alu.geUint32(newEbx, this.registers.esp)) {
+            return false;
+        }
+
+        if (this.alu.geUint32(newEbx, new Uint32(this.options.memorySize))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Execute single step.
+     * If a runtime error is detected, `this.executionStatus.state` will be set to
+     * `"RUNTIME_ERROR"` with error message set.
+     *
+     * Note that runtime errors are not examined here.
+     * @public
+     */
+    executeSingleStep() {
         if (this.executionStatus.state === "INITIAL") {
-            this.executionStatus.state = "FREE";
+            this.prepareExcution();
+        }
+
+        if (this.executionStatus.state !== "FREE") {
+            return;
         }
     }
 }
