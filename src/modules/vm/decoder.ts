@@ -134,7 +134,7 @@ type InstructionValue =
 
 export interface DecodedInstruction {
     type: InstructionType;
-    lineNumber: number;
+    lineNumber: number; // Line number in original instruction sequence
     messageKey?: AppLocaleKey;
     value?: InstructionValue;
 }
