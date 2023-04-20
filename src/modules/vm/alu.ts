@@ -45,7 +45,7 @@ export class Alu {
      * @public
      */
     divInt32(a: Int32, b: Int32): Int32 {
-        return new Int32(Math.floor(a.value / b.value));
+        return new Int32(a.value / b.value);
     }
 
     /**
@@ -89,7 +89,7 @@ export class Alu {
      * @public
      */
     divUint32(a: Uint32, b: Uint32): Uint32 {
-        return new Uint32(Math.floor(a.value / b.value));
+        return new Uint32(a.value / b.value);
     }
 
     /**
