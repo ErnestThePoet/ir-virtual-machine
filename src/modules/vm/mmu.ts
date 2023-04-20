@@ -5,7 +5,7 @@ type MmuStoreStatus = "SUCCESS" | "OUT_OF_BOUND";
 
 interface MmuLoadResult {
     status: MmuLoadStatus;
-    value: Uint32;
+    value?: Uint32;
 }
 
 interface MmuStoreResult {
@@ -26,8 +26,7 @@ export class Mmu {
     load32(address: Uint32, memory: Uint8Array): MmuLoadResult {
         if (address.value + 4 > memory.length) {
             return {
-                status: "OUT_OF_BOUND",
-                value: new Uint32(0)
+                status: "OUT_OF_BOUND"
             };
         }
 
