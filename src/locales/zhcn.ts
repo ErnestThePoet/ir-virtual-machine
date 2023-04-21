@@ -3,7 +3,7 @@ const zhCn = {
     APP_TITLE: "编译原理IR虚拟机",
 
     // Static error check messages
-    DECODE_ERROR_PREFIX: "[第{lineNumber}行]指令解码错误：",
+    DECODE_ERROR_PREFIX: "指令解码错误(第{lineNumber}行)：",
     UNRECOGNIZED_INSTRUCTION: "无法识别的IR指令",
     ILLEGAL_INSTRUCTION_FORMAT: "指令格式非法",
     FUNCTION_ILLEGAL_ID: "FUNCTION指令函数名非法",
@@ -35,12 +35,21 @@ const zhCn = {
     NO_MAIN_FUNCTION: "未定义main函数",
 
     // Runtime error messages
-    RUNTIME_ERROR_PREFIX: "[第{lineNumber}行]运行时错误：",
+    RUNTIME_ERROR_PREFIX: "运行时错误(第{lineNumber}行)：",
     GLOBAL_VARIABLE_SEGMENT_OVERFLOW: "全局变量空间溢出",
     STACK_OVERFLOW: "栈空间溢出",
     VARIABLE_NOT_FOUND: "找不到变量'{id}'",
     MEMORY_READ_OUT_OF_BOUND: "向地址{address}写入4字节时超出了地址空间",
-    MEMORY_WRITE_OUT_OF_BOUND: "从地址{address}读入4字节时超出了地址空间"
+    MEMORY_WRITE_OUT_OF_BOUND: "从地址{address}读入4字节时超出了地址空间",
+
+    // Other error messages
+    MAX_STEP_REACHED: "已到达最大执行步数限制({maxExecutionStepCount})",
+    EXITED_ABNORMALLY: "程序执行结束，返回值为{value}",
+
+    // Console normal messages
+    WRITE_OUTPUT: "{value}",
+    READ_PROMPT: "请输入{id}的值：",
+    EXITED_NORMALLY: "程序执行结束，返回值为0"
 };
 
 export default zhCn;
