@@ -118,7 +118,7 @@ type InstructionType =
 
 type ExecutableInstructionType = Exclude<
     InstructionType,
-    "FUNCTION" | "LABEL" | "EMPTY" | "ERROR"
+    "LABEL" | "EMPTY" | "ERROR"
 >;
 
 type InstructionValue =

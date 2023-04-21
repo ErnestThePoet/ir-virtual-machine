@@ -51,6 +51,7 @@ interface VmMemory {
 interface VmRegisters {
     eax: Uint32;
     ebx: Uint32;
+    ecx: Uint32;
     ebp: Uint32;
     esp: Uint32;
     eip: Uint32;
@@ -90,6 +91,7 @@ const initialMemory: VmMemory = {
 const initialRegisters: VmRegisters = {
     eax: new Uint32(0),
     ebx: new Uint32(0),
+    ecx: new Uint32(0),
     ebp: new Uint32(0),
     esp: new Uint32(0),
     eip: new Uint32(0)
@@ -158,7 +160,8 @@ const defaultOptions: VmOptions = {
  *
  * Registers:
  * eax - counts total function arg size
- * ebx - indicate top address of global variable segment
+ * ebx - indicates current function param address
+ * ecx - indicates top address of global variable segment
  * ebp
  * esp
  * eip
@@ -176,7 +179,7 @@ const defaultOptions: VmOptions = {
  * |
  * |
  * |--------------------------------|
- * |                                | <- ebx
+ * |                                | <- ecx
  * |    Global variable segment     |
  * |                                | <- 0
  * |--------------------------------|
@@ -184,15 +187,15 @@ const defaultOptions: VmOptions = {
  * IrVm uses cdecl calling convention.
  * The stack layout when calling a new function is like below.
  * |--------------------------------|
- * |             Arg n              |
+ * |             Arg n              | <- ebx at last PARAM in current function
  * |--------------------------------|
  * |              ...               |
  * |--------------------------------|
- * |             Arg 0              |
+ * |             Arg 0              | <- ebx at first PARAM in current function
  * |--------------------------------|
  * |         Return address         |
  * |--------------------------------|
- * |          Saved ebp             |
+ * |          Saved ebp             | <- new ebp
  * |--------------------------------|
  * |                                |
  * |          Local vars            |
@@ -289,8 +292,7 @@ export class Vm {
 
     /**
      * Decode each instruction loaded into the VM and do the following:
-     * - Fill text section of VM memory(`DecodedInstruction.type` in text
-     * is guaranteed to be none of `"LABEL", "FUNCTION", "ERROR", "EMPTY"`)
+     * - Fill text section of VM memory
      * - Construct label table
      * - Construct function table
      * - Check the existence of main function
@@ -338,19 +340,19 @@ export class Vm {
             const currentAddress = new Uint32(this.memory.text.length - 1);
 
             switch (decoded.type) {
-                case "FUNCTION":
-                    this.tables.functionTable[
-                        (<DecodedFunction>decoded.value!).id
-                    ] = {
-                        addressBefore: currentAddress
-                    };
-                    break;
                 case "LABEL":
                     this.tables.labelTable[(<DecodedLabel>decoded.value!).id] =
                         {
                             addressBefore: currentAddress
                         };
                     break;
+                case "FUNCTION":
+                    this.tables.functionTable[
+                        (<DecodedFunction>decoded.value!).id
+                    ] = {
+                        addressBefore: currentAddress
+                    };
+                // FUNCTION is also added to text
                 default:
                     this.memory.text.push(
                         decoded as DecodedExecutableInstruction
@@ -377,7 +379,8 @@ export class Vm {
 
     /**
      * Initialize register eip and ebp to program entry;
-     * allocate, initialize global variables and construct global variable table.
+     * allocate, initialize global variables and construct global variable table;
+     * push main function's special return address to stack
      */
     private initializeMemoryRegister() {
         this.registers.ebp = this.alu.addUint32(
@@ -397,6 +400,11 @@ export class Vm {
         // esp initially points to one byte outside
         this.registers.esp = new Uint32(this.options.memorySize);
 
+        // push this.memory.text.length as main's special return address
+        if (!this.pushl(new Uint32(this.memory.text.length))) {
+            return;
+        }
+
         for (const i of this.memory.text) {
             if (i.type === "GLOBAL_DEC") {
                 const decodedGlobalDec = <DecodedGlobalDec>i.value;
@@ -412,18 +420,18 @@ export class Vm {
 
                 this.memory.memory
                     .subarray(
-                        this.registers.ebx.value,
-                        this.registers.ebx.value + decodedGlobalDec.size.value
+                        this.registers.ecx.value,
+                        this.registers.ecx.value + decodedGlobalDec.size.value
                     )
                     .fill(0);
 
                 this.tables.globalVariableTable[decodedGlobalDec.id] = {
                     size: decodedGlobalDec.size,
-                    address: this.registers.ebx
+                    address: this.registers.ecx
                 };
 
-                this.registers.ebx = this.alu.addUint32(
-                    this.registers.ebx,
+                this.registers.ecx = this.alu.addUint32(
+                    this.registers.ecx,
                     decodedGlobalDec.size
                 );
             }
@@ -486,7 +494,7 @@ export class Vm {
         if (
             this.alu.leUint32(
                 this.alu.subUint32(this.registers.esp, size),
-                this.registers.ebx
+                this.registers.ecx
             )
         ) {
             return false;
@@ -496,7 +504,7 @@ export class Vm {
     }
 
     private checkGlobalVariableSegmentSize(size: Uint32) {
-        const newEbx = this.alu.addUint32(this.registers.ebx, size);
+        const newEbx = this.alu.addUint32(this.registers.ecx, size);
         if (this.alu.geUint32(newEbx, this.registers.esp)) {
             return false;
         }
@@ -793,6 +801,22 @@ export class Vm {
             return null;
         }
 
+        if (
+            id in
+            this.tables.variableTableStack[
+                this.tables.variableTableStack.length - 1
+            ]
+        ) {
+            this.writeRuntimeError({
+                key: "DUPLICATE_DEC_ID",
+                values: {
+                    id
+                }
+            });
+
+            return null;
+        }
+
         this.tables.variableTableStack[
             this.tables.variableTableStack.length - 1
         ][id] = variable;
@@ -931,79 +955,185 @@ export class Vm {
             return;
         }
 
-        for (let i = 0; i < this.memory.text.length; i++) {
-            const ir = this.memory.text[i];
-            switch (ir.type) {
-                case "ARG": {
-                    const value = this.getSingularValue(
-                        (<DecodedArg>ir.value).value
-                    );
-                    if (value === null || !this.pushl(value)) {
-                        return;
-                    }
+        if (
+            this.alu.geUint32(
+                this.registers.eip,
+                new Uint32(this.memory.text.length)
+            )
+        ) {
+            this.writeRuntimeError({
+                key: "INSTRUCTION_READ_OUT_OF_BOUND"
+            });
+            return;
+        }
 
-                    break;
+        const ir = this.memory.text[this.registers.eip.value];
+        switch (ir.type) {
+            case "ARG": {
+                const value = this.getSingularValue(
+                    (<DecodedArg>ir.value).value
+                );
+                if (value === null || !this.pushl(value)) {
+                    return;
                 }
-                case "ASSIGN": {
-                    const rValue = this.getRValue(
-                        (<DecodedAssign>ir.value).rValue
-                    );
-                    if (rValue === null) {
-                        return;
-                    }
 
-                    if (
-                        !this.assignLValue(
-                            (<DecodedAssign>ir.value).lValue,
-                            rValue
-                        )
-                    ) {
-                        return;
-                    }
-
-                    break;
+                break;
+            }
+            case "ASSIGN": {
+                const rValue = this.getRValue((<DecodedAssign>ir.value).rValue);
+                if (rValue === null) {
+                    return;
                 }
-                case "ASSIGN_CALL":
-                case "CALL": {
-                    const functionId =
-                        ir.type === "CALL"
-                            ? (<DecodedCall>ir.value).id
-                            : (<DecodedAssignCall>ir.value).functionId;
-                    if (!(functionId in this.tables.functionTable)) {
+
+                if (
+                    !this.assignLValue((<DecodedAssign>ir.value).lValue, rValue)
+                ) {
+                    return;
+                }
+
+                break;
+            }
+            case "ASSIGN_CALL":
+            case "CALL": {
+                const functionId =
+                    ir.type === "CALL"
+                        ? (<DecodedCall>ir.value).id
+                        : (<DecodedAssignCall>ir.value).functionId;
+                if (!(functionId in this.tables.functionTable)) {
+                    this.writeRuntimeError({
+                        key: "FUNCTION_NOT_FOUND",
+                        values: {
+                            id: functionId
+                        }
+                    });
+
+                    return;
+                }
+
+                // Set first arg address
+                this.registers.ebx = this.registers.esp;
+
+                // Push return address
+                if (!this.pushl(this.registers.eip)) {
+                    return;
+                }
+
+                if (ir.type === "ASSIGN_CALL") {
+                    this.tables.assignCallLValue = (<DecodedAssignCall>(
+                        ir.value
+                    )).lValue;
+                }
+
+                this.registers.eip =
+                    this.tables.functionTable[functionId].addressBefore;
+
+                break;
+            }
+
+            case "DEC": {
+                const variable = this.createStackVariable(
+                    (<DecodedDec>ir.value).id,
+                    (<DecodedDec>ir.value).size
+                );
+                if (variable === null) {
+                    return;
+                }
+
+                break;
+            }
+
+            case "FUNCTION": {
+                // pushl ebp
+                if (!this.pushl(this.registers.ebp)) {
+                    return;
+                }
+
+                // movl esp ebp
+                this.registers.ebp = this.registers.esp;
+
+                // Push new variable table
+                this.tables.variableTableStack.push({});
+
+                break;
+            }
+
+            case "GOTO": {
+                const labelId = (<DecodedGoto>ir.value).id;
+                if (!(labelId in this.tables.labelTable)) {
+                    this.writeRuntimeError({
+                        key: "LABEL_NOT_FOUND",
+                        values: {
+                            id: labelId
+                        }
+                    });
+
+                    return;
+                }
+
+                this.registers.eip =
+                    this.tables.labelTable[labelId].addressBefore;
+
+                break;
+            }
+            case "IF": {
+                const condValue = this.getCondValue(
+                    (<DecodedIf>ir.value).condition
+                );
+                if (condValue === null) {
+                    return;
+                }
+
+                if (condValue) {
+                    const gotoLabelId = (<DecodedIf>ir.value).gotoId;
+                    if (!(gotoLabelId in this.tables.labelTable)) {
                         this.writeRuntimeError({
-                            key: "FUNCTION_NOT_FOUND",
+                            key: "LABEL_NOT_FOUND",
                             values: {
-                                id: functionId
+                                id: gotoLabelId
                             }
                         });
 
                         return;
                     }
 
-                    // Push return address
-                    if (!this.pushl(this.registers.eip)) {
-                        return;
-                    }
-
-                    // Push ebp
-                    if (!this.pushl(this.registers.ebp)) {
-                        return;
-                    }
-
-                    // Push new variable table
-                    this.tables.variableTableStack.push({});
-
                     this.registers.eip =
-                        this.tables.functionTable[functionId].addressBefore;
-
-                    if (ir.type === "ASSIGN_CALL") {
-                        this.tables.assignCallLValue = (<DecodedAssignCall>(
-                            ir.value
-                        )).lValue;
-                    }
-
-                    break;
+                        this.tables.labelTable[gotoLabelId].addressBefore;
                 }
+
+                break;
+            }
+
+            case "PARAM": {
+                const paramId = (<DecodedParam>ir.value).id;
+                if (
+                    paramId in
+                    this.tables.variableTableStack[
+                        this.tables.variableTableStack.length - 1
+                    ]
+                ) {
+                    this.writeRuntimeError({
+                        key: "DUPLICATE_PARAM_ID",
+                        values: {
+                            id: paramId
+                        }
+                    });
+
+                    return;
+                }
+
+                this.tables.variableTableStack[
+                    this.tables.variableTableStack.length - 1
+                ][paramId] = {
+                    address: this.registers.ebx,
+                    size: new Uint32(4)
+                };
+
+                this.registers.ebx = this.alu.addUint32(
+                    this.registers.ebx,
+                    new Uint32(4)
+                );
+
+                break;
             }
         }
     }
