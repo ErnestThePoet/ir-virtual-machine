@@ -25,7 +25,7 @@ export interface RValue {
 }
 
 export interface CondValue {
-    singluarL: Singular;
+    singularL: Singular;
     binaryRelOp: BinaryRelOp;
     singularR: Singular;
 }
@@ -548,7 +548,7 @@ export class Decoder {
             type: "IF",
             value: <DecodedIf>{
                 condition: {
-                    singluarL: singular1,
+                    singularL: singular1,
                     singularR: singular2,
                     binaryRelOp: operator
                 },
