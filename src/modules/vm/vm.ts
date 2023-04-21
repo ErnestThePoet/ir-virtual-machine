@@ -292,7 +292,7 @@ export class Vm {
      * - Check the existence of main function
      *
      * If an error is detected, `this.executionStatus.state` will be set to
-     * `"STATIC_CHECK_FAILED"` with error message(s) set.
+     * `"STATIC_CHECK_FAILED"` with error message(s) written to console.
      *
      * Note that runtime errors are not examined here.
      */
@@ -430,7 +430,8 @@ export class Vm {
      * Prepare the VM to execute first instruction.
      *
      * If successful, `this.executionStatus.state` will be set to `"FREE"`;
-     * If an error is detected, `this.executionStatus.state` and error message(s) will be set.
+     * If an error is detected, `this.executionStatus.state` and error message(s)
+     * will be written to console.
      */
     private prepareExcution() {
         this.decodeInstructions();
@@ -449,9 +450,9 @@ export class Vm {
     }
 
     /**
-     * Push runtime error prefix(with line number) and given
-     * runtime error message to `this.executionStatus.messages`
-     * and set `this.executionStatus.messages` to `"RUNTIME_ERROR"`
+     * Set `this.executionStatus.messages` to `"RUNTIME_ERROR"`
+     * and write runtime error prefix(with line number) and given
+     * runtime error message to console.
      * @param message - The `FormattableMessage` object.
      */
     private recordRuntimeError(message: FormattableMessage) {
@@ -505,7 +506,7 @@ export class Vm {
 
     /**
      * Read an `Uint32` from memory at given address. If memory reading caused an MMU
-     * `OUT_OF_BOUND` error, `null` is returned and error info will be set.
+     * `OUT_OF_BOUND` error, `null` is returned and error will be written to console.
      * @param address - The memory read address.
      * @returns An `Uint32` value or `null`
      */
@@ -527,7 +528,7 @@ export class Vm {
 
     /**
      * Store an `Aint32` to memory at given address. If memory writing caused an MMU
-     * `OUT_OF_BOUND` error, `false` is returned and error info will be set.
+     * `OUT_OF_BOUND` error, `false` is returned and error will be written to console.
      * @param value - The `Aint32` value to be stored.
      * @param address - The memory write address.
      * @returns A `boolean` value indicating whether memory write is successful.
@@ -553,8 +554,9 @@ export class Vm {
     }
 
     /**
-     * Sub `esp` by 4 and store the given `Aint32` value on top of stack. If memory writing
-     * caused an MMU `OUT_OF_BOUND` error, `false` is returned and error info will be set.
+     * Sub `esp` by 4 and store the given `Aint32` value on top of stack. 
+     * If memory writing caused an MMU `OUT_OF_BOUND` error, `false` is 
+     * returned and error will be written to console.
      * @param value - The `Aint32` value to be pushed onto stack.
      * @returns A `boolean` value indicating whether push is successful.
      */
@@ -579,7 +581,8 @@ export class Vm {
 
     /**
      * Return the top `Uint32` on stack and add `esp` by `4`. If memory reading
-     * caused an MMU `OUT_OF_BOUND` error, `null` is returned and error info will be set.
+     * caused an MMU `OUT_OF_BOUND` error, `null` is returned and error will 
+     * be written to console.
      * @returns An `Uint32` value or `null`
      */
     private popl(): Uint32 | null {
@@ -597,8 +600,9 @@ export class Vm {
     }
 
     /**
-     * Search the given variable id in current local variable table and global variable table.
-     * and return it. If the id can't be found, `null` is returned and error info will be set.
+     * Search the given variable id in current local variable table and 
+     * global variable table, then return it. If the id can't be found, 
+     * `null` is returned and error will be written to console.
      * @param id - The variable id.
      * @returns A `VmVariable` value or `null`
      */
@@ -630,7 +634,7 @@ export class Vm {
     /**
      * Get the `Int32` or `Uint32` value of given singular. If the singular
      * contains an `ID` which can't be found, or memory reading caused an MMU
-     * `OUT_OF_BOUND` error, `null` is returned and error info will be set.
+     * `OUT_OF_BOUND` error, `null` is returned and error will be written to console.
      * @param singular - The Singular object.
      * @returns An `Aint32` value or `null`
      */
@@ -696,7 +700,7 @@ export class Vm {
     /**
      * Get the `Int32` or `Uint32` value of given `RValue`. If its singular
      * contains an `ID` which can't be found, or memory reading caused an MMU
-     * `OUT_OF_BOUND` error, `null` is returned and error info will be set.
+     * `OUT_OF_BOUND` error, `null` is returned and error will be written to console.
      * @param rValue - The `RValue` object.
      * @returns An `Aint32` value or `null`
      */
@@ -751,8 +755,9 @@ export class Vm {
 
     /**
      * Store the given `Aint32` value to the given `LValue`. If its singular
-     * contains an `ID` which can't be found, or memory writing caused an MMU
-     * `OUT_OF_BOUND` error, `false` is returned and error info will be set.
+     * contains an `ID` which can't be found, the variable will be immediately
+     * created. If memory writing caused an MMU `OUT_OF_BOUND` error, `false`
+     * is returned and error will be written to console.
      * @param lValue - The `LValue` object representing assignment target.
      * @param value - The `Aint32` object.
      * @returns A `boolean` value indicating whether assignment is successful
@@ -788,7 +793,7 @@ export class Vm {
     /**
      * Get the `boolean` result of given `CondValue`. If its singular
      * contains an `ID` which can't be found, or memory reading caused an MMU
-     * `OUT_OF_BOUND` error, `null` is returned and error info will be set.
+     * `OUT_OF_BOUND` error, `null` is returned and error will be written to console.
      * @param condValue - The `CondValue` object.
      * @returns A `boolean` result or `null`
      */
@@ -842,7 +847,7 @@ export class Vm {
     /**
      * Execute single step.
      * If a runtime error is detected, `this.executionStatus.state` will be set to
-     * `"RUNTIME_ERROR"` with error message set.
+     * `"RUNTIME_ERROR"` with error message written to console.
      * @public
      */
     executeSingleStep() {
@@ -902,6 +907,8 @@ export class Vm {
                         return;
                     }
                 }
+                case "ASSIGN_CALL":
+                case "CALL":
             }
         }
     }
