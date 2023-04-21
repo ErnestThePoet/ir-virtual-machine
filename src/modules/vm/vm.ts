@@ -471,40 +471,50 @@ class Vm {
     }
 
     /**
-     * Get the Int32 or Uint32 value of given singular. If the singular
+     * Search the given variable id in current local variable table and global variable table.
+     * and return it. If the id can't be found, `null` is returned and error info will be set.
+     * @param id - The variable id.
+     * @returns A `VmVariable` value or `null`
+     */
+    private getVariableById(id: string): VmVariable | null {
+        if (
+            this.tables.variableTableStack.length > 0 &&
+            id in
+                this.tables.variableTableStack[
+                    this.tables.variableTableStack.length - 1
+                ]
+        ) {
+            return this.tables.variableTableStack[
+                this.tables.variableTableStack.length - 1
+            ][id];
+        } else if (id in this.tables.globalVariableTable) {
+            return this.tables.globalVariableTable[id];
+        } else {
+            this.recordRuntimeError({
+                key: "VARIABLE_NOT_FOUND",
+                values: {
+                    id
+                }
+            });
+
+            return null;
+        }
+    }
+
+    /**
+     * Get the `Int32` or `Uint32` value of given singular. If the singular
      * contains an `ID` which can't be found, or memory reading caused an MMU
      * `OUT_OF_BOUND` error, `null` is returned and error info will be set.
      * @param singular - The Singular object.
      * @returns An `Aint32` value or `null`
-     * @public
      */
     private getSingularValue(singular: Singular): Aint32 | null {
         switch (singular.type) {
             case "IMM":
                 return singular.imm!;
             default: {
-                let variable: VmVariable;
-                if (
-                    this.tables.variableTableStack.length > 0 &&
-                    singular.id! in
-                        this.tables.variableTableStack[
-                            this.tables.variableTableStack.length - 1
-                        ]
-                ) {
-                    variable =
-                        this.tables.variableTableStack[
-                            this.tables.variableTableStack.length - 1
-                        ][singular.id!];
-                } else if (singular.id! in this.tables.globalVariableTable) {
-                    variable = this.tables.globalVariableTable[singular.id!];
-                } else {
-                    this.recordRuntimeError({
-                        key: "VARIABLE_NOT_FOUND",
-                        values: {
-                            id: singular.id!
-                        }
-                    });
-
+                const variable = this.getVariableById(singular.id!);
+                if (variable === null) {
                     return null;
                 }
 
@@ -549,6 +559,129 @@ class Vm {
                 return derefValue.value!;
             }
         }
+    }
+
+    private aint32BinaryMathOp(
+        a: Aint32,
+        b: Aint32,
+        int32Op: (_a: Int32, _b: Int32) => Int32,
+        uint32Op: (_a: Uint32, _b: Uint32) => Uint32
+    ): Aint32 {
+        if (a.type === "UINT32" || b.type === "UINT32") {
+            return uint32Op(new Uint32(a.value), new Uint32(b.value));
+        }
+
+        return int32Op(a as Int32, b as Int32);
+    }
+
+    /**
+     * Get the `Int32` or `Uint32` value of given `RValue`. If its singular
+     * contains an `ID` which can't be found, or memory reading caused an MMU
+     * `OUT_OF_BOUND` error, `null` is returned and error info will be set.
+     * @param rValue - The `RValue` object.
+     * @returns An `Aint32` value or `null`
+     */
+    private getRValue(rValue: RValue): Aint32 | null {
+        switch (rValue.type) {
+            case "SINGULAR":
+                return this.getSingularValue(rValue.singular!);
+            case "BINARY_MATH_OP": {
+                const singularL = this.getSingularValue(rValue.singularL!);
+                if (singularL === null) {
+                    return null;
+                }
+
+                const singularR = this.getSingularValue(rValue.singularL!);
+                if (singularR === null) {
+                    return null;
+                }
+
+                switch (rValue.binaryMathOp!) {
+                    case "+":
+                        return this.aint32BinaryMathOp(
+                            singularL,
+                            singularR,
+                            this.alu.addInt32,
+                            this.alu.addUint32
+                        );
+                    case "-":
+                        return this.aint32BinaryMathOp(
+                            singularL,
+                            singularR,
+                            this.alu.subInt32,
+                            this.alu.subUint32
+                        );
+                    case "*":
+                        return this.aint32BinaryMathOp(
+                            singularL,
+                            singularR,
+                            this.alu.mulInt32,
+                            this.alu.mulUint32
+                        );
+                    case "/":
+                        return this.aint32BinaryMathOp(
+                            singularL,
+                            singularR,
+                            this.alu.divInt32,
+                            this.alu.divUint32
+                        );
+                }
+            }
+        }
+    }
+
+    /**
+     * Store the given `Aint32` value to the given `LValue`. If its singular
+     * contains an `ID` which can't be found, or memory writing caused an MMU
+     * `OUT_OF_BOUND` error, `false` is returned and error info will be set.
+     * @param lValue - The `LValue` object representing assignment target.
+     * @param value - The `Aint32` object.
+     * @returns A `boolean` value indicating whether assignment is successful
+     */
+    private assignLValue(lValue: LValue, value: Aint32): boolean {
+        const variable = this.getVariableById(lValue.id);
+        if (variable === null) {
+            return false;
+        }
+
+        let storeAddress = variable.address;
+
+        if (lValue.type === "DEREF_ID") {
+            const derefAddress = this.mmu.load32(
+                variable.address,
+                this.memory.memory
+            );
+            if (derefAddress.status === "OUT_OF_BOUND") {
+                this.recordRuntimeError({
+                    key: "MEMORY_READ_OUT_OF_BOUND",
+                    values: {
+                        address: toHex(variable.address)
+                    }
+                });
+
+                return false;
+            }
+
+            storeAddress = derefAddress.value!;
+        }
+
+        const storeResult = this.mmu.store32(
+            new Uint32(value.value),
+            storeAddress,
+            this.memory.memory
+        );
+        if (storeResult.status === "OUT_OF_BOUND") {
+            this.recordRuntimeError({
+                key: "MEMORY_WRITE_OUT_OF_BOUND",
+                values: {
+                    address: toHex(storeAddress)
+                }
+            });
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
