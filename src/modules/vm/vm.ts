@@ -455,6 +455,61 @@ class Vm {
         return true;
     }
 
+    /**
+     * Read an `Uint32` from memory at given address. If memory reading caused an MMU
+     * `OUT_OF_BOUND` error, `null` is returned and error info will be set.
+     * @param address - The memory read address.
+     * @returns An `Uint32` value or `null`
+     */
+    private loadMemory32(address: Uint32): Uint32 | null {
+        const value = this.mmu.load32(address, this.memory.memory);
+        if (value.status === "OUT_OF_BOUND") {
+            this.recordRuntimeError({
+                key: "MEMORY_READ_OUT_OF_BOUND",
+                values: {
+                    address: toHex(address)
+                }
+            });
+
+            return null;
+        }
+
+        return value.value!;
+    }
+
+    /**
+     * Store an `Aint32` to memory at given address. If memory writing caused an MMU
+     * `OUT_OF_BOUND` error, `false` is returned and error info will be set.
+     * @param value - The `Aint32` value to be stored.
+     * @param address - The memory write address.
+     * @returns A `boolean` value indicating whether memory write is successful.
+     */
+    private storeMemory32(value: Aint32, address: Uint32): boolean {
+        const storeResult = this.mmu.store32(
+            new Uint32(value.value),
+            address,
+            this.memory.memory
+        );
+        if (storeResult.status === "OUT_OF_BOUND") {
+            this.recordRuntimeError({
+                key: "MEMORY_WRITE_OUT_OF_BOUND",
+                values: {
+                    address: toHex(address)
+                }
+            });
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Push runtime error prefix(with line number) and given
+     * runtime error message to `this.executionStatus.messages`
+     * and set `this.executionStatus.messages` to `"RUNTIME_ERROR"`
+     * @param message - The `FormattableMessage` object.
+     */
     private recordRuntimeError(message: FormattableMessage) {
         this.executionStatus.messages.push(
             {
@@ -522,41 +577,21 @@ class Vm {
                     return variable.address;
                 }
 
-                const value = this.mmu.load32(
-                    variable.address,
-                    this.memory.memory
-                );
-                if (value.status === "OUT_OF_BOUND") {
-                    this.recordRuntimeError({
-                        key: "MEMORY_READ_OUT_OF_BOUND",
-                        values: {
-                            address: toHex(variable.address)
-                        }
-                    });
-
+                const value = this.loadMemory32(variable.address);
+                if (value === null) {
                     return null;
                 }
 
                 if (singular.type === "ID") {
-                    return value.value!;
+                    return value;
                 }
 
-                const derefValue = this.mmu.load32(
-                    value.value!,
-                    this.memory.memory
-                );
-                if (derefValue.status === "OUT_OF_BOUND") {
-                    this.recordRuntimeError({
-                        key: "MEMORY_READ_OUT_OF_BOUND",
-                        values: {
-                            address: toHex(value.value!)
-                        }
-                    });
-
+                const derefValue = this.loadMemory32(value);
+                if (derefValue === null) {
                     return null;
                 }
 
-                return derefValue.value!;
+                return derefValue;
             }
         }
     }
@@ -660,37 +695,19 @@ class Vm {
         let storeAddress = variable.address;
 
         if (lValue.type === "DEREF_ID") {
-            const derefAddress = this.mmu.load32(
-                variable.address,
-                this.memory.memory
-            );
-            if (derefAddress.status === "OUT_OF_BOUND") {
-                this.recordRuntimeError({
-                    key: "MEMORY_READ_OUT_OF_BOUND",
-                    values: {
-                        address: toHex(variable.address)
-                    }
-                });
-
+            const derefAddress = this.loadMemory32(variable.address);
+            if (derefAddress === null) {
                 return false;
             }
 
-            storeAddress = derefAddress.value!;
+            storeAddress = derefAddress;
         }
 
-        const storeResult = this.mmu.store32(
+        const storeResult = this.storeMemory32(
             new Uint32(value.value),
-            storeAddress,
-            this.memory.memory
+            storeAddress
         );
-        if (storeResult.status === "OUT_OF_BOUND") {
-            this.recordRuntimeError({
-                key: "MEMORY_WRITE_OUT_OF_BOUND",
-                values: {
-                    address: toHex(storeAddress)
-                }
-            });
-
+        if (!storeResult) {
             return false;
         }
 
@@ -770,7 +787,12 @@ class Vm {
             const ir = this.memory.text[i];
             switch (ir.type) {
                 case "ARG": {
-                    const value = <DecodedArg>ir.value;
+                    const value = this.getSingularValue(
+                        (<DecodedArg>ir.value).value
+                    );
+                    if (value === null) {
+                        return;
+                    }
                 }
             }
         }
