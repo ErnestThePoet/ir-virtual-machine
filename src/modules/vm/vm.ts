@@ -27,11 +27,13 @@ import { toHex } from "../utils";
 
 // VM Table element types
 interface VmLabel {
-    address: Uint32;
+    // Equals actual address-1 because EIP increases after the address is set
+    addressBefore: Uint32;
 }
 
 interface VmFunction {
-    address: Uint32;
+    // Equals actual address-1 because EIP increases after the address is set
+    addressBefore: Uint32;
 }
 
 interface VmVariable {
@@ -59,6 +61,7 @@ interface VmTables {
     functionTable: { [name: string]: VmFunction };
     globalVariableTable: { [name: string]: VmVariable };
     variableTableStack: { [name: string]: VmVariable }[];
+    assignCallLValue: LValue | null;
 }
 
 type VmExecutionState =
@@ -96,7 +99,8 @@ const initialTables: VmTables = {
     labelTable: {},
     functionTable: {},
     globalVariableTable: {},
-    variableTableStack: []
+    variableTableStack: [],
+    assignCallLValue: null
 };
 
 const initialExecutionStatus: VmExecutionStatus = {
@@ -153,7 +157,7 @@ const defaultOptions: VmOptions = {
  * An IR Virtual Machine instance.
  *
  * Registers:
- * eax - pass return values
+ * eax - counts total function arg size
  * ebx - indicate top address of global variable segment
  * ebp
  * esp
@@ -338,13 +342,13 @@ export class Vm {
                     this.tables.functionTable[
                         (<DecodedFunction>decoded.value!).id
                     ] = {
-                        address: currentAddress
+                        addressBefore: currentAddress
                     };
                     break;
                 case "LABEL":
                     this.tables.labelTable[(<DecodedLabel>decoded.value!).id] =
                         {
-                            address: currentAddress
+                            addressBefore: currentAddress
                         };
                     break;
                 default:
@@ -377,11 +381,11 @@ export class Vm {
      */
     private initializeMemoryRegister() {
         this.registers.ebp = this.alu.addUint32(
-            this.tables.functionTable["main"].address,
+            this.tables.functionTable["main"].addressBefore,
             new Uint32(1)
         );
         this.registers.eip = this.alu.addUint32(
-            this.tables.functionTable["main"].address,
+            this.tables.functionTable["main"].addressBefore,
             new Uint32(1)
         );
 
@@ -400,7 +404,7 @@ export class Vm {
                 if (
                     !this.checkGlobalVariableSegmentSize(decodedGlobalDec.size)
                 ) {
-                    this.recordRuntimeError({
+                    this.writeRuntimeError({
                         key: "GLOBAL_VARIABLE_SEGMENT_OVERFLOW"
                     });
                     return;
@@ -455,7 +459,7 @@ export class Vm {
      * runtime error message to console.
      * @param message - The `FormattableMessage` object.
      */
-    private recordRuntimeError(message: FormattableMessage) {
+    private writeRuntimeError(message: FormattableMessage) {
         this.executionStatus.state = "RUNTIME_ERROR";
 
         this.writeConsole(
@@ -513,7 +517,7 @@ export class Vm {
     private loadMemory32(address: Uint32): Uint32 | null {
         const value = this.mmu.load32(address, this.memory.memory);
         if (value.status === "OUT_OF_BOUND") {
-            this.recordRuntimeError({
+            this.writeRuntimeError({
                 key: "MEMORY_READ_OUT_OF_BOUND",
                 values: {
                     address: toHex(address)
@@ -540,7 +544,7 @@ export class Vm {
             this.memory.memory
         );
         if (storeResult.status === "OUT_OF_BOUND") {
-            this.recordRuntimeError({
+            this.writeRuntimeError({
                 key: "MEMORY_WRITE_OUT_OF_BOUND",
                 values: {
                     address: toHex(address)
@@ -554,15 +558,15 @@ export class Vm {
     }
 
     /**
-     * Sub `esp` by 4 and store the given `Aint32` value on top of stack. 
-     * If memory writing caused an MMU `OUT_OF_BOUND` error, `false` is 
+     * Sub `esp` by 4 and store the given `Aint32` value on top of stack.
+     * If memory writing caused an MMU `OUT_OF_BOUND` error, `false` is
      * returned and error will be written to console.
      * @param value - The `Aint32` value to be pushed onto stack.
      * @returns A `boolean` value indicating whether push is successful.
      */
     private pushl(value: Aint32): boolean {
         if (!this.checkStackSize(new Uint32(4))) {
-            this.recordRuntimeError({
+            this.writeRuntimeError({
                 key: "STACK_OVERFLOW"
             });
             return false;
@@ -581,7 +585,7 @@ export class Vm {
 
     /**
      * Return the top `Uint32` on stack and add `esp` by `4`. If memory reading
-     * caused an MMU `OUT_OF_BOUND` error, `null` is returned and error will 
+     * caused an MMU `OUT_OF_BOUND` error, `null` is returned and error will
      * be written to console.
      * @returns An `Uint32` value or `null`
      */
@@ -600,19 +604,26 @@ export class Vm {
     }
 
     /**
-     * Search the given variable id in current local variable table and 
-     * global variable table, then return it. If the id can't be found, 
+     * Search the given variable id in current local variable table and
+     * global variable table, then return it. If the id can't be found,
      * `null` is returned and error will be written to console.
      * @param id - The variable id.
-     * @returns A `VmVariable` value or `null`
+     * @returns A `VmVariable` object or `null`
      */
     private getVariableById(id: string): VmVariable | null {
+        if (this.tables.variableTableStack.length === 0) {
+            this.writeRuntimeError({
+                key: "EMPTY_VARIABLE_TABLE_STACK"
+            });
+
+            return null;
+        }
+
         if (
-            this.tables.variableTableStack.length > 0 &&
             id in
-                this.tables.variableTableStack[
-                    this.tables.variableTableStack.length - 1
-                ]
+            this.tables.variableTableStack[
+                this.tables.variableTableStack.length - 1
+            ]
         ) {
             return this.tables.variableTableStack[
                 this.tables.variableTableStack.length - 1
@@ -620,7 +631,7 @@ export class Vm {
         } else if (id in this.tables.globalVariableTable) {
             return this.tables.globalVariableTable[id];
         } else {
-            this.recordRuntimeError({
+            this.writeRuntimeError({
                 key: "VARIABLE_NOT_FOUND",
                 values: {
                     id
@@ -754,18 +765,60 @@ export class Vm {
     }
 
     /**
+     * Create a variable on the stack and insert to current variable table.
+     * If stackoverflow occurs, error will be written to console.
+     * @param id - The variable id.
+     * @param size - The variable size.
+     * @returns A `VmVariable` value or `null`
+     */
+    private createStackVariable(id: string, size: Uint32): VmVariable | null {
+        if (!this.checkStackSize(size)) {
+            this.writeRuntimeError({
+                key: "STACK_OVERFLOW"
+            });
+            return null;
+        }
+
+        this.registers.esp = this.alu.subUint32(this.registers.esp, size);
+
+        const variable: VmVariable = {
+            address: this.registers.esp,
+            size
+        };
+
+        if (this.tables.variableTableStack.length === 0) {
+            this.writeRuntimeError({
+                key: "EMPTY_VARIABLE_TABLE_STACK"
+            });
+            return null;
+        }
+
+        this.tables.variableTableStack[
+            this.tables.variableTableStack.length - 1
+        ][id] = variable;
+
+        return variable;
+    }
+
+    /**
      * Store the given `Aint32` value to the given `LValue`. If its singular
-     * contains an `ID` which can't be found, the variable will be immediately
-     * created. If memory writing caused an MMU `OUT_OF_BOUND` error, `false`
-     * is returned and error will be written to console.
+     * is an `ID` which can't be found, the variable will be immediately
+     * created. If an error is caused, it will be written to console.
      * @param lValue - The `LValue` object representing assignment target.
      * @param value - The `Aint32` object.
      * @returns A `boolean` value indicating whether assignment is successful
      */
     private assignLValue(lValue: LValue, value: Aint32): boolean {
-        const variable = this.getVariableById(lValue.id);
+        let variable = this.getVariableById(lValue.id);
         if (variable === null) {
-            return false;
+            if (lValue.type === "ID") {
+                variable = this.createStackVariable(lValue.id, new Uint32(4));
+                if (variable === null) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
 
         let storeAddress = variable.address;
@@ -888,6 +941,7 @@ export class Vm {
                     if (value === null || !this.pushl(value)) {
                         return;
                     }
+
                     break;
                 }
                 case "ASSIGN": {
@@ -906,9 +960,50 @@ export class Vm {
                     ) {
                         return;
                     }
+
+                    break;
                 }
                 case "ASSIGN_CALL":
-                case "CALL":
+                case "CALL": {
+                    const functionId =
+                        ir.type === "CALL"
+                            ? (<DecodedCall>ir.value).id
+                            : (<DecodedAssignCall>ir.value).functionId;
+                    if (!(functionId in this.tables.functionTable)) {
+                        this.writeRuntimeError({
+                            key: "FUNCTION_NOT_FOUND",
+                            values: {
+                                id: functionId
+                            }
+                        });
+
+                        return;
+                    }
+
+                    // Push return address
+                    if (!this.pushl(this.registers.eip)) {
+                        return;
+                    }
+
+                    // Push ebp
+                    if (!this.pushl(this.registers.ebp)) {
+                        return;
+                    }
+
+                    // Push new variable table
+                    this.tables.variableTableStack.push({});
+
+                    this.registers.eip =
+                        this.tables.functionTable[functionId].addressBefore;
+
+                    if (ir.type === "ASSIGN_CALL") {
+                        this.tables.assignCallLValue = (<DecodedAssignCall>(
+                            ir.value
+                        )).lValue;
+                    }
+
+                    break;
+                }
             }
         }
     }
