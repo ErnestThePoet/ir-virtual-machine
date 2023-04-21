@@ -74,7 +74,7 @@ type VmExecutionState =
 interface VmExecutionStatus {
     stepCount: number;
     state: VmExecutionState;
-    messages: FormattableMessage[];
+    // Used to index which line should be marked
     staticErrors: { [lineNumber: string | number]: AppLocaleKey };
 }
 
@@ -102,9 +102,16 @@ const initialTables: VmTables = {
 const initialExecutionStatus: VmExecutionStatus = {
     stepCount: 0,
     state: "INITIAL",
-    messages: [],
     staticErrors: {}
 };
+
+// Write console message type
+type WriteConsoleMessageType = "SUCCESS" | "ERROR" | "WARNING" | "OUT";
+type WriteConsoleFn = (
+    message: FormattableMessage[],
+    type: WriteConsoleMessageType
+) => void;
+type ReadConsoleFn = (prompt: FormattableMessage[]) => Promise<string>;
 
 // VM Options type
 interface VmOptions {
@@ -173,8 +180,6 @@ const defaultOptions: VmOptions = {
  * IrVm uses cdecl calling convention.
  * The stack layout when calling a new function is like below.
  * |--------------------------------|
- * |           Saved eax            |
- * |--------------------------------|
  * |             Arg n              |
  * |--------------------------------|
  * |              ...               |
@@ -190,7 +195,7 @@ const defaultOptions: VmOptions = {
  * |                                |
  * |              ...               |
  */
-class Vm {
+export class Vm {
     private alu: Alu = new Alu();
     private mmu: Mmu = new Mmu();
     private decoder: Decoder = new Decoder();
@@ -202,6 +207,14 @@ class Vm {
 
     // VM Options does not belong to its state
     private options: VmOptions = defaultOptions;
+
+    private writeConsole: WriteConsoleFn;
+    private readConsole: ReadConsoleFn;
+
+    constructor(writeConsole: WriteConsoleFn, readConsole: ReadConsoleFn) {
+        this.writeConsole = writeConsole;
+        this.readConsole = readConsole;
+    }
 
     /**
      * Configure the VM with given options.
@@ -298,18 +311,22 @@ class Vm {
             if (decoded.type === "ERROR") {
                 this.executionStatus.state = "STATIC_CHECK_FAILED";
 
-                this.executionStatus.messages.push({
-                    key: "DECODE_ERROR_PREFIX",
-                    values: {
-                        lineNumber: i + 1
-                    }
-                });
+                this.writeConsole(
+                    [
+                        {
+                            key: "DECODE_ERROR_PREFIX",
+                            values: {
+                                lineNumber: i + 1
+                            }
+                        },
+                        {
+                            key: decoded.messageKey!
+                        }
+                    ],
+                    "ERROR"
+                );
 
-                this.executionStatus.messages.push({
-                    key: decoded.messageKey!
-                });
-
-                this.executionStatus.staticErrors[i] = decoded.messageKey!;
+                this.executionStatus.staticErrors[i + 1] = decoded.messageKey!;
 
                 continue;
             }
@@ -341,9 +358,14 @@ class Vm {
         if (!("main" in this.tables.functionTable)) {
             this.executionStatus.state = "STATIC_CHECK_FAILED";
 
-            this.executionStatus.messages.push({
-                key: "NO_MAIN_FUNCTION"
-            });
+            this.writeConsole(
+                [
+                    {
+                        key: "NO_MAIN_FUNCTION"
+                    }
+                ],
+                "ERROR"
+            );
 
             return;
         }
@@ -433,18 +455,22 @@ class Vm {
      * @param message - The `FormattableMessage` object.
      */
     private recordRuntimeError(message: FormattableMessage) {
-        this.executionStatus.messages.push(
-            {
-                key: "RUNTIME_ERROR_PREFIX",
-                values: {
-                    lineNumber:
-                        this.memory.text[this.registers.eip.value].lineNumber
-                }
-            },
-            message
-        );
-
         this.executionStatus.state = "RUNTIME_ERROR";
+
+        this.writeConsole(
+            [
+                {
+                    key: "RUNTIME_ERROR_PREFIX",
+                    values: {
+                        lineNumber:
+                            this.memory.text[this.registers.eip.value]
+                                .lineNumber
+                    }
+                },
+                message
+            ],
+            "ERROR"
+        );
     }
 
     private checkStackSize(size: Uint32): boolean {
@@ -828,6 +854,25 @@ class Vm {
             return;
         }
 
+        if (
+            this.executionStatus.stepCount >= this.options.maxExecutionStepCount
+        ) {
+            this.executionStatus.state = "MAX_STEP_REACHED";
+            this.writeConsole(
+                [
+                    {
+                        key: "MAX_STEP_REACHED",
+                        values: {
+                            maxExecutionStepCount:
+                                this.options.maxExecutionStepCount
+                        }
+                    }
+                ],
+                "ERROR"
+            );
+            return;
+        }
+
         for (let i = 0; i < this.memory.text.length; i++) {
             const ir = this.memory.text[i];
             switch (ir.type) {
@@ -861,5 +906,3 @@ class Vm {
         }
     }
 }
-
-export default new Vm();
