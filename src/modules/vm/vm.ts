@@ -67,6 +67,7 @@ type VmExecutionState =
     | "FREE" // 2023.04.18-22:20 就在刚才，我收到她的消息了。我的心情复杂而又幸福。我感到圆满了。一切都值了。请允许我把此时此刻的感受永远记录在这里——与本项目无关。
     | "STATIC_CHECK_FAILED"
     | "RUNTIME_ERROR"
+    | "MAX_STEP_REACHED"
     | "EXITED_NORMALLY"
     | "EXITED_ABNORMALLY";
 
