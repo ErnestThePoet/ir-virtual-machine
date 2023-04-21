@@ -1,7 +1,7 @@
 import { Aint32, Int32, Uint32 } from "./data_types";
 import { Alu } from "./alu";
 import { Mmu } from "./mmu";
-import { Decoder } from "./decoder";
+import { CondValue, Decoder } from "./decoder";
 import type {
     Singular,
     LValue,
@@ -574,6 +574,19 @@ class Vm {
         return int32Op(a as Int32, b as Int32);
     }
 
+    private aint32BinaryRelOp(
+        a: Aint32,
+        b: Aint32,
+        int32Op: (_a: Int32, _b: Int32) => boolean,
+        uint32Op: (_a: Uint32, _b: Uint32) => boolean
+    ): boolean {
+        if (a.type === "UINT32" || b.type === "UINT32") {
+            return uint32Op(new Uint32(a.value), new Uint32(b.value));
+        }
+
+        return int32Op(a as Int32, b as Int32);
+    }
+
     /**
      * Get the `Int32` or `Uint32` value of given `RValue`. If its singular
      * contains an `ID` which can't be found, or memory reading caused an MMU
@@ -586,42 +599,42 @@ class Vm {
             case "SINGULAR":
                 return this.getSingularValue(rValue.singular!);
             case "BINARY_MATH_OP": {
-                const singularL = this.getSingularValue(rValue.singularL!);
-                if (singularL === null) {
+                const singularLValue = this.getSingularValue(rValue.singularL!);
+                if (singularLValue === null) {
                     return null;
                 }
 
-                const singularR = this.getSingularValue(rValue.singularL!);
-                if (singularR === null) {
+                const singularRValue = this.getSingularValue(rValue.singularR!);
+                if (singularRValue === null) {
                     return null;
                 }
 
                 switch (rValue.binaryMathOp!) {
                     case "+":
                         return this.aint32BinaryMathOp(
-                            singularL,
-                            singularR,
+                            singularLValue,
+                            singularRValue,
                             this.alu.addInt32,
                             this.alu.addUint32
                         );
                     case "-":
                         return this.aint32BinaryMathOp(
-                            singularL,
-                            singularR,
+                            singularLValue,
+                            singularRValue,
                             this.alu.subInt32,
                             this.alu.subUint32
                         );
                     case "*":
                         return this.aint32BinaryMathOp(
-                            singularL,
-                            singularR,
+                            singularLValue,
+                            singularRValue,
                             this.alu.mulInt32,
                             this.alu.mulUint32
                         );
                     case "/":
                         return this.aint32BinaryMathOp(
-                            singularL,
-                            singularR,
+                            singularLValue,
+                            singularRValue,
                             this.alu.divInt32,
                             this.alu.divUint32
                         );
@@ -682,6 +695,60 @@ class Vm {
         }
 
         return true;
+    }
+
+    /**
+     * Get the `boolean` result of given `CondValue`. If its singular
+     * contains an `ID` which can't be found, or memory reading caused an MMU
+     * `OUT_OF_BOUND` error, `null` is returned and error info will be set.
+     * @param condValue - The `CondValue` object.
+     * @returns A `boolean` result or `null`
+     */
+    private getCondValue(condValue: CondValue): boolean | null {
+        const singularLValue = this.getSingularValue(condValue.singularL);
+        if (singularLValue === null) {
+            return null;
+        }
+
+        const singularRValue = this.getSingularValue(condValue.singularR);
+        if (singularRValue === null) {
+            return null;
+        }
+
+        switch (condValue.binaryRelOp) {
+            case "==":
+                return this.alu.eq(singularLValue, singularRValue);
+            case "!=":
+                return this.alu.ne(singularLValue, singularRValue);
+            case "<":
+                return this.aint32BinaryRelOp(
+                    singularLValue,
+                    singularRValue,
+                    this.alu.ltInt32,
+                    this.alu.ltUint32
+                );
+            case "<=":
+                return this.aint32BinaryRelOp(
+                    singularLValue,
+                    singularRValue,
+                    this.alu.leInt32,
+                    this.alu.leUint32
+                );
+            case ">":
+                return this.aint32BinaryRelOp(
+                    singularLValue,
+                    singularRValue,
+                    this.alu.gtInt32,
+                    this.alu.gtUint32
+                );
+            case ">=":
+                return this.aint32BinaryRelOp(
+                    singularLValue,
+                    singularRValue,
+                    this.alu.geInt32,
+                    this.alu.geUint32
+                );
+        }
     }
 
     /**
