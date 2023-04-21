@@ -477,50 +477,6 @@ class Vm {
     }
 
     /**
-     * Sub `esp` by 4 and store the given `Aint32` value on top of stack. If memory writing
-     * caused an MMU `OUT_OF_BOUND` error, `false` is returned and error info will be set.
-     * @param value - The `Aint32` value to be pushed onto stack.
-     * @returns A `boolean` value indicating whether push is successful.
-     */
-    private pushl(value: Aint32): boolean {
-        if (!this.checkStackSize(new Uint32(4))) {
-            this.recordRuntimeError({
-                key: "STACK_OVERFLOW"
-            });
-            return false;
-        }
-
-        this.registers.esp = this.alu.subUint32(
-            this.registers.esp,
-            new Uint32(4)
-        );
-        if (!this.storeMemory32(value, this.registers.esp)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Return the top `Uint32` on stack and add `esp` by `4`. If memory reading
-     * caused an MMU `OUT_OF_BOUND` error, `null` is returned and error info will be set.
-     * @returns An `Uint32` value or `null`
-     */
-    private popl(): Uint32 | null {
-        const value = this.loadMemory32(this.registers.esp);
-        if (value === null) {
-            return null;
-        }
-
-        this.registers.esp = this.alu.addUint32(
-            this.registers.esp,
-            new Uint32(4)
-        );
-
-        return value;
-    }
-
-    /**
      * Read an `Uint32` from memory at given address. If memory reading caused an MMU
      * `OUT_OF_BOUND` error, `null` is returned and error info will be set.
      * @param address - The memory read address.
@@ -567,6 +523,50 @@ class Vm {
         }
 
         return true;
+    }
+
+    /**
+     * Sub `esp` by 4 and store the given `Aint32` value on top of stack. If memory writing
+     * caused an MMU `OUT_OF_BOUND` error, `false` is returned and error info will be set.
+     * @param value - The `Aint32` value to be pushed onto stack.
+     * @returns A `boolean` value indicating whether push is successful.
+     */
+    private pushl(value: Aint32): boolean {
+        if (!this.checkStackSize(new Uint32(4))) {
+            this.recordRuntimeError({
+                key: "STACK_OVERFLOW"
+            });
+            return false;
+        }
+
+        this.registers.esp = this.alu.subUint32(
+            this.registers.esp,
+            new Uint32(4)
+        );
+        if (!this.storeMemory32(value, this.registers.esp)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Return the top `Uint32` on stack and add `esp` by `4`. If memory reading
+     * caused an MMU `OUT_OF_BOUND` error, `null` is returned and error info will be set.
+     * @returns An `Uint32` value or `null`
+     */
+    private popl(): Uint32 | null {
+        const value = this.loadMemory32(this.registers.esp);
+        if (value === null) {
+            return null;
+        }
+
+        this.registers.esp = this.alu.addUint32(
+            this.registers.esp,
+            new Uint32(4)
+        );
+
+        return value;
     }
 
     /**
