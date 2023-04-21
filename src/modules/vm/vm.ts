@@ -476,6 +476,12 @@ class Vm {
         return true;
     }
 
+    /**
+     * Sub `esp` by 4 and store the given `Aint32` value on top of stack. If memory writing
+     * caused an MMU `OUT_OF_BOUND` error, `false` is returned and error info will be set.
+     * @param value - The `Aint32` value to be pushed onto stack.
+     * @returns A `boolean` value indicating whether push is successful.
+     */
     private pushl(value: Aint32): boolean {
         if (!this.checkStackSize(new Uint32(4))) {
             this.recordRuntimeError({
@@ -495,6 +501,11 @@ class Vm {
         return true;
     }
 
+    /**
+     * Return the top `Uint32` on stack and add `esp` by `4`. If memory reading
+     * caused an MMU `OUT_OF_BOUND` error, `null` is returned and error info will be set.
+     * @returns An `Uint32` value or `null`
+     */
     private popl(): Uint32 | null {
         const value = this.loadMemory32(this.registers.esp);
         if (value === null) {
@@ -823,7 +834,25 @@ class Vm {
                     const value = this.getSingularValue(
                         (<DecodedArg>ir.value).value
                     );
-                    if (value === null) {
+                    if (value === null || !this.pushl(value)) {
+                        return;
+                    }
+                    break;
+                }
+                case "ASSIGN": {
+                    const rValue = this.getRValue(
+                        (<DecodedAssign>ir.value).rValue
+                    );
+                    if (rValue === null) {
+                        return;
+                    }
+
+                    if (
+                        !this.assignLValue(
+                            (<DecodedAssign>ir.value).lValue,
+                            rValue
+                        )
+                    ) {
                         return;
                     }
                 }
