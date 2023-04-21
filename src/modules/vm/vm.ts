@@ -425,6 +425,27 @@ class Vm {
         this.executionStatus.state = "FREE";
     }
 
+    /**
+     * Push runtime error prefix(with line number) and given
+     * runtime error message to `this.executionStatus.messages`
+     * and set `this.executionStatus.messages` to `"RUNTIME_ERROR"`
+     * @param message - The `FormattableMessage` object.
+     */
+    private recordRuntimeError(message: FormattableMessage) {
+        this.executionStatus.messages.push(
+            {
+                key: "RUNTIME_ERROR_PREFIX",
+                values: {
+                    lineNumber:
+                        this.memory.text[this.registers.eip.value].lineNumber
+                }
+            },
+            message
+        );
+
+        this.executionStatus.state = "RUNTIME_ERROR";
+    }
+
     private checkStackSize(size: Uint32): boolean {
         if (this.alu.ltUint32(this.registers.esp, size)) {
             return false;
@@ -453,6 +474,39 @@ class Vm {
         }
 
         return true;
+    }
+
+    private pushl(value: Aint32): boolean {
+        if (!this.checkStackSize(new Uint32(4))) {
+            this.recordRuntimeError({
+                key: "STACK_OVERFLOW"
+            });
+            return false;
+        }
+
+        this.registers.esp = this.alu.subUint32(
+            this.registers.esp,
+            new Uint32(4)
+        );
+        if (!this.storeMemory32(value, this.registers.esp)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private popl(): Uint32 | null {
+        const value = this.loadMemory32(this.registers.esp);
+        if (value === null) {
+            return null;
+        }
+
+        this.registers.esp = this.alu.addUint32(
+            this.registers.esp,
+            new Uint32(4)
+        );
+
+        return value;
     }
 
     /**
@@ -502,27 +556,6 @@ class Vm {
         }
 
         return true;
-    }
-
-    /**
-     * Push runtime error prefix(with line number) and given
-     * runtime error message to `this.executionStatus.messages`
-     * and set `this.executionStatus.messages` to `"RUNTIME_ERROR"`
-     * @param message - The `FormattableMessage` object.
-     */
-    private recordRuntimeError(message: FormattableMessage) {
-        this.executionStatus.messages.push(
-            {
-                key: "RUNTIME_ERROR_PREFIX",
-                values: {
-                    lineNumber:
-                        this.memory.text[this.registers.eip.value].lineNumber
-                }
-            },
-            message
-        );
-
-        this.executionStatus.state = "RUNTIME_ERROR";
     }
 
     /**
