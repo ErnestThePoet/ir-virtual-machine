@@ -28,6 +28,7 @@ export const vmSlice = createSlice({
         },
         addVmPageState: (state, action) => {
             state.vmPageStates.push(action.payload);
+            state.activeVmIndex = state.vmPageStates.length - 1;
         },
         deleteVmPageState: (state, action) => {
             if (state.activeVmIndex >= action.payload.index) {
