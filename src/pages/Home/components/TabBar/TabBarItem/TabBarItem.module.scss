@@ -1,0 +1,87 @@
+@import "../../../../../styles/layout.module.scss";
+
+.divTabBarItemWrapper {
+    width: $tabbar-item-width;
+    min-width: $tabbar-item-width;
+    cursor: pointer;
+    padding: 0 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 1px solid var(--tabbar-item-active-bkg-color);
+}
+
+.divTabBarItemWrapperInactive {
+    background-color: var(--tabbar-item-inactive-bkg-color);
+    &:hover {
+        background-color: var(--tabbar-item-inactive-hover-bkg-color);
+    }
+}
+
+.divTabBarItemWrapperActive {
+    background-color: var(--tabbar-item-active-bkg-color);
+}
+
+.divIconTitleWrapper {
+    display: flex;
+    align-items: center;
+}
+
+.divCloseWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+
+    &:hover {
+        background-color: var(--tabbar-close-hover-bkg-color);
+    }
+}
+
+.divCloseWrapperChanged {
+    @extend .divCloseWrapper;
+
+    & > :first-child {
+        display: block;
+    }
+
+    & > :last-child {
+        display: none;
+    }
+
+    &:hover {
+        & > :first-child {
+            display: none;
+        }
+
+        & > :last-child {
+            display: block;
+        }
+    }
+}
+
+.iconVm {
+    width: 18px;
+    margin-right: 5px;
+    fill: var(--tabbar-item-icon-color);
+    stroke: var(--tabbar-item-icon-color);
+}
+
+.iconClose {
+    font-size: 13px;
+    color: var(--tabbar-item-text-color);
+}
+
+.lblTitle {
+    color: var(--tabbar-item-text-color);
+    font-size: 13px;
+}
+
+.iconDot {
+    position: relative;
+    width: 8px;
+    fill: var(--tabbar-item-close-color);
+    stroke: var(--tabbar-item-close-color);
+}
