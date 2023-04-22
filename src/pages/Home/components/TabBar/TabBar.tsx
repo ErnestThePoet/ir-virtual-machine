@@ -12,6 +12,7 @@ const TabBar: React.FC = () => {
         <div className={styles.divTabBarWrapper}>
             {vm.vmPageStates.map((x, i) => (
                 <TabBarItem
+                    key={i}
                     title={x.name}
                     isActive={i === vm.activeVmIndex}
                     isChanged={x.isIrChanged}
