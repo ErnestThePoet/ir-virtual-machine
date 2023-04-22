@@ -1,13 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { AppTheme } from "@/themes";
 import themes from "@/themes";
 
 interface ThemeState {
-    currentTheme: AppTheme;
+    currentClassName: string;
 }
 
 const initialState: ThemeState = {
-    currentTheme: themes[0].theme
+    currentClassName: themes[0].className
 };
 
 export const themeSlice = createSlice({
@@ -15,7 +14,7 @@ export const themeSlice = createSlice({
     initialState,
     reducers: {
         switchTheme: (state, action) => {
-            state.currentTheme = action.payload;
+            state.currentClassName = action.payload;
         }
     }
 });

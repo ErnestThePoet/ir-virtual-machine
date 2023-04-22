@@ -1,15 +1,7 @@
-import light from "./light";
-// Add new theme import here //
-
-//////////////////////////////////
-
-export type AppTheme = typeof light;
-export type AppThemeKey = keyof typeof light;
-
-const themes: { name: string; theme: AppTheme }[] = [
+const themes: { name: string; className: string }[] = [
     {
-        name: "Light",
-        theme: light
+        name: "Light", // Theme name displayed in UI
+        className: "themeLight" // Match your class name in scss
     }
     // Add new theme entry here //
 

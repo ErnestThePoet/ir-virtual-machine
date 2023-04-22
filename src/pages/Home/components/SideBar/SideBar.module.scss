@@ -1,0 +1,18 @@
+$sidebar-width: 48px;
+
+.divSideBarWrapper {
+    width: 48px;
+    height: 100vh;
+
+    background-color: var(--sidebar-bkg-color);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 15px;
+
+    svg {
+        cursor: pointer;
+        width: 30px;
+    }
+}

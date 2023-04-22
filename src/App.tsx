@@ -5,12 +5,22 @@ import { RouterProvider } from "react-router-dom";
 import { IntlProvider } from "react-intl";
 import router from "./router";
 
+import "@/themes/light.scss";
+// Add new theme entry here //
+
+/////////////////////////////////
+
 const App: React.FC = () => {
     const currentLocale = useAppSelector(state => state.locale.currentLocale);
+    const currentThemeClassName = useAppSelector(
+        state => state.theme.currentClassName
+    );
 
     return (
         <IntlProvider messages={currentLocale} locale="en">
-            <RouterProvider router={router} />
+            <div className={currentThemeClassName}>
+                <RouterProvider router={router} />
+            </div>
         </IntlProvider>
     );
 };
