@@ -1364,4 +1364,19 @@ export class Vm {
             new Uint32(1)
         );
     }
+
+    /**
+     * Execute continuously.
+     * If a runtime error is detected, `this.executionStatus.state` will be set to
+     * `"RUNTIME_ERROR"` with error message written to console.
+     * @public
+     */
+    async execute() {
+        while (
+            this.executionStatus.state === "INITIAL" ||
+            this.executionStatus.state === "FREE"
+        ) {
+            await this.executeSingleStep();
+        }
+    }
 }
