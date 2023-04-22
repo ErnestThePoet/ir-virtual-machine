@@ -24,6 +24,7 @@ import type {
 } from "./decoder";
 import type { AppLocaleKey, FormattableMessage } from "@/locales";
 import { toHex } from "../utils";
+import { cloneDeep } from "lodash";
 
 // VM Table element types
 interface VmLabel {
@@ -292,11 +293,11 @@ export class Vm {
      * @public
      */
     reset() {
-        Object.assign(this.memory.text, initialMemory.text);
-        Object.assign(this.memory.memory, initialMemory.memory);
-        Object.assign(this.registers, initialRegisters);
-        Object.assign(this.tables, initialTables);
-        Object.assign(this.executionStatus, initialExecutionStatus);
+        this.memory.text = cloneDeep(initialMemory.text);
+        this.memory.memory = cloneDeep(initialMemory.memory);
+        this.registers = cloneDeep(initialRegisters);
+        this.tables = cloneDeep(initialTables);
+        this.executionStatus = cloneDeep(initialExecutionStatus);
     }
 
     /**
@@ -306,7 +307,7 @@ export class Vm {
      */
     loadNewInstructions(instructions: string[]) {
         this.reset();
-        Object.assign(this.memory.instructions, instructions);
+        this.memory.instructions = cloneDeep(instructions);
     }
 
     /**
