@@ -26,6 +26,7 @@ function getNextUntitledVmName(names: string[]): string {
 
 const SideBar: React.FC = () => {
     const dispatch = useAppDispatch();
+    const locale = useAppSelector(state => state.locale.currentLocale);
     const vm = useAppSelector(state => state.vm);
 
     return (
@@ -33,7 +34,7 @@ const SideBar: React.FC = () => {
             <div className={styles.divIconWrapperUpper}>
                 <SideBarIcon
                     icon={<FileAddOutlined />}
-                    label="新建"
+                    label={locale.ADD}
                     onClick={() => {
                         const vmName = getNextUntitledVmName(
                             vm.vmPageStates.map(x => x.name)
@@ -51,12 +52,12 @@ const SideBar: React.FC = () => {
                 />
                 <SideBarIcon
                     icon={<FolderOpenOutlined />}
-                    label="导入"
+                    label={locale.IMPORT}
                     onClick={() => {}}
                 />
                 <SideBarIcon
                     icon={<SaveOutlined />}
-                    label="保存"
+                    label={locale.SAVE}
                     onClick={() => {}}
                 />
             </div>
@@ -69,12 +70,12 @@ const SideBar: React.FC = () => {
                 />
                 <SideBarIcon
                     icon={<EyeOutlined />}
-                    label="主题"
+                    label={locale.THEME}
                     onClick={() => {}}
                 />
                 <SideBarIcon
                     icon={<InfoCircleOutlined />}
-                    label="关于"
+                    label={locale.ABOUT}
                     onClick={() => {}}
                 />
             </div>

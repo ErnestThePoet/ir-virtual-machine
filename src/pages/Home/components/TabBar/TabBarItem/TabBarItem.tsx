@@ -5,6 +5,7 @@ import { CloseOutlined } from "@ant-design/icons";
 import VmOutlined from "./Icons/VmOutlined";
 import { truncateString } from "@/modules/utils";
 import Dot from "./Icons/Dot";
+import { useAppSelector } from "@/store/hooks";
 
 interface TabBarItemProps {
     title: string;
@@ -15,6 +16,8 @@ interface TabBarItemProps {
 }
 
 const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
+    const locale = useAppSelector(state => state.locale.currentLocale);
+
     return (
         <div
             className={classNames(styles.divTabBarItemWrapper, {
@@ -24,7 +27,8 @@ const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
             onClick={e => {
                 e.stopPropagation();
                 props.onClick();
-            }}>
+            }}
+            title={props.title}>
             <div className={styles.divIconTitleWrapper}>
                 <VmOutlined className={styles.iconVm} />
                 <label className={styles.lblTitle}>
@@ -38,12 +42,13 @@ const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
                     onClick={e => {
                         e.stopPropagation();
                         props.onCloseClick();
-                    }}>
+                    }}
+                    title={locale.CLOSE}>
                     <Dot className={styles.iconDot} />
                     <CloseOutlined className={styles.iconClose} />
                 </div>
             ) : (
-                <div className={styles.divCloseWrapper}>
+                <div className={styles.divCloseWrapper} title={locale.CLOSE}>
                     <CloseOutlined
                         className={styles.iconClose}
                         onClick={e => {

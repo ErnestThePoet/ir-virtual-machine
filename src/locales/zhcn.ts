@@ -2,6 +2,14 @@
 const zhCn = {
     APP_TITLE: "编译原理IR虚拟机",
 
+    // UI strings
+    ADD: "新建",
+    IMPORT: "导入",
+    SAVE: "保存",
+    THEME: "主题",
+    ABOUT: "关于",
+    CLOSE: "关闭",
+
     // Static error check messages
     DECODE_ERROR_PREFIX: "指令解码错误(第{lineNumber}行)：",
     UNRECOGNIZED_INSTRUCTION: "无法识别的IR指令",
