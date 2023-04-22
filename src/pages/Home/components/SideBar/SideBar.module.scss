@@ -8,11 +8,26 @@ $sidebar-width: 48px;
 
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+
+    // &>:last-child{
+    //     margin-top: auto;
+    // }
+}
+
+.divIconWrapperBase {
+    display: flex;
+    flex-direction: column;
     gap: 20px;
     align-items: center;
-    padding: 20px 0;
+}
 
-    &>:last-child{
-        margin-top: auto;
-    }
+.divIconWrapperUpper {
+    @extend .divIconWrapperBase;
+    padding-top: 20px;
+}
+
+.divIconWrapperLower {
+    @extend .divIconWrapperBase;
+    padding-bottom: 20px;
 }
