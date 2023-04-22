@@ -10,9 +10,7 @@
     flex-direction: column;
     justify-content: space-between;
 
-    // &>:last-child{
-    //     margin-top: auto;
-    // }
+    user-select: none;
 }
 
 .divIconWrapperBase {
