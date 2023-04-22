@@ -231,12 +231,12 @@ export class Vm {
     // VM Options does not belong to its state
     private options: VmOptions = defaultOptions;
 
-    private writeConsole: WriteConsoleFn;
-    private readConsole: ReadConsoleFn;
+    private writeConsole: WriteConsoleFn = (_, __) => {};
+    private readConsole: ReadConsoleFn = _ => Promise.resolve("");
 
     private entryFunctionName = "main";
 
-    constructor(writeConsole: WriteConsoleFn, readConsole: ReadConsoleFn) {
+    setIoFns(writeConsole: WriteConsoleFn, readConsole: ReadConsoleFn) {
         this.writeConsole = writeConsole;
         this.readConsole = readConsole;
     }
