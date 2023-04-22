@@ -12,6 +12,7 @@
     "dependencies": {
         "@reduxjs/toolkit": "^1.9.5",
         "antd": "^5.4.2",
+        "lodash": "^4.17.21",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-intl": "^6.4.1",
