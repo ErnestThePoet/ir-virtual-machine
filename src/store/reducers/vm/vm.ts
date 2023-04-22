@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { Vm } from "@/modules/vm/vm";
 
 interface SingleVmPageState {
     name: string;
