@@ -1,0 +1,26 @@
+@keyframes scale-in {
+    from {
+        transform: scale(0.1);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+.divEmptyHolder {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 27px;
+    color: var(--vm-empty-holder-color);
+}
+
+.spanEmptyHolderText {
+    animation-duration: 0.5s;
+    animation-name: scale-in;
+}

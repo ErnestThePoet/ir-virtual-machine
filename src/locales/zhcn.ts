@@ -1,6 +1,6 @@
 /* Do never modify this locale. */
 const zhCn = {
-    APP_TITLE: "编译原理IR虚拟机",
+    APP_TITLE: "IR虚拟机",
 
     // UI strings
     ADD: "新建",
@@ -13,6 +13,7 @@ const zhCn = {
     SAVE_CLOSE: "保存关闭",
     UNSAVE_CLOSE: "不保存关闭",
     CANCEL: "取消",
+    EMPTY_PLACEHOLDER: "暂无打开的虚拟机，快去新建或导入一个IR文件吧~",
 
     // Static error check messages
     DECODE_ERROR_PREFIX: "指令解码错误(第{lineNumber}行)：",
