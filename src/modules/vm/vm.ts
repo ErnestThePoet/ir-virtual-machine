@@ -59,11 +59,15 @@ interface VmRegisters {
     eip: Uint32;
 }
 
+interface VmVariableTable {
+    [name: string]: VmVariable;
+}
+
 interface VmTables {
     labelTable: { [name: string]: VmLabel };
     functionTable: { [name: string]: VmFunction };
-    globalVariableTable: { [name: string]: VmVariable };
-    variableTableStack: { [name: string]: VmVariable }[];
+    globalVariableTable: VmVariableTable;
+    variableTableStack: VmVariableTable[];
 }
 
 type VmExecutionState =
@@ -79,6 +83,7 @@ type VmExecutionState =
 interface VmExecutionStatus {
     stepCount: number;
     state: VmExecutionState;
+    callStack: string[];
     // Used to index which line should be marked
     staticErrors: { [lineNumber: string | number]: AppLocaleKey };
 }
@@ -109,6 +114,7 @@ const initialTables: VmTables = {
 const initialExecutionStatus: VmExecutionStatus = {
     stepCount: 0,
     state: "INITIAL",
+    callStack: [],
     staticErrors: {}
 };
 
@@ -224,6 +230,8 @@ export class Vm {
     private writeConsole: WriteConsoleFn;
     private readConsole: ReadConsoleFn;
 
+    private entryFunctionName = "main";
+
     constructor(writeConsole: WriteConsoleFn, readConsole: ReadConsoleFn) {
         this.writeConsole = writeConsole;
         this.readConsole = readConsole;
@@ -237,6 +245,10 @@ export class Vm {
             return -1;
         }
         return this.memory.text[this.registers.eip.value].lineNumber;
+    }
+
+    get globalVariableTable(): VmVariableTable {
+        return cloneDeep(this.tables.globalVariableTable);
     }
 
     /**
@@ -381,7 +393,7 @@ export class Vm {
             }
         }
 
-        if (!("main" in this.tables.functionTable)) {
+        if (!(this.entryFunctionName in this.tables.functionTable)) {
             this.executionStatus.state = "STATIC_CHECK_FAILED";
 
             this.writeConsole(
@@ -404,11 +416,11 @@ export class Vm {
      */
     private initializeMemoryRegister() {
         this.registers.ebp = this.alu.addUint32(
-            this.tables.functionTable["main"].addressBefore,
+            this.tables.functionTable[this.entryFunctionName].addressBefore,
             new Uint32(1)
         );
         this.registers.eip = this.alu.addUint32(
-            this.tables.functionTable["main"].addressBefore,
+            this.tables.functionTable[this.entryFunctionName].addressBefore,
             new Uint32(1)
         );
 
@@ -427,6 +439,11 @@ export class Vm {
         if (!this.pushl(new Uint32(this.memory.text.length))) {
             return;
         }
+
+        // Push new variable table
+        this.tables.variableTableStack.push({});
+        // Push call stack
+        this.executionStatus.callStack.push(this.entryFunctionName);
 
         for (const i of this.memory.text) {
             if (i.type === "GLOBAL_DEC") {
@@ -1093,6 +1110,11 @@ export class Vm {
                     this.registers.edi = new Uint32(this.memory.memory.length);
                 }
 
+                // Push new variable table
+                this.tables.variableTableStack.push({});
+                // Push call stack
+                this.executionStatus.callStack.push(functionId);
+
                 this.registers.eip =
                     this.tables.functionTable[functionId].addressBefore;
 
@@ -1124,9 +1146,6 @@ export class Vm {
 
                 // movl esp ebp
                 this.registers.ebp = this.registers.esp;
-
-                // Push new variable table
-                this.tables.variableTableStack.push({});
 
                 break;
             }
@@ -1267,6 +1286,9 @@ export class Vm {
 
                     return;
                 }
+
+                // Pop call stack
+                this.executionStatus.callStack.pop();
 
                 this.tables.variableTableStack.pop();
 
