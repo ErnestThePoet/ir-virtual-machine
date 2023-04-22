@@ -1,0 +1,12 @@
+@import "../../../../styles/layout.module.scss";
+@import "../../../../styles/common.module.scss";
+
+.divTabBarWrapper {
+    background-color: var(--tabbar-bkg-color);
+    height: $tabbar-height;
+    overflow-x: auto;
+    width: calc(100vw - $sidebar-width);
+    @include slim-scroll-bar;
+
+    display: flex;
+}
