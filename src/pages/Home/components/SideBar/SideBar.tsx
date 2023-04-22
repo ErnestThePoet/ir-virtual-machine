@@ -30,7 +30,7 @@ const SideBar: React.FC = () => {
     const vm = useAppSelector(state => state.vm);
 
     return (
-        <div className={styles.divSideBarWrapper}>
+        <aside className={styles.asideSideBarWrapper}>
             <div className={styles.divIconWrapperUpper}>
                 <SideBarIcon
                     icon={<FileAddOutlined />}
@@ -79,7 +79,7 @@ const SideBar: React.FC = () => {
                     onClick={() => {}}
                 />
             </div>
-        </div>
+        </aside>
     );
 };
 

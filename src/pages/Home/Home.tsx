@@ -6,9 +6,16 @@ import TabBar from "./components/TabBar";
 
 const Home: React.FC = () => {
     return (
-        <main className={styles.mainPc}>
+        <main className={styles.main}>
             <SideBar />
-            <TabBar />
+            <div className={styles.divRight}>
+                <TabBar />
+                <div className={styles.divVmWrapper}>
+                    <section className={styles.sectionIr}></section>
+
+                    <section className={styles.sectionConsole}></section>
+                </div>
+            </div>
         </main>
     );
 };

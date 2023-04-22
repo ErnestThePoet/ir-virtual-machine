@@ -1,6 +1,30 @@
-.mainPc{
+@import "../../styles/layout.module.scss";
+
+.main{
     width: 100vw;
     height: 100vh;
 
     display: flex;
+}
+
+.divRight{
+    width: calc(100% - $sidebar-width);
+    height: 100%;
+}
+
+.divVmWrapper{
+    width: 100%;
+    height: calc(100% - $tabbar-height);
+    display: flex;
+}
+
+.sectionIr{
+    width: 50%;
+    height: 100%;
+    border-right: 2px solid var(--vm-section-border-color);
+}
+
+.sectionConsole{
+    width: 50%;
+    height: 100%;
 }

@@ -1,8 +1,8 @@
 @import "../../../../styles/layout.module.scss";
 
-.divSideBarWrapper {
+.asideSideBarWrapper {
     width: $sidebar-width;
-    height: 100vh;
+    height: 100%;
 
     background-color: var(--sidebar-bkg-color);
 

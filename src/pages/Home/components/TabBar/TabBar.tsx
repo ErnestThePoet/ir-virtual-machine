@@ -16,7 +16,7 @@ const TabBar: React.FC = () => {
     const dispatch = useAppDispatch();
 
     return (
-        <div className={styles.divTabBarWrapper}>
+        <nav className={styles.navTabBarWrapper}>
             {vm.vmPageStates.map((x, i) => (
                 <TabBarItem
                     key={i}
@@ -62,7 +62,7 @@ const TabBar: React.FC = () => {
                     }}
                 />
             ))}
-        </div>
+        </nav>
     );
 };
 
