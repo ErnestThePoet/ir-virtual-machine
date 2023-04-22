@@ -1,0 +1,21 @@
+.divIconWrapper {
+    width: 100%;
+    height: 50px;
+    font-size: 25px;
+    cursor: pointer;
+    color: var(--sidebar-icon-color);
+    transition-duration: 200ms;
+    &:hover {
+        color: var(--sidebar-icon-hover-color);
+    }
+
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+
+    >label{
+        font-size: 12px;
+    }
+}

@@ -1,18 +1,18 @@
 $sidebar-width: 48px;
 
 .divSideBarWrapper {
-    width: 48px;
+    width: $sidebar-width;
     height: 100vh;
 
     background-color: var(--sidebar-bkg-color);
 
     display: flex;
     flex-direction: column;
+    gap: 20px;
     align-items: center;
-    padding-top: 15px;
+    padding: 20px 0;
 
-    svg {
-        cursor: pointer;
-        width: 30px;
+    &>:last-child{
+        margin-top: auto;
     }
 }
