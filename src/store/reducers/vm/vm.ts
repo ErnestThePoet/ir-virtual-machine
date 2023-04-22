@@ -31,10 +31,10 @@ export const vmSlice = createSlice({
             state.activeVmIndex = state.vmPageStates.length - 1;
         },
         deleteVmPageState: (state, action) => {
-            if (state.activeVmIndex >= action.payload.index) {
+            if (state.activeVmIndex >= action.payload) {
                 state.activeVmIndex--;
             }
-            state.vmPageStates.splice(action.payload.index, 1);
+            state.vmPageStates.splice(action.payload, 1);
         }
     }
 });

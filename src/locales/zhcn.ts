@@ -9,6 +9,10 @@ const zhCn = {
     THEME: "主题",
     ABOUT: "关于",
     CLOSE: "关闭",
+    CONFIRM_UNSAVED_CLOSE: "关闭前是否保存对 {name} 的更改？",
+    SAVE_CLOSE: "保存关闭",
+    UNSAVE_CLOSE: "不保存关闭",
+    CANCEL: "取消",
 
     // Static error check messages
     DECODE_ERROR_PREFIX: "指令解码错误(第{lineNumber}行)：",
