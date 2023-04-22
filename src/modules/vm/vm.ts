@@ -228,6 +228,16 @@ export class Vm {
         this.readConsole = readConsole;
     }
 
+    get currentLineNumber(): number {
+        if (
+            this.registers.eip.value < 0 ||
+            this.registers.eip.value >= this.memory.text.length
+        ) {
+            return -1;
+        }
+        return this.memory.text[this.registers.eip.value].lineNumber;
+    }
+
     /**
      * Configure the VM with given options.
      * @param options - The new VM options.
