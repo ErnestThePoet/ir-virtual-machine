@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-interface SingleVmPageState {
+export interface SingleVmPageState {
     name: string;
     irPath: string;
     isIrChanged: boolean;
@@ -20,7 +20,7 @@ export const vmSlice = createSlice({
     name: "vm",
     initialState,
     reducers: {
-        switchActiveVm: (state, action) => {
+        setActiveVmIndex: (state, action) => {
             state.activeVmIndex = action.payload;
         },
         setVmPageState: (state, action) => {
@@ -28,7 +28,6 @@ export const vmSlice = createSlice({
         },
         addVmPageState: (state, action) => {
             state.vmPageStates.push(action.payload);
-            state.activeVmIndex = state.vmPageStates.length - 1;
         },
         deleteVmPageState: (state, action) => {
             if (state.activeVmIndex >= action.payload.index) {
@@ -40,7 +39,7 @@ export const vmSlice = createSlice({
 });
 
 export const {
-    switchActiveVm,
+    setActiveVmIndex,
     setVmPageState,
     addVmPageState,
     deleteVmPageState
