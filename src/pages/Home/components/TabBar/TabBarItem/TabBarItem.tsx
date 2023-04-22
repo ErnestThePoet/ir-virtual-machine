@@ -21,7 +21,10 @@ const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
                 [styles.divTabBarItemWrapperActive]: props.isActive,
                 [styles.divTabBarItemWrapperInactive]: !props.isActive
             })}
-            onClick={props.onClick}>
+            onClick={e => {
+                e.stopPropagation();
+                props.onClick();
+            }}>
             <div className={styles.divIconTitleWrapper}>
                 <VmOutlined className={styles.iconVm} />
                 <label className={styles.lblTitle}>
@@ -32,7 +35,10 @@ const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
             {props.isChanged ? (
                 <div
                     className={styles.divCloseWrapperChanged}
-                    onClick={props.onCloseClick}>
+                    onClick={e => {
+                        e.stopPropagation();
+                        props.onCloseClick();
+                    }}>
                     <Dot className={styles.iconDot} />
                     <CloseOutlined className={styles.iconClose} />
                 </div>
@@ -40,7 +46,10 @@ const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
                 <div className={styles.divCloseWrapper}>
                     <CloseOutlined
                         className={styles.iconClose}
-                        onClick={props.onCloseClick}
+                        onClick={e => {
+                            e.stopPropagation();
+                            props.onCloseClick();
+                        }}
                     />
                 </div>
             )}
