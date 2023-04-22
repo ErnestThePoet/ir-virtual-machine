@@ -12,7 +12,7 @@ const Dot: React.FC<React.SVGProps<SVGSVGElement>> = (
             x="0px"
             y="0px"
             viewBox="0 0 50 50"
-            enable-background="new 0 0 50 50">
+            enableBackground="new 0 0 50 50">
             <circle cx="25" cy="25" r="25" />
             <g></g>
             <g></g>

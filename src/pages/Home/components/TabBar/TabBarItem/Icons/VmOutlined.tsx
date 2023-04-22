@@ -12,7 +12,7 @@ const VmOutlined: React.FC<React.SVGProps<SVGSVGElement>> = (
             x="0px"
             y="0px"
             viewBox="0 0 50 50"
-            enable-background="new 0 0 50 50">
+            enableBackground="new 0 0 50 50">
             <g>
                 <path d="M14.16,36.09L7.2,13.91h2.06l6.27,20.5h0.19l6.27-20.5h2.06l-6.95,22.19H14.16z" />
                 <path
@@ -23,8 +23,8 @@ const VmOutlined: React.FC<React.SVGProps<SVGSVGElement>> = (
             <g>
                 <path
                     fill="none"
-                    stroke-width="2"
-                    stroke-miterlimit="10"
+                    strokeWidth="2"
+                    strokeMiterlimit="10"
                     d="M1.5,36.5c0,3.87,3.13,7,7,7h33c3.87,0,7-3.13,7-7
 		v-22c0-3.87-3.13-7-7-7h-33c-3.87,0-7,3.13-7,7V36.5z"
                 />
