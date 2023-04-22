@@ -41,7 +41,8 @@ const zhCn = {
     VARIABLE_NOT_FOUND: "找不到变量'{id}'",
     FUNCTION_NOT_FOUND: "找不到函数'{id}'",
     LABEL_NOT_FOUND: "找不到标签'{id}'",
-    INSTRUCTION_READ_OUT_OF_BOUND: "从地址{address}处读入指令超出了指令地址空间",
+    INSTRUCTION_READ_OUT_OF_BOUND:
+        "从地址{address}处读入指令超出了指令地址空间",
     MEMORY_READ_OUT_OF_BOUND: "向地址{address}写入4字节时超出了地址空间",
     MEMORY_WRITE_OUT_OF_BOUND: "从地址{address}读入4字节时超出了地址空间",
     EMPTY_VARIABLE_TABLE_STACK: "局部变量符号表栈为空",
@@ -50,12 +51,13 @@ const zhCn = {
 
     // Other error messages
     MAX_STEP_REACHED: "已到达最大执行步数限制({maxExecutionStepCount})",
-    EXITED_ABNORMALLY: "程序执行结束，返回值为{value}",
+    EXITED_ABNORMALLY:
+        "程序执行结束，返回值为{returnValue}。总执行步数：{executionStepCount}",
 
     // Console normal messages
     WRITE_OUTPUT: "{value}",
     READ_PROMPT: "请输入{id}的值：",
-    EXITED_NORMALLY: "程序执行结束，返回值为0"
+    EXITED_NORMALLY: "程序执行结束，返回值为0。总执行步数：{executionStepCount}"
 };
 
 export default zhCn;

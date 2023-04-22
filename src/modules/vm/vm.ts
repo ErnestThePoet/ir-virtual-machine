@@ -52,6 +52,7 @@ interface VmRegisters {
     eax: Uint32;
     ebx: Uint32;
     ecx: Uint32;
+    edi: Uint32;
     ebp: Uint32;
     esp: Uint32;
     eip: Uint32;
@@ -62,7 +63,6 @@ interface VmTables {
     functionTable: { [name: string]: VmFunction };
     globalVariableTable: { [name: string]: VmVariable };
     variableTableStack: { [name: string]: VmVariable }[];
-    assignCallLValue: LValue | null;
 }
 
 type VmExecutionState =
@@ -92,6 +92,7 @@ const initialRegisters: VmRegisters = {
     eax: new Uint32(0),
     ebx: new Uint32(0),
     ecx: new Uint32(0),
+    edi: new Uint32(0),
     ebp: new Uint32(0),
     esp: new Uint32(0),
     eip: new Uint32(0)
@@ -101,8 +102,7 @@ const initialTables: VmTables = {
     labelTable: {},
     functionTable: {},
     globalVariableTable: {},
-    variableTableStack: [],
-    assignCallLValue: null
+    variableTableStack: []
 };
 
 const initialExecutionStatus: VmExecutionStatus = {
@@ -162,6 +162,7 @@ const defaultOptions: VmOptions = {
  * eax - counts total function arg size
  * ebx - indicates current function param address
  * ecx - indicates top address of global variable segment
+ * edi - return value store address, or this.memory.length if not to store
  * ebp
  * esp
  * eip
@@ -184,7 +185,7 @@ const defaultOptions: VmOptions = {
  * |                                | <- 0
  * |--------------------------------|
  *
- * IrVm uses cdecl calling convention.
+ * IrVm uses a slightly modified cdecl calling convention.
  * The stack layout when calling a new function is like below.
  * |--------------------------------|
  * |             Arg n              | <- ebx at last PARAM in current function
@@ -193,9 +194,13 @@ const defaultOptions: VmOptions = {
  * |--------------------------------|
  * |             Arg 0              | <- ebx at first PARAM in current function
  * |--------------------------------|
+ * |          Saved eax             |
+ * |--------------------------------|
  * |         Return address         |
  * |--------------------------------|
- * |          Saved ebp             | <- new ebp
+ * |          Saved ebp             |
+ * |--------------------------------|
+ * |          Saved edi             | <- new ebp
  * |--------------------------------|
  * |                                |
  * |          Local vars            |
@@ -229,6 +234,10 @@ export class Vm {
      * @public
      */
     configure(options: VmOptionsPartial) {
+        if (this.executionStatus.state !== "INITIAL") {
+            return;
+        }
+
         const limitRange = (x: number, limit: { min: number; max: number }) => {
             x = Math.max(x, limit.min);
             x = Math.min(x, limit.max);
@@ -378,7 +387,7 @@ export class Vm {
     }
 
     /**
-     * Initialize register eip and ebp to program entry;
+     * Initialize registers as if there's an outer caller to main function;
      * allocate, initialize global variables and construct global variable table;
      * push main function's special return address to stack
      */
@@ -391,6 +400,9 @@ export class Vm {
             this.tables.functionTable["main"].addressBefore,
             new Uint32(1)
         );
+
+        // do not store return value
+        this.registers.edi = new Uint32(this.memory.memory.length);
 
         // Fill memory with a random number
         this.memory.memory = new Uint8Array(this.options.memorySize).fill(
@@ -459,6 +471,41 @@ export class Vm {
         }
 
         this.executionStatus.state = "FREE";
+    }
+
+    /**
+     * Finalize the VM when main function returns.
+     * @param returnValue - The return value of main function.
+     */
+    private finalizeExcution(returnValue: Aint32) {
+        if (this.alu.eq(returnValue, new Int32(0))) {
+            this.executionStatus.state = "EXITED_NORMALLY";
+            this.writeConsole(
+                [
+                    {
+                        key: "EXITED_NORMALLY",
+                        values: {
+                            executionStepCount: this.executionStatus.stepCount
+                        }
+                    }
+                ],
+                "SUCCESS"
+            );
+        } else {
+            this.executionStatus.state = "EXITED_ABNORMALLY";
+            this.writeConsole(
+                [
+                    {
+                        key: "EXITED_ABNORMALLY",
+                        values: {
+                            returnValue: returnValue.value,
+                            executionStepCount: this.executionStatus.stepCount
+                        }
+                    }
+                ],
+                "WARNING"
+            );
+        }
     }
 
     /**
@@ -825,23 +872,22 @@ export class Vm {
     }
 
     /**
-     * Store the given `Aint32` value to the given `LValue`. If its singular
+     * Get memory address of the given `LValue`. If its singular
      * is an `ID` which can't be found, the variable will be immediately
      * created. If an error is caused, it will be written to console.
-     * @param lValue - The `LValue` object representing assignment target.
-     * @param value - The `Aint32` object.
-     * @returns A `boolean` value indicating whether assignment is successful
+     * @param lValue - The `LValue` object.
+     * @returns An `Uint32` value or `null`
      */
-    private assignLValue(lValue: LValue, value: Aint32): boolean {
+    private getLValueAddress(lValue: LValue): Uint32 | null {
         let variable = this.getVariableById(lValue.id);
         if (variable === null) {
             if (lValue.type === "ID") {
                 variable = this.createStackVariable(lValue.id, new Uint32(4));
                 if (variable === null) {
-                    return false;
+                    return null;
                 }
             } else {
-                return false;
+                return null;
             }
         }
 
@@ -850,21 +896,13 @@ export class Vm {
         if (lValue.type === "DEREF_ID") {
             const derefAddress = this.loadMemory32(variable.address);
             if (derefAddress === null) {
-                return false;
+                return null;
             }
 
             storeAddress = derefAddress;
         }
 
-        const storeResult = this.storeMemory32(
-            new Uint32(value.value),
-            storeAddress
-        );
-        if (!storeResult) {
-            return false;
-        }
-
-        return true;
+        return storeAddress;
     }
 
     /**
@@ -985,9 +1023,14 @@ export class Vm {
                     return;
                 }
 
-                if (
-                    !this.assignLValue((<DecodedAssign>ir.value).lValue, rValue)
-                ) {
+                const lValueAddress = this.getLValueAddress(
+                    (<DecodedAssign>ir.value).lValue
+                );
+                if (lValueAddress === null) {
+                    return;
+                }
+
+                if (!this.storeMemory32(rValue, lValueAddress)) {
                     return;
                 }
 
@@ -1013,15 +1056,28 @@ export class Vm {
                 // Set first arg address
                 this.registers.ebx = this.registers.esp;
 
+                // Push eax
+                if (!this.pushl(this.registers.eax)) {
+                    return;
+                }
+
                 // Push return address
                 if (!this.pushl(this.registers.eip)) {
                     return;
                 }
 
                 if (ir.type === "ASSIGN_CALL") {
-                    this.tables.assignCallLValue = (<DecodedAssignCall>(
-                        ir.value
-                    )).lValue;
+                    const lValueAddress = this.getLValueAddress(
+                        (<DecodedAssignCall>ir.value).lValue
+                    );
+                    if (lValueAddress === null) {
+                        return;
+                    }
+
+                    // Set return value store address
+                    this.registers.edi = lValueAddress;
+                } else {
+                    this.registers.edi = new Uint32(this.memory.memory.length);
                 }
 
                 this.registers.eip =
@@ -1045,6 +1101,11 @@ export class Vm {
             case "FUNCTION": {
                 // pushl ebp
                 if (!this.pushl(this.registers.ebp)) {
+                    return;
+                }
+
+                // pushl edi
+                if (!this.pushl(this.registers.edi)) {
                     return;
                 }
 
@@ -1132,6 +1193,92 @@ export class Vm {
                     this.registers.ebx,
                     new Uint32(4)
                 );
+
+                break;
+            }
+
+            case "RETURN": {
+                const returnValue = this.getSingularValue(
+                    (<DecodedReturn>ir.value).value
+                );
+                if (returnValue === null) {
+                    return;
+                }
+
+                // movl ebp,esp
+                this.registers.esp = this.registers.ebp;
+
+                // popl edi
+                const savedEdi = this.popl();
+                if (savedEdi === null) {
+                    return;
+                }
+
+                this.registers.edi = savedEdi;
+
+                // popl ebp
+                const savedEbp = this.popl();
+                if (savedEbp === null) {
+                    return;
+                }
+
+                this.registers.ebp = savedEbp;
+
+                // ret
+                const returnAddress = this.popl();
+                if (returnAddress === null) {
+                    return;
+                }
+
+                this.registers.eip = returnAddress;
+
+                // popl eax
+                const savedEax = this.popl();
+                if (savedEax === null) {
+                    return;
+                }
+
+                this.registers.eax = savedEax;
+
+                // addl esp, eax
+                this.registers.esp = this.alu.addUint32(
+                    this.registers.esp,
+                    this.registers.eax
+                );
+
+                // Pop local variable table
+                if (this.tables.variableTableStack.length === 0) {
+                    this.writeRuntimeError({
+                        key: "EMPTY_VARIABLE_TABLE_STACK"
+                    });
+
+                    return;
+                }
+
+                this.tables.variableTableStack.pop();
+
+                // store return value
+                if (
+                    this.alu.ne(
+                        this.registers.edi,
+                        new Uint32(this.memory.memory.length)
+                    )
+                ) {
+                    if (!this.storeMemory32(returnValue, this.registers.edi)) {
+                        return;
+                    }
+                }
+
+                // Whether main function returns
+                if (
+                    this.alu.eq(
+                        this.registers.eip,
+                        new Uint32(this.memory.text.length)
+                    )
+                ) {
+                    this.finalizeExcution(returnValue);
+                    return;
+                }
 
                 break;
             }
