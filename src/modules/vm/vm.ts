@@ -80,12 +80,16 @@ type VmExecutionState =
     | "EXITED_NORMALLY"
     | "EXITED_ABNORMALLY";
 
+interface VmStaticErrorTable {
+    [lineNumber: string | number]: AppLocaleKey;
+}
+
 interface VmExecutionStatus {
     stepCount: number;
     state: VmExecutionState;
     callStack: string[];
-    // Used to index which line should be marked
-    staticErrors: { [lineNumber: string | number]: AppLocaleKey };
+    // Used to index which line contains static error and should be marked
+    staticErrorTable: VmStaticErrorTable;
 }
 
 const initialMemory: VmMemory = {
@@ -115,7 +119,7 @@ const initialExecutionStatus: VmExecutionStatus = {
     stepCount: 0,
     state: "INITIAL",
     callStack: [],
-    staticErrors: {}
+    staticErrorTable: {}
 };
 
 // Write console message type
@@ -251,6 +255,26 @@ export class Vm {
         return cloneDeep(this.tables.globalVariableTable);
     }
 
+    get variableTableStack(): VmVariableTable[] {
+        return cloneDeep(this.tables.variableTableStack);
+    }
+
+    get callStack(): string[] {
+        return cloneDeep(this.executionStatus.callStack);
+    }
+
+    get state(): VmExecutionState {
+        return this.executionStatus.state;
+    }
+
+    get staticErrorTable(): VmStaticErrorTable {
+        return cloneDeep(this.executionStatus.staticErrorTable);
+    }
+
+    get executionStepCount(): number {
+        return this.executionStatus.stepCount;
+    }
+
     /**
      * Configure the VM with given options.
      * @param options - The new VM options.
@@ -364,7 +388,8 @@ export class Vm {
                     "ERROR"
                 );
 
-                this.executionStatus.staticErrors[i + 1] = decoded.messageKey!;
+                this.executionStatus.staticErrorTable[i + 1] =
+                    decoded.messageKey!;
 
                 continue;
             }
