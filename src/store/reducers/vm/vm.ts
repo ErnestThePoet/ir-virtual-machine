@@ -31,9 +31,21 @@ export const vmSlice = createSlice({
             state.activeVmIndex = state.vmPageStates.length - 1;
         },
         deleteVmPageState: (state, action) => {
-            if (state.activeVmIndex >= action.payload) {
+            // If active VM is left to the closed one, do nothing.
+            // If active VM is the closed one, and is the right most
+            // VM, make its left VM active. Otherwise make its right
+            // VM active.
+            // If active VM is right to the closed one, keep it active
+            // by decreasing activeVmIndex.
+            if (state.activeVmIndex > action.payload) {
                 state.activeVmIndex--;
             }
+            else if (state.activeVmIndex === action.payload) {
+                if (state.activeVmIndex === state.vmPageStates.length - 1) {
+                    state.activeVmIndex--;
+                }
+            }
+            
             state.vmPageStates.splice(action.payload, 1);
         }
     }
