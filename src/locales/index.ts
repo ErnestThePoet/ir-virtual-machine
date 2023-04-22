@@ -14,7 +14,7 @@ const locales: { name: string; locale: AppLocale }[] = [
     {
         name: "简体中文",
         locale: zhCn
-    }
+    },
     // Add new language entry here //
 
     /////////////////////////////////
