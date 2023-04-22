@@ -965,7 +965,7 @@ export class Vm {
      * `"RUNTIME_ERROR"` with error message written to console.
      * @public
      */
-    executeSingleStep() {
+    async executeSingleStep() {
         if (this.executionStatus.state === "INITIAL") {
             this.prepareExcution();
         }
@@ -974,6 +974,7 @@ export class Vm {
             return;
         }
 
+        // Check step limit
         if (
             this.executionStatus.stepCount >= this.options.maxExecutionStepCount
         ) {
@@ -993,6 +994,7 @@ export class Vm {
             return;
         }
 
+        // Check text index
         if (
             this.alu.geUint32(
                 this.registers.eip,
@@ -1282,6 +1284,84 @@ export class Vm {
 
                 break;
             }
+
+            case "READ": {
+                const decodedRead = <DecodedRead>ir.value;
+
+                const lValueAddress = this.getLValueAddress(decodedRead.lValue);
+                if (lValueAddress === null) {
+                    return;
+                }
+
+                const lValueName =
+                    decodedRead.lValue.type === "ID"
+                        ? decodedRead.lValue.id
+                        : "*" + decodedRead.lValue.id;
+
+                const valueString = await this.readConsole([
+                    {
+                        key: "READ_PROMPT",
+                        values: {
+                            name: lValueName
+                        }
+                    }
+                ]);
+
+                const value = parseInt(valueString);
+                if (isNaN(value)) {
+                    this.writeRuntimeError({
+                        key: "INPUT_INT_ILLEGAL"
+                    });
+
+                    return;
+                }
+
+                if (!Number.isSafeInteger(value)) {
+                    this.writeRuntimeError({
+                        key: "INPUT_INT_ABS_TOO_LARGE"
+                    });
+
+                    return;
+                }
+
+                if (!this.storeMemory32(new Int32(value), lValueAddress)) {
+                    return;
+                }
+
+                break;
+            }
+
+            case "WRITE": {
+                const value = this.getSingularValue(
+                    (<DecodedWrite>ir.value).value
+                );
+                if (value === null) {
+                    return;
+                }
+
+                this.writeConsole(
+                    [
+                        {
+                            key: "WRITE_OUTPUT",
+                            values: {
+                                value: value.value
+                            }
+                        }
+                    ],
+                    "OUT"
+                );
+
+                break;
+            }
+
+            default:
+                break;
         }
+
+        // inc eip
+        this.registers.eip = this.alu.addUint32(
+            this.registers.eip,
+            new Uint32(1)
+        );
     }
 }
