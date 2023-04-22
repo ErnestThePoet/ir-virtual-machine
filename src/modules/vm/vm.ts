@@ -271,7 +271,7 @@ export class Vm {
         return cloneDeep(this.executionStatus.staticErrorTable);
     }
 
-    get executionStepCount(): number {
+    get stepCount(): number {
         return this.executionStatus.stepCount;
     }
 
@@ -538,7 +538,7 @@ export class Vm {
                     {
                         key: "EXITED_NORMALLY",
                         values: {
-                            executionStepCount: this.executionStatus.stepCount
+                            stepCount: this.executionStatus.stepCount
                         }
                     }
                 ],
@@ -552,7 +552,7 @@ export class Vm {
                         key: "EXITED_ABNORMALLY",
                         values: {
                             returnValue: returnValue.value,
-                            executionStepCount: this.executionStatus.stepCount
+                            stepCount: this.executionStatus.stepCount
                         }
                     }
                 ],

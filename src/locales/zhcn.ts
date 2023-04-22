@@ -52,14 +52,14 @@ const zhCn = {
     // Other error messages
     MAX_STEP_REACHED: "已到达最大执行步数限制({maxExecutionStepCount})",
     EXITED_ABNORMALLY:
-        "程序执行结束，返回值为{returnValue}。总执行步数：{executionStepCount}",
+        "程序执行结束，返回值为{returnValue}。总执行步数：{stepCount}",
     INPUT_INT_ILLEGAL: "输入的整数格式非法",
     INPUT_INT_ABS_TOO_LARGE: "输入的整数绝对值过大",
 
     // Console normal messages
     WRITE_OUTPUT: "{value}",
     READ_PROMPT: "请输入 {name} 的值：",
-    EXITED_NORMALLY: "程序执行结束，返回值为0。总执行步数：{executionStepCount}"
+    EXITED_NORMALLY: "程序执行结束，返回值为0。总执行步数：{stepCount}"
 };
 
 export default zhCn;
