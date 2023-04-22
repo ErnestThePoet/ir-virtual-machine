@@ -5,9 +5,7 @@
     }
 
     &::-webkit-scrollbar-thumb {
-        border-radius: 3px;
         background-color: rgb(145, 145, 145);
-        //box-shadow: 0 2px 3px 0px #9B9B9B;
     }
 
     &::-webkit-scrollbar-thumb:hover {
@@ -20,6 +18,5 @@
 
     &::-webkit-scrollbar-track {
         background-color: rgb(220, 220, 220);
-        border-radius: 3px;
     }
 }
