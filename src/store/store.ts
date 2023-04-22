@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import localeReducer from "./reducers/locale/locale";
 import themeReducer from "./reducers/theme/theme";
+import vmReducer from "./reducers/vm/vm";
 
 const store = configureStore({
     reducer: {
         locale: localeReducer,
-        theme: themeReducer
+        theme: themeReducer,
+        vm: vmReducer
     }
 });
 

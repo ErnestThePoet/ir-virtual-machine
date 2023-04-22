@@ -19,8 +19,18 @@ export const vmSlice = createSlice({
     name: "vm",
     initialState,
     reducers: {
+        setVms: (state, action) => {
+            state.vms = action.payload;
+        },
         switchVm: (state, action) => {
             state.currentVmIndex = action.payload;
+        },
+        updateVm: (state, action) => {
+            state.vms[state.currentVmIndex].vm = action.payload;
         }
     }
 });
+
+export const { setVms, switchVm, updateVm } = vmSlice.actions;
+
+export default vmSlice.reducer;
