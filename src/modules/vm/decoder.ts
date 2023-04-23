@@ -1,4 +1,4 @@
-import { Int32, Uint32 } from "./data_types";
+import { Int32 } from "./data_types";
 import type { AppLocaleKey } from "@/locales";
 
 // Component types
@@ -43,12 +43,12 @@ export interface DecodedAssign {
 
 export interface DecodedDec {
     id: string;
-    size: Uint32;
+    size: Int32;
 }
 
 export interface DecodedGlobalDec {
     id: string;
-    size: Uint32;
+    size: Int32;
 }
 
 export interface DecodedLabel {
@@ -193,18 +193,18 @@ export class Decoder {
     }
 
     /**
-     * Decode the size string into a Uint32.
+     * Decode the size string into a Int32.
      * @param size - The size string.
-     * @returns An Uint32, or null if illegal.
+     * @returns An Int32, or null if illegal.
      */
-    private decodeComponentSize(size: string): Uint32 | null {
+    private decodeComponentSize(size: string): Int32 | null {
         const match = size.match(this.patternSize);
 
         if (match === null) {
             return null;
         }
 
-        return new Uint32(parseInt(match.groups!.size));
+        return new Int32(parseInt(match.groups!.size));
     }
 
     /**

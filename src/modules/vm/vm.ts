@@ -1,4 +1,4 @@
-import { Aint32, Int32, Uint32 } from "./data_types";
+import { Int32, Uint32 } from "./data_types";
 import { Alu } from "./alu";
 import { Mmu } from "./mmu";
 import { CondValue, Decoder } from "./decoder";
@@ -29,17 +29,17 @@ import { cloneDeep } from "lodash";
 // VM Table element types
 interface VmLabel {
     // Equals actual address-1 because EIP increases after the address is set
-    addressBefore: Uint32;
+    addressBefore: Int32;
 }
 
 interface VmFunction {
     // Equals actual address-1 because EIP increases after the address is set
-    addressBefore: Uint32;
+    addressBefore: Int32;
 }
 
 interface VmVariable {
-    address: Uint32;
-    size: Uint32;
+    address: Int32;
+    size: Int32;
 }
 
 // VM Component types
@@ -50,22 +50,35 @@ interface VmMemory {
 }
 
 interface VmRegisters {
-    eax: Uint32;
-    ebx: Uint32;
-    ecx: Uint32;
-    edi: Uint32;
-    ebp: Uint32;
-    esp: Uint32;
-    eip: Uint32;
+    eax: Int32;
+    ebx: Int32;
+    ecx: Int32;
+    edi: Int32;
+    ebp: Int32;
+    esp: Int32;
+    eip: Int32;
 }
 
 interface VmVariableTable {
-    [name: string]: VmVariable;
+    [id: string]: VmVariable;
+}
+
+// VmVariableDetail and VmLocalVariableDetail are for external display.
+interface VmVariableDetail {
+    id: string;
+    address: number;
+    size: number;
+    values: number[];
+}
+
+interface VmLocalVariableDetail {
+    functionName: string;
+    details: VmVariableDetail[];
 }
 
 interface VmTables {
-    labelTable: { [name: string]: VmLabel };
-    functionTable: { [name: string]: VmFunction };
+    labelTable: { [id: string]: VmLabel };
+    functionTable: { [id: string]: VmFunction };
     globalVariableTable: VmVariableTable;
     variableTableStack: VmVariableTable[];
 }
@@ -99,13 +112,13 @@ const initialMemory: VmMemory = {
 };
 
 const initialRegisters: VmRegisters = {
-    eax: new Uint32(0),
-    ebx: new Uint32(0),
-    ecx: new Uint32(0),
-    edi: new Uint32(0),
-    ebp: new Uint32(0),
-    esp: new Uint32(0),
-    eip: new Uint32(0)
+    eax: new Int32(0),
+    ebx: new Int32(0),
+    ecx: new Int32(0),
+    edi: new Int32(0),
+    ebp: new Int32(0),
+    esp: new Int32(0),
+    eip: new Int32(0)
 };
 
 const initialTables: VmTables = {
@@ -251,12 +264,26 @@ export class Vm {
         return this.memory.text[this.registers.eip.value].lineNumber;
     }
 
-    get globalVariableTable(): VmVariableTable {
-        return cloneDeep(this.tables.globalVariableTable);
+    get instructions(): string[] {
+        return this.memory.instructions;
     }
 
-    get variableTableStack(): VmVariableTable[] {
-        return cloneDeep(this.tables.variableTableStack);
+    private getSingleVariableDetail(variable: VmVariable): VmVariableDetail {}
+
+    get globalVariableDetails(): VmVariableDetail[] {
+        const details: VmVariableDetail[] = [];
+        for (const id in this.tables.globalVariableTable) {
+            details.push({
+                id,
+                address: this.tables.globalVariableTable[id].address.value,
+                size: this.tables.globalVariableTable[id].size.value,
+                values: []
+            });
+        }
+    }
+
+    get localVariableDetails(): VmLocalVariableDetail[] {
+        return [];
     }
 
     get callStack(): string[] {
@@ -394,7 +421,7 @@ export class Vm {
                 continue;
             }
 
-            const currentAddress = new Uint32(this.memory.text.length - 1);
+            const currentAddress = new Int32(this.memory.text.length - 1);
 
             switch (decoded.type) {
                 case "LABEL":
@@ -440,17 +467,17 @@ export class Vm {
      * push main function's special return address to stack
      */
     private initializeMemoryRegister() {
-        this.registers.ebp = this.alu.addUint32(
+        this.registers.ebp = this.alu.addInt32(
             this.tables.functionTable[this.entryFunctionName].addressBefore,
-            new Uint32(1)
+            new Int32(1)
         );
-        this.registers.eip = this.alu.addUint32(
+        this.registers.eip = this.alu.addInt32(
             this.tables.functionTable[this.entryFunctionName].addressBefore,
-            new Uint32(1)
+            new Int32(1)
         );
 
         // do not store return value
-        this.registers.edi = new Uint32(this.memory.memory.length);
+        this.registers.edi = new Int32(this.memory.memory.length);
 
         // Fill memory with a random number
         this.memory.memory = new Uint8Array(this.options.memorySize).fill(
@@ -458,10 +485,10 @@ export class Vm {
         );
 
         // esp initially points to one byte outside
-        this.registers.esp = new Uint32(this.options.memorySize);
+        this.registers.esp = new Int32(this.options.memorySize);
 
         // push this.memory.text.length as main's special return address
-        if (!this.pushl(new Uint32(this.memory.text.length))) {
+        if (!this.pushl(new Int32(this.memory.text.length))) {
             return;
         }
 
@@ -495,7 +522,7 @@ export class Vm {
                     address: this.registers.ecx
                 };
 
-                this.registers.ecx = this.alu.addUint32(
+                this.registers.ecx = this.alu.addInt32(
                     this.registers.ecx,
                     decodedGlobalDec.size
                 );
@@ -530,7 +557,7 @@ export class Vm {
      * Finalize the VM when main function returns.
      * @param returnValue - The return value of main function.
      */
-    private finalizeExcution(returnValue: Aint32) {
+    private finalizeExcution(returnValue: Int32) {
         if (this.alu.eq(returnValue, new Int32(0))) {
             this.executionStatus.state = "EXITED_NORMALLY";
             this.writeConsole(
@@ -586,14 +613,14 @@ export class Vm {
         );
     }
 
-    private checkStackSize(size: Uint32): boolean {
-        if (this.alu.ltUint32(this.registers.esp, size)) {
+    private checkStackSize(size: Int32): boolean {
+        if (this.alu.ltInt32(this.registers.esp, size)) {
             return false;
         }
 
         if (
-            this.alu.leUint32(
-                this.alu.subUint32(this.registers.esp, size),
+            this.alu.leInt32(
+                this.alu.subInt32(this.registers.esp, size),
                 this.registers.ecx
             )
         ) {
@@ -603,13 +630,13 @@ export class Vm {
         return true;
     }
 
-    private checkGlobalVariableSegmentSize(size: Uint32) {
-        const newEbx = this.alu.addUint32(this.registers.ecx, size);
-        if (this.alu.geUint32(newEbx, this.registers.esp)) {
+    private checkGlobalVariableSegmentSize(size: Int32) {
+        const newEbx = this.alu.addInt32(this.registers.ecx, size);
+        if (this.alu.geInt32(newEbx, this.registers.esp)) {
             return false;
         }
 
-        if (this.alu.geUint32(newEbx, new Uint32(this.options.memorySize))) {
+        if (this.alu.geInt32(newEbx, new Int32(this.options.memorySize))) {
             return false;
         }
 
@@ -617,45 +644,48 @@ export class Vm {
     }
 
     /**
-     * Read an `Uint32` from memory at given address. If memory reading caused an MMU
+     * Read an `Int32` from memory at given address. If memory reading caused an MMU
      * `OUT_OF_BOUND` error, `null` is returned and error will be written to console.
      * @param address - The memory read address.
-     * @returns An `Uint32` value or `null`
+     * @returns An `Int32` value or `null`
      */
-    private loadMemory32(address: Uint32): Uint32 | null {
-        const value = this.mmu.load32(address, this.memory.memory);
-        if (value.status === "OUT_OF_BOUND") {
+    private loadMemory32(address: Int32): Int32 | null {
+        const uint32address = new Uint32(address.value);
+
+        const loadResult = this.mmu.load32(uint32address, this.memory.memory);
+        if (loadResult.status === "OUT_OF_BOUND") {
             this.writeRuntimeError({
                 key: "MEMORY_READ_OUT_OF_BOUND",
                 values: {
-                    address: toHex(address)
+                    address: toHex(uint32address)
                 }
             });
 
             return null;
         }
 
-        return value.value!;
+        return new Int32(loadResult.value!.value);
     }
 
     /**
-     * Store an `Aint32` to memory at given address. If memory writing caused an MMU
+     * Store an `Int32` to memory at given address. If memory writing caused an MMU
      * `OUT_OF_BOUND` error, `false` is returned and error will be written to console.
-     * @param value - The `Aint32` value to be stored.
+     * @param value - The `Int32` value to be stored.
      * @param address - The memory write address.
      * @returns A `boolean` value indicating whether memory write is successful.
      */
-    private storeMemory32(value: Aint32, address: Uint32): boolean {
+    private storeMemory32(value: Int32, address: Int32): boolean {
+        const uint32address = new Uint32(address.value);
         const storeResult = this.mmu.store32(
             new Uint32(value.value),
-            address,
+            uint32address,
             this.memory.memory
         );
         if (storeResult.status === "OUT_OF_BOUND") {
             this.writeRuntimeError({
                 key: "MEMORY_WRITE_OUT_OF_BOUND",
                 values: {
-                    address: toHex(address)
+                    address: toHex(uint32address)
                 }
             });
 
@@ -666,23 +696,23 @@ export class Vm {
     }
 
     /**
-     * Sub `esp` by 4 and store the given `Aint32` value on top of stack.
+     * Sub `esp` by 4 and store the given `Int32` value on top of stack.
      * If memory writing caused an MMU `OUT_OF_BOUND` error, `false` is
      * returned and error will be written to console.
-     * @param value - The `Aint32` value to be pushed onto stack.
+     * @param value - The `Int32` value to be pushed onto stack.
      * @returns A `boolean` value indicating whether push is successful.
      */
-    private pushl(value: Aint32): boolean {
-        if (!this.checkStackSize(new Uint32(4))) {
+    private pushl(value: Int32): boolean {
+        if (!this.checkStackSize(new Int32(4))) {
             this.writeRuntimeError({
                 key: "STACK_OVERFLOW"
             });
             return false;
         }
 
-        this.registers.esp = this.alu.subUint32(
+        this.registers.esp = this.alu.subInt32(
             this.registers.esp,
-            new Uint32(4)
+            new Int32(4)
         );
         if (!this.storeMemory32(value, this.registers.esp)) {
             return false;
@@ -692,20 +722,20 @@ export class Vm {
     }
 
     /**
-     * Return the top `Uint32` on stack and add `esp` by `4`. If memory reading
+     * Return the top `Int32` on stack and add `esp` by `4`. If memory reading
      * caused an MMU `OUT_OF_BOUND` error, `null` is returned and error will
      * be written to console.
-     * @returns An `Uint32` value or `null`
+     * @returns An `Int32` value or `null`
      */
-    private popl(): Uint32 | null {
+    private popl(): Int32 | null {
         const value = this.loadMemory32(this.registers.esp);
         if (value === null) {
             return null;
         }
 
-        this.registers.esp = this.alu.addUint32(
+        this.registers.esp = this.alu.addInt32(
             this.registers.esp,
-            new Uint32(4)
+            new Int32(4)
         );
 
         return value;
@@ -751,13 +781,13 @@ export class Vm {
     }
 
     /**
-     * Get the `Int32` or `Uint32` value of given singular. If the singular
+     * Get the `Int32` or `Int32` value of given singular. If the singular
      * contains an `ID` which can't be found, or memory reading caused an MMU
      * `OUT_OF_BOUND` error, `null` is returned and error will be written to console.
      * @param singular - The Singular object.
-     * @returns An `Aint32` value or `null`
+     * @returns An `Int32` value or `null`
      */
-    private getSingularValue(singular: Singular): Aint32 | null {
+    private getSingularValue(singular: Singular): Int32 | null {
         switch (singular.type) {
             case "IMM":
                 return singular.imm!;
@@ -791,39 +821,39 @@ export class Vm {
     }
 
     private aint32BinaryMathOp(
-        a: Aint32,
-        b: Aint32,
+        a: Int32,
+        b: Int32,
         int32Op: (_a: Int32, _b: Int32) => Int32,
-        uint32Op: (_a: Uint32, _b: Uint32) => Uint32
-    ): Aint32 {
+        uint32Op: (_a: Int32, _b: Int32) => Int32
+    ): Int32 {
         if (a.type === "UINT32" || b.type === "UINT32") {
-            return uint32Op(new Uint32(a.value), new Uint32(b.value));
+            return uint32Op(new Int32(a.value), new Int32(b.value));
         }
 
         return int32Op(a as Int32, b as Int32);
     }
 
     private aint32BinaryRelOp(
-        a: Aint32,
-        b: Aint32,
+        a: Int32,
+        b: Int32,
         int32Op: (_a: Int32, _b: Int32) => boolean,
-        uint32Op: (_a: Uint32, _b: Uint32) => boolean
+        uint32Op: (_a: Int32, _b: Int32) => boolean
     ): boolean {
         if (a.type === "UINT32" || b.type === "UINT32") {
-            return uint32Op(new Uint32(a.value), new Uint32(b.value));
+            return uint32Op(new Int32(a.value), new Int32(b.value));
         }
 
         return int32Op(a as Int32, b as Int32);
     }
 
     /**
-     * Get the `Int32` or `Uint32` value of given `RValue`. If its singular
+     * Get the `Int32` or `Int32` value of given `RValue`. If its singular
      * contains an `ID` which can't be found, or memory reading caused an MMU
      * `OUT_OF_BOUND` error, `null` is returned and error will be written to console.
      * @param rValue - The `RValue` object.
-     * @returns An `Aint32` value or `null`
+     * @returns An `Int32` value or `null`
      */
-    private getRValue(rValue: RValue): Aint32 | null {
+    private getRValue(rValue: RValue): Int32 | null {
         switch (rValue.type) {
             case "SINGULAR":
                 return this.getSingularValue(rValue.singular!);
@@ -844,28 +874,28 @@ export class Vm {
                             singularLValue,
                             singularRValue,
                             this.alu.addInt32,
-                            this.alu.addUint32
+                            this.alu.addInt32
                         );
                     case "-":
                         return this.aint32BinaryMathOp(
                             singularLValue,
                             singularRValue,
                             this.alu.subInt32,
-                            this.alu.subUint32
+                            this.alu.subInt32
                         );
                     case "*":
                         return this.aint32BinaryMathOp(
                             singularLValue,
                             singularRValue,
                             this.alu.mulInt32,
-                            this.alu.mulUint32
+                            this.alu.mulInt32
                         );
                     case "/":
                         return this.aint32BinaryMathOp(
                             singularLValue,
                             singularRValue,
                             this.alu.divInt32,
-                            this.alu.divUint32
+                            this.alu.divInt32
                         );
                 }
             }
@@ -879,7 +909,7 @@ export class Vm {
      * @param size - The variable size.
      * @returns A `VmVariable` value or `null`
      */
-    private createStackVariable(id: string, size: Uint32): VmVariable | null {
+    private createStackVariable(id: string, size: Int32): VmVariable | null {
         if (!this.checkStackSize(size)) {
             this.writeRuntimeError({
                 key: "STACK_OVERFLOW"
@@ -887,7 +917,7 @@ export class Vm {
             return null;
         }
 
-        this.registers.esp = this.alu.subUint32(this.registers.esp, size);
+        this.registers.esp = this.alu.subInt32(this.registers.esp, size);
 
         const variable: VmVariable = {
             address: this.registers.esp,
@@ -929,13 +959,13 @@ export class Vm {
      * is an `ID` which can't be found, the variable will be immediately
      * created. If an error is caused, it will be written to console.
      * @param lValue - The `LValue` object.
-     * @returns An `Uint32` value or `null`
+     * @returns An `Int32` value or `null`
      */
-    private getLValueAddress(lValue: LValue): Uint32 | null {
+    private getLValueAddress(lValue: LValue): Int32 | null {
         let variable = this.getVariableById(lValue.id);
         if (variable === null) {
             if (lValue.type === "ID") {
-                variable = this.createStackVariable(lValue.id, new Uint32(4));
+                variable = this.createStackVariable(lValue.id, new Int32(4));
                 if (variable === null) {
                     return null;
                 }
@@ -986,28 +1016,28 @@ export class Vm {
                     singularLValue,
                     singularRValue,
                     this.alu.ltInt32,
-                    this.alu.ltUint32
+                    this.alu.ltInt32
                 );
             case "<=":
                 return this.aint32BinaryRelOp(
                     singularLValue,
                     singularRValue,
                     this.alu.leInt32,
-                    this.alu.leUint32
+                    this.alu.leInt32
                 );
             case ">":
                 return this.aint32BinaryRelOp(
                     singularLValue,
                     singularRValue,
                     this.alu.gtInt32,
-                    this.alu.gtUint32
+                    this.alu.gtInt32
                 );
             case ">=":
                 return this.aint32BinaryRelOp(
                     singularLValue,
                     singularRValue,
                     this.alu.geInt32,
-                    this.alu.geUint32
+                    this.alu.geInt32
                 );
         }
     }
@@ -1049,9 +1079,9 @@ export class Vm {
 
         // Check text index
         if (
-            this.alu.geUint32(
+            this.alu.geInt32(
                 this.registers.eip,
-                new Uint32(this.memory.text.length)
+                new Int32(this.memory.text.length)
             )
         ) {
             this.writeRuntimeError({
@@ -1132,7 +1162,7 @@ export class Vm {
                     // Set return value store address
                     this.registers.edi = lValueAddress;
                 } else {
-                    this.registers.edi = new Uint32(this.memory.memory.length);
+                    this.registers.edi = new Int32(this.memory.memory.length);
                 }
 
                 // Push new variable table
@@ -1243,12 +1273,12 @@ export class Vm {
                     this.tables.variableTableStack.length - 1
                 ][paramId] = {
                     address: this.registers.ebx,
-                    size: new Uint32(4)
+                    size: new Int32(4)
                 };
 
-                this.registers.ebx = this.alu.addUint32(
+                this.registers.ebx = this.alu.addInt32(
                     this.registers.ebx,
-                    new Uint32(4)
+                    new Int32(4)
                 );
 
                 break;
@@ -1298,7 +1328,7 @@ export class Vm {
                 this.registers.eax = savedEax;
 
                 // addl esp, eax
-                this.registers.esp = this.alu.addUint32(
+                this.registers.esp = this.alu.addInt32(
                     this.registers.esp,
                     this.registers.eax
                 );
@@ -1321,7 +1351,7 @@ export class Vm {
                 if (
                     this.alu.ne(
                         this.registers.edi,
-                        new Uint32(this.memory.memory.length)
+                        new Int32(this.memory.memory.length)
                     )
                 ) {
                     if (!this.storeMemory32(returnValue, this.registers.edi)) {
@@ -1333,7 +1363,7 @@ export class Vm {
                 if (
                     this.alu.eq(
                         this.registers.eip,
-                        new Uint32(this.memory.text.length)
+                        new Int32(this.memory.text.length)
                     )
                 ) {
                     this.finalizeExcution(returnValue);
@@ -1417,9 +1447,9 @@ export class Vm {
         }
 
         // inc eip
-        this.registers.eip = this.alu.addUint32(
+        this.registers.eip = this.alu.addInt32(
             this.registers.eip,
-            new Uint32(1)
+            new Int32(1)
         );
     }
 
