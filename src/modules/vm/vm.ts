@@ -244,7 +244,7 @@ export class Vm {
     );
 
     // VM Options does not belong to its state
-    private options: VmOptions = defaultOptions;
+    private options: VmOptions = cloneDeep(defaultOptions);
 
     private writeConsole: WriteConsoleFn = (_, __) => {};
     private readConsole: ReadConsoleFn = _ => Promise.resolve("");
