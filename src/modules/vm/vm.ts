@@ -202,7 +202,7 @@ const defaultOptions: VmOptions = {
  * Registers:
  * eax - counts total function arg size
  * ebx - indicates current function param address
- * ecx - indicates top address of global variable segment
+ * ecx - indicates (top address + 1) of global variable segment
  * edi - return value store address, or this.memory.length if not to store
  * ebp
  * esp
@@ -219,9 +219,9 @@ const defaultOptions: VmOptions = {
  * |
  * |
  * |
- * |
+ * |                                  <- ecx
  * |--------------------------------|
- * |                                | <- ecx
+ * |                                |
  * |    Global variable segment     |
  * |                                | <- 0
  * |--------------------------------|
@@ -235,11 +235,11 @@ const defaultOptions: VmOptions = {
  * |--------------------------------|
  * |             Arg 0              | <- ebx at first PARAM in current function
  * |--------------------------------|
- * |          Saved eax             |
+ * |          Saved eax             | <- caller saved
  * |--------------------------------|
- * |         Return address         |
+ * |         Return address         | <- caller saved
  * |--------------------------------|
- * |          Saved ebp             |
+ * |          Saved ebp             | <- callee saved
  * |--------------------------------|
  * |          Saved edi             | <- new ebp
  * |--------------------------------|
@@ -546,10 +546,6 @@ export class Vm {
      * push main function's special return address to stack
      */
     private initializeMemoryRegister() {
-        this.registers.ebp = this.alu.addInt32(
-            this.tables.functionTable[this.entryFunctionName].addressBefore,
-            new Int32(1)
-        );
         this.registers.eip = this.alu.addInt32(
             this.tables.functionTable[this.entryFunctionName].addressBefore,
             new Int32(1)
@@ -563,8 +559,16 @@ export class Vm {
             Math.random() * 256
         );
 
-        // esp initially points to one byte outside
+        // esp initially points to one byte up outside
         this.registers.esp = new Int32(this.options.memorySize);
+
+        // ecx initially points to 0
+        this.registers.ecx = new Int32(0);
+
+        // push eax
+        if (!this.pushl(this.registers.eax)) {
+            return;
+        }
 
         // push this.memory.text.length as main's special return address
         if (!this.pushl(new Int32(this.memory.text.length))) {
@@ -703,12 +707,12 @@ export class Vm {
     }
 
     private checkGlobalVariableSegmentSize(size: Int32) {
-        const newEbx = this.alu.addInt32(this.registers.ecx, size);
-        if (this.alu.geInt32(newEbx, this.registers.esp)) {
+        const newEcx = this.alu.addInt32(this.registers.ecx, size);
+        if (this.alu.gtInt32(newEcx, this.registers.esp)) {
             return false;
         }
 
-        if (this.alu.geInt32(newEbx, new Int32(this.options.memorySize))) {
+        if (this.alu.gtInt32(newEcx, new Int32(this.options.memorySize))) {
             return false;
         }
 
