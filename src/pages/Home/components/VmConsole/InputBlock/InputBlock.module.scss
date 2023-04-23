@@ -1,0 +1,22 @@
+.divInputBlockWrapper {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    line-height: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.spanArrow {
+    color: var(--vm-console-prompt-color);
+}
+
+.spanPrompt {
+    color: var(--vm-console-prompt-color);
+}
+
+.in {
+    padding: 0;
+    border: 0;
+    outline: 0;
+}
