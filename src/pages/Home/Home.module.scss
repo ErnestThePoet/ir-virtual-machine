@@ -8,8 +8,8 @@
 }
 
 .divRight{
-    // width: calc(100% - $sidebar-width);
-    flex-grow: 1;
+    width: calc(100% - $sidebar-width);
+    // flex-grow: 1;
     height: 100%;
 
     display: flex;
