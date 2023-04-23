@@ -45,8 +45,6 @@ const VmConsole: React.FC = () => {
                 }}
                 onResetClick={() => {
                     vmContainer.at(vm.activeVmIndex).reset();
-                    dispatch(clearConsoleOutputs());
-                    dispatch(setConsoleInput(""));
                 }}
                 onClearClick={() => {
                     dispatch(clearConsoleOutputs());
