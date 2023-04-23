@@ -63,7 +63,7 @@ interface VmVariableTable {
     [id: string]: VmVariable;
 }
 
-// VmVariableDetail and VmLocalVariableDetail are for external display.
+// VmVariableDetail, VmLocalVariableDetail and VmMemoryUsage are for external display.
 interface VmVariableDetail {
     id: string;
     address: number;
@@ -76,6 +76,17 @@ interface VmLocalVariableDetail {
     details: VmVariableDetail[];
 }
 
+interface VmMemoryUsage {
+    total: number;
+    used: number;
+
+    stackTotal: number;
+    stackUsed: number;
+
+    globalVariableTotal: number;
+    globalVariableUsed: number;
+}
+
 interface VmTables {
     labelTable: { [id: string]: VmLabel };
     functionTable: { [id: string]: VmFunction };
@@ -83,7 +94,7 @@ interface VmTables {
     variableTableStack: VmVariableTable[];
 }
 
-type VmExecutionState =
+export type VmExecutionState =
     | "INITIAL"
     | "BUSY"
     | "FREE" // 2023.04.18-22:20 就在刚才，我收到她的消息了。我的心情复杂而又幸福。我感到圆满了。一切都值了。请允许我把此时此刻的感受永远记录在这里——与本项目无关。
@@ -135,16 +146,21 @@ const initialExecutionStatus: VmExecutionStatus = {
     staticErrorTable: {}
 };
 
-// Write console message type
-type WriteConsoleMessageType = "SUCCESS" | "ERROR" | "WARNING" | "OUT";
-type WriteConsoleFn = (
-    message: FormattableMessage[],
-    type: WriteConsoleMessageType
-) => void;
+// Console message type
+export type ConsoleMessageType =
+    | "SUCCESS"
+    | "ERROR"
+    | "WARNING"
+    | "NORMAL"
+    | "PROMPT";
+export type ConsoleMessagePart = FormattableMessage & {
+    type: ConsoleMessageType;
+};
+type WriteConsoleFn = (message: ConsoleMessagePart[]) => void;
 type ReadConsoleFn = (prompt: FormattableMessage[]) => Promise<string>;
 
 // VM Options type
-interface VmOptions {
+export interface VmOptions {
     maxExecutionStepCount: number;
     memorySize: number;
     stackSize: number;
@@ -246,7 +262,7 @@ export class Vm {
     // VM Options does not belong to its state
     private options: VmOptions = cloneDeep(defaultOptions);
 
-    private writeConsole: WriteConsoleFn = (_, __) => {};
+    private writeConsole: WriteConsoleFn = _ => {};
     private readConsole: ReadConsoleFn = _ => Promise.resolve("");
 
     private entryFunctionName = "main";
@@ -348,6 +364,24 @@ export class Vm {
         return this.executionStatus.stepCount;
     }
 
+    get memoryUsage(): VmMemoryUsage {
+        return {
+            total: this.options.memorySize,
+            used:
+                this.registers.ecx.value +
+                1 +
+                this.options.memorySize -
+                this.registers.esp.value,
+
+            stackTotal: this.options.stackSize,
+            stackUsed: this.options.memorySize - this.registers.esp.value,
+
+            globalVariableTotal:
+                this.options.memorySize - this.options.stackSize,
+            globalVariableUsed: this.registers.ecx.value + 1
+        };
+    }
+
     /**
      * Configure the VM with given options.
      * @param options - The new VM options.
@@ -447,20 +481,19 @@ export class Vm {
             if (decoded.type === "ERROR") {
                 this.executionStatus.state = "STATIC_CHECK_FAILED";
 
-                this.writeConsole(
-                    [
-                        {
-                            key: "DECODE_ERROR_PREFIX",
-                            values: {
-                                lineNumber: i + 1
-                            }
+                this.writeConsole([
+                    {
+                        key: "DECODE_ERROR_PREFIX",
+                        values: {
+                            lineNumber: i + 1
                         },
-                        {
-                            key: decoded.messageKey!
-                        }
-                    ],
-                    "ERROR"
-                );
+                        type: "ERROR"
+                    },
+                    {
+                        key: decoded.messageKey!,
+                        type: "ERROR"
+                    }
+                ]);
 
                 this.executionStatus.staticErrorTable[i + 1] =
                     decoded.messageKey!;
@@ -495,14 +528,12 @@ export class Vm {
         if (!(this.entryFunctionName in this.tables.functionTable)) {
             this.executionStatus.state = "STATIC_CHECK_FAILED";
 
-            this.writeConsole(
-                [
-                    {
-                        key: "NO_MAIN_FUNCTION"
-                    }
-                ],
-                "ERROR"
-            );
+            this.writeConsole([
+                {
+                    key: "NO_MAIN_FUNCTION",
+                    type: "ERROR"
+                }
+            ]);
 
             return;
         }
@@ -607,31 +638,27 @@ export class Vm {
     private finalizeExcution(returnValue: Int32) {
         if (this.alu.eq(returnValue, new Int32(0))) {
             this.executionStatus.state = "EXITED_NORMALLY";
-            this.writeConsole(
-                [
-                    {
-                        key: "EXITED_NORMALLY",
-                        values: {
-                            stepCount: this.executionStatus.stepCount
-                        }
-                    }
-                ],
-                "SUCCESS"
-            );
+            this.writeConsole([
+                {
+                    key: "EXITED_NORMALLY",
+                    values: {
+                        stepCount: this.executionStatus.stepCount
+                    },
+                    type: "SUCCESS"
+                }
+            ]);
         } else {
             this.executionStatus.state = "EXITED_ABNORMALLY";
-            this.writeConsole(
-                [
-                    {
-                        key: "EXITED_ABNORMALLY",
-                        values: {
-                            returnValue: returnValue.value,
-                            stepCount: this.executionStatus.stepCount
-                        }
-                    }
-                ],
-                "WARNING"
-            );
+            this.writeConsole([
+                {
+                    key: "EXITED_ABNORMALLY",
+                    values: {
+                        returnValue: returnValue.value,
+                        stepCount: this.executionStatus.stepCount
+                    },
+                    type: "WARNING"
+                }
+            ]);
         }
     }
 
@@ -644,20 +671,17 @@ export class Vm {
     private writeRuntimeError(message: FormattableMessage) {
         this.executionStatus.state = "RUNTIME_ERROR";
 
-        this.writeConsole(
-            [
-                {
-                    key: "RUNTIME_ERROR_PREFIX",
-                    values: {
-                        lineNumber:
-                            this.memory.text[this.registers.eip.value]
-                                .lineNumber
-                    }
+        this.writeConsole([
+            {
+                key: "RUNTIME_ERROR_PREFIX",
+                values: {
+                    lineNumber:
+                        this.memory.text[this.registers.eip.value].lineNumber
                 },
-                message
-            ],
-            "ERROR"
-        );
+                type: "ERROR"
+            },
+            Object.assign(message, { type: "ERROR" as ConsoleMessageType })
+        ]);
     }
 
     private checkStackSize(size: Int32): boolean {
@@ -1109,18 +1133,16 @@ export class Vm {
             this.executionStatus.stepCount >= this.options.maxExecutionStepCount
         ) {
             this.executionStatus.state = "MAX_STEP_REACHED";
-            this.writeConsole(
-                [
-                    {
-                        key: "MAX_STEP_REACHED",
-                        values: {
-                            maxExecutionStepCount:
-                                this.options.maxExecutionStepCount
-                        }
-                    }
-                ],
-                "ERROR"
-            );
+            this.writeConsole([
+                {
+                    key: "MAX_STEP_REACHED",
+                    values: {
+                        maxExecutionStepCount:
+                            this.options.maxExecutionStepCount
+                    },
+                    type: "ERROR"
+                }
+            ]);
             return;
         }
 
@@ -1474,17 +1496,15 @@ export class Vm {
                     return;
                 }
 
-                this.writeConsole(
-                    [
-                        {
-                            key: "WRITE_OUTPUT",
-                            values: {
-                                value: value.value
-                            }
-                        }
-                    ],
-                    "OUT"
-                );
+                this.writeConsole([
+                    {
+                        key: "WRITE_OUTPUT",
+                        values: {
+                            value: value.value
+                        },
+                        type: "NORMAL"
+                    }
+                ]);
 
                 break;
             }
