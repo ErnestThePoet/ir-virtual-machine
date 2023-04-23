@@ -1,6 +1,6 @@
 .divIconWrapper {
     width: 100%;
-    height: 50px;
+    height: 60px;
     font-size: 25px;
     cursor: pointer;
     color: var(--sidebar-icon-color);
@@ -17,5 +17,6 @@
 
     >label{
         font-size: 12px;
+        cursor: pointer;
     }
 }
