@@ -428,8 +428,9 @@ export class Vm {
      * `"STATIC_CHECK_FAILED"` with error message(s) written to console.
      *
      * Note that runtime errors are not examined here.
+     * @public
      */
-    private decodeInstructions() {
+    decodeInstructions() {
         // Go through each line of IR code
         for (let i = 0; i < this.memory.instructions.length; i++) {
             const decoded = this.decoder.decode(
