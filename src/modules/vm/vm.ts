@@ -1164,6 +1164,11 @@ export class Vm {
             return;
         }
 
+        // Step count increase
+        // We do not increase after thw switch because main's RETURN will
+        // exit this function directly
+        this.executionStatus.stepCount++;
+
         const ir = this.memory.text[this.registers.eip.value];
         switch (ir.type) {
             case "ARG": {
