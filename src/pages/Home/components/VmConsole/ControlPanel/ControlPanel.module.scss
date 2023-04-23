@@ -1,0 +1,35 @@
+@import "../../../../../styles/layout.module.scss";
+
+.divControlPanelWrapper{
+    width: 100%;
+    height: $control-panel-height;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 15px;
+
+    user-select: none;
+    font-family: sans-serif;
+}
+
+.divSide{
+    height: $control-panel-height;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.iconRun{
+    color: var(--control-panel-run-icon-color);
+}
+
+.iconStep{
+    color: var(--control-panel-step-icon-color);
+}
+
+.iconReset{
+    color: var(--control-panel-reset-icon-color);
+}
+
+.iconClear{
+    color: var(--control-panel-clear-icon-color);
+}

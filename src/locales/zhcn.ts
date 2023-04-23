@@ -15,6 +15,11 @@ const zhCn = {
     CANCEL: "取消",
     EMPTY_PLACEHOLDER: "暂无打开的虚拟机，快去新建或导入一个IR文件吧~",
 
+    RUN:"运行",
+    RUN_STEP:"单步",
+    RESET:"重置",
+    CLEAR_CONSOLE:"清屏",
+
     // Static error check messages
     DECODE_ERROR_PREFIX: "指令解码错误(第{lineNumber}行)：",
     UNRECOGNIZED_INSTRUCTION: "无法识别的IR指令",
