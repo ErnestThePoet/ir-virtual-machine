@@ -236,10 +236,12 @@ export class Vm {
     private mmu: Mmu = new Mmu();
     private decoder: Decoder = new Decoder();
 
-    private memory: VmMemory = initialMemory;
-    private registers: VmRegisters = initialRegisters;
-    private tables: VmTables = initialTables;
-    private executionStatus: VmExecutionStatus = initialExecutionStatus;
+    private memory: VmMemory = cloneDeep(initialMemory);
+    private registers: VmRegisters = cloneDeep(initialRegisters);
+    private tables: VmTables = cloneDeep(initialTables);
+    private executionStatus: VmExecutionStatus = cloneDeep(
+        initialExecutionStatus
+    );
 
     // VM Options does not belong to its state
     private options: VmOptions = defaultOptions;
