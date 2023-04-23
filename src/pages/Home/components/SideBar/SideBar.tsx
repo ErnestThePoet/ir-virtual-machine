@@ -37,7 +37,10 @@ const SideBar: React.FC = () => {
                                 name: vmName,
                                 irPath: "",
                                 isIrChanged: false,
-                                irString: ""
+                                irString: "",
+                                consoleOutputs: [],
+                                consoleInputPrompt: [],
+                                consoleInput: ""
                             })
                         );
                     }}
