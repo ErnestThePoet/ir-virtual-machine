@@ -26,6 +26,15 @@ export function truncateString(title: string, length: number = 10) {
     return title.substring(0, stringLengthAtDisplayLength) + "...";
 }
 
+export function getNextUntitledVmName(names: string[]): string {
+    for (let i = 1; ; i++) {
+        const currentName = `Untitled-${i}`;
+        if (names.every(x => x !== currentName)) {
+            return currentName;
+        }
+    }
+}
+
 export function splitLines(x: string): string[] {
     return x.replace("\r", "").split("\n");
 }

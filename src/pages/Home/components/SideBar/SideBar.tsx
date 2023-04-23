@@ -11,18 +11,9 @@ import {
 } from "@ant-design/icons";
 import SideBarIcon from "./SideBarIcon";
 import vmContainer from "@/modules/vmContainer";
-import type { SingleVmPageState } from "@/store/reducers/vm";
-import { addVmPageState, setActiveVmIndex } from "@/store/reducers/vm";
+import { addVmPageState } from "@/store/reducers/vm";
 import { Vm } from "@/modules/vm/vm";
-
-function getNextUntitledVmName(names: string[]): string {
-    for (let i = 1; ; i++) {
-        const currentName = `Untitled-${i}`;
-        if (names.every(x => x !== currentName)) {
-            return currentName;
-        }
-    }
-}
+import { getNextUntitledVmName } from "@/modules/utils";
 
 const SideBar: React.FC = () => {
     const dispatch = useAppDispatch();
