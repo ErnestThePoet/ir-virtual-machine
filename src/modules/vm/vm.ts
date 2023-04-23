@@ -268,22 +268,66 @@ export class Vm {
         return this.memory.instructions;
     }
 
-    private getSingleVariableDetail(variable: VmVariable): VmVariableDetail {}
+    private getSingleVariableValues(variable: VmVariable): number[] {
+        const values: number[] = [];
 
-    get globalVariableDetails(): VmVariableDetail[] {
-        const details: VmVariableDetail[] = [];
-        for (const id in this.tables.globalVariableTable) {
-            details.push({
-                id,
-                address: this.tables.globalVariableTable[id].address.value,
-                size: this.tables.globalVariableTable[id].size.value,
-                values: []
-            });
+        for (
+            let i = variable.address;
+            this.alu.ltInt32(
+                i,
+                this.alu.addInt32(variable.address, variable.size)
+            );
+            i = this.alu.addInt32(i, new Int32(4))
+        ) {
+            // Bypass VM's encapsulated loadMemory32 because we do not want to
+            // record runtime error here
+            const loadResult = this.mmu.load32(
+                new Uint32(i.value),
+                this.memory.memory
+            );
+            if (loadResult.status === "OUT_OF_BOUND") {
+                values.push(NaN);
+            } else {
+                values.push(new Int32(loadResult.value!.value).value);
+            }
         }
+
+        return values;
     }
 
-    get localVariableDetails(): VmLocalVariableDetail[] {
-        return [];
+    private getSingleTableVariableDetails(
+        table: VmVariableTable
+    ): VmVariableDetail[] {
+        const details: VmVariableDetail[] = [];
+        for (const id in table) {
+            details.push({
+                id,
+                address: table[id].address.value,
+                size: table[id].size.value,
+                values: this.getSingleVariableValues(table[id])
+            });
+        }
+
+        return details;
+    }
+
+    get globalVariableDetails(): VmVariableDetail[] {
+        return this.getSingleTableVariableDetails(
+            this.tables.globalVariableTable
+        );
+    }
+
+    get localVariableDetailsStack(): VmLocalVariableDetail[] {
+        const detailsStack: VmLocalVariableDetail[] = [];
+        for (let i = 0; i < this.tables.variableTableStack.length; i++) {
+            detailsStack.push({
+                functionName: this.executionStatus.callStack[i],
+                details: this.getSingleTableVariableDetails(
+                    this.tables.variableTableStack[i]
+                )
+            });
+        }
+        return detailsStack;
     }
 
     get callStack(): string[] {
