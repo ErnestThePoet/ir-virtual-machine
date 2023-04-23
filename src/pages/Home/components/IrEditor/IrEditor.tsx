@@ -16,7 +16,7 @@ const IrEditor: React.FC = () => {
     useEffect(() => {
         const currentVm = vmContainer.at(vm.activeVmIndex);
         currentVm.loadNewInstructions(irLines);
-    }, [irLines]);
+    }, [vm.vmPageStates[vm.activeVmIndex].irString]);
 
     return (
         <div className={styles.divIrEditorWrapper}>
