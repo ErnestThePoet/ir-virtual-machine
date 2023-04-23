@@ -152,7 +152,8 @@ export type ConsoleMessageType =
     | "ERROR"
     | "WARNING"
     | "NORMAL"
-    | "PROMPT";
+    | "PROMPT"
+    | "ARROW";
 export type ConsoleMessagePart = FormattableMessage & {
     type: ConsoleMessageType;
 };

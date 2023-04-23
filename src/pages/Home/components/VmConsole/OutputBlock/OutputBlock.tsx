@@ -23,7 +23,8 @@ const OutputBlock: React.FC<OutputBlockProps> = (props: OutputBlockProps) => {
                             [styles.spanWarning]: x.type === "WARNING",
                             [styles.spanSuccess]: x.type === "SUCCESS",
                             [styles.spanNormal]: x.type === "NORMAL",
-                            [styles.spanPrompt]: x.type === "PROMPT"
+                            [styles.spanPrompt]: x.type === "PROMPT",
+                            [styles.spanArrow]: x.type === "ARROW"
                         })}>
                         {y}
                     </span>

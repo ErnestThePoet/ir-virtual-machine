@@ -16,7 +16,7 @@ const InputBlock: React.FC<InputBlockProps> = (props: InputBlockProps) => {
     return (
         <div className={styles.divInputBlockWrapper}>
             <span className={styles.spanArrow}>
-                {intl.formatMessage({ id: "INPUT_PREFIX" })}
+                {intl.formatMessage({ id: "CONSOLE_ARROW" })}
             </span>
             <span className={styles.spanPrompt}>
                 {props.prompt.reduce(

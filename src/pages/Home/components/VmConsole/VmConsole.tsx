@@ -58,7 +58,7 @@ const VmConsole: React.FC = () => {
                         setConsoleOutputs([
                             ...vm.vmPageStates[vm.activeVmIndex].consoleOutputs,
                             [
-                                { key: "INPUT_PREFIX", type: "PROMPT" },
+                                { key: "CONSOLE_ARROW", type: "ARROW" },
                                 ...vm.vmPageStates[
                                     vm.activeVmIndex
                                 ].consoleInputPrompt.map(x => ({
