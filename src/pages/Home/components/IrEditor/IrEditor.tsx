@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useIntl } from "react-intl";
 import styles from "./IrEditor.module.scss";
@@ -12,6 +12,11 @@ const IrEditor: React.FC = () => {
     const dispatch = useAppDispatch();
 
     const irLines = splitLines(vm.vmPageStates[vm.activeVmIndex].irString);
+
+    useEffect(() => {
+        const currentVm = vmContainer.at(vm.activeVmIndex);
+        currentVm.loadNewInstructions(irLines);
+    }, [irLines]);
 
     return (
         <div className={styles.divIrEditorWrapper}>
@@ -34,16 +39,10 @@ const IrEditor: React.FC = () => {
                     value={vm.vmPageStates[vm.activeVmIndex].irString}
                     onChange={e => {
                         dispatch(
-                            setIrString({
-                                index: vm.activeVmIndex,
-                                irString: e.currentTarget.value
-                            })
+                            setIrString(e.currentTarget.value)
                         );
                         dispatch(
-                            setIsIrChanged({
-                                index: vm.activeVmIndex,
-                                isIrChanged: true
-                            })
+                            setIsIrChanged(true)
                         );
                     }}
                 />

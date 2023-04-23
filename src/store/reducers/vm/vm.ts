@@ -1,3 +1,5 @@
+import type { FormattableMessage } from "@/locales";
+import type { ConsoleMessagePart } from "@/modules/vm/vm";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
@@ -6,6 +8,9 @@ export interface SingleVmPageState {
     irPath: string;
     isIrChanged: boolean;
     irString: string;
+    consoleOutputs: Array<ConsoleMessagePart[]>;
+    consoleInputPrompt: FormattableMessage[];
+    consoleInput: string;
 }
 
 interface VmState {
@@ -24,26 +29,6 @@ export const vmSlice = createSlice({
     reducers: {
         setActiveVmIndex: (state, action: PayloadAction<number>) => {
             state.activeVmIndex = action.payload;
-        },
-        setVmPageState: (
-            state,
-            action: PayloadAction<{ index: number; state: SingleVmPageState }>
-        ) => {
-            state.vmPageStates[action.payload.index] = action.payload.state;
-        },
-        setIsIrChanged: (
-            state,
-            action: PayloadAction<{ index: number; isIrChanged: boolean }>
-        ) => {
-            state.vmPageStates[action.payload.index].isIrChanged =
-                action.payload.isIrChanged;
-        },
-        setIrString: (
-            state,
-            action: PayloadAction<{ index: number; irString: string }>
-        ) => {
-            state.vmPageStates[action.payload.index].irString =
-                action.payload.irString;
         },
         addVmPageState: (state, action: PayloadAction<SingleVmPageState>) => {
             state.vmPageStates.push(action.payload);
@@ -65,17 +50,48 @@ export const vmSlice = createSlice({
             }
 
             state.vmPageStates.splice(action.payload, 1);
+        },
+        setVmPageState: (state, action: PayloadAction<SingleVmPageState>) => {
+            state.vmPageStates[state.activeVmIndex] = action.payload;
+        },
+        setIsIrChanged: (state, action: PayloadAction<boolean>) => {
+            state.vmPageStates[state.activeVmIndex].isIrChanged =
+                action.payload;
+        },
+        setIrString: (state, action: PayloadAction<string>) => {
+            state.vmPageStates[state.activeVmIndex].irString = action.payload;
+        },
+        setConsoleOutputs: (
+            state,
+            action: PayloadAction<Array<ConsoleMessagePart[]>>
+        ) => {
+            state.vmPageStates[state.activeVmIndex].consoleOutputs =
+                action.payload;
+        },
+        setConsoleInputPrompt: (
+            state,
+            action: PayloadAction<FormattableMessage[]>
+        ) => {
+            state.vmPageStates[state.activeVmIndex].consoleInputPrompt =
+                action.payload;
+        },
+        setConsoleInput: (state, action: PayloadAction<string>) => {
+            state.vmPageStates[state.activeVmIndex].consoleInput =
+                action.payload;
         }
     }
 });
 
 export const {
     setActiveVmIndex,
+    addVmPageState,
+    deleteVmPageState,
     setVmPageState,
     setIsIrChanged,
     setIrString,
-    addVmPageState,
-    deleteVmPageState
+    setConsoleOutputs,
+    setConsoleInputPrompt,
+    setConsoleInput
 } = vmSlice.actions;
 
 export default vmSlice.reducer;
