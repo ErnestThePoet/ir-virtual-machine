@@ -31,14 +31,20 @@
 .divVmWrapperHorizontal {
     @extend .divVmWrapper;
 
-    > section[class="sectionIr"] {
-        width: 50%;
+    > section[class="sectionIrEditor"] {
+        width: 34%;
         height: 100%;
+    }
+
+    > section[class="sectionVmConsole"] {
+        width: 33%;
+        height: 100%;
+        border-left: 2px solid var(--vm-section-border-color);
         border-right: 2px solid var(--vm-section-border-color);
     }
 
-    > section[class="sectionConsole"] {
-        width: 50%;
+    > section[class="sectionVmInspector"] {
+        width: 33%;
         height: 100%;
     }
 }
@@ -47,14 +53,20 @@
     @extend .divVmWrapper;
     flex-direction: column;
 
-    > section[class="sectionIr"] {
+    > section[class="sectionIrEditor"] {
         width: 100%;
-        height: 50%;
+        height: 34%;
+    }
+
+    > section[class="sectionVmConsole"] {
+        width: 100%;
+        height: 33%;
+        border-top: 2px solid var(--vm-section-border-color);
         border-bottom: 2px solid var(--vm-section-border-color);
     }
 
-    > section[class="sectionConsole"] {
+    > section[class="sectionVmInspector"] {
         width: 100%;
-        height: 50%;
+        height: 33%;
     }
 }

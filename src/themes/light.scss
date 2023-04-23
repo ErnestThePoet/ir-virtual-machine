@@ -16,7 +16,14 @@
     --vm-empty-holder-color: rgba(0, 0, 0, 0.5);
     --vm-section-border-color: #e7e7e7;
 
-    --ir-editor-wrapper-bkg-color: #fff;
+    --ir-editor-bkg-color: #fff;
     --ir-line-number-color: #237893;
     --ir-color: #000;
+
+    --vm-console-bkg-color: #fff;
+    --vm-console-error-color: rgb(203, 36, 49);
+    --vm-console-warning-color: rgb(219, 171, 9);
+    --vm-console-success-color: rgb(28, 121, 49);
+    --vm-console-normal-color: rgb(31, 31, 32);
+    --vm-console-prompt-color: rgb(148, 154, 161);
 }

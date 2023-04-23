@@ -1,5 +1,21 @@
 @import "../../../../styles/layout.module.scss";
+@import "../../../../styles/common.module.scss";
 
-.divVmConsoleWrapper{
+.divVmConsoleWrapper {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
 
+    padding: 0 10px;
+
+    background-color: var(--vm-console-bkg-color);
+
+    font-size: 15px;
+    line-height: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow-y: auto;
+    @include thick-scroll-bar;
 }
