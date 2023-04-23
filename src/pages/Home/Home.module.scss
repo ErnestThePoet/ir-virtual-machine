@@ -8,13 +8,18 @@
 }
 
 .divRight{
-    width: calc(100% - $sidebar-width);
+    // width: calc(100% - $sidebar-width);
+    flex-grow: 1;
     height: 100%;
+
+    display: flex;
+    flex-direction: column;
 }
 
 .divVmWrapper{
     width: 100%;
-    height: calc(100% - $tabbar-height);
+    // height: calc(100% - $tabbar-height);
+    flex-grow: 1;
     display: flex;
 
     background-color: var(--vm-wrapper-bkg-color);
