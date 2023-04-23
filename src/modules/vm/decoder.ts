@@ -156,16 +156,16 @@ type DecodedInstructionNoMeta = Omit<DecodedInstruction, "lineNumber">;
  */
 export class Decoder {
     // Named group is an ES2018 feature and we want some polyfill.
-    private readonly patternId = new RegExp(/^(?<id>[a-zA-Z_]\\w*)$/);
+    private readonly patternId = new RegExp(/^(?<id>[a-zA-Z_]\w*)$/);
 
     private readonly patternSize = new RegExp(/^(?<size>\d+)$/);
 
     private readonly patternSingular = new RegExp(
-        /^(#(?<imm>-?\d+))|(?<id>[a-zA-Z_]\\w*)|(\*(?<derefId>[a-zA-Z_]\\w*))|(&(?<addressId>[a-zA-Z_]\\w*))$/
+        /^(#(?<imm>-?\d+))|(?<id>[a-zA-Z_]\w*)|(\*(?<derefId>[a-zA-Z_]\w*))|(&(?<addressId>[a-zA-Z_]\w*))$/
     );
 
     private readonly patternLValue = new RegExp(
-        /^((?<id>[a-zA-Z_]\\w*))|(\*(?<derefId>[a-zA-Z_]\\w*))$/
+        /^((?<id>[a-zA-Z_]\w*))|(\*(?<derefId>[a-zA-Z_]\w*))$/
     );
 
     private readonly illegalInstructionFormatError: DecodedInstructionNoMeta = {
@@ -299,7 +299,7 @@ export class Decoder {
             return this.illegalInstructionFormatError;
         }
 
-        const lValue = this.decodeComponentLValue(splitResult[1]);
+        const lValue = this.decodeComponentLValue(splitResult[0]);
         if (lValue === null) {
             return {
                 type: "ERROR",
@@ -783,7 +783,7 @@ export class Decoder {
                     return addLineNumber(assignCall);
                 }
 
-                return unrecognizedInstructionError;
+                return addLineNumber(assign);
         }
     }
 }
