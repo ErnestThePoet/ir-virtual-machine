@@ -1,25 +1,44 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "./InputBlock.module.scss";
+import { FormattableMessage } from "@/locales";
+import { useIntl } from "react-intl";
 
 interface InputBlockProps {
-    prompt: string;
-    onEnter: (_: string) => void;
+    prompt: FormattableMessage[];
+    value: string;
+    onChange: (_: string) => void;
+    onEnter: () => void;
 }
 
 const InputBlock: React.FC<InputBlockProps> = (props: InputBlockProps) => {
-    const [inputString, setInputString] = useState("");
+    const intl = useIntl();
 
     return (
         <div className={styles.divInputBlockWrapper}>
-            <span className={styles.spanArrow}>&gt;</span>
-            <span className={styles.spanPrompt}>{props.prompt}</span>
+            <span className={styles.spanArrow}>
+                {intl.formatMessage({ id: "INPUT_PREFIX" })}
+            </span>
+            <span className={styles.spanPrompt}>
+                {props.prompt.reduce(
+                    (p, c) =>
+                        p +
+                        intl.formatMessage(
+                            {
+                                id: c.key
+                            },
+                            c.values
+                        ),
+                    ""
+                )}
+            </span>
             <input
                 className={styles.in}
-                value={inputString}
-                onChange={e => setInputString(e.currentTarget.value)}
+                spellCheck={false}
+                value={props.value}
+                onChange={e => props.onChange(e.currentTarget.value)}
                 onKeyDown={e => {
                     if (e.key === "Enter") {
-                        setInputString(e.currentTarget.value);
+                        props.onEnter();
                     }
                 }}
             />
