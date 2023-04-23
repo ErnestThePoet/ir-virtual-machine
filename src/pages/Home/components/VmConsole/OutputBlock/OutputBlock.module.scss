@@ -1,0 +1,28 @@
+.divOutputBlockWrapper{
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    line-height: 20px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.spanError{
+    color: var(--vm-console-error-color);
+}
+
+.spanWarning{
+    color: var(--vm-console-warning-color);
+}
+
+.spanSuccess{
+    color: var(--vm-console-success-color);
+}
+
+.spanNormal{
+    color: var(--vm-console-normal-color);
+}
+
+.spanPrompt{
+    color: var(--vm-console-prompt-color);
+}
