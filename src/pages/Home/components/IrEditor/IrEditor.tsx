@@ -27,6 +27,7 @@ const IrEditor: React.FC = () => {
                     style={{
                         height: `${20 * irLines.length}px`
                     }}
+                    spellCheck={false}
                     className={styles.taIr}
                     value={vm.vmPageStates[vm.activeVmIndex].irString}
                     onChange={e => {
