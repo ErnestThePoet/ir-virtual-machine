@@ -18,8 +18,7 @@
 
 .divVmWrapper{
     width: 100%;
-    // height: calc(100% - $tabbar-height);
-    flex-grow: 1;
+    height: calc(100% - $tabbar-height);
     display: flex;
 
     background-color: var(--vm-wrapper-bkg-color);

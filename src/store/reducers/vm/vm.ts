@@ -31,6 +31,20 @@ export const vmSlice = createSlice({
         ) => {
             state.vmPageStates[action.payload.index] = action.payload.state;
         },
+        setIsIrChanged: (
+            state,
+            action: PayloadAction<{ index: number; isIrChanged: boolean }>
+        ) => {
+            state.vmPageStates[action.payload.index].isIrChanged =
+                action.payload.isIrChanged;
+        },
+        setIrString: (
+            state,
+            action: PayloadAction<{ index: number; irString: string }>
+        ) => {
+            state.vmPageStates[action.payload.index].irString =
+                action.payload.irString;
+        },
         addVmPageState: (state, action: PayloadAction<SingleVmPageState>) => {
             state.vmPageStates.push(action.payload);
             state.activeVmIndex = state.vmPageStates.length - 1;
@@ -58,6 +72,8 @@ export const vmSlice = createSlice({
 export const {
     setActiveVmIndex,
     setVmPageState,
+    setIsIrChanged,
+    setIrString,
     addVmPageState,
     deleteVmPageState
 } = vmSlice.actions;

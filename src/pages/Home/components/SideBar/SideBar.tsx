@@ -45,8 +45,9 @@ const SideBar: React.FC = () => {
                             addVmPageState({
                                 name: vmName,
                                 irPath: "",
-                                isIrChanged: false
-                            } as SingleVmPageState)
+                                isIrChanged: false,
+                                irString: ""
+                            })
                         );
                     }}
                 />

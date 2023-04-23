@@ -20,3 +20,12 @@
         background-color: rgb(220, 220, 220);
     }
 }
+
+@mixin thick-scroll-bar {
+    @include slim-scroll-bar;
+
+    &::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+}

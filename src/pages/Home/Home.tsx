@@ -4,6 +4,7 @@ import styles from "./Home.module.scss";
 import SideBar from "./components/SideBar";
 import TabBar from "./components/TabBar";
 import EmptyHolder from "./components/EmptyHolder/EmptyHolder";
+import IrEditor from "./components/IrEditor/IrEditor";
 
 const Home: React.FC = () => {
     const vmStates = useAppSelector(state => state.vm.vmPageStates);
@@ -18,7 +19,9 @@ const Home: React.FC = () => {
                         <EmptyHolder />
                     ) : (
                         <>
-                            <section className={styles.sectionIr}></section>
+                            <section className={styles.sectionIr}>
+                                <IrEditor />
+                            </section>
 
                             <section
                                 className={styles.sectionConsole}></section>
