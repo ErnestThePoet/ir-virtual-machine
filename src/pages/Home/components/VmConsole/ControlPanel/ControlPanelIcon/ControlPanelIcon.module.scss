@@ -3,7 +3,7 @@
     height: 50px;
     font-size: 18px;
     cursor: pointer;
-    
+
     transition-duration: 200ms;
 
     display: flex;
@@ -12,7 +12,15 @@
     justify-content: center;
     align-items: center;
 
-    >label{
+    &:hover {
+        background-color: var(--control-panel-icon-hover-bkg-color);
+    }
+
+    &:active {
+        background-color: var(--control-panel-icon-active-bkg-color);
+    }
+
+    > label {
         font-size: 12px;
         cursor: pointer;
         color: var(--control-panel-label-color);
