@@ -37,13 +37,16 @@ const VmConsole: React.FC = () => {
     return (
         <div className={styles.divVmConsoleWrapper}>
             <ControlPanel
-                onRunClick={() => {}}
+                onRunClick={() => {
+                    vmContainer.at(vm.activeVmIndex).execute();
+                }}
                 onRunStepClick={() => {
                     vmContainer.at(vm.activeVmIndex).executeSingleStep();
                 }}
                 onResetClick={() => {
                     vmContainer.at(vm.activeVmIndex).reset();
-                    console.log(vmContainer.at(vm.activeVmIndex).state);
+                    dispatch(clearConsoleOutputs());
+                    dispatch(setConsoleInput(""));
                 }}
                 onClearClick={() => {
                     dispatch(clearConsoleOutputs());
