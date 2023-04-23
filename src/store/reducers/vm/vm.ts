@@ -61,12 +61,16 @@ export const vmSlice = createSlice({
         setIrString: (state, action: PayloadAction<string>) => {
             state.vmPageStates[state.activeVmIndex].irString = action.payload;
         },
-        setConsoleOutputs: (
+        addConsoleOutput: (
             state,
-            action: PayloadAction<Array<ConsoleMessagePart[]>>
+            action: PayloadAction<ConsoleMessagePart[]>
         ) => {
-            state.vmPageStates[state.activeVmIndex].consoleOutputs =
-                action.payload;
+            state.vmPageStates[state.activeVmIndex].consoleOutputs.push(
+                action.payload
+            );
+        },
+        clearConsoleOutputs: state => {
+            state.vmPageStates[state.activeVmIndex].consoleOutputs = [];
         },
         setConsoleInputPrompt: (
             state,
@@ -89,7 +93,8 @@ export const {
     setVmPageState,
     setIsIrChanged,
     setIrString,
-    setConsoleOutputs,
+    addConsoleOutput,
+    clearConsoleOutputs,
     setConsoleInputPrompt,
     setConsoleInput
 } = vmSlice.actions;

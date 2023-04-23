@@ -5,9 +5,10 @@ import { useIntl } from "react-intl";
 import OutputBlock from "./OutputBlock/OutputBlock";
 import InputBlock from "./InputBlock/InputBlock";
 import {
+    addConsoleOutput,
     setConsoleInput,
     setConsoleInputPrompt,
-    setConsoleOutputs
+    clearConsoleOutputs
 } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { ConsoleMessageType } from "@/modules/vm/vm";
@@ -22,13 +23,7 @@ const VmConsole: React.FC = () => {
 
     useEffect(() => {
         vmContainer.at(vm.activeVmIndex).setIoFns(
-            message =>
-                dispatch(
-                    setConsoleOutputs([
-                        ...vm.vmPageStates[vm.activeVmIndex].consoleOutputs,
-                        message
-                    ])
-                ),
+            message => dispatch(addConsoleOutput(message)),
             prompt => {
                 dispatch(setConsoleInputPrompt(prompt));
 
@@ -43,9 +38,17 @@ const VmConsole: React.FC = () => {
         <div className={styles.divVmConsoleWrapper}>
             <ControlPanel
                 onRunClick={() => {}}
-                onRunStepClick={() => {}}
-                onClearClick={() => {}}
-                onResetClick={() => {}}
+                onRunStepClick={() => {
+                    vmContainer.at(vm.activeVmIndex).executeSingleStep();
+                }}
+                onResetClick={() => {
+                    vmContainer.at(vm.activeVmIndex).reset();
+                    console.log(vmContainer.at(vm.activeVmIndex).state);
+                }}
+                onClearClick={() => {
+                    dispatch(clearConsoleOutputs());
+                    dispatch(setConsoleInput(""));
+                }}
             />
 
             <div className={styles.divVmConsole}>
@@ -68,27 +71,22 @@ const VmConsole: React.FC = () => {
                         }
 
                         dispatch(
-                            setConsoleOutputs([
-                                ...vm.vmPageStates[vm.activeVmIndex]
-                                    .consoleOutputs,
-                                [
-                                    { key: "CONSOLE_ARROW", type: "ARROW" },
-                                    ...vm.vmPageStates[
-                                        vm.activeVmIndex
-                                    ].consoleInputPrompt.map(x => ({
-                                        ...x,
-                                        type: "PROMPT" as ConsoleMessageType
-                                    })),
-                                    {
-                                        key: "READ_INPUT",
-                                        values: {
-                                            value: vm.vmPageStates[
-                                                vm.activeVmIndex
-                                            ].consoleInput
-                                        },
-                                        type: "NORMAL"
-                                    }
-                                ]
+                            addConsoleOutput([
+                                { key: "CONSOLE_ARROW", type: "ARROW" },
+                                ...vm.vmPageStates[
+                                    vm.activeVmIndex
+                                ].consoleInputPrompt.map(x => ({
+                                    ...x,
+                                    type: "PROMPT" as ConsoleMessageType
+                                })),
+                                {
+                                    key: "READ_INPUT",
+                                    values: {
+                                        value: vm.vmPageStates[vm.activeVmIndex]
+                                            .consoleInput
+                                    },
+                                    type: "NORMAL"
+                                }
                             ])
                         );
 
