@@ -32,7 +32,7 @@ const VmConsole: React.FC = () => {
                 });
             }
         );
-    }, []);
+    }, [vm.activeVmIndex]);
 
     return (
         <div className={styles.divVmConsoleWrapper}>
