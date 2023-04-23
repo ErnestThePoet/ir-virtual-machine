@@ -108,7 +108,7 @@ interface VmExecutionStatus {
 const initialMemory: VmMemory = {
     instructions: [],
     text: [],
-    memory: new Uint8Array([])
+    memory: new Uint8Array()
 };
 
 const initialRegisters: VmRegisters = {
@@ -400,8 +400,8 @@ export class Vm {
      * @public
      */
     reset() {
-        this.memory.text = cloneDeep(initialMemory.text);
-        this.memory.memory = cloneDeep(initialMemory.memory);
+        this.memory.text = [];
+        this.memory.memory = new Uint8Array();
         this.registers = cloneDeep(initialRegisters);
         this.tables = cloneDeep(initialTables);
         this.executionStatus = cloneDeep(initialExecutionStatus);
@@ -414,7 +414,7 @@ export class Vm {
      */
     loadNewInstructions(instructions: string[]) {
         this.reset();
-        this.memory.instructions = cloneDeep(instructions);
+        this.memory.instructions = instructions;
     }
 
     /**
