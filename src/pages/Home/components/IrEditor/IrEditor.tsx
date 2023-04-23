@@ -17,7 +17,9 @@ const IrEditor: React.FC = () => {
         <div className={styles.divIrEditorWrapper}>
             <div className={styles.divLineNumberWrapper}>
                 {irLines.map((_, i) => (
-                    <label className={styles.lblLineNumber}>{i + 1}</label>
+                    <label key={i} className={styles.lblLineNumber}>
+                        {i + 1}
+                    </label>
                 ))}
             </div>
 
