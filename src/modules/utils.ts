@@ -25,3 +25,7 @@ export function truncateString(title: string, length: number = 10) {
     }
     return title.substring(0, stringLengthAtDisplayLength) + "...";
 }
+
+export function splitLines(x: string): string[] {
+    return x.replace("\r", "").split("\n");
+}
