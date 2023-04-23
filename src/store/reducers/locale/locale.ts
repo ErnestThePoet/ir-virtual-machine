@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 import type { AppLocale } from "@/locales";
 import locales from "@/locales";
 
@@ -14,7 +15,7 @@ export const localeSlice = createSlice({
     name: "locale",
     initialState,
     reducers: {
-        switchLocale: (state, action) => {
+        switchLocale: (state, action: PayloadAction<AppLocale>) => {
             state.currentLocale = action.payload;
         }
     }

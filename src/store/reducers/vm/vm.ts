@@ -1,9 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 export interface SingleVmPageState {
     name: string;
     irPath: string;
     isIrChanged: boolean;
+    irString: string;
 }
 
 interface VmState {
@@ -20,17 +22,20 @@ export const vmSlice = createSlice({
     name: "vm",
     initialState,
     reducers: {
-        setActiveVmIndex: (state, action) => {
+        setActiveVmIndex: (state, action: PayloadAction<number>) => {
             state.activeVmIndex = action.payload;
         },
-        setVmPageState: (state, action) => {
+        setVmPageState: (
+            state,
+            action: PayloadAction<{ index: number; state: SingleVmPageState }>
+        ) => {
             state.vmPageStates[action.payload.index] = action.payload.state;
         },
-        addVmPageState: (state, action) => {
+        addVmPageState: (state, action: PayloadAction<SingleVmPageState>) => {
             state.vmPageStates.push(action.payload);
             state.activeVmIndex = state.vmPageStates.length - 1;
         },
-        deleteVmPageState: (state, action) => {
+        deleteVmPageState: (state, action: PayloadAction<number>) => {
             // If active VM is left to the closed one, do nothing.
             // If active VM is the closed one, and is the right most
             // VM, make its left VM active. Otherwise make its right
@@ -39,13 +44,12 @@ export const vmSlice = createSlice({
             // by decreasing activeVmIndex.
             if (state.activeVmIndex > action.payload) {
                 state.activeVmIndex--;
-            }
-            else if (state.activeVmIndex === action.payload) {
+            } else if (state.activeVmIndex === action.payload) {
                 if (state.activeVmIndex === state.vmPageStates.length - 1) {
                     state.activeVmIndex--;
                 }
             }
-            
+
             state.vmPageStates.splice(action.payload, 1);
         }
     }
