@@ -220,9 +220,14 @@ export class Decoder {
         }
 
         if (match.groups!.imm !== undefined) {
+            const numberValue = parseInt(match.groups!.imm);
+            if (!Number.isSafeInteger(numberValue)) {
+                return null;
+            }
+            
             return {
                 type: "IMM",
-                imm: new Int32(parseInt(match.groups!.imm))
+                imm: new Int32(numberValue)
             };
         } else if (match.groups!.id !== undefined) {
             return {
