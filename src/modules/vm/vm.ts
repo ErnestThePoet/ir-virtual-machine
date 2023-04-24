@@ -125,16 +125,6 @@ const initialMemory: VmMemory = {
     memory: new Uint8Array()
 };
 
-const initialRegisters: VmRegisters = {
-    eax: new Int32(0),
-    ebx: new Int32(0),
-    ecx: new Int32(0),
-    edx: new Int32(0),
-    ebp: new Int32(0),
-    esp: new Int32(0),
-    eip: new Int32(0)
-};
-
 const initialTables: VmTables = {
     labelTable: {},
     functionTable: {},
@@ -252,12 +242,24 @@ const defaultOptions: VmOptions = {
  * |              ...               |
  */
 export class Vm {
+    // Initial esp varies with Vm's memory size. So
+    // each VM has its own initialRegisters.
+    private initialRegisters: VmRegisters = {
+        eax: new Int32(0),
+        ebx: new Int32(0),
+        ecx: new Int32(0),
+        edx: new Int32(0),
+        ebp: new Int32(0),
+        esp: new Int32(defaultOptions.memorySize),
+        eip: new Int32(0)
+    };
+
     private alu: Alu = new Alu();
     private mmu: Mmu = new Mmu();
     private decoder: Decoder = new Decoder();
 
     private memory: VmMemory = cloneDeep(initialMemory);
-    private registers: VmRegisters = cloneDeep(initialRegisters);
+    private registers: VmRegisters = cloneDeep(this.initialRegisters);
     private tables: VmTables = cloneDeep(initialTables);
     private executionStatus: VmExecutionStatus = cloneDeep(
         initialExecutionStatus
@@ -431,6 +433,9 @@ export class Vm {
             });
 
             this.options.memorySize = options.memorySize;
+
+            this.initialRegisters.esp = new Int32(options.memorySize);
+            this.registers.esp = new Int32(options.memorySize);
         }
 
         if (options.stackSize !== undefined) {
@@ -455,7 +460,7 @@ export class Vm {
     reset() {
         this.memory.text = [];
         this.memory.memory = new Uint8Array();
-        this.registers = cloneDeep(initialRegisters);
+        this.registers = cloneDeep(this.initialRegisters);
         this.tables = cloneDeep(initialTables);
         this.executionStatus = cloneDeep(initialExecutionStatus);
     }

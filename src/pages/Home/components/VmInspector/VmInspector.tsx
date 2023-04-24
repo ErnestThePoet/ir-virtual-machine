@@ -1,12 +1,13 @@
 import React from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { InputNumber } from "antd";
+import { InputNumber, Progress } from "antd";
 import styles from "./VmInspector.module.scss";
 import { useIntl } from "react-intl";
 import classNames from "classnames";
 import { vmOptionLimits } from "@/modules/vm/vm";
 import { syncVmState } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
+import { toKiB } from "@/modules/utils";
 
 const VmInspector: React.FC = () => {
     const intl = useIntl();
@@ -25,7 +26,7 @@ const VmInspector: React.FC = () => {
                     </div>
                 </div>
 
-                <div className={styles.divStepState}>
+                <div className={styles.divStepStateWrapper}>
                     <label className={styles.lblStepStateLabel}>
                         {intl.formatMessage({ id: "STATE" })}
                     </label>
@@ -136,6 +137,201 @@ const VmInspector: React.FC = () => {
                             });
                             syncVmState(dispatch, vm);
                         }}
+                    />
+                </div>
+            </div>
+
+            <div className={styles.divMemoryUsageCard}>
+                <div className={styles.divMemoryUsageWrapper}>
+                    <div>
+                        <label>
+                            {intl.formatMessage({ id: "TOTAL_MEMORY_USAGE" })}
+                        </label>
+
+                        <label className="percentageUsage">
+                            {vm.vmPageStates[vm.activeVmIndex].memoryUsage
+                                .total === 0
+                                ? "-.-"
+                                : intl.formatMessage(
+                                      { id: "PERCENTAGE_USAGE" },
+                                      {
+                                          percentage:
+                                              (vm.vmPageStates[vm.activeVmIndex]
+                                                  .memoryUsage.used /
+                                                  vm.vmPageStates[
+                                                      vm.activeVmIndex
+                                                  ].memoryUsage.total) *
+                                              100
+                                      }
+                                  )}
+                        </label>
+                    </div>
+                    <span>
+                        {intl.formatMessage(
+                            { id: "B_USAGE" },
+                            {
+                                used: vm.vmPageStates[vm.activeVmIndex]
+                                    .memoryUsage.used,
+                                total: vm.vmPageStates[vm.activeVmIndex]
+                                    .memoryUsage.total
+                            }
+                        )}
+                    </span>
+                    <span>
+                        {intl.formatMessage(
+                            { id: "KB_USAGE" },
+                            {
+                                used: toKiB(
+                                    vm.vmPageStates[vm.activeVmIndex]
+                                        .memoryUsage.used
+                                ),
+                                total: toKiB(
+                                    vm.vmPageStates[vm.activeVmIndex]
+                                        .memoryUsage.total
+                                )
+                            }
+                        )}
+                    </span>
+
+                    <Progress
+                        percent={
+                            (vm.vmPageStates[vm.activeVmIndex].memoryUsage
+                                .used /
+                                vm.vmPageStates[vm.activeVmIndex].memoryUsage
+                                    .total) *
+                            100
+                        }
+                        showInfo={false}
+                    />
+                </div>
+
+                <div className={styles.divMemoryUsageWrapper}>
+                    <div>
+                        <label>
+                            {intl.formatMessage({ id: "STACK_MEMORY_USAGE" })}
+                        </label>
+
+                        <label className="percentageUsage">
+                            {vm.vmPageStates[vm.activeVmIndex].memoryUsage
+                                .stackTotal === 0
+                                ? "-.-"
+                                : intl.formatMessage(
+                                      { id: "PERCENTAGE_USAGE" },
+                                      {
+                                          percentage:
+                                              (vm.vmPageStates[vm.activeVmIndex]
+                                                  .memoryUsage.stackUsed /
+                                                  vm.vmPageStates[
+                                                      vm.activeVmIndex
+                                                  ].memoryUsage.stackTotal) *
+                                              100
+                                      }
+                                  )}
+                        </label>
+                    </div>
+                    <span>
+                        {intl.formatMessage(
+                            { id: "B_USAGE" },
+                            {
+                                used: vm.vmPageStates[vm.activeVmIndex]
+                                    .memoryUsage.stackUsed,
+                                total: vm.vmPageStates[vm.activeVmIndex]
+                                    .memoryUsage.stackTotal
+                            }
+                        )}
+                    </span>
+                    <span>
+                        {intl.formatMessage(
+                            { id: "KB_USAGE" },
+                            {
+                                used: toKiB(
+                                    vm.vmPageStates[vm.activeVmIndex]
+                                        .memoryUsage.stackUsed
+                                ),
+                                total: toKiB(
+                                    vm.vmPageStates[vm.activeVmIndex]
+                                        .memoryUsage.stackTotal
+                                )
+                            }
+                        )}
+                    </span>
+
+                    <Progress
+                        percent={
+                            (vm.vmPageStates[vm.activeVmIndex].memoryUsage
+                                .stackUsed /
+                                vm.vmPageStates[vm.activeVmIndex].memoryUsage
+                                    .stackTotal) *
+                            100
+                        }
+                        showInfo={false}
+                    />
+                </div>
+
+                <div className={styles.divMemoryUsageWrapper}>
+                    <div>
+                        <label>
+                            {intl.formatMessage({
+                                id: "GLOBAL_VARIABLE_MEMORY_USAGE"
+                            })}
+                        </label>
+
+                        <label className="percentageUsage">
+                            {vm.vmPageStates[vm.activeVmIndex].memoryUsage
+                                .globalVariableTotal === 0
+                                ? "-.-"
+                                : intl.formatMessage(
+                                      { id: "PERCENTAGE_USAGE" },
+                                      {
+                                          percentage:
+                                              (vm.vmPageStates[vm.activeVmIndex]
+                                                  .memoryUsage
+                                                  .globalVariableUsed /
+                                                  vm.vmPageStates[
+                                                      vm.activeVmIndex
+                                                  ].memoryUsage
+                                                      .globalVariableTotal) *
+                                              100
+                                      }
+                                  )}
+                        </label>
+                    </div>
+                    <span>
+                        {intl.formatMessage(
+                            { id: "B_USAGE" },
+                            {
+                                used: vm.vmPageStates[vm.activeVmIndex]
+                                    .memoryUsage.globalVariableUsed,
+                                total: vm.vmPageStates[vm.activeVmIndex]
+                                    .memoryUsage.globalVariableTotal
+                            }
+                        )}
+                    </span>
+                    <span>
+                        {intl.formatMessage(
+                            { id: "KB_USAGE" },
+                            {
+                                used: toKiB(
+                                    vm.vmPageStates[vm.activeVmIndex]
+                                        .memoryUsage.globalVariableUsed
+                                ),
+                                total: toKiB(
+                                    vm.vmPageStates[vm.activeVmIndex]
+                                        .memoryUsage.globalVariableTotal
+                                )
+                            }
+                        )}
+                    </span>
+
+                    <Progress
+                        percent={
+                            (vm.vmPageStates[vm.activeVmIndex].memoryUsage
+                                .globalVariableUsed /
+                                vm.vmPageStates[vm.activeVmIndex].memoryUsage
+                                    .globalVariableTotal) *
+                            100
+                        }
+                        showInfo={false}
                     />
                 </div>
             </div>

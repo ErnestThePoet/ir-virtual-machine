@@ -36,9 +36,12 @@ const zhCn = {
     MEMORY_SIZE: "内存大小/B",
     STACK_SIZE: "栈大小/B",
 
-    TOTAL_MEMORY_USAGE: "总内存使用量",
-    STACK_MEMORY_USAGE: "栈内存使用量",
-    GLOBAL_VARIABLE_MEMORY_USAGE: "全局变量内存使用量",
+    TOTAL_MEMORY_USAGE: "总内存使用：",
+    STACK_MEMORY_USAGE: "栈内存使用：",
+    GLOBAL_VARIABLE_MEMORY_USAGE: "全局变量内存使用：",
+    PERCENTAGE_USAGE: "{percentage, number, ::.0}%",
+    B_USAGE: "{used}B/{total}B",
+    KB_USAGE: "{used, number, ::.0}KB/{total, number, ::.0}KB",
 
     GLOBAL_VARIABLE_TABLE: "全局变量表",
     LOCAL_VARIABLE_TABLE: "局部变量表({functionId})",

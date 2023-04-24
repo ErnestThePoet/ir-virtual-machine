@@ -42,6 +42,7 @@
     font-size: 20px;
     color: var(--vm-inspector-step-state-label-color);
     white-space: nowrap;
+    user-select: none;
 }
 
 .divStepCount {
@@ -100,20 +101,50 @@
     color: var(--vm-inspector-state-exited-abnormally-color);
 }
 
-.divOptionsCard{
+.divOptionsCard {
     display: flex;
     justify-content: center;
     gap: 25px;
     @include inspector-card;
 }
 
-.divOptionWrapper{
+.divOptionWrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 5px;
 }
 
-.lblOption{
+.lblOption {
     font-size: 14px;
+    user-select: none;
+}
+
+.divMemoryUsageCard {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    @include inspector-card;
+    padding-bottom: 10px;
+}
+
+.divMemoryUsageWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+
+    font-size: 13px;
+
+    label{
+        user-select: none;
+    }
+
+    label[class="percentageUsage"] {
+        font-weight: bold;
+    }
+
+    span {
+        font-family: "Roboto Mono", monospace;
+    }
 }
