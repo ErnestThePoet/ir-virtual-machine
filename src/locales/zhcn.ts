@@ -27,7 +27,7 @@ const zhCn = {
     ILLEGAL_INSTRUCTION_FORMAT: "指令格式非法",
     FUNCTION_ILLEGAL_ID: "FUNCTION指令函数名非法",
     ASSIGN_ILLEGAL_LEFT: "赋值指令左侧非法",
-    ASSIGN_ILLEGAL_RIGHT: "赋值指令右侧非法",
+    ASSIGN_ILLEGAL_RIGHT: "赋值指令右侧一元值非法",
     ASSIGN_ILLEGAL_RIGHT_OPERATOR: "赋值指令右侧算术运算符非法",
     ASSIGN_ILLEGAL_RIGHT_OPERAND1: "赋值指令右侧第一个一元值操作数非法",
     ASSIGN_ILLEGAL_RIGHT_OPERAND2: "赋值指令右侧第二个一元值操作数非法",
