@@ -161,11 +161,11 @@ export class Decoder {
     private readonly patternSize = new RegExp(/^(?<size>\d+)$/);
 
     private readonly patternSingular = new RegExp(
-        /^(#(?<imm>-?\d+))|(?<id>[a-zA-Z_]\w*)|(\*(?<derefId>[a-zA-Z_]\w*))|(&(?<addressId>[a-zA-Z_]\w*))$/
+        /^(#(?<imm>-?\d+))$|^(?<id>[a-zA-Z_]\w*)$|^(\*(?<derefId>[a-zA-Z_]\w*))$|^(&(?<addressId>[a-zA-Z_]\w*))$/
     );
 
     private readonly patternLValue = new RegExp(
-        /^((?<id>[a-zA-Z_]\w*))|(\*(?<derefId>[a-zA-Z_]\w*))$/
+        /^((?<id>[a-zA-Z_]\w*))$|^(\*(?<derefId>[a-zA-Z_]\w*))$/
     );
 
     private readonly illegalInstructionFormatError: DecodedInstructionNoMeta = {
@@ -224,7 +224,7 @@ export class Decoder {
             if (!Number.isSafeInteger(numberValue)) {
                 return null;
             }
-            
+
             return {
                 type: "IMM",
                 imm: new Int32(numberValue)
