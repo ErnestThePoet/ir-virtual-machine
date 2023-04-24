@@ -1180,9 +1180,23 @@ export class Vm {
                     this.alu.ltInt32(this.registers.eip, new Int32(0))
             )
         ) {
-            this.writeRuntimeError({
-                key: "INSTRUCTION_READ_OUT_OF_BOUND"
-            });
+            // Here we don't call writeRuntimeError because we can't get line number.
+            this.executionStatus.state = "RUNTIME_ERROR";
+
+            this.writeConsole([
+                {
+                    key: "RUNTIME_ERROR_PREFIX_NO_LN",
+                    type: "ERROR"
+                },
+                {
+                    key: "INSTRUCTION_READ_OUT_OF_BOUND",
+                    values: {
+                        address: toHex(new Uint32(this.registers.eip.value))
+                    },
+                    type: "ERROR"
+                }
+            ]);
+
             return;
         }
 

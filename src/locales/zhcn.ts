@@ -55,6 +55,7 @@ const zhCn = {
 
     // Runtime error messages
     RUNTIME_ERROR_PREFIX: "运行时错误(第{lineNumber}行)：",
+    RUNTIME_ERROR_PREFIX_NO_LN: "运行时错误：",
     GLOBAL_VARIABLE_SEGMENT_OVERFLOW: "全局变量空间溢出",
     STACK_OVERFLOW: "栈空间溢出",
     VARIABLE_NOT_FOUND: "找不到变量{id}",
