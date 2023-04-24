@@ -1,6 +1,6 @@
 @import "../../../../../styles/layout.module.scss";
 
-.divTabBarItemWrapper {
+.divTabBarItemWrapperBase {
     width: $tabbar-item-width;
     min-width: $tabbar-item-width;
     cursor: pointer;
@@ -12,7 +12,7 @@
 }
 
 .divTabBarItemWrapperInactive {
-    @extend .divTabBarItemWrapper;
+    @extend .divTabBarItemWrapperBase;
     background-color: var(--tabbar-item-inactive-bkg-color);
     &:hover {
         background-color: var(--tabbar-item-inactive-hover-bkg-color);
@@ -20,7 +20,7 @@
 }
 
 .divTabBarItemWrapperActive {
-    @extend .divTabBarItemWrapper;
+    @extend .divTabBarItemWrapperBase;
     background-color: var(--tabbar-item-active-bkg-color);
 }
 

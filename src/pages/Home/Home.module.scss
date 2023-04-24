@@ -16,7 +16,7 @@
     flex-direction: column;
 }
 
-.divVmWrapper {
+.divVmWrapperBase {
     width: 100%;
     height: calc(100% - $tabbar-height);
     display: flex;
@@ -29,7 +29,7 @@
 }
 
 .divVmWrapperHorizontal {
-    @extend .divVmWrapper;
+    @extend .divVmWrapperBase;
 
     > section[class="sectionIrEditor"] {
         width: 34%;
@@ -50,7 +50,7 @@
 }
 
 .divVmWrapperVertical {
-    @extend .divVmWrapper;
+    @extend .divVmWrapperBase;
     flex-direction: column;
 
     > section[class="sectionIrEditor"] {
