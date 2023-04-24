@@ -127,24 +127,3 @@
     @include inspector-card;
     padding-bottom: 10px;
 }
-
-.divMemoryUsageWrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-
-    font-size: 13px;
-
-    label{
-        user-select: none;
-    }
-
-    label[class="percentageUsage"] {
-        font-weight: bold;
-    }
-
-    span {
-        font-family: "Roboto Mono", monospace;
-    }
-}
