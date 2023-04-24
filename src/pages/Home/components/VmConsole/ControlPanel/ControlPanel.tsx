@@ -42,8 +42,6 @@ const ControlPanel: React.FC<ControlPanelProps> = (
                     label={intl.formatMessage({ id: "RESET" })}
                     onClick={props.onResetClick}
                 />
-            </div>
-            <div className={styles.divSide}>
                 <ControlPanelIcon
                     className={styles.iconClear}
                     icon={<StopOutlined />}
@@ -51,6 +49,7 @@ const ControlPanel: React.FC<ControlPanelProps> = (
                     onClick={props.onClearClick}
                 />
             </div>
+            {/* <div className={styles.divSide}></div> */}
         </div>
     );
 };
