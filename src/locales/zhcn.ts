@@ -44,11 +44,12 @@ const zhCn = {
     KB_USAGE: "{used, number, ::.0}KB/{total, number, ::.0}KB",
 
     GLOBAL_VARIABLE_TABLE: "全局变量表",
-    LOCAL_VARIABLE_TABLE: "局部变量表({functionId})",
+    LOCAL_VARIABLE_TABLE: "局部变量表",
     VARIABLE_ID: "变量名",
     ADDRESS: "地址",
     SIZE: "大小",
     VALUES: "值",
+    EMPTY_VATIABLE_TABLE: "（空）",
 
     // Static error check messages
     STATIC_ERROR_PREFIX: "静态分析错误：",

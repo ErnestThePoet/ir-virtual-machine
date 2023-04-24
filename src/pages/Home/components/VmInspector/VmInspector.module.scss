@@ -23,14 +23,15 @@
     padding: 20px;
     border: 1px solid var(--vm-inspector-card-border-color);
     border-radius: 8px;
+    background-color: var(--vm-inspector-card-bkg-color);
 }
 
 .divStepStateCard {
+    @include inspector-card;
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    @include inspector-card;
 }
 
 .divStepStateWrapper {
@@ -102,10 +103,11 @@
 }
 
 .divOptionsCard {
+    @include inspector-card;
     display: flex;
     justify-content: center;
     gap: 25px;
-    @include inspector-card;
+    color: var(--vm-inspector-text-color);
 }
 
 .divOptionWrapper {
@@ -121,9 +123,65 @@
 }
 
 .divMemoryUsageCard {
+    @include inspector-card;
     display: flex;
     justify-content: center;
     gap: 20px;
-    @include inspector-card;
+    color: var(--vm-inspector-text-color);
     padding-bottom: 10px;
+}
+
+.divGlobalVariableTableCard {
+    @include inspector-card;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    color: var(--vm-inspector-text-color);
+
+    > label[class="title"] {
+        font-weight: bold;
+        user-select: none;
+    }
+}
+
+.divLocalVariableTableCard {
+    @include inspector-card;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    color: var(--vm-inspector-text-color);
+
+    > label[class="title"] {
+        font-weight: bold;
+        user-select: none;
+    }
+
+    > div[class="emptyHolder"] {
+        font-size: 15px;
+        user-select: none;
+    }
+}
+
+.divLocalVariableTableWrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.divLocalVariableTable {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+
+    > label[class="functionName"] {
+        margin-left: 10px;
+        font-size: 14px;
+        user-select: none;
+        align-self: flex-start;
+    }
 }

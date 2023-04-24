@@ -1,13 +1,14 @@
 import React from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { InputNumber, Progress } from "antd";
+import { InputNumber } from "antd";
 import styles from "./VmInspector.module.scss";
 import { useIntl } from "react-intl";
 import classNames from "classnames";
 import { vmOptionLimits } from "@/modules/vm/vm";
 import { syncVmState } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
-import MemoryUsage from "./MemoryUsage/MemoryUsage";
+import MemoryUsage from "./MemoryUsage";
+import VariableTable from "./VariableTable";
 
 const VmInspector: React.FC = () => {
     const intl = useIntl();
@@ -175,6 +176,44 @@ const VmInspector: React.FC = () => {
                             .globalVariableTotal
                     }
                 />
+            </div>
+
+            <div className={styles.divGlobalVariableTableCard}>
+                <label className="title">
+                    {intl.formatMessage({ id: "GLOBAL_VARIABLE_TABLE" })}
+                </label>
+                <VariableTable
+                    variables={
+                        vm.vmPageStates[vm.activeVmIndex].globalVariableDetails
+                    }
+                />
+            </div>
+
+            <div className={styles.divLocalVariableTableCard}>
+                <label className="title">
+                    {intl.formatMessage({ id: "LOCAL_VARIABLE_TABLE" })}
+                </label>
+
+                {vm.vmPageStates[vm.activeVmIndex].localVariableDetailsStack
+                    .length === 0 ? (
+                    <div className="emptyHolder">
+                        {intl.formatMessage({ id: "EMPTY_VATIABLE_TABLE" })}
+                    </div>
+                ) : (
+                    <div className={styles.divLocalVariableTableWrapper}>
+                        {vm.vmPageStates[
+                            vm.activeVmIndex
+                        ].localVariableDetailsStack.map((x, i) => (
+                            <div className={styles.divLocalVariableTable}>
+                                <label className="functionName">
+                                    {x.functionName}
+                                </label>
+
+                                <VariableTable key={i} variables={x.details} />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

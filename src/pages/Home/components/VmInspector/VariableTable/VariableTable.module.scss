@@ -1,0 +1,9 @@
+.divVariableTableWrapper {
+    width: 100%;
+    text-align: center;
+    
+    > div[class="emptyHolder"] {
+        font-size: 15px;
+        user-select: none;
+    }
+}
