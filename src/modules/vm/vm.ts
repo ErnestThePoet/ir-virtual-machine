@@ -426,6 +426,11 @@ export class Vm {
                 vmOptionLimits.memorySize
             );
 
+            options.memorySize = limitRange(options.memorySize, {
+                min: this.options.stackSize,
+                max: vmOptionLimits.memorySize.max
+            });
+
             this.options.memorySize = options.memorySize;
         }
 
