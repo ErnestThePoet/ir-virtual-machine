@@ -11,11 +11,12 @@
 }
 
 .spanPrompt {
+    word-break: break-all;
     color: var(--vm-console-prompt-color);
 }
 
 .in {
-    width: 100%;
+    flex-grow: 1;
     height: 20px;
     padding: 0;
     border: 0;
