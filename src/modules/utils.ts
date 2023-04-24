@@ -36,7 +36,7 @@ export function getNextUntitledVmName(names: string[]): string {
 }
 
 export function splitLines(x: string): string[] {
-    return x.replace("\r", "").split("\n");
+    return x.replace(/\r/g, "").split("\n");
 }
 
 export function toKiB(b: number): number {
