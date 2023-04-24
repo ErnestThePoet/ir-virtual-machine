@@ -38,11 +38,21 @@ const VmConsole: React.FC = () => {
         <div className={styles.divVmConsoleWrapper}>
             <ControlPanel
                 onRunClick={async () => {
+                    if (
+                        !vmContainer.at(vm.activeVmIndex).canContinueExecution
+                    ) {
+                        return;
+                    }
                     dispatch(setShouldIndicateCurrentLineNumber(false));
                     await vmContainer.at(vm.activeVmIndex).execute();
                     syncVmState(dispatch, vm);
                 }}
                 onRunStepClick={async () => {
+                    if (
+                        !vmContainer.at(vm.activeVmIndex).canContinueExecution
+                    ) {
+                        return;
+                    }
                     dispatch(setShouldIndicateCurrentLineNumber(true));
                     await vmContainer.at(vm.activeVmIndex).executeSingleStep();
                     syncVmState(dispatch, vm);
