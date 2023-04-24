@@ -382,7 +382,6 @@ export class Vm {
             total: this.options.memorySize,
             used:
                 this.registers.edx.value +
-                1 +
                 this.options.memorySize -
                 this.registers.esp.value,
 
@@ -391,7 +390,7 @@ export class Vm {
 
             globalVariableTotal:
                 this.options.memorySize - this.options.stackSize,
-            globalVariableUsed: this.registers.edx.value + 1
+            globalVariableUsed: this.registers.edx.value
         };
     }
 
