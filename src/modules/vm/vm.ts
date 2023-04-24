@@ -481,6 +481,10 @@ export class Vm {
                 this.executionStatus.state = "STATIC_CHECK_FAILED";
 
                 this.writeConsole([
+                    // {
+                    //     key: "STATIC_ERROR_PREFIX",
+                    //     type: "ERROR"
+                    // },
                     {
                         key: "DECODE_ERROR_PREFIX",
                         values: {
@@ -529,6 +533,10 @@ export class Vm {
             this.executionStatus.state = "STATIC_CHECK_FAILED";
 
             this.writeConsole([
+                {
+                    key: "STATIC_ERROR_PREFIX",
+                    type: "ERROR"
+                },
                 {
                     key: "NO_MAIN_FUNCTION",
                     type: "ERROR"
