@@ -58,6 +58,8 @@ const VmConsole: React.FC = () => {
                 }}
                 onResetClick={() => {
                     dispatch(setShouldIndicateCurrentLineNumber(false));
+                    dispatch(setConsoleInputPrompt([]));
+                    dispatch(setConsoleInput(""));
                     vmContainer.at(vm.activeVmIndex).reset();
                     fetchVmState(dispatch, vm);
                 }}
