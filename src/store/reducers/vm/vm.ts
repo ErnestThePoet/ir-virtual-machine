@@ -7,6 +7,8 @@ import type {
     VmStaticErrorTable,
     VmVariableDetail
 } from "@/modules/vm/vm";
+import vmContainer from "@/modules/vmContainer/vmContainer";
+import { AppDispatch } from "@/store/store";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
@@ -167,5 +169,27 @@ export const {
     setCurrentLineNumber,
     setShouldIndicateCurrentLineNumber
 } = vmSlice.actions;
+
+export const fetchVmState = (dispatch: AppDispatch, vm: VmState) => {
+    dispatch(setState(vmContainer.at(vm.activeVmIndex).state));
+    dispatch(
+        setGlobalVariableDetails(
+            vmContainer.at(vm.activeVmIndex).globalVariableDetails
+        )
+    );
+    dispatch(
+        setLocalVariableDetailsStack(
+            vmContainer.at(vm.activeVmIndex).localVariableDetailsStack
+        )
+    );
+    dispatch(setStepCount(vmContainer.at(vm.activeVmIndex).stepCount));
+    dispatch(setMemoryUsage(vmContainer.at(vm.activeVmIndex).memoryUsage));
+    dispatch(
+        setStaticErrorTable(vmContainer.at(vm.activeVmIndex).staticErrorTable)
+    );
+    dispatch(
+        setCurrentLineNumber(vmContainer.at(vm.activeVmIndex).currentLineNumber)
+    );
+};
 
 export default vmSlice.reducer;

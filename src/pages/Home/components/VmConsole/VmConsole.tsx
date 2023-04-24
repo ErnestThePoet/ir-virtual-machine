@@ -16,7 +16,8 @@ import {
     setMemoryUsage,
     setStaticErrorTable,
     setCurrentLineNumber,
-    setShouldIndicateCurrentLineNumber
+    setShouldIndicateCurrentLineNumber,
+    fetchVmState
 } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { ConsoleMessageType } from "@/modules/vm/vm";
@@ -26,32 +27,6 @@ const VmConsole: React.FC = () => {
     const intl = useIntl();
     const dispatch = useAppDispatch();
     const vm = useAppSelector(state => state.vm);
-
-    const fetchVmState = () => {
-        dispatch(setState(vmContainer.at(vm.activeVmIndex).state));
-        dispatch(
-            setGlobalVariableDetails(
-                vmContainer.at(vm.activeVmIndex).globalVariableDetails
-            )
-        );
-        dispatch(
-            setLocalVariableDetailsStack(
-                vmContainer.at(vm.activeVmIndex).localVariableDetailsStack
-            )
-        );
-        dispatch(setStepCount(vmContainer.at(vm.activeVmIndex).stepCount));
-        dispatch(setMemoryUsage(vmContainer.at(vm.activeVmIndex).memoryUsage));
-        dispatch(
-            setStaticErrorTable(
-                vmContainer.at(vm.activeVmIndex).staticErrorTable
-            )
-        );
-        dispatch(
-            setCurrentLineNumber(
-                vmContainer.at(vm.activeVmIndex).currentLineNumber
-            )
-        );
-    };
 
     let inputResolve: ((_: string) => void) | null = null;
 
@@ -74,17 +49,17 @@ const VmConsole: React.FC = () => {
                 onRunClick={async () => {
                     dispatch(setShouldIndicateCurrentLineNumber(false));
                     await vmContainer.at(vm.activeVmIndex).execute();
-                    fetchVmState();
+                    fetchVmState(dispatch, vm);
                 }}
                 onRunStepClick={async () => {
                     dispatch(setShouldIndicateCurrentLineNumber(true));
                     await vmContainer.at(vm.activeVmIndex).executeSingleStep();
-                    fetchVmState();
+                    fetchVmState(dispatch, vm);
                 }}
                 onResetClick={() => {
                     dispatch(setShouldIndicateCurrentLineNumber(false));
                     vmContainer.at(vm.activeVmIndex).reset();
-                    fetchVmState();
+                    fetchVmState(dispatch, vm);
                 }}
                 onClearClick={() => {
                     dispatch(clearConsoleOutputs());

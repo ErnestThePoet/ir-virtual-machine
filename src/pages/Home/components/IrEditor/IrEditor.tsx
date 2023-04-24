@@ -4,7 +4,7 @@ import { useIntl } from "react-intl";
 import styles from "./IrEditor.module.scss";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { splitLines } from "@/modules/utils";
-import { setIrString, setIsIrChanged } from "@/store/reducers/vm";
+import { fetchVmState, setIrString, setIsIrChanged } from "@/store/reducers/vm";
 import LineHighlighter from "./LineHighlighter/LineHighlighter";
 import classNames from "classnames";
 
@@ -18,6 +18,7 @@ const IrEditor: React.FC = () => {
     useEffect(() => {
         const currentVm = vmContainer.at(vm.activeVmIndex);
         currentVm.loadNewInstructions(irLines);
+        fetchVmState(dispatch, vm);
     }, [vm.vmPageStates[vm.activeVmIndex].irString]);
 
     return (
