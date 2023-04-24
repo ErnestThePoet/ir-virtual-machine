@@ -914,31 +914,38 @@ export class Vm {
         }
     }
 
-    private aint32BinaryMathOp(
-        a: Int32,
-        b: Int32,
-        int32Op: (_a: Int32, _b: Int32) => Int32,
-        uint32Op: (_a: Int32, _b: Int32) => Int32
-    ): Int32 {
-        if (a.type === "UINT32" || b.type === "UINT32") {
-            return uint32Op(new Int32(a.value), new Int32(b.value));
-        }
+    // Legacy functions when Uint32 is still used
+    // private aint32BinaryMathOp(
+    //     a: Int32,
+    //     b: Int32,
+    //     int32Op: (_a: Int32, _b: Int32) => Int32,
+    //     uint32Op: (_a: Int32, _b: Int32) => Int32
+    // ): Int32 {
+    //     if (a.type === "UINT32" || b.type === "UINT32") {
+    //         return uint32Op.bind(this.alu)(
+    //             new Int32(a.value),
+    //             new Int32(b.value)
+    //         );
+    //     }
 
-        return int32Op(a as Int32, b as Int32);
-    }
+    //     return int32Op.bind(this.alu)(a as Int32, b as Int32);
+    // }
 
-    private aint32BinaryRelOp(
-        a: Int32,
-        b: Int32,
-        int32Op: (_a: Int32, _b: Int32) => boolean,
-        uint32Op: (_a: Int32, _b: Int32) => boolean
-    ): boolean {
-        if (a.type === "UINT32" || b.type === "UINT32") {
-            return uint32Op(new Int32(a.value), new Int32(b.value));
-        }
+    // private aint32BinaryRelOp(
+    //     a: Int32,
+    //     b: Int32,
+    //     int32Op: (_a: Int32, _b: Int32) => boolean,
+    //     uint32Op: (_a: Int32, _b: Int32) => boolean
+    // ): boolean {
+    //     if (a.type === "UINT32" || b.type === "UINT32") {
+    //         return uint32Op.bind(this.alu)(
+    //             new Int32(a.value),
+    //             new Int32(b.value)
+    //         );
+    //     }
 
-        return int32Op(a as Int32, b as Int32);
-    }
+    //     return int32Op.bind(this.alu)(a as Int32, b as Int32);
+    // }
 
     /**
      * Get the `Int32` or `Int32` value of given `RValue`. If its singular
@@ -964,32 +971,24 @@ export class Vm {
 
                 switch (rValue.binaryMathOp!) {
                     case "+":
-                        return this.aint32BinaryMathOp(
+                        return this.alu.addInt32(
                             singularLValue,
-                            singularRValue,
-                            this.alu.addInt32,
-                            this.alu.addInt32
+                            singularRValue
                         );
                     case "-":
-                        return this.aint32BinaryMathOp(
+                        return this.alu.subInt32(
                             singularLValue,
-                            singularRValue,
-                            this.alu.subInt32,
-                            this.alu.subInt32
+                            singularRValue
                         );
                     case "*":
-                        return this.aint32BinaryMathOp(
+                        return this.alu.mulInt32(
                             singularLValue,
-                            singularRValue,
-                            this.alu.mulInt32,
-                            this.alu.mulInt32
+                            singularRValue
                         );
                     case "/":
-                        return this.aint32BinaryMathOp(
+                        return this.alu.divInt32(
                             singularLValue,
-                            singularRValue,
-                            this.alu.divInt32,
-                            this.alu.divInt32
+                            singularRValue
                         );
                 }
             }
@@ -1109,33 +1108,13 @@ export class Vm {
             case "!=":
                 return this.alu.ne(singularLValue, singularRValue);
             case "<":
-                return this.aint32BinaryRelOp(
-                    singularLValue,
-                    singularRValue,
-                    this.alu.ltInt32,
-                    this.alu.ltInt32
-                );
+                return this.alu.ltInt32(singularLValue, singularRValue);
             case "<=":
-                return this.aint32BinaryRelOp(
-                    singularLValue,
-                    singularRValue,
-                    this.alu.leInt32,
-                    this.alu.leInt32
-                );
+                return this.alu.leInt32(singularLValue, singularRValue);
             case ">":
-                return this.aint32BinaryRelOp(
-                    singularLValue,
-                    singularRValue,
-                    this.alu.gtInt32,
-                    this.alu.gtInt32
-                );
+                return this.alu.gtInt32(singularLValue, singularRValue);
             case ">=":
-                return this.aint32BinaryRelOp(
-                    singularLValue,
-                    singularRValue,
-                    this.alu.geInt32,
-                    this.alu.geInt32
-                );
+                return this.alu.geInt32(singularLValue, singularRValue);
         }
     }
 
