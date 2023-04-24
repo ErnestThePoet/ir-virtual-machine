@@ -11,12 +11,14 @@
 }
 
 .spanPrompt {
-    word-break: break-all;
+    white-space: nowrap;
     color: var(--vm-console-prompt-color);
 }
 
 .in {
     flex-grow: 1;
+    // With flex-grow only the input stays too wide
+    min-width: 80px;
     height: 20px;
     padding: 0;
     border: 0;
