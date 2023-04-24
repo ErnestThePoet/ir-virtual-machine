@@ -8,17 +8,17 @@
     left: 0;
 }
 
-.divLineFrameBase {
+.divLineHighlighterBase {
     width: calc(100% - $line-number-min-width);
     margin-left: $line-number-min-width;
     height: 100%;
 }
 
-@mixin line-frame-border($color) {
-    border-bottom: 1.5px dashed $color;
+@mixin line-highlighter-border($color) {
+    border-bottom: 1.8px dotted $color;
 }
 
-.divLineFrameError {
-    @extend .divLineFrameBase;
-    @include line-frame-border(var(--ir-error-border-color));
+.divLineHighlighterError {
+    @extend .divLineHighlighterBase;
+    @include line-highlighter-border(var(--ir-error-border-color));
 }
