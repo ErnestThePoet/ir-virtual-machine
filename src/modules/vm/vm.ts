@@ -186,11 +186,11 @@ export const vmOptionLimits: {
         max: 100000
     },
     memorySize: {
-        min: 2 * 1024,
+        min: 1024,
         max: 2 * 1024 * 1024
     },
     stackSize: {
-        min: 1024,
+        min: 512,
         max: 1024 * 1024
     }
 };
