@@ -319,6 +319,15 @@ export class Vm {
         return details;
     }
 
+    get canContinueExecution(): boolean {
+        return (
+            this.executionStatus.state === "INITIAL" ||
+            this.executionStatus.state === "FREE" ||
+            this.executionStatus.state === "EXITED_NORMALLY" ||
+            this.executionStatus.state === "EXITED_ABNORMALLY"
+        );
+    }
+
     get currentLineNumber(): number {
         if (
             this.registers.eip.value < 0 ||
