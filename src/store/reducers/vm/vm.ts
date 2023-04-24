@@ -4,7 +4,7 @@ import type {
     VmExecutionState,
     VmLocalVariableDetail,
     VmMemoryUsage,
-    VmStaticErrorTable,
+    VmErrorTable,
     VmVariableDetail
 } from "@/modules/vm/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
@@ -28,7 +28,8 @@ export interface SingleVmPageState {
     consoleInputPrompt: FormattableMessage[];
     consoleInput: string;
 
-    staticErrorTable: VmStaticErrorTable;
+    staticErrorTable: VmErrorTable;
+    runtimeErrorTable: VmErrorTable;
     currentLineNumber: number;
     shouldIndicateCurrentLineNumber: boolean;
 }
@@ -127,11 +128,12 @@ export const vmSlice = createSlice({
             state.vmPageStates[state.activeVmIndex].consoleInput =
                 action.payload;
         },
-        setStaticErrorTable: (
-            state,
-            action: PayloadAction<VmStaticErrorTable>
-        ) => {
+        setStaticErrorTable: (state, action: PayloadAction<VmErrorTable>) => {
             state.vmPageStates[state.activeVmIndex].staticErrorTable =
+                action.payload;
+        },
+        setRuntimeErrorTable: (state, action: PayloadAction<VmErrorTable>) => {
+            state.vmPageStates[state.activeVmIndex].runtimeErrorTable =
                 action.payload;
         },
         setCurrentLineNumber: (state, action: PayloadAction<number>) => {
@@ -166,6 +168,7 @@ export const {
     setConsoleInputPrompt,
     setConsoleInput,
     setStaticErrorTable,
+    setRuntimeErrorTable,
     setCurrentLineNumber,
     setShouldIndicateCurrentLineNumber
 } = vmSlice.actions;
@@ -186,6 +189,9 @@ export const syncVmState = (dispatch: AppDispatch, vm: VmState) => {
     dispatch(setMemoryUsage(vmContainer.at(vm.activeVmIndex).memoryUsage));
     dispatch(
         setStaticErrorTable(vmContainer.at(vm.activeVmIndex).staticErrorTable)
+    );
+    dispatch(
+        setRuntimeErrorTable(vmContainer.at(vm.activeVmIndex).runtimeErrorTable)
     );
     dispatch(
         setCurrentLineNumber(vmContainer.at(vm.activeVmIndex).currentLineNumber)

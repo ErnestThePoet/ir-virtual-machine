@@ -22,7 +22,7 @@ import type {
     DecodedWrite,
     DecodedExecutableInstruction
 } from "./decoder";
-import type { AppLocaleKey, FormattableMessage } from "@/locales";
+import type { FormattableMessage } from "@/locales";
 import { toHex } from "../utils";
 import { cloneDeep } from "lodash";
 
@@ -105,16 +105,17 @@ export type VmExecutionState =
     | "EXITED_NORMALLY"
     | "EXITED_ABNORMALLY";
 
-export interface VmStaticErrorTable {
-    [lineNumber: string | number]: AppLocaleKey;
+export interface VmErrorTable {
+    [lineNumber: string | number]: FormattableMessage;
 }
 
 interface VmExecutionStatus {
     stepCount: number;
     state: VmExecutionState;
     callStack: string[];
-    // Used to index which line contains static error and should be marked
-    staticErrorTable: VmStaticErrorTable;
+    // Used to index which line contains static/runtime error and should be marked
+    staticErrorTable: VmErrorTable;
+    runtimeErrorTable: VmErrorTable;
 }
 
 const initialMemory: VmMemory = {
@@ -145,7 +146,8 @@ const initialExecutionStatus: VmExecutionStatus = {
     stepCount: 0,
     state: "INITIAL",
     callStack: [],
-    staticErrorTable: {}
+    staticErrorTable: {},
+    runtimeErrorTable: {}
 };
 
 // Console message type
@@ -349,8 +351,12 @@ export class Vm {
         return this.executionStatus.state;
     }
 
-    get staticErrorTable(): VmStaticErrorTable {
+    get staticErrorTable(): VmErrorTable {
         return cloneDeep(this.executionStatus.staticErrorTable);
+    }
+
+    get runtimeErrorTable(): VmErrorTable {
+        return cloneDeep(this.executionStatus.runtimeErrorTable);
     }
 
     get stepCount(): number {
@@ -488,8 +494,9 @@ export class Vm {
                     }
                 ]);
 
-                this.executionStatus.staticErrorTable[i + 1] =
-                    decoded.messageKey!;
+                this.executionStatus.staticErrorTable[i + 1] = {
+                    key: decoded.messageKey!
+                };
 
                 continue;
             }
@@ -666,6 +673,10 @@ export class Vm {
      */
     private writeRuntimeError(message: FormattableMessage) {
         this.executionStatus.state = "RUNTIME_ERROR";
+
+        this.executionStatus.runtimeErrorTable[
+            this.memory.text[this.registers.eip.value].lineNumber
+        ] = message;
 
         this.writeConsole([
             {

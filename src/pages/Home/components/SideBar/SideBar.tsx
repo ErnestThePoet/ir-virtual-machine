@@ -31,7 +31,7 @@ const SideBar: React.FC = () => {
                             vm.vmPageStates.map(x => x.name)
                         );
 
-                        const newVm=new Vm()
+                        const newVm = new Vm();
 
                         vmContainer.add(newVm);
                         dispatch(
@@ -42,16 +42,19 @@ const SideBar: React.FC = () => {
                                 irString: "",
 
                                 state: newVm.state,
-                                globalVariableDetails: newVm.globalVariableDetails,
-                                localVariableDetailsStack: newVm.localVariableDetailsStack,
+                                globalVariableDetails:
+                                    newVm.globalVariableDetails,
+                                localVariableDetailsStack:
+                                    newVm.localVariableDetailsStack,
                                 stepCount: newVm.stepCount,
-                                memoryUsage:newVm.memoryUsage,
+                                memoryUsage: newVm.memoryUsage,
 
                                 consoleOutputs: [],
                                 consoleInputPrompt: [],
                                 consoleInput: "",
 
                                 staticErrorTable: newVm.staticErrorTable,
+                                runtimeErrorTable: newVm.runtimeErrorTable,
                                 currentLineNumber: newVm.currentLineNumber,
                                 shouldIndicateCurrentLineNumber: false
                             })

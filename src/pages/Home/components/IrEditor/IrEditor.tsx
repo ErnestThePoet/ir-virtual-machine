@@ -41,18 +41,44 @@ const IrEditor: React.FC = () => {
                                     vm.vmPageStates[vm.activeVmIndex]
                                         .currentLineNumber
                         })}>
-                        {i + 1 in
-                            vm.vmPageStates[vm.activeVmIndex]
-                                .staticErrorTable && (
-                            <LineHighlighter
-                                key={"highlighter" + i}
-                                type="ERROR"
-                                title={intl.formatMessage({
-                                    id: vm.vmPageStates[vm.activeVmIndex]
-                                        .staticErrorTable[i + 1]
-                                })}
-                            />
-                        )}
+                        {vm.vmPageStates[vm.activeVmIndex].state ===
+                            "STATIC_CHECK_FAILED" &&
+                            i + 1 in
+                                vm.vmPageStates[vm.activeVmIndex]
+                                    .staticErrorTable && (
+                                <LineHighlighter
+                                    key={"sehighlighter" + i}
+                                    type="ERROR"
+                                    title={intl.formatMessage(
+                                        {
+                                            id: vm.vmPageStates[
+                                                vm.activeVmIndex
+                                            ].staticErrorTable[i + 1].key
+                                        },
+                                        vm.vmPageStates[vm.activeVmIndex]
+                                            .staticErrorTable[i + 1].values
+                                    )}
+                                />
+                            )}
+                        {vm.vmPageStates[vm.activeVmIndex].state ===
+                            "RUNTIME_ERROR" &&
+                            i + 1 in
+                                vm.vmPageStates[vm.activeVmIndex]
+                                    .runtimeErrorTable && (
+                                <LineHighlighter
+                                    key={"rehighlighter" + i}
+                                    type="ERROR"
+                                    title={intl.formatMessage(
+                                        {
+                                            id: vm.vmPageStates[
+                                                vm.activeVmIndex
+                                            ].runtimeErrorTable[i + 1].key
+                                        },
+                                        vm.vmPageStates[vm.activeVmIndex]
+                                            .runtimeErrorTable[i + 1].values
+                                    )}
+                                />
+                            )}
                         {i + 1}
                     </label>
                 ))}
