@@ -40,7 +40,7 @@ const zhCn = {
     GLOBAL_DEC_SIZE_NOT_4_MULTIPLE: "GLOBAL_DEC指令分配空间大小不是4的倍数",
     LABEL_ILLEGAL_ID: "LABEL指令标签名非法",
     GOTO_ILLEGAL_ID: "GOTO指令标签名非法",
-    IF_ILLEGAL_COND_OPERATOR: "IF指令条件表达式的条件表达式非法",
+    IF_ILLEGAL_COND_OPERATOR: "IF指令条件表达式的条件运算符非法",
     IF_ILLEGAL_COND_OPERAND1: "IF指令条件表达式的第一个一元值操作数非法",
     IF_ILLEGAL_COND_OPERAND2: "IF指令条件表达式的第二个一元值操作数非法",
     IF_ILLEGAL_GOTO_ID: "IF指令GOTO标签名非法",
