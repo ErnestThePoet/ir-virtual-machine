@@ -20,6 +20,34 @@ const zhCn = {
     RESET: "重置",
     CLEAR_CONSOLE: "清屏",
 
+    STEP_COUNT: "执行步数：",
+    STATE: "VM状态：",
+    STATE_INITIAL: "初始",
+    STATE_BUSY: "忙碌",
+    STATE_WAIT_INPUT: "等待输入",
+    STATE_FREE: "空闲",
+    STATE_STATIC_CHECK_FAILED: "IR静态分析错误",
+    STATE_RUNTIME_ERROR: "运行时错误",
+    STATE_MAX_STEP_REACHED: "达到步数限制",
+    STATE_EXITED_NORMALLY: "正常退出（返回值0）",
+    STATE_EXITED_ABNORMALLY: "不正常退出（返回值非0）",
+
+    MAX_EXECUTION_STEP_COUNT: "执行步数限制",
+    MEMORY_SIZE: "虚拟机内存大小",
+    STACK_SIZE: "虚拟机栈大小",
+    APPLY: "应用",
+
+    TOTAL_MEMORY_USAGE: "总内存使用量",
+    STACK_MEMORY_USAGE: "栈内存使用量",
+    GLOBAL_VARIABLE_MEMORY_USAGE: "全局变量内存使用量",
+
+    GLOBAL_VARIABLE_TABLE: "全局变量表",
+    LOCAL_VARIABLE_TABLE: "局部变量表({functionId})",
+    VARIABLE_ID: "变量名",
+    ADDRESS: "地址",
+    SIZE: "大小",
+    VALUES: "值",
+
     // Static error check messages
     STATIC_ERROR_PREFIX: "静态分析错误：",
     DECODE_ERROR_PREFIX: "指令解码错误(第{lineNumber}行)：",

@@ -5,14 +5,92 @@
     width: 100%;
     height: 100%;
     max-height: 100%;
+    padding: 20px;
 
-    background-color: var(--vm-console-bkg-color);
-
-    font-size: 15px;
-    line-height: 20px;
+    background-color: var(--vm-inspector-bkg-color);
 
     display: flex;
+    flex-direction: column;
 
     overflow-y: auto;
     @include thick-scroll-bar;
+
+    font-family: sans-serif;
+}
+
+.divStepStateWrapper {
+    width: 100%;
+    padding: 20px;
+    border: 1px solid var(--vm-inspector-card-border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.divStepState{
+    display: flex;
+    align-items: flex-start;
+}
+
+.lblStepStateLabel {
+    font-size: 20px;
+    color: var(--vm-inspector-step-state-label-color);
+    white-space: nowrap;
+}
+
+.divStepCount {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--vm-inspector-step-count-color);
+}
+
+.divStateBase {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.divStateInitial {
+    @extend .divStateBase;
+    color: var(--vm-inspector-state-initial-color);
+}
+
+.divStateBusy {
+    @extend .divStateBase;
+    color: var(--vm-inspector-state-busy-color);
+}
+
+.divStateWaitInput {
+    @extend .divStateBase;
+    color: var(--vm-inspector-state-wait-input-color);
+}
+
+.divStateFree {
+    @extend .divStateBase;
+    color: var(--vm-inspector-state-free-color);
+}
+
+.divStateStaticCheckFailed {
+    @extend .divStateBase;
+    color: var(--vm-inspector-state-static-check-failed-color);
+}
+
+.divStateRuntimeError {
+    @extend .divStateBase;
+    color: var(--vm-inspector-state-runtime-error-color);
+}
+
+.divStateMaxStepReached {
+    @extend .divStateBase;
+    color: var(--vm-inspector-state-max-step-reached-color);
+}
+
+.divStateExitedNormally {
+    @extend .divStateBase;
+    color: var(--vm-inspector-state-exited-normally-color);
+}
+
+.divStateExitedAbnormally {
+    @extend .divStateBase;
+    color: var(--vm-inspector-state-exited-abnormally-color);
 }
