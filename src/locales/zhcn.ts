@@ -78,7 +78,7 @@ const zhCn = {
 
     // Console normal messages
     WRITE_OUTPUT: "{value}",
-    READ_PROMPT: "请输入 {name} 的值：",
+    READ_PROMPT: "请输入{name}的值：",
     CONSOLE_ARROW: ">",
     READ_INPUT: "{value}",
     EXITED_NORMALLY: "程序执行结束，返回值为0。总执行步数：{stepCount}"
