@@ -27,6 +27,10 @@ const VmConsole: React.FC = () => {
             prompt => {
                 dispatch(setConsoleInputPrompt(prompt));
 
+                // When we click continously run and encounter a read,
+                // this will get the page display updated.
+                syncVmState(dispatch, vm);
+
                 return new Promise(resolve => {
                     inputResolve.current = resolve;
                 });
