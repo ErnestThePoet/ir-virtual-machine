@@ -1126,6 +1126,14 @@ export class Vm {
      * @public
      */
     async executeSingleStep() {
+        // Allow immediate rerun after exit
+        if (
+            this.executionStatus.state === "EXITED_NORMALLY" ||
+            this.executionStatus.state === "EXITED_ABNORMALLY"
+        ) {
+            this.executionStatus.state = "INITIAL";
+        }
+
         if (this.executionStatus.state === "INITIAL") {
             this.prepareExcution();
         }
@@ -1549,11 +1557,11 @@ export class Vm {
      * @public
      */
     async execute() {
-        while (
-            this.executionStatus.state === "INITIAL" ||
-            this.executionStatus.state === "FREE"
-        ) {
+        while (true) {
             await this.executeSingleStep();
+            if (this.executionStatus.state !== "FREE") {
+                break;
+            }
         }
     }
 }
