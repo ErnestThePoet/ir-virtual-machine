@@ -23,7 +23,6 @@ import type {
     DecodedExecutableInstruction
 } from "./decoder";
 import type { FormattableMessage } from "@/locales";
-import { toHex } from "../utils";
 import { cloneDeep } from "lodash";
 
 // VM Table element types
@@ -777,7 +776,7 @@ export class Vm {
             this.writeRuntimeError({
                 key: "MEMORY_READ_OUT_OF_BOUND",
                 values: {
-                    address: toHex(uint32address)
+                    address: uint32address.value
                 }
             });
 
@@ -805,7 +804,7 @@ export class Vm {
             this.writeRuntimeError({
                 key: "MEMORY_WRITE_OUT_OF_BOUND",
                 values: {
-                    address: toHex(uint32address)
+                    address: uint32address.value
                 }
             });
 
@@ -1214,7 +1213,7 @@ export class Vm {
                 {
                     key: "INSTRUCTION_READ_OUT_OF_BOUND",
                     values: {
-                        address: toHex(new Uint32(this.registers.eip.value))
+                        address: this.registers.eip.value
                     },
                     type: "ERROR"
                 }
