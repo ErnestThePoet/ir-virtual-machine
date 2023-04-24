@@ -46,6 +46,7 @@ const SideBar: React.FC = () => {
                                     newVm.globalVariableDetails,
                                 localVariableDetailsStack:
                                     newVm.localVariableDetailsStack,
+                                options: newVm.currentOptions,
                                 stepCount: newVm.stepCount,
                                 memoryUsage: newVm.memoryUsage,
 

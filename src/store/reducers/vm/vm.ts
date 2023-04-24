@@ -5,7 +5,8 @@ import type {
     VmLocalVariableDetail,
     VmMemoryUsage,
     VmErrorTable,
-    VmVariableDetail
+    VmVariableDetail,
+    VmOptions
 } from "@/modules/vm/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { AppDispatch } from "@/store/store";
@@ -28,6 +29,7 @@ export interface SingleVmPageState {
     consoleInputPrompt: FormattableMessage[];
     consoleInput: string;
 
+    options: VmOptions;
     staticErrorTable: VmErrorTable;
     runtimeErrorTable: VmErrorTable;
     currentLineNumber: number;
@@ -99,6 +101,9 @@ export const vmSlice = createSlice({
             state.vmPageStates[state.activeVmIndex].localVariableDetailsStack =
                 action.payload;
         },
+        setOptions: (state, action: PayloadAction<VmOptions>) => {
+            state.vmPageStates[state.activeVmIndex].options = action.payload;
+        },
         setStepCount: (state, action: PayloadAction<number>) => {
             state.vmPageStates[state.activeVmIndex].stepCount = action.payload;
         },
@@ -161,6 +166,7 @@ export const {
     setState,
     setGlobalVariableDetails,
     setLocalVariableDetailsStack,
+    setOptions,
     setStepCount,
     setMemoryUsage,
     addConsoleOutput,

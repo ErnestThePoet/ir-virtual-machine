@@ -369,6 +369,10 @@ export class Vm {
         return cloneDeep(this.executionStatus.runtimeErrorTable);
     }
 
+    get currentOptions(): VmOptions {
+        return cloneDeep(this.options);
+    }
+
     get stepCount(): number {
         return this.executionStatus.stepCount;
     }
