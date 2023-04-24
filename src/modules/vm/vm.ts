@@ -571,9 +571,8 @@ export class Vm {
     }
 
     /**
-     * Initialize registers as if there's an outer caller to main function;
-     * allocate, initialize global variables and construct global variable table;
-     * push main function's special return address to stack
+     * Initialize registers and stack as if there's an outer caller to main function;
+     * randomize memory
      */
     private initializeMemoryRegister() {
         this.registers.eip = this.alu.addInt32(
@@ -616,9 +615,12 @@ export class Vm {
                 if (
                     !this.checkGlobalVariableSegmentSize(decodedGlobalDec.size)
                 ) {
-                    this.writeRuntimeError({
-                        key: "GLOBAL_VARIABLE_SEGMENT_OVERFLOW"
-                    });
+                    this.writeRuntimeError(
+                        {
+                            key: "GLOBAL_VARIABLE_SEGMENT_OVERFLOW"
+                        },
+                        i.lineNumber
+                    );
                     return;
                 }
 
@@ -638,6 +640,9 @@ export class Vm {
                     this.registers.edx,
                     decodedGlobalDec.size
                 );
+
+                // GLOBAL_DEC also counts for one step.
+                this.executionStatus.stepCount++;
             }
         }
     }
@@ -671,7 +676,7 @@ export class Vm {
     private finalizeExcution() {
         // Cleanup global variable
         this.registers.edx = new Int32(0);
-        
+
         if (this.alu.eq(this.registers.eax, new Int32(0))) {
             this.executionStatus.state = "EXITED_NORMALLY";
             this.writeConsole([
@@ -703,12 +708,16 @@ export class Vm {
      * and write runtime error prefix(with line number) and given
      * runtime error message to console.
      * @param message - The `FormattableMessage` object.
+     * @param lineNumber - The optional line number which will replace eip's line number.
      */
-    private writeRuntimeError(message: FormattableMessage) {
+    private writeRuntimeError(
+        message: FormattableMessage,
+        lineNumber?: number
+    ) {
         this.executionStatus.state = "RUNTIME_ERROR";
 
         this.executionStatus.runtimeErrorTable[
-            this.memory.text[this.registers.eip.value].lineNumber
+            lineNumber ?? this.memory.text[this.registers.eip.value].lineNumber
         ] = message;
 
         this.writeConsole([
@@ -716,6 +725,7 @@ export class Vm {
                 key: "RUNTIME_ERROR_PREFIX",
                 values: {
                     lineNumber:
+                        lineNumber ??
                         this.memory.text[this.registers.eip.value].lineNumber
                 },
                 type: "ERROR"
