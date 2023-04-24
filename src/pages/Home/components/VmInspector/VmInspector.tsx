@@ -202,6 +202,7 @@ const VmInspector: React.FC = () => {
                             100
                         }
                         showInfo={false}
+                        status="normal"
                     />
                 </div>
 
@@ -265,6 +266,7 @@ const VmInspector: React.FC = () => {
                             100
                         }
                         showInfo={false}
+                        status="normal"
                     />
                 </div>
 
@@ -332,6 +334,7 @@ const VmInspector: React.FC = () => {
                             100
                         }
                         showInfo={false}
+                        status="normal"
                     />
                 </div>
             </div>
