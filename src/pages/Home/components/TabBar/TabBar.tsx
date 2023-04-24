@@ -6,6 +6,7 @@ import { setActiveVmIndex, deleteVmPageState } from "@/store/reducers/vm";
 import { Button, Modal } from "antd";
 import { useIntl } from "react-intl";
 import vmContainer from "@/modules/vmContainer/vmContainer";
+import { saveIr } from "../SideBar/SideBar";
 
 const TabBar: React.FC = () => {
     const intl = useIntl();
@@ -15,7 +16,12 @@ const TabBar: React.FC = () => {
     const [isCloseConfirmModalOpen, setIsCloseConfirmModalOpen] =
         useState(false);
 
-    const [currentCloseVmName, setCurrentCloseVmName] = useState("");
+    const [currentCloseVmIndex, setCurrentCloseVmIndex] = useState(0);
+
+    const deleteVm = (index: number) => {
+        dispatch(deleteVmPageState(index));
+        vmContainer.delete(index);
+    };
 
     return (
         <nav className={styles.navTabBarWrapper}>
@@ -27,17 +33,12 @@ const TabBar: React.FC = () => {
                     isChanged={x.isIrChanged}
                     onClick={() => dispatch(setActiveVmIndex(i))}
                     onCloseClick={() => {
-                        const deleteCurrentVm = () => {
-                            dispatch(deleteVmPageState(i));
-                            vmContainer.delete(i);
-                        };
-
                         if (!x.isIrChanged) {
-                            deleteCurrentVm();
+                            deleteVm(i);
                             return;
                         }
 
-                        setCurrentCloseVmName(x.name);
+                        setCurrentCloseVmIndex(i);
                         setIsCloseConfirmModalOpen(true);
                     }}
                 />
@@ -50,7 +51,7 @@ const TabBar: React.FC = () => {
                         id: "CONFIRM_UNSAVED_CLOSE"
                     },
                     {
-                        name: currentCloseVmName
+                        name: vm.vmPageStates[currentCloseVmIndex]?.name
                     }
                 )}
                 onCancel={() => setIsCloseConfirmModalOpen(false)}
@@ -60,12 +61,28 @@ const TabBar: React.FC = () => {
                             id: "CANCEL"
                         })}
                     </Button>,
-                    <Button danger onClick={() => {}}>
+                    <Button
+                        danger
+                        onClick={() => {
+                            deleteVm(currentCloseVmIndex);
+                            setIsCloseConfirmModalOpen(false);
+                        }}>
                         {intl.formatMessage({
                             id: "UNSAVE_CLOSE"
                         })}
                     </Button>,
-                    <Button type="primary" onClick={() => {}}>
+                    <Button
+                        type="primary"
+                        onClick={() => {
+                            saveIr(
+                                vm.vmPageStates[vm.activeVmIndex].name,
+                                vm.vmPageStates[vm.activeVmIndex].irString
+                            );
+
+                            deleteVm(currentCloseVmIndex);
+
+                            setIsCloseConfirmModalOpen(false);
+                        }}>
                         {intl.formatMessage({ id: "SAVE_CLOSE" })}
                     </Button>
                 ]}></Modal>

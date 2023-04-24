@@ -12,10 +12,24 @@ import {
 import { message } from "antd";
 import SideBarIcon from "./SideBarIcon";
 import vmContainer from "@/modules/vmContainer";
-import { addVmPageState } from "@/store/reducers/vm";
+import { addVmPageState, setIsIrChanged } from "@/store/reducers/vm";
 import { Vm } from "@/modules/vm/vm";
 import { getNextUntitledVmName } from "@/modules/utils";
 import { useIntl } from "react-intl";
+
+export const saveIr = (name: string, irString: string) => {
+    const stringUrl = URL.createObjectURL(
+        new Blob([irString], { type: "text/plain" })
+    );
+
+    const anchor = document.createElement("a");
+    anchor.href = stringUrl;
+    anchor.download = `${name}.ir`;
+
+    anchor.click();
+
+    URL.revokeObjectURL(stringUrl);
+};
 
 const SideBar: React.FC = () => {
     const intl = useIntl();
@@ -156,7 +170,18 @@ const SideBar: React.FC = () => {
                 <SideBarIcon
                     icon={<SaveOutlined />}
                     label={locale.SAVE}
-                    onClick={() => {}}
+                    onClick={() => {
+                        if (vm.vmPageStates[vm.activeVmIndex] === undefined) {
+                            return;
+                        }
+
+                        saveIr(
+                            vm.vmPageStates[vm.activeVmIndex].name,
+                            vm.vmPageStates[vm.activeVmIndex].irString
+                        );
+
+                        dispatch(setIsIrChanged(false));
+                    }}
                 />
             </div>
 
