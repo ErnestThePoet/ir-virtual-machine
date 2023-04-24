@@ -667,10 +667,12 @@ export class Vm {
 
     /**
      * Finalize the VM when main function returns.
-     * @param returnValue - The return value of main function.
      */
-    private finalizeExcution(returnValue: Int32) {
-        if (this.alu.eq(returnValue, new Int32(0))) {
+    private finalizeExcution() {
+        // Cleanup global variable
+        this.registers.edx = new Int32(0);
+        
+        if (this.alu.eq(this.registers.eax, new Int32(0))) {
             this.executionStatus.state = "EXITED_NORMALLY";
             this.writeConsole([
                 {
@@ -687,7 +689,7 @@ export class Vm {
                 {
                     key: "EXITED_ABNORMALLY",
                     values: {
-                        returnValue: returnValue.value,
+                        returnValue: this.registers.eax.value,
                         stepCount: this.executionStatus.stepCount
                     },
                     type: "WARNING"
@@ -1463,7 +1465,7 @@ export class Vm {
                         new Int32(this.memory.text.length)
                     )
                 ) {
-                    this.finalizeExcution(returnValue);
+                    this.finalizeExcution();
                     return;
                 }
 
