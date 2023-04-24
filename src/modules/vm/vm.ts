@@ -1302,19 +1302,19 @@ export class Vm {
                     return;
                 }
 
+                const gotoLabelId = (<DecodedIf>ir.value).gotoId;
+                if (!(gotoLabelId in this.tables.labelTable)) {
+                    this.writeRuntimeError({
+                        key: "LABEL_NOT_FOUND",
+                        values: {
+                            id: gotoLabelId
+                        }
+                    });
+
+                    return;
+                }
+
                 if (condValue) {
-                    const gotoLabelId = (<DecodedIf>ir.value).gotoId;
-                    if (!(gotoLabelId in this.tables.labelTable)) {
-                        this.writeRuntimeError({
-                            key: "LABEL_NOT_FOUND",
-                            values: {
-                                id: gotoLabelId
-                            }
-                        });
-
-                        return;
-                    }
-
                     this.registers.eip =
                         this.tables.labelTable[gotoLabelId].addressBefore;
                 }
