@@ -33,9 +33,8 @@ const zhCn = {
     STATE_EXITED_ABNORMALLY: "不正常退出（返回值非0）",
 
     MAX_EXECUTION_STEP_COUNT: "执行步数限制",
-    MEMORY_SIZE: "虚拟机内存大小",
-    STACK_SIZE: "虚拟机栈大小",
-    APPLY: "应用",
+    MEMORY_SIZE: "内存大小/B",
+    STACK_SIZE: "栈大小/B",
 
     TOTAL_MEMORY_USAGE: "总内存使用量",
     STACK_MEMORY_USAGE: "栈内存使用量",

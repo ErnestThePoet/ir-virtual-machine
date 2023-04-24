@@ -11,6 +11,7 @@
 
     display: flex;
     flex-direction: column;
+    gap: 20px;
 
     overflow-y: auto;
     @include thick-scroll-bar;
@@ -18,17 +19,21 @@
     font-family: sans-serif;
 }
 
-.divStepStateWrapper {
-    width: 100%;
+@mixin inspector-card {
     padding: 20px;
     border: 1px solid var(--vm-inspector-card-border-color);
     border-radius: 8px;
+}
+
+.divStepStateCard {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    @include inspector-card;
 }
 
-.divStepState{
+.divStepStateWrapper {
     display: flex;
     align-items: flex-start;
 }
@@ -93,4 +98,22 @@
 .divStateExitedAbnormally {
     @extend .divStateBase;
     color: var(--vm-inspector-state-exited-abnormally-color);
+}
+
+.divOptionsCard{
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    @include inspector-card;
+}
+
+.divOptionWrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.lblOption{
+    font-size: 14px;
 }

@@ -1,16 +1,22 @@
 import React from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { InputNumber } from "antd";
 import styles from "./VmInspector.module.scss";
 import { useIntl } from "react-intl";
 import classNames from "classnames";
+import { vmOptionLimits } from "@/modules/vm/vm";
+import { syncVmState } from "@/store/reducers/vm";
+import vmContainer from "@/modules/vmContainer/vmContainer";
 
 const VmInspector: React.FC = () => {
     const intl = useIntl();
+    const dispatch = useAppDispatch();
     const vm = useAppSelector(state => state.vm);
+
     return (
         <div className={styles.divVmInspectorWrapper}>
-            <div className={styles.divStepStateWrapper}>
-                <div className={styles.divStepState}>
+            <div className={styles.divStepStateCard}>
+                <div className={styles.divStepStateWrapper}>
                     <label className={styles.lblStepStateLabel}>
                         {intl.formatMessage({ id: "STEP_COUNT" })}
                     </label>
@@ -59,6 +65,78 @@ const VmInspector: React.FC = () => {
                                 vm.vmPageStates[vm.activeVmIndex].state
                         })}
                     </div>
+                </div>
+            </div>
+
+            <div className={styles.divOptionsCard}>
+                <div className={styles.divOptionWrapper}>
+                    <label className={styles.lblOption}>
+                        {intl.formatMessage({ id: "MAX_EXECUTION_STEP_COUNT" })}
+                    </label>
+                    <InputNumber
+                        disabled={
+                            vm.vmPageStates[vm.activeVmIndex].state !==
+                            "INITIAL"
+                        }
+                        min={vmOptionLimits.maxExecutionStepCount.min}
+                        max={vmOptionLimits.maxExecutionStepCount.max}
+                        value={
+                            vm.vmPageStates[vm.activeVmIndex].options
+                                .maxExecutionStepCount
+                        }
+                        onChange={e => {
+                            vmContainer.at(vm.activeVmIndex).configure({
+                                maxExecutionStepCount: e ?? undefined
+                            });
+                            syncVmState(dispatch, vm);
+                        }}
+                    />
+                </div>
+
+                <div className={styles.divOptionWrapper}>
+                    <label className={styles.lblOption}>
+                        {intl.formatMessage({ id: "MEMORY_SIZE" })}
+                    </label>
+                    <InputNumber
+                        disabled={
+                            vm.vmPageStates[vm.activeVmIndex].state !==
+                            "INITIAL"
+                        }
+                        min={vmOptionLimits.memorySize.min}
+                        max={vmOptionLimits.memorySize.max}
+                        value={
+                            vm.vmPageStates[vm.activeVmIndex].options.memorySize
+                        }
+                        onChange={e => {
+                            vmContainer.at(vm.activeVmIndex).configure({
+                                memorySize: e ?? undefined
+                            });
+                            syncVmState(dispatch, vm);
+                        }}
+                    />
+                </div>
+
+                <div className={styles.divOptionWrapper}>
+                    <label className={styles.lblOption}>
+                        {intl.formatMessage({ id: "STACK_SIZE" })}
+                    </label>
+                    <InputNumber
+                        disabled={
+                            vm.vmPageStates[vm.activeVmIndex].state !==
+                            "INITIAL"
+                        }
+                        min={vmOptionLimits.stackSize.min}
+                        max={vmOptionLimits.stackSize.max}
+                        value={
+                            vm.vmPageStates[vm.activeVmIndex].options.stackSize
+                        }
+                        onChange={e => {
+                            vmContainer.at(vm.activeVmIndex).configure({
+                                stackSize: e ?? undefined
+                            });
+                            syncVmState(dispatch, vm);
+                        }}
+                    />
                 </div>
             </div>
         </div>

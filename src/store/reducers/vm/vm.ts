@@ -191,6 +191,7 @@ export const syncVmState = (dispatch: AppDispatch, vm: VmState) => {
             vmContainer.at(vm.activeVmIndex).localVariableDetailsStack
         )
     );
+    dispatch(setOptions(vmContainer.at(vm.activeVmIndex).currentOptions));
     dispatch(setStepCount(vmContainer.at(vm.activeVmIndex).stepCount));
     dispatch(setMemoryUsage(vmContainer.at(vm.activeVmIndex).memoryUsage));
     dispatch(
