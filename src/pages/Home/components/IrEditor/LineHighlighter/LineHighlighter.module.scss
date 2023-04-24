@@ -1,5 +1,15 @@
 @import "../../../../../styles/layout.module.scss";
 
+@keyframes fade-in{
+    from{
+        filter: opacity(0);
+    }
+
+    to{
+        filter: opacity(1);
+    }
+}
+
 .divLineHighlighterWrapper {
     width: 100%;
     height: $ir-editor-line-height;
@@ -12,6 +22,9 @@
     width: calc(100% - $line-number-min-width - 20px);
     margin-left: $line-number-min-width;
     height: 100%;
+
+    animation-name: fade-in;
+    animation-duration: 200ms;
 }
 
 @mixin line-highlighter-border($color) {
