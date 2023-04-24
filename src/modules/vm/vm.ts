@@ -820,11 +820,17 @@ export class Vm {
     /**
      * Search the given variable id in current local variable table and
      * global variable table, then return it. If the id can't be found,
-     * `null` is returned and error will be written to console.
+     * `null` is returned and if `check_not_found_error` is `true`,
+     * error will be checked.
      * @param id - The variable id.
+     * @param check_not_found_error - Whether VARIABLE_NOT_FOUND error
+     * should be checked.
      * @returns A `VmVariable` object or `null`
      */
-    private getVariableById(id: string): VmVariable | null {
+    private getVariableById(
+        id: string,
+        check_not_found_error: boolean
+    ): VmVariable | null {
         if (this.tables.variableTableStack.length === 0) {
             this.writeRuntimeError({
                 key: "EMPTY_VARIABLE_TABLE_STACK"
@@ -845,12 +851,14 @@ export class Vm {
         } else if (id in this.tables.globalVariableTable) {
             return this.tables.globalVariableTable[id];
         } else {
-            this.writeRuntimeError({
-                key: "VARIABLE_NOT_FOUND",
-                values: {
-                    id
-                }
-            });
+            if (check_not_found_error) {
+                this.writeRuntimeError({
+                    key: "VARIABLE_NOT_FOUND",
+                    values: {
+                        id
+                    }
+                });
+            }
 
             return null;
         }
@@ -868,7 +876,7 @@ export class Vm {
             case "IMM":
                 return singular.imm!;
             default: {
-                const variable = this.getVariableById(singular.id!);
+                const variable = this.getVariableById(singular.id!, true);
                 if (variable === null) {
                     return null;
                 }
@@ -1038,7 +1046,10 @@ export class Vm {
      * @returns An `Int32` value or `null`
      */
     private getLValueAddress(lValue: LValue): Int32 | null {
-        let variable = this.getVariableById(lValue.id);
+        let variable = this.getVariableById(
+            lValue.id,
+            lValue.type === "DEREF_ID"
+        );
         if (variable === null) {
             if (lValue.type === "ID") {
                 variable = this.createStackVariable(lValue.id, new Int32(4));
