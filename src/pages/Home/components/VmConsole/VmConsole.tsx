@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import styles from "./VmConsole.module.scss";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { useIntl } from "react-intl";
 import OutputBlock from "./OutputBlock/OutputBlock";
 import InputBlock from "./InputBlock/InputBlock";
 import {
@@ -9,13 +8,6 @@ import {
     setConsoleInput,
     setConsoleInputPrompt,
     clearConsoleOutputs,
-    setState,
-    setGlobalVariableDetails,
-    setLocalVariableDetailsStack,
-    setStepCount,
-    setMemoryUsage,
-    setStaticErrorTable,
-    setCurrentLineNumber,
     setShouldIndicateCurrentLineNumber,
     syncVmState
 } from "@/store/reducers/vm";
@@ -24,7 +16,6 @@ import { ConsoleMessageType } from "@/modules/vm/vm";
 import ControlPanel from "./ControlPanel/ControlPanel";
 
 const VmConsole: React.FC = () => {
-    const intl = useIntl();
     const dispatch = useAppDispatch();
     const vm = useAppSelector(state => state.vm);
 
