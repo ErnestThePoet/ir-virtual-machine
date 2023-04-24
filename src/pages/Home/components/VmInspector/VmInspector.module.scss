@@ -106,6 +106,7 @@
     @include inspector-card;
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 25px;
     color: var(--vm-inspector-text-color);
 }
@@ -126,6 +127,7 @@
     @include inspector-card;
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 20px;
     color: var(--vm-inspector-text-color);
     padding-bottom: 5px;
