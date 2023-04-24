@@ -17,7 +17,7 @@ import {
     setStaticErrorTable,
     setCurrentLineNumber,
     setShouldIndicateCurrentLineNumber,
-    fetchVmState
+    syncVmState
 } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { ConsoleMessageType } from "@/modules/vm/vm";
@@ -49,19 +49,19 @@ const VmConsole: React.FC = () => {
                 onRunClick={async () => {
                     dispatch(setShouldIndicateCurrentLineNumber(false));
                     await vmContainer.at(vm.activeVmIndex).execute();
-                    fetchVmState(dispatch, vm);
+                    syncVmState(dispatch, vm);
                 }}
                 onRunStepClick={async () => {
                     dispatch(setShouldIndicateCurrentLineNumber(true));
                     await vmContainer.at(vm.activeVmIndex).executeSingleStep();
-                    fetchVmState(dispatch, vm);
+                    syncVmState(dispatch, vm);
                 }}
                 onResetClick={() => {
                     dispatch(setShouldIndicateCurrentLineNumber(false));
                     dispatch(setConsoleInputPrompt([]));
                     dispatch(setConsoleInput(""));
                     vmContainer.at(vm.activeVmIndex).reset();
-                    fetchVmState(dispatch, vm);
+                    syncVmState(dispatch, vm);
                 }}
                 onClearClick={() => {
                     dispatch(clearConsoleOutputs());

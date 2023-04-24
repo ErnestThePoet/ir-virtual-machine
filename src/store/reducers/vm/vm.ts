@@ -170,7 +170,7 @@ export const {
     setShouldIndicateCurrentLineNumber
 } = vmSlice.actions;
 
-export const fetchVmState = (dispatch: AppDispatch, vm: VmState) => {
+export const syncVmState = (dispatch: AppDispatch, vm: VmState) => {
     dispatch(setState(vmContainer.at(vm.activeVmIndex).state));
     dispatch(
         setGlobalVariableDetails(
