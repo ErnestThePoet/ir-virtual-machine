@@ -3,7 +3,7 @@ import styles from "./LineHighlighter.module.scss";
 import classNames from "classnames";
 
 interface LineHighlighterProps {
-    type: "ERROR" | "INDICATION";
+    type: "ERROR";
     title: string;
 }
 
@@ -14,8 +14,7 @@ const LineHighlighter: React.FC<LineHighlighterProps> = (
         <div className={styles.divLineHighlighterWrapper}>
             <div
                 className={classNames({
-                    [styles.divLineFrameError]: props.type === "ERROR",
-                    [styles.divLineFrameIndication]: props.type === "INDICATION"
+                    [styles.divLineHighlighterError]: props.type === "ERROR"
                 })}
                 title={props.title}></div>
         </div>
