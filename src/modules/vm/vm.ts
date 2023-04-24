@@ -723,14 +723,13 @@ export class Vm {
     }
 
     private checkStackSize(size: Int32): boolean {
-        if (this.alu.ltInt32(this.registers.esp, size)) {
-            return false;
-        }
-
         if (
-            this.alu.leInt32(
-                this.alu.subInt32(this.registers.esp, size),
-                this.registers.edx
+            this.alu.gtInt32(
+                this.alu.subInt32(
+                    new Int32(this.options.memorySize),
+                    this.alu.subInt32(this.registers.esp, size)
+                ),
+                new Int32(this.options.stackSize)
             )
         ) {
             return false;
@@ -740,12 +739,12 @@ export class Vm {
     }
 
     private checkGlobalVariableSegmentSize(size: Int32) {
-        const newedx = this.alu.addInt32(this.registers.edx, size);
-        if (this.alu.gtInt32(newedx, this.registers.esp)) {
-            return false;
-        }
-
-        if (this.alu.gtInt32(newedx, new Int32(this.options.memorySize))) {
+        if (
+            this.alu.gtInt32(
+                this.alu.addInt32(this.registers.edx, size),
+                new Int32(this.options.memorySize - this.options.stackSize)
+            )
+        ) {
             return false;
         }
 
