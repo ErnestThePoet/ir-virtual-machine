@@ -53,7 +53,7 @@ interface VmRegisters {
     eax: Int32;
     ebx: Int32;
     ecx: Int32;
-    edi: Int32;
+    edx: Int32;
     ebp: Int32;
     esp: Int32;
     eip: Int32;
@@ -92,6 +92,7 @@ interface VmTables {
     functionTable: { [id: string]: VmFunction };
     globalVariableTable: VmVariableTable;
     variableTableStack: VmVariableTable[];
+    assignCallLValueStack: (LValue | null)[];
 }
 
 export type VmExecutionState =
@@ -126,7 +127,7 @@ const initialRegisters: VmRegisters = {
     eax: new Int32(0),
     ebx: new Int32(0),
     ecx: new Int32(0),
-    edi: new Int32(0),
+    edx: new Int32(0),
     ebp: new Int32(0),
     esp: new Int32(0),
     eip: new Int32(0)
@@ -136,7 +137,8 @@ const initialTables: VmTables = {
     labelTable: {},
     functionTable: {},
     globalVariableTable: {},
-    variableTableStack: []
+    variableTableStack: [],
+    assignCallLValueStack: []
 };
 
 const initialExecutionStatus: VmExecutionStatus = {
@@ -200,10 +202,10 @@ const defaultOptions: VmOptions = {
  * An IR Virtual Machine instance.
  *
  * Registers:
- * eax - counts total function arg size
+ * eax - return value
  * ebx - indicates current function param address
- * ecx - indicates (top address + 1) of global variable segment
- * edi - return value store address, or this.memory.length if not to store
+ * ecx - counts total function arg size
+ * edx - indicates (top address + 1) of global variable segment
  * ebp
  * esp
  * eip
@@ -219,7 +221,7 @@ const defaultOptions: VmOptions = {
  * |
  * |
  * |
- * |                                  <- ecx
+ * |                                  <- edx
  * |--------------------------------|
  * |                                |
  * |    Global variable segment     |
@@ -235,13 +237,11 @@ const defaultOptions: VmOptions = {
  * |--------------------------------|
  * |             Arg 0              | <- ebx at first PARAM in current function
  * |--------------------------------|
- * |          Saved eax             | <- caller saved
+ * |          Saved ecx             |
  * |--------------------------------|
- * |         Return address         | <- caller saved
+ * |         Return address         | <- This and above are caller saved
  * |--------------------------------|
- * |          Saved ebp             | <- callee saved
- * |--------------------------------|
- * |          Saved edi             | <- new ebp
+ * |          Saved ebp             | <- This and below are callee saved <- new ebp
  * |--------------------------------|
  * |                                |
  * |          Local vars            |
@@ -361,7 +361,7 @@ export class Vm {
         return {
             total: this.options.memorySize,
             used:
-                this.registers.ecx.value +
+                this.registers.edx.value +
                 1 +
                 this.options.memorySize -
                 this.registers.esp.value,
@@ -371,7 +371,7 @@ export class Vm {
 
             globalVariableTotal:
                 this.options.memorySize - this.options.stackSize,
-            globalVariableUsed: this.registers.ecx.value + 1
+            globalVariableUsed: this.registers.edx.value + 1
         };
     }
 
@@ -543,9 +543,6 @@ export class Vm {
             new Int32(1)
         );
 
-        // do not store return value
-        this.registers.edi = new Int32(this.memory.memory.length);
-
         // Fill memory with a random number
         this.memory.memory = new Uint8Array(this.options.memorySize).fill(
             Math.random() * 256
@@ -554,11 +551,11 @@ export class Vm {
         // esp initially points to one byte up outside
         this.registers.esp = new Int32(this.options.memorySize);
 
-        // ecx initially points to 0
-        this.registers.ecx = new Int32(0);
+        // edx initially points to 0
+        this.registers.edx = new Int32(0);
 
-        // push eax
-        if (!this.pushl(this.registers.eax)) {
+        // push ecx
+        if (!this.pushl(this.registers.ecx)) {
             return;
         }
 
@@ -567,6 +564,8 @@ export class Vm {
             return;
         }
 
+        // Push AssignCall LValue stack
+        this.tables.assignCallLValueStack.push(null);
         // Push new variable table
         this.tables.variableTableStack.push({});
         // Push call stack
@@ -587,18 +586,18 @@ export class Vm {
 
                 this.memory.memory
                     .subarray(
-                        this.registers.ecx.value,
-                        this.registers.ecx.value + decodedGlobalDec.size.value
+                        this.registers.edx.value,
+                        this.registers.edx.value + decodedGlobalDec.size.value
                     )
                     .fill(0);
 
                 this.tables.globalVariableTable[decodedGlobalDec.id] = {
                     size: decodedGlobalDec.size,
-                    address: this.registers.ecx
+                    address: this.registers.edx
                 };
 
-                this.registers.ecx = this.alu.addInt32(
-                    this.registers.ecx,
+                this.registers.edx = this.alu.addInt32(
+                    this.registers.edx,
                     decodedGlobalDec.size
                 );
             }
@@ -689,7 +688,7 @@ export class Vm {
         if (
             this.alu.leInt32(
                 this.alu.subInt32(this.registers.esp, size),
-                this.registers.ecx
+                this.registers.edx
             )
         ) {
             return false;
@@ -699,12 +698,12 @@ export class Vm {
     }
 
     private checkGlobalVariableSegmentSize(size: Int32) {
-        const newEcx = this.alu.addInt32(this.registers.ecx, size);
-        if (this.alu.gtInt32(newEcx, this.registers.esp)) {
+        const newedx = this.alu.addInt32(this.registers.edx, size);
+        if (this.alu.gtInt32(newedx, this.registers.esp)) {
             return false;
         }
 
-        if (this.alu.gtInt32(newEcx, new Int32(this.options.memorySize))) {
+        if (this.alu.gtInt32(newedx, new Int32(this.options.memorySize))) {
             return false;
         }
 
@@ -1158,7 +1157,8 @@ export class Vm {
         if (
             this.alu.geInt32(
                 this.registers.eip,
-                new Int32(this.memory.text.length)
+                new Int32(this.memory.text.length) ||
+                    this.alu.ltInt32(this.registers.eip, new Int32(0))
             )
         ) {
             this.writeRuntimeError({
@@ -1223,8 +1223,8 @@ export class Vm {
                 // Set first arg address
                 this.registers.ebx = this.registers.esp;
 
-                // Push eax
-                if (!this.pushl(this.registers.eax)) {
+                // Push ecx
+                if (!this.pushl(this.registers.ecx)) {
                     return;
                 }
 
@@ -1234,17 +1234,11 @@ export class Vm {
                 }
 
                 if (ir.type === "ASSIGN_CALL") {
-                    const lValueAddress = this.getLValueAddress(
+                    this.tables.assignCallLValueStack.push(
                         (<DecodedAssignCall>ir.value).lValue
                     );
-                    if (lValueAddress === null) {
-                        return;
-                    }
-
-                    // Set return value store address
-                    this.registers.edi = lValueAddress;
                 } else {
-                    this.registers.edi = new Int32(this.memory.memory.length);
+                    this.tables.assignCallLValueStack.push(null);
                 }
 
                 // Push new variable table
@@ -1273,11 +1267,6 @@ export class Vm {
             case "FUNCTION": {
                 // pushl ebp
                 if (!this.pushl(this.registers.ebp)) {
-                    return;
-                }
-
-                // pushl edi
-                if (!this.pushl(this.registers.edi)) {
                     return;
                 }
 
@@ -1374,16 +1363,10 @@ export class Vm {
                     return;
                 }
 
+                this.registers.eax = returnValue;
+
                 // movl ebp,esp
                 this.registers.esp = this.registers.ebp;
-
-                // popl edi
-                const savedEdi = this.popl();
-                if (savedEdi === null) {
-                    return;
-                }
-
-                this.registers.edi = savedEdi;
 
                 // popl ebp
                 const savedEbp = this.popl();
@@ -1401,18 +1384,18 @@ export class Vm {
 
                 this.registers.eip = returnAddress;
 
-                // popl eax
-                const savedEax = this.popl();
-                if (savedEax === null) {
+                // popl ecx
+                const savedEcx = this.popl();
+                if (savedEcx === null) {
                     return;
                 }
 
-                this.registers.eax = savedEax;
+                this.registers.ecx = savedEcx;
 
-                // addl esp, eax
+                // addl esp, ecx
                 this.registers.esp = this.alu.addInt32(
                     this.registers.esp,
-                    this.registers.eax
+                    this.registers.ecx
                 );
 
                 // Pop local variable table
@@ -1429,18 +1412,6 @@ export class Vm {
 
                 this.tables.variableTableStack.pop();
 
-                // store return value
-                if (
-                    this.alu.ne(
-                        this.registers.edi,
-                        new Int32(this.memory.memory.length)
-                    )
-                ) {
-                    if (!this.storeMemory32(returnValue, this.registers.edi)) {
-                        return;
-                    }
-                }
-
                 // Whether main function returns
                 if (
                     this.alu.eq(
@@ -1450,6 +1421,23 @@ export class Vm {
                 ) {
                     this.finalizeExcution(returnValue);
                     return;
+                }
+
+                // Store return value
+                const assignCallLValue =
+                    this.tables.assignCallLValueStack.pop();
+                if (assignCallLValue !== null) {
+                    const lValueAddress = this.getLValueAddress(
+                        assignCallLValue!
+                    );
+                    if (lValueAddress === null) {
+                        return;
+                    }
+                    if (
+                        !this.storeMemory32(this.registers.eax, lValueAddress)
+                    ) {
+                        return;
+                    }
                 }
 
                 break;
