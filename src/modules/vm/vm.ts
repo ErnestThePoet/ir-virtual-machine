@@ -64,19 +64,19 @@ interface VmVariableTable {
 }
 
 // VmVariableDetail, VmLocalVariableDetail and VmMemoryUsage are for external display.
-interface VmVariableDetail {
+export interface VmVariableDetail {
     id: string;
     address: number;
     size: number;
     values: number[];
 }
 
-interface VmLocalVariableDetail {
+export interface VmLocalVariableDetail {
     functionName: string;
     details: VmVariableDetail[];
 }
 
-interface VmMemoryUsage {
+export interface VmMemoryUsage {
     total: number;
     used: number;
 
@@ -104,7 +104,7 @@ export type VmExecutionState =
     | "EXITED_NORMALLY"
     | "EXITED_ABNORMALLY";
 
-interface VmStaticErrorTable {
+export interface VmStaticErrorTable {
     [lineNumber: string | number]: AppLocaleKey;
 }
 
@@ -273,20 +273,6 @@ export class Vm {
         this.readConsole = readConsole;
     }
 
-    get currentLineNumber(): number {
-        if (
-            this.registers.eip.value < 0 ||
-            this.registers.eip.value >= this.memory.text.length
-        ) {
-            return -1;
-        }
-        return this.memory.text[this.registers.eip.value].lineNumber;
-    }
-
-    get instructions(): string[] {
-        return this.memory.instructions;
-    }
-
     private getSingleVariableValues(variable: VmVariable): number[] {
         const values: number[] = [];
 
@@ -330,6 +316,16 @@ export class Vm {
         return details;
     }
 
+    get currentLineNumber(): number {
+        if (
+            this.registers.eip.value < 0 ||
+            this.registers.eip.value >= this.memory.text.length
+        ) {
+            return -1;
+        }
+        return this.memory.text[this.registers.eip.value].lineNumber;
+    }
+
     get globalVariableDetails(): VmVariableDetail[] {
         return this.getSingleTableVariableDetails(
             this.tables.globalVariableTable
@@ -347,10 +343,6 @@ export class Vm {
             });
         }
         return detailsStack;
-    }
-
-    get callStack(): string[] {
-        return cloneDeep(this.executionStatus.callStack);
     }
 
     get state(): VmExecutionState {

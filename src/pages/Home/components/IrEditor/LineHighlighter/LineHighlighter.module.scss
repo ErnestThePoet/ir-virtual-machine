@@ -1,30 +1,24 @@
 @import "../../../../../styles/layout.module.scss";
 
-.divLineHighlighterWrapper{
+.divLineHighlighterWrapper {
     width: 100%;
     height: $ir-editor-line-height;
 
-    position: relative;
+    position: absolute;
+    left: 0;
 }
 
-.divLineFrameBase{
-    width: 100%;
+.divLineFrameBase {
+    width: calc(100% - $line-number-min-width);
+    margin-left: $line-number-min-width;
     height: 100%;
 }
 
-@mixin line-frame-border($color){
-    border{
-        top: 1px solid $color;
-        bottom: 1px solid $color;
-    }
+@mixin line-frame-border($color) {
+    border-bottom: 1.5px dashed $color;
 }
 
-.divLineFrameError{
+.divLineFrameError {
     @extend .divLineFrameBase;
     @include line-frame-border(var(--ir-error-border-color));
-}
-
-.divLineFrameIndication{
-    @extend .divLineFrameBase;
-    @include line-frame-border(var(--ir-indication-border-color));
 }

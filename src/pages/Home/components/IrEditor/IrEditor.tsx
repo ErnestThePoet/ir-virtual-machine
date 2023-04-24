@@ -5,6 +5,8 @@ import styles from "./IrEditor.module.scss";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { splitLines } from "@/modules/utils";
 import { setIrString, setIsIrChanged } from "@/store/reducers/vm";
+import LineHighlighter from "./LineHighlighter/LineHighlighter";
+import classNames from "classnames";
 
 const IrEditor: React.FC = () => {
     const intl = useIntl();
@@ -22,7 +24,34 @@ const IrEditor: React.FC = () => {
         <div className={styles.divIrEditorWrapper}>
             <div className={styles.divLineNumberWrapper}>
                 {irLines.map((_, i) => (
-                    <label key={i} className={styles.lblLineNumber}>
+                    <label
+                        key={"label" + i}
+                        className={classNames({
+                            [styles.lblLineNumberNormal]:
+                                !vm.vmPageStates[vm.activeVmIndex]
+                                    .shouldIndicateCurrentLineNumber ||
+                                i + 1 !==
+                                    vm.vmPageStates[vm.activeVmIndex]
+                                        .currentLineNumber,
+                            [styles.lblLineNumberIndication]:
+                                vm.vmPageStates[vm.activeVmIndex]
+                                    .shouldIndicateCurrentLineNumber &&
+                                i + 1 ===
+                                    vm.vmPageStates[vm.activeVmIndex]
+                                        .currentLineNumber
+                        })}>
+                        {i + 1 in
+                            vm.vmPageStates[vm.activeVmIndex]
+                                .staticErrorTable && (
+                            <LineHighlighter
+                                key={"highlighter" + i}
+                                type="ERROR"
+                                title={intl.formatMessage({
+                                    id: vm.vmPageStates[vm.activeVmIndex]
+                                        .staticErrorTable[i + 1]
+                                })}
+                            />
+                        )}
                         {i + 1}
                     </label>
                 ))}
@@ -38,12 +67,8 @@ const IrEditor: React.FC = () => {
                     className={styles.taIr}
                     value={vm.vmPageStates[vm.activeVmIndex].irString}
                     onChange={e => {
-                        dispatch(
-                            setIrString(e.currentTarget.value)
-                        );
-                        dispatch(
-                            setIsIrChanged(true)
-                        );
+                        dispatch(setIrString(e.currentTarget.value));
+                        dispatch(setIsIrChanged(true));
                     }}
                 />
             </div>

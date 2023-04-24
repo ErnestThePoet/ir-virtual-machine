@@ -31,16 +31,29 @@ const SideBar: React.FC = () => {
                             vm.vmPageStates.map(x => x.name)
                         );
 
-                        vmContainer.add(new Vm());
+                        const newVm=new Vm()
+
+                        vmContainer.add(newVm);
                         dispatch(
                             addVmPageState({
                                 name: vmName,
                                 irPath: "",
                                 isIrChanged: false,
                                 irString: "",
+
+                                state: newVm.state,
+                                globalVariableDetails: newVm.globalVariableDetails,
+                                localVariableDetailsStack: newVm.localVariableDetailsStack,
+                                stepCount: newVm.stepCount,
+                                memoryUsage:newVm.memoryUsage,
+
                                 consoleOutputs: [],
                                 consoleInputPrompt: [],
-                                consoleInput: ""
+                                consoleInput: "",
+
+                                staticErrorTable: newVm.staticErrorTable,
+                                currentLineNumber: newVm.currentLineNumber,
+                                shouldIndicateCurrentLineNumber: false
                             })
                         );
                     }}

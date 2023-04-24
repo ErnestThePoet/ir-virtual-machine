@@ -1,5 +1,12 @@
 import type { FormattableMessage } from "@/locales";
-import type { ConsoleMessagePart } from "@/modules/vm/vm";
+import type {
+    ConsoleMessagePart,
+    VmExecutionState,
+    VmLocalVariableDetail,
+    VmMemoryUsage,
+    VmStaticErrorTable,
+    VmVariableDetail
+} from "@/modules/vm/vm";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
@@ -8,9 +15,20 @@ export interface SingleVmPageState {
     irPath: string;
     isIrChanged: boolean;
     irString: string;
+
+    state: VmExecutionState;
+    globalVariableDetails: VmVariableDetail[];
+    localVariableDetailsStack: VmLocalVariableDetail[];
+    stepCount: number;
+    memoryUsage: VmMemoryUsage;
+
     consoleOutputs: Array<ConsoleMessagePart[]>;
     consoleInputPrompt: FormattableMessage[];
     consoleInput: string;
+
+    staticErrorTable: VmStaticErrorTable;
+    currentLineNumber: number;
+    shouldIndicateCurrentLineNumber: boolean;
 }
 
 interface VmState {
@@ -61,6 +79,30 @@ export const vmSlice = createSlice({
         setIrString: (state, action: PayloadAction<string>) => {
             state.vmPageStates[state.activeVmIndex].irString = action.payload;
         },
+        setState: (state, action: PayloadAction<VmExecutionState>) => {
+            state.vmPageStates[state.activeVmIndex].state = action.payload;
+        },
+        setGlobalVariableDetails: (
+            state,
+            action: PayloadAction<VmVariableDetail[]>
+        ) => {
+            state.vmPageStates[state.activeVmIndex].globalVariableDetails =
+                action.payload;
+        },
+        setLocalVariableDetailsStack: (
+            state,
+            action: PayloadAction<VmLocalVariableDetail[]>
+        ) => {
+            state.vmPageStates[state.activeVmIndex].localVariableDetailsStack =
+                action.payload;
+        },
+        setStepCount: (state, action: PayloadAction<number>) => {
+            state.vmPageStates[state.activeVmIndex].stepCount = action.payload;
+        },
+        setMemoryUsage: (state, action: PayloadAction<VmMemoryUsage>) => {
+            state.vmPageStates[state.activeVmIndex].memoryUsage =
+                action.payload;
+        },
         addConsoleOutput: (
             state,
             action: PayloadAction<ConsoleMessagePart[]>
@@ -82,6 +124,25 @@ export const vmSlice = createSlice({
         setConsoleInput: (state, action: PayloadAction<string>) => {
             state.vmPageStates[state.activeVmIndex].consoleInput =
                 action.payload;
+        },
+        setStaticErrorTable: (
+            state,
+            action: PayloadAction<VmStaticErrorTable>
+        ) => {
+            state.vmPageStates[state.activeVmIndex].staticErrorTable =
+                action.payload;
+        },
+        setCurrentLineNumber: (state, action: PayloadAction<number>) => {
+            state.vmPageStates[state.activeVmIndex].currentLineNumber =
+                action.payload;
+        },
+        setShouldIndicateCurrentLineNumber: (
+            state,
+            action: PayloadAction<boolean>
+        ) => {
+            state.vmPageStates[
+                state.activeVmIndex
+            ].shouldIndicateCurrentLineNumber = action.payload;
         }
     }
 });
@@ -93,10 +154,18 @@ export const {
     setVmPageState,
     setIsIrChanged,
     setIrString,
+    setState,
+    setGlobalVariableDetails,
+    setLocalVariableDetailsStack,
+    setStepCount,
+    setMemoryUsage,
     addConsoleOutput,
     clearConsoleOutputs,
     setConsoleInputPrompt,
-    setConsoleInput
+    setConsoleInput,
+    setStaticErrorTable,
+    setCurrentLineNumber,
+    setShouldIndicateCurrentLineNumber
 } = vmSlice.actions;
 
 export default vmSlice.reducer;

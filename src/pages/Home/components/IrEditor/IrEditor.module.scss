@@ -6,6 +6,8 @@
     height: 100%;
     max-height: 100%;
 
+    position: relative;
+
     background-color: var(--ir-editor-bkg-color);
 
     font-size: 15px;
@@ -23,16 +25,25 @@
 
     color: var(--ir-line-number-color);
 
-    padding-left: 15px;
-    padding-right: 20px;
-
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
 }
 
-.lblLineNumber {
+.lblLineNumberBase {
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 20px;
     user-select: none;
+    text-align: right;
+}
+
+.lblLineNumberNormal {
+    @extend .lblLineNumberBase;
+}
+
+.lblLineNumberIndication {
+    @extend .lblLineNumberBase;
+    background-color: var(--ir-indication-bkg-color);
 }
 
 .divIrWrapper {

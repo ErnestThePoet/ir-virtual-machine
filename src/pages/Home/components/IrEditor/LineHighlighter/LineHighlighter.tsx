@@ -4,6 +4,7 @@ import classNames from "classnames";
 
 interface LineHighlighterProps {
     type: "ERROR" | "INDICATION";
+    title: string;
 }
 
 const LineHighlighter: React.FC<LineHighlighterProps> = (
@@ -15,7 +16,8 @@ const LineHighlighter: React.FC<LineHighlighterProps> = (
                 className={classNames({
                     [styles.divLineFrameError]: props.type === "ERROR",
                     [styles.divLineFrameIndication]: props.type === "INDICATION"
-                })}></div>
+                })}
+                title={props.title}></div>
         </div>
     );
 };
