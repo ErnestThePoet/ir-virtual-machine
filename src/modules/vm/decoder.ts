@@ -320,7 +320,7 @@ export class Decoder {
 
         if (splitResult.length === 3) {
             return {
-                type: "FUNCTION",
+                type: "ASSIGN",
                 value: <DecodedAssign>{
                     lValue,
                     rValue: {
