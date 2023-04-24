@@ -9,7 +9,7 @@
 }
 
 .divLineHighlighterBase {
-    width: calc(100% - $line-number-min-width);
+    width: calc(100% - $line-number-min-width - 20px);
     margin-left: $line-number-min-width;
     height: 100%;
 }
