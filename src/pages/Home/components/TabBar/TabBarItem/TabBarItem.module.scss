@@ -12,6 +12,7 @@
 }
 
 .divTabBarItemWrapperInactive {
+    @extend .divTabBarItemWrapper;
     background-color: var(--tabbar-item-inactive-bkg-color);
     &:hover {
         background-color: var(--tabbar-item-inactive-hover-bkg-color);
@@ -19,6 +20,7 @@
 }
 
 .divTabBarItemWrapperActive {
+    @extend .divTabBarItemWrapper;
     background-color: var(--tabbar-item-active-bkg-color);
 }
 

@@ -20,7 +20,7 @@ const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
 
     return (
         <div
-            className={classNames(styles.divTabBarItemWrapper, {
+            className={classNames({
                 [styles.divTabBarItemWrapperActive]: props.isActive,
                 [styles.divTabBarItemWrapperInactive]: !props.isActive
             })}
