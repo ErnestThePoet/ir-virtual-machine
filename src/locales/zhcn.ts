@@ -14,6 +14,7 @@ const zhCn = {
     UNSAVE_CLOSE: "不保存关闭",
     CANCEL: "取消",
     EMPTY_PLACEHOLDER: "暂无打开的虚拟机，快去新建或导入一个IR文件吧~",
+    IR_IMPORT_FAILED: "IR文件导入失败",
 
     RUN: "运行",
     RUN_STEP: "单步",
