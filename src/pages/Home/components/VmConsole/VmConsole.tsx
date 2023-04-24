@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import styles from "./VmConsole.module.scss";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useIntl } from "react-intl";
@@ -28,7 +28,7 @@ const VmConsole: React.FC = () => {
     const dispatch = useAppDispatch();
     const vm = useAppSelector(state => state.vm);
 
-    let inputResolve: ((_: string) => void) | null = null;
+    const inputResolve = useRef<((_: string) => void) | null>(null);
 
     useEffect(() => {
         vmContainer.at(vm.activeVmIndex).setIoFns(
@@ -37,7 +37,7 @@ const VmConsole: React.FC = () => {
                 dispatch(setConsoleInputPrompt(prompt));
 
                 return new Promise(resolve => {
-                    inputResolve = resolve;
+                    inputResolve.current = resolve;
                 });
             }
         );
@@ -80,8 +80,8 @@ const VmConsole: React.FC = () => {
                     value={vm.vmPageStates[vm.activeVmIndex].consoleInput}
                     onChange={e => dispatch(setConsoleInput(e))}
                     onEnter={() => {
-                        if (inputResolve !== null) {
-                            inputResolve(
+                        if (inputResolve.current !== null) {
+                            inputResolve.current(
                                 vm.vmPageStates[vm.activeVmIndex].consoleInput
                             );
                         }
@@ -106,6 +106,7 @@ const VmConsole: React.FC = () => {
                             ])
                         );
 
+                        dispatch(setConsoleInputPrompt([]));
                         dispatch(setConsoleInput(""));
                     }}
                 />
