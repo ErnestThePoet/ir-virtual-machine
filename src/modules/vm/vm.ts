@@ -178,7 +178,7 @@ type VmNumberOptionKeys = {
     [K in keyof VmOptions]: VmOptions[K] extends number ? K : never;
 }[keyof VmOptions];
 
-const vmOptionLimits: {
+export const vmOptionLimits: {
     [K in VmNumberOptionKeys]: { min: number; max: number };
 } = {
     maxExecutionStepCount: {
