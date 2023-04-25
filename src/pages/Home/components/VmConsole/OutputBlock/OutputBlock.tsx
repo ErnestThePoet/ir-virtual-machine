@@ -26,7 +26,7 @@ const OutputBlock: React.FC<OutputBlockProps> = (props: OutputBlockProps) => {
                             [styles.spanPrompt]: x.type === "PROMPT",
                             [styles.spanArrow]: x.type === "ARROW"
                         })}>
-                        {y}
+                        {y === " " ? <>&nbsp;</> : y}
                     </span>
                 ));
             })}
