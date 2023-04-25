@@ -6,6 +6,10 @@ class VmContainer {
     private vms: Vm[] = [];
     private resolves: Array<Resolve | null> = [];
 
+    get length(): number {
+        return this.vms.length;
+    }
+
     add(vm: Vm) {
         this.vms.push(vm);
         this.resolves.push(null);

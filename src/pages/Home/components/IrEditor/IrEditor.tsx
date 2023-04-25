@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useIntl } from "react-intl";
 import styles from "./IrEditor.module.scss";
@@ -14,12 +14,6 @@ const IrEditor: React.FC = () => {
     const dispatch = useAppDispatch();
 
     const irLines = splitLines(vm.vmPageStates[vm.activeVmIndex].irString);
-
-    useEffect(() => {
-        const currentVm = vmContainer.at(vm.activeVmIndex);
-        currentVm.loadNewInstructions(irLines);
-        syncVmState(dispatch, vm);
-    }, [vm.vmPageStates[vm.activeVmIndex].irString]);
 
     return (
         <div className={styles.divIrEditorWrapper}>
@@ -95,6 +89,9 @@ const IrEditor: React.FC = () => {
                     className={styles.taIr}
                     value={vm.vmPageStates[vm.activeVmIndex].irString}
                     onChange={e => {
+                        const currentVm = vmContainer.at(vm.activeVmIndex);
+                        currentVm.loadNewInstructions(irLines);
+                        syncVmState(dispatch, vm);
                         dispatch(setIrString(e.currentTarget.value));
                         dispatch(setIsIrChanged(true));
                         window.onbeforeunload = (e: BeforeUnloadEvent) => {
