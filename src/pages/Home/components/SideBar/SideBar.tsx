@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import styles from "./SideBar.module.scss";
 import {
@@ -9,7 +9,7 @@ import {
     TranslationOutlined,
     EyeOutlined
 } from "@ant-design/icons";
-import { message, Dropdown, Space } from "antd";
+import { message, Dropdown, Space, Modal, Button } from "antd";
 import SideBarIcon from "./SideBarIcon";
 import vmContainer from "@/modules/vmContainer";
 import { addVmPageState, setIsIrChanged } from "@/store/reducers/vm";
@@ -40,6 +40,8 @@ const SideBar: React.FC = () => {
     const dispatch = useAppDispatch();
     const locale = useAppSelector(state => state.locale.currentLocale);
     const vm = useAppSelector(state => state.vm);
+
+    const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
     return (
         <aside className={styles.asideSideBarWrapper}>
@@ -235,9 +237,47 @@ const SideBar: React.FC = () => {
                 <SideBarIcon
                     icon={<InfoCircleOutlined />}
                     label={locale.ABOUT}
-                    onClick={() => {}}
+                    onClick={() => setIsAboutModalOpen(true)}
                 />
             </div>
+
+            <Modal
+                open={isAboutModalOpen}
+                title={intl.formatMessage({
+                    id: "ABOUT"
+                })}
+                centered
+                closable={false}
+                footer={[
+                    <Button onClick={() => setIsAboutModalOpen(false)}>
+                        {intl.formatMessage({ id: "OK" })}
+                    </Button>
+                ]}>
+                <article className={styles.articleAbout}>
+                    <p className="title">IR虚拟机💎IR Virtual Machine</p>
+                    <p>
+                        <div>哈尔滨工业大学 120L021615 崔子健</div>
+                        <div>Ernest Cui, Harbin Institute of Technology</div>
+                    </p>
+                    <p>April 🌼 2023</p>
+                    <p className="info">
+                        <a href="https://github.com/ErnestThePoet/IR-Virtual-Machine">
+                            Github
+                        </a>
+                        ·
+                        <a href="https://github.com/ErnestThePoet/IR-Virtual-Machine">
+                            Gitee
+                        </a>
+                        ·
+                        <span>
+                            Contact:{" "}
+                            <a href="mailto: ecuiships@126.com">
+                                ecuiships@126.com
+                            </a>
+                        </span>
+                    </p>
+                </article>
+            </Modal>
         </aside>
     );
 };

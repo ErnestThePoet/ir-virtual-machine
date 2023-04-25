@@ -12,6 +12,7 @@ const zhCn = {
     CONFIRM_UNSAVED_CLOSE: "关闭前是否保存对 {name} 的更改？",
     SAVE_CLOSE: "保存关闭",
     UNSAVE_CLOSE: "不保存关闭",
+    OK: "确定",
     CANCEL: "取消",
     EMPTY_PLACEHOLDER: "暂无打开的虚拟机，快去新建或导入一个IR文件吧~",
     IR_IMPORT_FAILED: "IR文件导入失败",

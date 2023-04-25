@@ -28,3 +28,19 @@
     @extend .divIconWrapperBase;
     padding-bottom: 20px;
 }
+
+.articleAbout {
+    text-align: center;
+    font-size: 14px;
+
+    > p[class="title"] {
+        font-size: 16px;
+        font-weight: bold;
+    }
+    
+    >p[class=info]{
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+    }
+}
