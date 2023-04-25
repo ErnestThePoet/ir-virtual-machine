@@ -90,7 +90,9 @@ const IrEditor: React.FC = () => {
                     value={vm.vmPageStates[vm.activeVmIndex].irString}
                     onChange={e => {
                         const currentVm = vmContainer.at(vm.activeVmIndex);
-                        currentVm.loadNewInstructions(irLines);
+                        currentVm.loadNewInstructions(
+                            splitLines(e.currentTarget.value)
+                        );
                         syncVmState(dispatch, vm);
                         dispatch(setIrString(e.currentTarget.value));
                         dispatch(setIsIrChanged(true));
