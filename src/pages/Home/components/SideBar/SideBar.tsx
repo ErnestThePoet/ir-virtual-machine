@@ -265,16 +265,13 @@ const SideBar: React.FC = () => {
                             Github
                         </a>
                         ·
-                        <a href="https://github.com/ErnestThePoet/IR-Virtual-Machine">
+                        <a href="https://gitee.com/ecui/IR-Virtual-Machine">
                             Gitee
                         </a>
                         ·
-                        <span>
-                            Contact:{" "}
-                            <a href="mailto: ecuiships@126.com">
-                                ecuiships@126.com
-                            </a>
-                        </span>
+                        <a href="mailto: ecuiships@126.com">
+                            ecuiships@126.com
+                        </a>
                     </p>
                 </article>
             </Modal>
