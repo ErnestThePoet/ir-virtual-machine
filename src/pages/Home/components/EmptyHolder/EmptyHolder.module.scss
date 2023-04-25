@@ -22,7 +22,13 @@
     color: var(--vm-empty-holder-color);
 }
 
-.spanEmptyHolderText {
+.divEmptyHolderText {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+
     animation-duration: 0.5s;
     animation-name: scale-in;
 }
