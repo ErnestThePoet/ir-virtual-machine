@@ -9,6 +9,7 @@ import classNames from "classnames";
 import VmConsole from "./components/VmConsole";
 import VmInspector from "./components/VmInspector";
 import { useIntl } from "react-intl";
+import { message } from "antd";
 import { importIrFile } from "./components/SideBar/SideBar";
 
 const Home: React.FC = () => {
@@ -36,6 +37,10 @@ const Home: React.FC = () => {
             onDragOver={e => e.preventDefault()}
             onDrop={e => {
                 for (const file of e.dataTransfer.files) {
+                    if (!file.name.endsWith(".ir")) {
+                        message.error(`${file.name}不是一个ir文件`);
+                        continue;
+                    }
                     importIrFile(dispatch, intl, file);
                 }
                 e.preventDefault();
