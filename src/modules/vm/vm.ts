@@ -1163,7 +1163,7 @@ export class Vm {
             this.executionStatus.state === "EXITED_NORMALLY" ||
             this.executionStatus.state === "EXITED_ABNORMALLY"
         ) {
-            this.executionStatus.state = "INITIAL";
+            this.reset();
         }
 
         if (this.executionStatus.state === "INITIAL") {
