@@ -36,7 +36,7 @@ export interface SingleVmPageState {
     shouldIndicateCurrentLineNumber: boolean;
 }
 
-interface VmState {
+export interface VmState {
     vmPageStates: SingleVmPageState[];
     activeVmIndex: number;
 }
