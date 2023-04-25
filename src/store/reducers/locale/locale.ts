@@ -15,11 +15,11 @@ export const localeSlice = createSlice({
     name: "locale",
     initialState,
     reducers: {
-        switchLocale: (state, action: PayloadAction<AppLocale>) => {
+        setLocale: (state, action: PayloadAction<AppLocale>) => {
             state.currentLocale = action.payload;
         }
     }
 });
 
-export const { switchLocale } = localeSlice.actions;
+export const { setLocale } = localeSlice.actions;
 export default localeSlice.reducer;
