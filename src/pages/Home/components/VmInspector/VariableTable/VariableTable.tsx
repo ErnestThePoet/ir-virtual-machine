@@ -39,11 +39,10 @@ const VariableTable: React.FC<VariableTableProps> = (
             dataIndex: "values",
             render: (x: number[]) => (
                 <div>
-                    {x.map(y => (
-                        <>
+                    {x.map((y,i) => (
+                        <div key={i}>
                             {y}
-                            <br />
-                        </>
+                        </div>
                     ))}
                 </div>
             )
