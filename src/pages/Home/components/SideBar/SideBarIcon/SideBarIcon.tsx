@@ -4,7 +4,7 @@ import styles from "./SideBarIcon.module.scss";
 interface SideBarIconProps {
     icon: React.ReactNode;
     label?: string;
-    onClick: () => void;
+    onClick?: () => void;
 }
 
 const SideBarIcon: React.FC<SideBarIconProps> = (props: SideBarIconProps) => {
@@ -13,7 +13,9 @@ const SideBarIcon: React.FC<SideBarIconProps> = (props: SideBarIconProps) => {
             className={styles.divIconWrapper}
             onClick={e => {
                 e.stopPropagation();
-                props.onClick();
+                if (props.onClick !== undefined) {
+                    props.onClick();
+                }
             }}>
             {props.icon}
             {props.label !== undefined && <label>{props.label}</label>}
