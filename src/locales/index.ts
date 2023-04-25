@@ -1,6 +1,6 @@
-import en from "./en";
 import zhCn from "./zhcn";
 // Add new language import here //
+import en from "./en";
 
 //////////////////////////////////
 
