@@ -85,7 +85,8 @@ const TabBar: React.FC = () => {
                         }}>
                         {intl.formatMessage({ id: "SAVE_CLOSE" })}
                     </Button>
-                ]}></Modal>
+                ]}
+            />
         </nav>
     );
 };
