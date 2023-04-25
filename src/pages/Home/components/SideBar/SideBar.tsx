@@ -12,7 +12,7 @@ import {
 import { message, Dropdown, Space, Modal, Button } from "antd";
 import SideBarIcon from "./SideBarIcon";
 import vmContainer from "@/modules/vmContainer";
-import { VmState, addVmPageState, setIsIrChanged } from "@/store/reducers/vm";
+import { addVmPageState, setIsIrChanged } from "@/store/reducers/vm";
 import { Vm } from "@/modules/vm/vm";
 import { getNextUntitledVmName } from "@/modules/utils";
 import { IntlShape, useIntl } from "react-intl";
@@ -38,7 +38,6 @@ export const saveIr = (name: string, irString: string) => {
 
 export const importIrFile = (
     dispatch: AppDispatch,
-    vm: VmState,
     intl: IntlShape,
     file: File
 ) => {
@@ -163,7 +162,7 @@ const SideBar: React.FC = () => {
                         }
 
                         for (const file of e.target.files!) {
-                            importIrFile(dispatch, vm, intl, file);
+                            importIrFile(dispatch, intl, file);
                         }
 
                         // clear file value to ensure onchange will be triggered again

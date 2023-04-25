@@ -36,7 +36,7 @@ const Home: React.FC = () => {
             onDragOver={e => e.preventDefault()}
             onDrop={e => {
                 for (const file of e.dataTransfer.files) {
-                    importIrFile(dispatch, vm, intl, file);
+                    importIrFile(dispatch, intl, file);
                 }
                 e.preventDefault();
             }}>
