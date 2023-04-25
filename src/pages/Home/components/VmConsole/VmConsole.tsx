@@ -31,6 +31,9 @@ const VmConsole: React.FC = () => {
                 // this will get the page display updated.
                 syncVmState(dispatch, vm);
 
+                // Auto focus input
+                document.getElementById("inConsole")?.focus();
+
                 return new Promise(resolve => {
                     inputResolve.current = resolve;
                 });

@@ -32,6 +32,7 @@ const InputBlock: React.FC<InputBlockProps> = (props: InputBlockProps) => {
                 )}
             </span>
             <input
+                id="inConsole"
                 className={styles.in}
                 spellCheck={false}
                 value={props.value}
