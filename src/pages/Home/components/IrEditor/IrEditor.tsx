@@ -86,6 +86,7 @@ const IrEditor: React.FC = () => {
 
             <div className={styles.divIrWrapper}>
                 <textarea
+                    id="taIr"
                     // line-height*lineCount
                     style={{
                         height: `${20 * irLines.length}px`

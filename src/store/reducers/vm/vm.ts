@@ -43,7 +43,7 @@ interface VmState {
 
 const initialState: VmState = {
     vmPageStates: [],
-    activeVmIndex: 0
+    activeVmIndex: -1 // This enables auto-focus of IR editor when user creates/imports first VM
 };
 
 export const vmSlice = createSlice({

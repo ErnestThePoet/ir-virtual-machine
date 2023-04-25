@@ -10,7 +10,7 @@ import VmConsole from "./components/VmConsole";
 import VmInspector from "./components/VmInspector";
 
 const Home: React.FC = () => {
-    const vmStates = useAppSelector(state => state.vm.vmPageStates);
+    const vm = useAppSelector(state => state.vm);
 
     const [isVerticalScreen, setIsVerticalScreen] = useState(
         window.innerWidth < window.innerHeight
@@ -20,6 +20,10 @@ const Home: React.FC = () => {
         window.onresize = () =>
             setIsVerticalScreen(window.innerWidth < window.innerHeight);
     }, []);
+
+    useEffect(() => {
+        document.getElementById("taIr")?.focus();
+    }, [vm.activeVmIndex]);
 
     return (
         <main className={styles.main}>
@@ -31,7 +35,7 @@ const Home: React.FC = () => {
                         [styles.divVmWrapperHorizontal]: !isVerticalScreen,
                         [styles.divVmWrapperVertical]: isVerticalScreen
                     })}>
-                    {vmStates.length === 0 ? (
+                    {vm.vmPageStates.length === 0 ? (
                         <EmptyHolder />
                     ) : (
                         <>
