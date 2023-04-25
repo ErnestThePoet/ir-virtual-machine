@@ -1,3 +1,4 @@
+import en from "./en";
 import zhCn from "./zhcn";
 // Add new language import here //
 
@@ -16,7 +17,10 @@ const locales: { name: string; locale: AppLocale }[] = [
         locale: zhCn
     },
     // Add new language entry here //
-
+    {
+        name: "English",
+        locale: en
+    }
     /////////////////////////////////
 ];
 
