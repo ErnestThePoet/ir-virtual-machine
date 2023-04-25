@@ -22,6 +22,12 @@ const VmConsole: React.FC = () => {
     const inputResolve = useRef<((_: string) => void) | null>(null);
 
     useEffect(() => {
+        if (vm.vmPageStates[vm.activeVmIndex].state === "WAIT_INPUT") {
+            // Restore the resolve that current VM is awaiting
+            inputResolve.current = vmContainer.resolvesAt(vm.activeVmIndex);
+            return;
+        }
+
         vmContainer.at(vm.activeVmIndex).setReadConsoleFn(prompt => {
             dispatch(setConsoleInputPrompt(prompt));
 
@@ -34,6 +40,7 @@ const VmConsole: React.FC = () => {
 
             return new Promise(resolve => {
                 inputResolve.current = resolve;
+                vmContainer.setResolveAt(vm.activeVmIndex, resolve);
             });
         });
     }, [vm.activeVmIndex]);
