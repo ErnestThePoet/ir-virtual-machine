@@ -220,7 +220,7 @@ const defaultOptions: VmOptions = {
  * |                                | <- 0
  * |--------------------------------|
  *
- * IrVm uses a slightly modified cdecl calling convention.
+ * IrVm uses cdecl calling convention.
  * The stack layout when calling a new function is like below.
  * |--------------------------------|
  * |             Arg n              | <- ebx at last PARAM in current function
