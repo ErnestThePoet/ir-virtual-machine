@@ -556,7 +556,7 @@ export class Vm {
                     ] = {
                         addressBefore: currentAddress
                     };
-                // FUNCTION is also added to text
+                    break;
                 default:
                     this.memory.text.push(
                         decoded as DecodedExecutableInstruction
@@ -613,6 +613,15 @@ export class Vm {
         if (!this.pushl(new Int32(this.memory.text.length))) {
             return;
         }
+
+        // As if callee does the following
+        // pushl ebp
+        if (!this.pushl(this.registers.ebp)) {
+            return;
+        }
+
+        // movl esp ebp
+        this.registers.ebp = this.registers.esp;
 
         // Push AssignCall LValue stack
         this.tables.assignCallLValueStack.push(null);
@@ -1302,6 +1311,15 @@ export class Vm {
                     return;
                 }
 
+                // As if callee does the following
+                // pushl ebp
+                if (!this.pushl(this.registers.ebp)) {
+                    return;
+                }
+
+                // movl esp ebp
+                this.registers.ebp = this.registers.esp;
+
                 if (ir.type === "ASSIGN_CALL") {
                     this.tables.assignCallLValueStack.push(
                         (<DecodedAssignCall>ir.value).lValue
@@ -1329,18 +1347,6 @@ export class Vm {
                 if (variable === null) {
                     return;
                 }
-
-                break;
-            }
-
-            case "FUNCTION": {
-                // pushl ebp
-                if (!this.pushl(this.registers.ebp)) {
-                    return;
-                }
-
-                // movl esp ebp
-                this.registers.ebp = this.registers.esp;
 
                 break;
             }
