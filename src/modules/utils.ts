@@ -37,10 +37,7 @@ export function toKiB(b: number): number {
     return b / 1024;
 }
 
-export const stringCompare: (a: string, b: string) => number = (
-    a: string,
-    b: string
-) => {
+export function stringCompare(a: string, b: string): number {
     if (a < b) {
         return -1;
     } else if (a === b) {
@@ -48,4 +45,14 @@ export const stringCompare: (a: string, b: string) => number = (
     } else {
         return 1;
     }
-};
+}
+
+export function isMobilePhoneBrowser() {
+    const uaLowerCase = navigator.userAgent.toLowerCase();
+    return (
+        uaLowerCase.includes("android") ||
+        uaLowerCase.includes("harmony") ||
+        uaLowerCase.includes("iphone") ||
+        uaLowerCase.includes("mobile")
+    );
+}
