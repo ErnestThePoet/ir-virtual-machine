@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import styles from "./Home.module.scss";
 import SideBar from "./components/SideBar";
 import TabBar from "./components/TabBar";
@@ -8,8 +8,12 @@ import IrEditor from "./components/IrEditor";
 import classNames from "classnames";
 import VmConsole from "./components/VmConsole";
 import VmInspector from "./components/VmInspector";
+import { useIntl } from "react-intl";
+import { importIrFile } from "./components/SideBar/SideBar";
 
 const Home: React.FC = () => {
+    const intl = useIntl();
+    const dispatch = useAppDispatch();
     const vm = useAppSelector(state => state.vm);
 
     const [isVerticalScreen, setIsVerticalScreen] = useState(
@@ -26,7 +30,16 @@ const Home: React.FC = () => {
     }, [vm.activeVmIndex]);
 
     return (
-        <main className={styles.main}>
+        <main
+            className={styles.main}
+            onDragEnter={e => e.preventDefault()}
+            onDragOver={e => e.preventDefault()}
+            onDrop={e => {
+                for (const file of e.dataTransfer.files) {
+                    importIrFile(dispatch, vm, intl, file);
+                }
+                e.preventDefault();
+            }}>
             <SideBar />
             <div className={styles.divRight}>
                 <TabBar />

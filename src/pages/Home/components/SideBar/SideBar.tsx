@@ -12,14 +12,15 @@ import {
 import { message, Dropdown, Space, Modal, Button } from "antd";
 import SideBarIcon from "./SideBarIcon";
 import vmContainer from "@/modules/vmContainer";
-import { addVmPageState, setIsIrChanged } from "@/store/reducers/vm";
+import { VmState, addVmPageState, setIsIrChanged } from "@/store/reducers/vm";
 import { Vm } from "@/modules/vm/vm";
 import { getNextUntitledVmName } from "@/modules/utils";
-import { useIntl } from "react-intl";
+import { IntlShape, useIntl } from "react-intl";
 import locales from "@/locales";
 import { setLocale } from "@/store/reducers/locale";
 import { setTheme } from "@/store/reducers/theme";
 import themes from "@/themes";
+import { AppDispatch } from "@/store";
 
 export const saveIr = (name: string, irString: string) => {
     const stringUrl = URL.createObjectURL(
@@ -33,6 +34,60 @@ export const saveIr = (name: string, irString: string) => {
     anchor.click();
 
     URL.revokeObjectURL(stringUrl);
+};
+
+export const importIrFile = (
+    dispatch: AppDispatch,
+    vm: VmState,
+    intl: IntlShape,
+    file: File
+) => {
+    const fileReader = new FileReader();
+
+    fileReader.readAsText(file);
+
+    fileReader.onload = res => {
+        if (res.target === null) {
+            message.error(
+                intl.formatMessage({
+                    id: "IR_IMPORT_FAILED"
+                })
+            );
+
+            (document.getElementById("inImportIr") as HTMLInputElement).value =
+                "";
+
+            return;
+        }
+
+        const newVm = new Vm();
+
+        vmContainer.add(newVm);
+        dispatch(
+            addVmPageState({
+                name: file.name,
+                irPath: "",
+                isIrChanged: false,
+                irString: res.target.result as string,
+
+                state: newVm.state,
+                globalVariableDetails: newVm.globalVariableDetails,
+                localVariableDetailsStack: newVm.localVariableDetailsStack,
+                options: newVm.currentOptions,
+                stepCount: newVm.stepCount,
+                memoryUsage: newVm.memoryUsage,
+
+                consoleOutputs: [],
+                consoleInputPrompt: [],
+                consoleInput: "",
+
+                staticErrorTable: newVm.staticErrorTable,
+                runtimeErrorTable: newVm.runtimeErrorTable,
+                currentLineNumber: newVm.currentLineNumber,
+                shouldIndicateCurrentLineNumber: false
+            })
+        );
+    };
 };
 
 const SideBar: React.FC = () => {
@@ -108,60 +163,7 @@ const SideBar: React.FC = () => {
                         }
 
                         for (const file of e.target.files!) {
-                            const fileReader = new FileReader();
-
-                            fileReader.readAsText(file);
-
-                            fileReader.onload = res => {
-                                if (res.target === null) {
-                                    message.error(
-                                        intl.formatMessage({
-                                            id: "IR_IMPORT_FAILED"
-                                        })
-                                    );
-
-                                    (
-                                        document.getElementById(
-                                            "inImportIr"
-                                        ) as HTMLInputElement
-                                    ).value = "";
-
-                                    return;
-                                }
-
-                                const newVm = new Vm();
-
-                                vmContainer.add(newVm);
-                                dispatch(
-                                    addVmPageState({
-                                        name: file.name,
-                                        irPath: "",
-                                        isIrChanged: false,
-                                        irString: res.target.result as string,
-
-                                        state: newVm.state,
-                                        globalVariableDetails:
-                                            newVm.globalVariableDetails,
-                                        localVariableDetailsStack:
-                                            newVm.localVariableDetailsStack,
-                                        options: newVm.currentOptions,
-                                        stepCount: newVm.stepCount,
-                                        memoryUsage: newVm.memoryUsage,
-
-                                        consoleOutputs: [],
-                                        consoleInputPrompt: [],
-                                        consoleInput: "",
-
-                                        staticErrorTable:
-                                            newVm.staticErrorTable,
-                                        runtimeErrorTable:
-                                            newVm.runtimeErrorTable,
-                                        currentLineNumber:
-                                            newVm.currentLineNumber,
-                                        shouldIndicateCurrentLineNumber: false
-                                    })
-                                );
-                            };
+                            importIrFile(dispatch, vm, intl, file);
                         }
 
                         // clear file value to ensure onchange will be triggered again
