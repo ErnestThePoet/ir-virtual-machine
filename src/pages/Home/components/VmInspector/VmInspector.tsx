@@ -204,7 +204,9 @@ const VmInspector: React.FC = () => {
                         {vm.vmPageStates[
                             vm.activeVmIndex
                         ].localVariableDetailsStack.map((x, i) => (
-                            <div className={styles.divLocalVariableTable}>
+                            <div
+                                key={i}
+                                className={styles.divLocalVariableTable}>
                                 <label className="functionName">
                                     {x.functionName}
                                 </label>
