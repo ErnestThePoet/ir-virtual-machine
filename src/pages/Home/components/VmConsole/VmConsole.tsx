@@ -4,12 +4,12 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import OutputBlock from "./OutputBlock/OutputBlock";
 import InputBlock from "./InputBlock/InputBlock";
 import {
-    addConsoleOutput,
     setConsoleInput,
     setConsoleInputPrompt,
     clearConsoleOutputs,
     setShouldIndicateCurrentLineNumber,
-    syncVmState
+    syncVmState,
+    addConsoleOutputs
 } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { ConsoleMessageType } from "@/modules/vm/vm";
@@ -22,23 +22,20 @@ const VmConsole: React.FC = () => {
     const inputResolve = useRef<((_: string) => void) | null>(null);
 
     useEffect(() => {
-        vmContainer.at(vm.activeVmIndex).setIoFns(
-            message => dispatch(addConsoleOutput(message)),
-            prompt => {
-                dispatch(setConsoleInputPrompt(prompt));
+        vmContainer.at(vm.activeVmIndex).setReadConsoleFn(prompt => {
+            dispatch(setConsoleInputPrompt(prompt));
 
-                // When we click continously run and encounter a read,
-                // this will get the page display updated.
-                syncVmState(dispatch, vm);
+            // When we click continously run and encounter a read,
+            // this will get the page display updated.
+            syncVmState(dispatch, vm);
 
-                // Auto focus input
-                document.getElementById("inConsole")?.focus();
+            // Auto focus input
+            document.getElementById("inConsole")?.focus();
 
-                return new Promise(resolve => {
-                    inputResolve.current = resolve;
-                });
-            }
-        );
+            return new Promise(resolve => {
+                inputResolve.current = resolve;
+            });
+        });
     }, [vm.activeVmIndex]);
 
     return (
@@ -97,22 +94,25 @@ const VmConsole: React.FC = () => {
                         }
 
                         dispatch(
-                            addConsoleOutput([
-                                { key: "CONSOLE_ARROW", type: "ARROW" },
-                                ...vm.vmPageStates[
-                                    vm.activeVmIndex
-                                ].consoleInputPrompt.map(x => ({
-                                    ...x,
-                                    type: "PROMPT" as ConsoleMessageType
-                                })),
-                                {
-                                    key: "READ_INPUT",
-                                    values: {
-                                        value: vm.vmPageStates[vm.activeVmIndex]
-                                            .consoleInput
-                                    },
-                                    type: "NORMAL"
-                                }
+                            addConsoleOutputs([
+                                [
+                                    { key: "CONSOLE_ARROW", type: "ARROW" },
+                                    ...vm.vmPageStates[
+                                        vm.activeVmIndex
+                                    ].consoleInputPrompt.map(x => ({
+                                        ...x,
+                                        type: "PROMPT" as ConsoleMessageType
+                                    })),
+                                    {
+                                        key: "READ_INPUT",
+                                        values: {
+                                            value: vm.vmPageStates[
+                                                vm.activeVmIndex
+                                            ].consoleInput
+                                        },
+                                        type: "NORMAL"
+                                    }
+                                ]
                             ])
                         );
 

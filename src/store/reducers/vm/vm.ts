@@ -111,13 +111,13 @@ export const vmSlice = createSlice({
             state.vmPageStates[state.activeVmIndex].memoryUsage =
                 action.payload;
         },
-        addConsoleOutput: (
+        addConsoleOutputs: (
             state,
-            action: PayloadAction<ConsoleMessagePart[]>
+            action: PayloadAction<Array<ConsoleMessagePart[]>>
         ) => {
-            state.vmPageStates[state.activeVmIndex].consoleOutputs.push(
-                action.payload
-            );
+            for (const i of action.payload) {
+                state.vmPageStates[state.activeVmIndex].consoleOutputs.push(i);
+            }
         },
         clearConsoleOutputs: state => {
             state.vmPageStates[state.activeVmIndex].consoleOutputs = [];
@@ -169,7 +169,7 @@ export const {
     setOptions,
     setStepCount,
     setMemoryUsage,
-    addConsoleOutput,
+    addConsoleOutputs,
     clearConsoleOutputs,
     setConsoleInputPrompt,
     setConsoleInput,
@@ -203,6 +203,11 @@ export const syncVmState = (dispatch: AppDispatch, vm: VmState) => {
     dispatch(
         setCurrentLineNumber(vmContainer.at(vm.activeVmIndex).currentLineNumber)
     );
+    vmContainer
+        .at(vm.activeVmIndex)
+        .flushWriteBuffer(writeBuffer =>
+            dispatch(addConsoleOutputs(writeBuffer))
+        );
 };
 
 export default vmSlice.reducer;

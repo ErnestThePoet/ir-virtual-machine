@@ -151,7 +151,7 @@ export type ConsoleMessageType =
 export type ConsoleMessagePart = FormattableMessage & {
     type: ConsoleMessageType;
 };
-type WriteConsoleFn = (message: ConsoleMessagePart[]) => void;
+
 type ReadConsoleFn = (prompt: FormattableMessage[]) => Promise<string>;
 
 // VM Options type
@@ -267,13 +267,12 @@ export class Vm {
     // VM Options does not belong to its state
     private options: VmOptions = cloneDeep(defaultOptions);
 
-    private writeConsole: WriteConsoleFn = _ => {};
+    private writeBuffer: Array<ConsoleMessagePart[]> = [];
     private readConsole: ReadConsoleFn = _ => Promise.resolve("");
 
     private entryFunctionName = "main";
 
-    setIoFns(writeConsole: WriteConsoleFn, readConsole: ReadConsoleFn) {
-        this.writeConsole = writeConsole;
+    setReadConsoleFn(readConsole: ReadConsoleFn) {
         this.readConsole = readConsole;
     }
 
@@ -396,6 +395,20 @@ export class Vm {
     }
 
     /**
+     * Flush current write buffer content.
+     * User is asked to provide an action on current write buffer because
+     * we want to avoid a copy of the buffer which can be expensive.
+     * @param action Action that accepts the current write buffer content.
+     * @public
+     */
+    flushWriteBuffer(action?: (_: Array<ConsoleMessagePart[]>) => void) {
+        if (action !== undefined) {
+            action(this.writeBuffer);
+        }
+        this.writeBuffer = [];
+    }
+
+    /**
      * Configure the VM with given options.
      * @param options - The new VM options.
      * @public
@@ -462,6 +475,7 @@ export class Vm {
         this.registers = cloneDeep(this.initialRegisters);
         this.tables = cloneDeep(initialTables);
         this.executionStatus = cloneDeep(initialExecutionStatus);
+        this.writeBuffer = [];
     }
 
     /**
@@ -502,7 +516,7 @@ export class Vm {
             if (decoded.type === "ERROR") {
                 this.executionStatus.state = "STATIC_CHECK_FAILED";
 
-                this.writeConsole([
+                this.writeBuffer.push([
                     // {
                     //     key: "STATIC_ERROR_PREFIX",
                     //     type: "ERROR"
@@ -554,7 +568,7 @@ export class Vm {
         if (!(this.entryFunctionName in this.tables.functionTable)) {
             this.executionStatus.state = "STATIC_CHECK_FAILED";
 
-            this.writeConsole([
+            this.writeBuffer.push([
                 {
                     key: "STATIC_ERROR_PREFIX",
                     type: "ERROR"
@@ -678,7 +692,7 @@ export class Vm {
 
         if (this.alu.eq(this.registers.eax, new Int32(0))) {
             this.executionStatus.state = "EXITED_NORMALLY";
-            this.writeConsole([
+            this.writeBuffer.push([
                 {
                     key: "EXITED_NORMALLY",
                     values: {
@@ -689,7 +703,7 @@ export class Vm {
             ]);
         } else {
             this.executionStatus.state = "EXITED_ABNORMALLY";
-            this.writeConsole([
+            this.writeBuffer.push([
                 {
                     key: "EXITED_ABNORMALLY",
                     values: {
@@ -719,7 +733,7 @@ export class Vm {
             lineNumber ?? this.memory.text[this.registers.eip.value].lineNumber
         ] = message;
 
-        this.writeConsole([
+        this.writeBuffer.push([
             {
                 key: "RUNTIME_ERROR_PREFIX",
                 values: {
@@ -1181,7 +1195,7 @@ export class Vm {
             this.executionStatus.stepCount >= this.options.maxExecutionStepCount
         ) {
             this.executionStatus.state = "MAX_STEP_REACHED";
-            this.writeConsole([
+            this.writeBuffer.push([
                 {
                     key: "MAX_STEP_REACHED",
                     values: {
@@ -1205,7 +1219,7 @@ export class Vm {
             // Here we don't call writeRuntimeError because we can't get line number.
             this.executionStatus.state = "RUNTIME_ERROR";
 
-            this.writeConsole([
+            this.writeBuffer.push([
                 {
                     key: "RUNTIME_ERROR_PREFIX_NO_LN",
                     type: "ERROR"
@@ -1556,7 +1570,7 @@ export class Vm {
                     return;
                 }
 
-                this.writeConsole([
+                this.writeBuffer.push([
                     {
                         key: "WRITE_OUTPUT",
                         values: {
