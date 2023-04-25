@@ -9,13 +9,17 @@ import {
     TranslationOutlined,
     EyeOutlined
 } from "@ant-design/icons";
-import { message } from "antd";
+import { message, Dropdown, Space } from "antd";
 import SideBarIcon from "./SideBarIcon";
 import vmContainer from "@/modules/vmContainer";
 import { addVmPageState, setIsIrChanged } from "@/store/reducers/vm";
 import { Vm } from "@/modules/vm/vm";
 import { getNextUntitledVmName } from "@/modules/utils";
 import { useIntl } from "react-intl";
+import locales from "@/locales";
+import { setLocale } from "@/store/reducers/locale";
+import { setTheme } from "@/store/reducers/theme";
+import themes from "@/themes";
 
 export const saveIr = (name: string, irString: string) => {
     const stringUrl = URL.createObjectURL(
@@ -186,16 +190,48 @@ const SideBar: React.FC = () => {
             </div>
 
             <div className={styles.divIconWrapperLower}>
-                <SideBarIcon
-                    icon={<TranslationOutlined />}
-                    label="Lang"
-                    onClick={() => {}}
-                />
-                <SideBarIcon
-                    icon={<EyeOutlined />}
-                    label={locale.THEME}
-                    onClick={() => {}}
-                />
+                <Dropdown
+                    menu={{
+                        items: locales.map((x, i) => ({
+                            key: i,
+                            label: x.name
+                        })),
+                        onClick: e => {
+                            dispatch(
+                                setLocale(locales[parseInt(e.key)].locale)
+                            );
+                        }
+                    }}
+                    placement="topLeft">
+                    <Space>
+                        <SideBarIcon
+                            icon={<TranslationOutlined />}
+                            label="Lang"
+                        />
+                    </Space>
+                </Dropdown>
+
+                <Dropdown
+                    menu={{
+                        items: themes.map((x, i) => ({
+                            key: i,
+                            label: x.name
+                        })),
+                        onClick: e => {
+                            dispatch(
+                                setTheme(themes[parseInt(e.key)].className)
+                            );
+                        }
+                    }}
+                    placement="topLeft">
+                    <Space>
+                        <SideBarIcon
+                            icon={<EyeOutlined />}
+                            label={locale.THEME}
+                        />
+                    </Space>
+                </Dropdown>
+
                 <SideBarIcon
                     icon={<InfoCircleOutlined />}
                     label={locale.ABOUT}
