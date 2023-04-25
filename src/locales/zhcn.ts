@@ -16,7 +16,7 @@ const zhCn = {
     CANCEL: "取消",
     EMPTY_PLACEHOLDER: "暂无打开的虚拟机，快去新建或导入一个IR文件吧~",
     EMPTY_PLACEHOLDER_SUPPORT_DRAG: "可以直接将多个IR文件拖入哦",
-    IR_IMPORT_FAILED: "IR文件导入失败",
+    IR_IMPORT_FAILED: "{fileName}导入失败",
 
     RUN: "运行",
     RUN_STEP: "单步",

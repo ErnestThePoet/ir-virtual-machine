@@ -48,9 +48,12 @@ export const importIrFile = (
     fileReader.onload = res => {
         if (res.target === null) {
             message.error(
-                intl.formatMessage({
-                    id: "IR_IMPORT_FAILED"
-                })
+                intl.formatMessage(
+                    {
+                        id: "IR_IMPORT_FAILED"
+                    },
+                    { fileName: file.name }
+                )
             );
 
             (document.getElementById("inImportIr") as HTMLInputElement).value =
