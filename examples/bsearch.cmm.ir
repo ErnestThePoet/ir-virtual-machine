@@ -1,0 +1,56 @@
+FUNCTION bsearch :
+PARAM var0
+PARAM var1
+PARAM var2
+PARAM var3
+LABEL label4 :
+IF var1 < var2 GOTO label5
+GOTO label6
+LABEL label5 :
+var5 := var1 + var2
+var6 := var5 / #2
+var4 := var6
+var7 := #4 * var4
+var8 := var0 + var7
+IF *var8 == var3 GOTO label0
+var9 := #4 * var4
+var10 := var0 + var9
+IF *var10 > var3 GOTO label2
+var11 := var4 + #1
+var1 := var11
+GOTO label3
+LABEL label2 :
+var2 := var4
+LABEL label3 :
+GOTO label1
+LABEL label0 :
+RETURN var4
+LABEL label1 :
+GOTO label4
+LABEL label6 :
+var12 := #0 - #1
+RETURN var12
+FUNCTION main :
+DEC var13 400
+var14 := #0
+LABEL label7 :
+IF var14 < #100 GOTO label8
+GOTO label9
+LABEL label8 :
+var17 := #4 * var14
+var18 := &var13 + var17
+*var18 := var14
+var19 := var14 + #1
+var14 := var19
+GOTO label7
+LABEL label9 :
+READ var20
+var15 := var20
+ARG var15
+ARG #100
+ARG #0
+ARG &var13
+var21 := CALL bsearch
+var16 := var21
+WRITE var16
+RETURN #0

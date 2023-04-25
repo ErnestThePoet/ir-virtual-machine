@@ -1,0 +1,12 @@
+FUNCTION main :
+var0 := #0
+LABEL label0 :
+IF var0 < #1000 GOTO label1
+GOTO label2
+LABEL label1 :
+WRITE var0
+var1 := var0 + #1
+var0 := var1
+GOTO label0
+LABEL label2 :
+RETURN #0

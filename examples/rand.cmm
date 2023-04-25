@@ -1,0 +1,34 @@
+int next;
+
+int mod(int x, int y)
+{
+    return x - y * (x / y);
+}
+
+int srand(int seed_)
+{
+    next = seed_;
+}
+
+int rand()
+{
+    next = next * 1103515245 + 12345;
+    return mod(next / 65536, 32768);
+}
+
+int main()
+{
+    int seed = read();
+    int n = read();
+    int i = 0;
+
+    srand(seed);
+
+    while (i < n)
+    {
+        write(rand());
+        i = i + 1;
+    }
+
+    return 0;
+}

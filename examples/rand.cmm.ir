@@ -1,0 +1,38 @@
+GLOBAL_DEC var0 4
+FUNCTION mod :
+PARAM var1
+PARAM var2
+var3 := var1 / var2
+var4 := var2 * var3
+var5 := var1 - var4
+RETURN var5
+FUNCTION srand :
+PARAM var6
+var0 := var6
+FUNCTION rand :
+var7 := var0 * #1103515245
+var8 := var7 + #12345
+var0 := var8
+var9 := var0 / #65536
+ARG #32768
+ARG var9
+var10 := CALL mod
+RETURN var10
+FUNCTION main :
+READ var12
+var11 := var12
+READ var14
+var13 := var14
+var15 := #0
+ARG var11
+LABEL label0 :
+IF var15 < var13 GOTO label1
+GOTO label2
+LABEL label1 :
+var16 := CALL rand
+WRITE var16
+var17 := var15 + #1
+var15 := var17
+GOTO label0
+LABEL label2 :
+RETURN #0

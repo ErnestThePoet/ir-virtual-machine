@@ -1,0 +1,44 @@
+int bsearch(int data_[100], int low_, int high_, int target_)
+{
+    int mid_;
+    while (low_ < high_)
+    {
+        mid_ = (low_ + high_) / 2;
+        if (data_[mid_] == target_)
+        {
+            return mid_;
+        }
+        else if (data_[mid_] > target_)
+        {
+            high_ = mid_;
+        }
+        else
+        {
+            low_ = mid_ + 1;
+        }
+    }
+
+    return -1;
+}
+
+int main()
+{
+    int arr[100];
+    int i = 0;
+    int target;
+    int index;
+
+    while (i < 100)
+    {
+        arr[i] = i;
+        i = i + 1;
+    }
+
+    target = read();
+
+    index = bsearch(arr, 0, 100, target);
+
+    write(index);
+
+    return 0;
+}
