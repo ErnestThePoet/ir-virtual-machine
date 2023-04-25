@@ -8,7 +8,7 @@ const customRouter = createBrowserRouter(
             element: <Home />
         }
     ],
-    { basename: "/IR-Virtual-Machine" }
+    { basename: "/ir-virtual-machine" }
 );
 
 export default customRouter;
