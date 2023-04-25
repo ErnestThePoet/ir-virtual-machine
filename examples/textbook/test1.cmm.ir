@@ -1,0 +1,16 @@
+FUNCTION main :
+READ var1
+var0 := var1
+IF var0 > #0 GOTO label0
+IF var0 < #0 GOTO label2
+WRITE #0
+GOTO label3
+LABEL label2 :
+var2 := #0 - #1
+WRITE var2
+LABEL label3 :
+GOTO label1
+LABEL label0 :
+WRITE #1
+LABEL label1 :
+RETURN #0
