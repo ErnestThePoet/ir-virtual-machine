@@ -274,13 +274,24 @@ const SideBar: React.FC = () => {
                         <div>Ernest Cui, Harbin Institute of Technology</div>
                     </p>
                     <p>April 🌼 2023</p>
+
+                    <p className="info">
+                        <a href="https://ernestthepoet.github.io/ir-virtual-machine/">
+                            Github Pages镜像
+                        </a>
+                        ·
+                        <a href="https://ecui.gitee.io/ir-virtual-machine/">
+                            Gitee Pages镜像
+                        </a>
+                    </p>
+
                     <p className="info">
                         <a href="https://github.com/ErnestThePoet/ir-virtual-machine">
-                            Github
+                            Github仓库
                         </a>
                         ·
                         <a href="https://gitee.com/ecui/ir-virtual-machine">
-                            Gitee
+                            Gitee仓库
                         </a>
                         ·
                         <a href="mailto: ecuiships@126.com">
