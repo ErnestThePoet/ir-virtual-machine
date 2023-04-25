@@ -38,6 +38,15 @@ const VmConsole: React.FC = () => {
         });
     }, [vm.activeVmIndex]);
 
+    useEffect(() => {
+        const divVmConsole = document.getElementById("divVmConsole");
+        if (divVmConsole === null) {
+            return;
+        }
+
+        divVmConsole.scrollTo(0, divVmConsole.scrollHeight);
+    }, [vm.vmPageStates[vm.activeVmIndex].consoleOutputs]);
+
     return (
         <div className={styles.divVmConsoleWrapper}>
             <ControlPanel
@@ -74,7 +83,7 @@ const VmConsole: React.FC = () => {
                 }}
             />
 
-            <div className={styles.divVmConsole}>
+            <div id="divVmConsole" className={styles.divVmConsole}>
                 {vm.vmPageStates[vm.activeVmIndex].consoleOutputs.map(
                     (x, i) => (
                         <OutputBlock key={i} message={x} />
