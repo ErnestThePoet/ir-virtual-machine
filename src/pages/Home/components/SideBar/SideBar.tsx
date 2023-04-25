@@ -204,6 +204,8 @@ const SideBar: React.FC = () => {
                             dispatch(
                                 setLocale(locales[parseInt(e.key)].locale)
                             );
+                            document.title =
+                                locales[parseInt(e.key)].locale.APP_TITLE;
                         }
                     }}
                     placement="topLeft">
