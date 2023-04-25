@@ -265,11 +265,11 @@ const SideBar: React.FC = () => {
                     </p>
                     <p>April 🌼 2023</p>
                     <p className="info">
-                        <a href="https://github.com/ErnestThePoet/IR-Virtual-Machine">
+                        <a href="https://github.com/ErnestThePoet/ir-virtual-machine">
                             Github
                         </a>
                         ·
-                        <a href="https://gitee.com/ecui/IR-Virtual-Machine">
+                        <a href="https://gitee.com/ecui/ir-virtual-machine">
                             Gitee
                         </a>
                         ·
