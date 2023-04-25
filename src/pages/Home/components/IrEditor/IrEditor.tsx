@@ -97,6 +97,10 @@ const IrEditor: React.FC = () => {
                     onChange={e => {
                         dispatch(setIrString(e.currentTarget.value));
                         dispatch(setIsIrChanged(true));
+                        window.onbeforeunload = (e: BeforeUnloadEvent) => {
+                            e.preventDefault();
+                            return (e.returnValue = "");
+                        };
                     }}
                 />
             </div>

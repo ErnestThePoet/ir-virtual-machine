@@ -188,6 +188,14 @@ const SideBar: React.FC = () => {
                         );
 
                         dispatch(setIsIrChanged(false));
+                        if (
+                            vm.vmPageStates.every(
+                                (x, i) =>
+                                    i === vm.activeVmIndex || !x.isIrChanged
+                            )
+                        ) {
+                            window.onbeforeunload = null;
+                        }
                     }}
                 />
             </div>

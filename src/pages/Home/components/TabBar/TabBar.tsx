@@ -19,6 +19,13 @@ const TabBar: React.FC = () => {
     const [currentCloseVmIndex, setCurrentCloseVmIndex] = useState(0);
 
     const deleteVm = (index: number) => {
+        if (
+            vm.vmPageStates.every(
+                (x, i) => i === vm.activeVmIndex || !x.isIrChanged
+            )
+        ) {
+            window.onbeforeunload = null;
+        }
         dispatch(deleteVmPageState(index));
         vmContainer.delete(index);
     };
