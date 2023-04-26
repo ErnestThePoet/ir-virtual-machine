@@ -496,7 +496,7 @@ export class Vm {
      * - Check the existence of main function
      *
      * If an error is detected, `this.executionStatus.state` will be set to
-     * `"STATIC_CHECK_FAILED"` with error message(s) written to console.
+     * `"STATIC_CHECK_FAILED"` with error message(s) written to buffer.
      *
      * Note that runtime errors are not examined here.
      * @public
@@ -684,7 +684,7 @@ export class Vm {
      *
      * If successful, `this.executionStatus.state` will be set to `"FREE"`;
      * If an error is detected, `this.executionStatus.state` and error message(s)
-     * will be written to console.
+     * will be written to buffer.
      */
     private prepareExcution() {
         this.decodeInstructions();
@@ -738,7 +738,7 @@ export class Vm {
     /**
      * Set `this.executionStatus.messages` to `"RUNTIME_ERROR"`
      * and write runtime error prefix(with line number) and given
-     * runtime error message to console.
+     * runtime error message to buffer.
      * @param message - The `FormattableMessage` object.
      * @param lineNumber - The optional line number which will replace eip's line number.
      */
@@ -797,7 +797,7 @@ export class Vm {
 
     /**
      * Read an `Int32` from memory at given address. If memory reading caused an MMU
-     * `OUT_OF_BOUND` error, `null` is returned and error will be written to console.
+     * `OUT_OF_BOUND` error, `null` is returned and error will be written to buffer.
      * @param address - The memory read address.
      * @returns An `Int32` value or `null`
      */
@@ -821,7 +821,7 @@ export class Vm {
 
     /**
      * Store an `Int32` to memory at given address. If memory writing caused an MMU
-     * `OUT_OF_BOUND` error, `false` is returned and error will be written to console.
+     * `OUT_OF_BOUND` error, `false` is returned and error will be written to buffer.
      * @param value - The `Int32` value to be stored.
      * @param address - The memory write address.
      * @returns A `boolean` value indicating whether memory write is successful.
@@ -850,7 +850,7 @@ export class Vm {
     /**
      * Sub `esp` by 4 and store the given `Int32` value on top of stack.
      * If memory writing caused an MMU `OUT_OF_BOUND` error, `false` is
-     * returned and error will be written to console.
+     * returned and error will be written to buffer.
      * @param value - The `Int32` value to be pushed onto stack.
      * @returns A `boolean` value indicating whether push is successful.
      */
@@ -876,7 +876,7 @@ export class Vm {
     /**
      * Return the top `Int32` on stack and add `esp` by `4`. If memory reading
      * caused an MMU `OUT_OF_BOUND` error, `null` is returned and error will
-     * be written to console.
+     * be written to buffer.
      * @returns An `Int32` value or `null`
      */
     private popl(): Int32 | null {
@@ -943,7 +943,7 @@ export class Vm {
     /**
      * Get the `Int32` or `Int32` value of given singular. If the singular
      * contains an `ID` which can't be found, or memory reading caused an MMU
-     * `OUT_OF_BOUND` error, `null` is returned and error will be written to console.
+     * `OUT_OF_BOUND` error, `null` is returned and error will be written to buffer.
      * @param singular - The Singular object.
      * @returns An `Int32` value or `null`
      */
@@ -1016,7 +1016,7 @@ export class Vm {
     /**
      * Get the `Int32` or `Int32` value of given `RValue`. If its singular
      * contains an `ID` which can't be found, or memory reading caused an MMU
-     * `OUT_OF_BOUND` error, `null` is returned and error will be written to console.
+     * `OUT_OF_BOUND` error, `null` is returned and error will be written to buffer.
      * @param rValue - The `RValue` object.
      * @returns An `Int32` value or `null`
      */
@@ -1063,7 +1063,7 @@ export class Vm {
 
     /**
      * Create a variable on the stack and insert to current variable table.
-     * If stackoverflow occurs, error will be written to console.
+     * If stackoverflow occurs, error will be written to buffer.
      * @param id - The variable id.
      * @param size - The variable size.
      * @returns A `VmVariable` value or `null`
@@ -1116,7 +1116,7 @@ export class Vm {
     /**
      * Get memory address of the given `LValue`. If its singular
      * is an `ID` which can't be found, the variable will be immediately
-     * created. If an error is caused, it will be written to console.
+     * created. If an error is caused, it will be written to buffer.
      * @param lValue - The `LValue` object.
      * @returns An `Int32` value or `null`
      */
@@ -1153,7 +1153,7 @@ export class Vm {
     /**
      * Get the `boolean` result of given `CondValue`. If its singular
      * contains an `ID` which can't be found, or memory reading caused an MMU
-     * `OUT_OF_BOUND` error, `null` is returned and error will be written to console.
+     * `OUT_OF_BOUND` error, `null` is returned and error will be written to buffer.
      * @param condValue - The `CondValue` object.
      * @returns A `boolean` result or `null`
      */
@@ -1187,7 +1187,7 @@ export class Vm {
     /**
      * Execute single step.
      * If a runtime error is detected, `this.executionStatus.state` will be set to
-     * `"RUNTIME_ERROR"` with error message written to console.
+     * `"RUNTIME_ERROR"` with error message written to buffer.
      * @async
      * @public
      */
@@ -1631,7 +1631,7 @@ export class Vm {
     /**
      * Execute continuously.
      * If a runtime error is detected, `this.executionStatus.state` will be set to
-     * `"RUNTIME_ERROR"` with error message written to console.
+     * `"RUNTIME_ERROR"` with error message written to buffer.
      * @async
      * @public
      */
