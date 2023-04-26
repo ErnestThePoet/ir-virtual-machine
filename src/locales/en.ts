@@ -1,4 +1,6 @@
-const en = {
+import { AppLocale } from ".";
+
+const en: AppLocale = {
     APP_TITLE: "IR Virtual Machine",
 
     // UI strings
@@ -105,6 +107,7 @@ const en = {
     MEMORY_WRITE_OUT_OF_BOUND: "Reading 4 bytes from {address} is out of bound",
     EMPTY_VARIABLE_TABLE_STACK: "Empty local variable stack",
     DUPLICATE_DEC_ID: "DEC's variable id already declared",
+    DUPLICATE_GLOBAL_DEC_ID: "GLOBAL_DEC's global variable id already declared",
     DUPLICATE_PARAM_ID: "PARAM's param id already declared",
 
     // Other error messages

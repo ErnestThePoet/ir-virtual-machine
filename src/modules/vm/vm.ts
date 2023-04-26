@@ -646,6 +646,16 @@ export class Vm {
                     return;
                 }
 
+                if (decodedGlobalDec.id in this.tables.globalVariableTable) {
+                    this.writeRuntimeError(
+                        {
+                            key: "DUPLICATE_GLOBAL_DEC_ID"
+                        },
+                        text.lineNumber
+                    );
+                    return;
+                }
+
                 this.memory.memory
                     .subarray(
                         this.registers.edx.value,

@@ -101,6 +101,7 @@ const zhCn = {
     MEMORY_WRITE_OUT_OF_BOUND: "从地址{address}读入4字节时超出了地址空间",
     EMPTY_VARIABLE_TABLE_STACK: "局部变量符号表栈为空",
     DUPLICATE_DEC_ID: "DEC指令声明的变量名已存在",
+    DUPLICATE_GLOBAL_DEC_ID: "GLOBAL_DEC指令声明的全局变量名已存在",
     DUPLICATE_PARAM_ID: "PARAM指令声明的形参名已存在",
 
     // Other error messages
