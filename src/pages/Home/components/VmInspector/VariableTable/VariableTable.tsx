@@ -38,10 +38,16 @@ const VariableTable: React.FC<VariableTableProps> = (
             title: intl.formatMessage({ id: "VALUES" }),
             dataIndex: "values",
             render: (x: number[]) => (
-                <div>
-                    {x.map((y,i) => (
+                <div className={styles.divValues}>
+                    {x.map((y, i) => (
                         <div key={i}>
-                            {y}
+                            {x.length === 1 ? (
+                                y
+                            ) : (
+                                <>
+                                    [{i}]: {y}
+                                </>
+                            )}
                         </div>
                     ))}
                 </div>
