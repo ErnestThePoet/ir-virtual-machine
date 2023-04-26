@@ -9,6 +9,7 @@ RETURN var5
 FUNCTION srand :
 PARAM var6
 var0 := var6
+RETURN #0
 FUNCTION rand :
 var7 := var0 * #1103515245
 var8 := var7 + #12345
@@ -25,14 +26,21 @@ READ var14
 var13 := var14
 var15 := #0
 ARG var11
-LABEL label0 :
-IF var15 < var13 GOTO label1
-GOTO label2
-LABEL label1 :
-var16 := CALL rand
-WRITE var16
-var17 := var15 + #1
-var15 := var17
-GOTO label0
+CALL srand
 LABEL label2 :
+IF var15 < var13 GOTO label0
+var16 := #0
+GOTO label1
+LABEL label0 :
+var16 := #1
+LABEL label1 :
+IF var16 != #0 GOTO label3
+GOTO label4
+LABEL label3 :
+var17 := CALL rand
+WRITE var17
+var18 := var15 + #1
+var15 := var18
+GOTO label2
+LABEL label4 :
 RETURN #0

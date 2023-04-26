@@ -1,0 +1,88 @@
+int next;
+
+int mod(int x, int y)
+{
+    return x - y * (x / y);
+}
+
+int srand(int seed_)
+{
+    next = seed_;
+    return 0;
+}
+
+int rand()
+{
+    next = next * 1103515245 + 12345;
+    return mod(next / 65536, 32768);
+}
+
+int Partition(int data_[100], int low_, int high_)
+{
+    int ref_ = data_[low_];
+    while (low_ < high_)
+    {
+        while (low_ < high_ && data_[high_] >= ref_)
+        {
+            high_ = high_ - 1;
+        }
+        if (low_ < high_)
+        {
+            data_[low_] = data_[high_];
+            low_ = low_ + 1;
+        }
+
+        while (low_ < high_ && data_[low_] <= ref_)
+        {
+            low_ = low_ + 1;
+        }
+        if (low_ < high_)
+        {
+            data_[high_] = data_[low_];
+            high_ = high_ - 1;
+        }
+    }
+
+    data_[low_] = ref_;
+    return low_;
+}
+
+int QuickSort(int d_[100], int l_, int h_)
+{
+    int mid_;
+    if (l_ < h_)
+    {
+        mid_ = Partition(d_, l_, h_);
+        QuickSort(d_, l_, mid_ - 1);
+        QuickSort(d_, mid_ + 1, h_);
+    }
+
+    return 0;
+}
+
+int main()
+{
+    int seed = read();
+    int data[25];
+    int i = 0;
+
+    srand(seed);
+
+    while (i < 25)
+    {
+        data[i] = rand();
+        i = i + 1;
+    }
+
+    QuickSort(data, 0, 25);
+
+    i = 0;
+
+    while (i < 25)
+    {
+        write(data[i]);
+        i = i + 1;
+    }
+
+    return 0;
+}

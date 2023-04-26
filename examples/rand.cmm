@@ -8,6 +8,7 @@ int mod(int x, int y)
 int srand(int seed_)
 {
     next = seed_;
+    return 0;
 }
 
 int rand()
