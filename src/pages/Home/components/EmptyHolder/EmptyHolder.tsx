@@ -1,7 +1,7 @@
 import React from "react";
 import { useIntl } from "react-intl";
 import styles from "./EmptyHolder.module.scss";
-import { isMobilePhoneBrowser } from "@/modules/utils";
+import { isMobileBrowser } from "@/modules/utils";
 
 const EmptyHolder: React.FC = () => {
     const intl = useIntl();
@@ -15,7 +15,7 @@ const EmptyHolder: React.FC = () => {
                     })}
                 </span>
 
-                {!isMobilePhoneBrowser() && (
+                {!isMobileBrowser() && (
                     <span>
                         {intl.formatMessage({
                             id: "EMPTY_PLACEHOLDER_SUPPORT_DRAG"
