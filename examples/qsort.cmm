@@ -17,7 +17,7 @@ int rand()
     return mod(next / 65536, 32768);
 }
 
-int Partition(int data_[100], int low_, int high_)
+int Partition(int data_[1], int low_, int high_)
 {
     int ref_ = data_[low_];
     while (low_ < high_)
@@ -47,7 +47,7 @@ int Partition(int data_[100], int low_, int high_)
     return low_;
 }
 
-int QuickSort(int d_[100], int l_, int h_)
+int QuickSort(int d_[1], int l_, int h_)
 {
     int mid_;
     if (l_ < h_)

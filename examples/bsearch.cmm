@@ -1,4 +1,4 @@
-int bsearch(int data_[100], int low_, int high_, int target_)
+int bsearch(int data_[1], int low_, int high_, int target_)
 {
     int mid_;
     while (low_ < high_)
