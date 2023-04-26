@@ -630,11 +630,9 @@ export class Vm {
         // Push call stack
         this.executionStatus.callStack.push(this.entryFunctionName);
 
-        for (let i = 0; i < this.memory.text.length; i++) {
-            if (this.memory.text[i].type === "GLOBAL_DEC") {
-                const decodedGlobalDec = <DecodedGlobalDec>(
-                    this.memory.text[i].value
-                );
+        for (const text of this.memory.text) {
+            if (text.type === "GLOBAL_DEC") {
+                const decodedGlobalDec = <DecodedGlobalDec>text.value;
 
                 if (
                     !this.checkGlobalVariableSegmentSize(decodedGlobalDec.size)
@@ -643,7 +641,7 @@ export class Vm {
                         {
                             key: "GLOBAL_VARIABLE_SEGMENT_OVERFLOW"
                         },
-                        this.memory.text[i].lineNumber
+                        text.lineNumber
                     );
                     return;
                 }
@@ -667,9 +665,6 @@ export class Vm {
 
                 // GLOBAL_DEC also counts for one step.
                 this.executionStatus.stepCount++;
-
-                this.memory.text.splice(i, 1);
-                i--;
             }
         }
     }
@@ -1604,6 +1599,21 @@ export class Vm {
             this.registers.eip,
             new Int32(1)
         );
+
+        // Skip GLOBAL_DEC
+        if (
+            this.alu.ltInt32(
+                this.registers.eip,
+                new Int32(this.memory.text.length)
+            ) &&
+            this.alu.geInt32(this.registers.eip, new Int32(0)) &&
+            this.memory.text[this.registers.eip.value].type === "GLOBAL_DEC"
+        ) {
+            this.registers.eip = this.alu.addInt32(
+                this.registers.eip,
+                new Int32(1)
+            );
+        }
 
         this.executionStatus.state = "FREE";
     }
