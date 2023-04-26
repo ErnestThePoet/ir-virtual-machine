@@ -18,9 +18,9 @@ const MemoryUsage: React.FC<MemoryUsageProps> = (props: MemoryUsageProps) => {
         <div className={styles.divMemoryUsageWrapper}>
             <div className={styles.divUsageBlock}>
                 <Progress
+                    className={styles.progress}
                     percent={(props.usedBytes / props.totalBytes) * 100}
                     showInfo={false}
-                    style={{ margin: 0 }}
                     status="normal"
                 />
 
@@ -62,9 +62,9 @@ const MemoryUsage: React.FC<MemoryUsageProps> = (props: MemoryUsageProps) => {
 
             <div className={styles.divUsageBlock}>
                 <Progress
+                    className={styles.progress}
                     percent={(props.peakBytes / props.totalBytes) * 100}
                     showInfo={false}
-                    style={{ margin: 0 }}
                     status="exception"
                 />
 
