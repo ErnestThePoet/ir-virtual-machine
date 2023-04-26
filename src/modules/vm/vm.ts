@@ -1611,7 +1611,7 @@ export class Vm {
         );
 
         // Skip GLOBAL_DEC
-        if (
+        while (
             this.alu.ltInt32(
                 this.registers.eip,
                 new Int32(this.memory.text.length)
