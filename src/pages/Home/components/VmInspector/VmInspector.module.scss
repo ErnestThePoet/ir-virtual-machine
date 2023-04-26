@@ -42,7 +42,7 @@
 .lblStepStateLabel {
     font-size: 20px;
     color: var(--vm-inspector-step-state-label-color);
-    white-space: nowrap;
+    white-space: pre;
     user-select: none;
 }
 
