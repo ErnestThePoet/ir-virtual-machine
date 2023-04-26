@@ -63,8 +63,8 @@
 |------------|------------|
 |FUNCTION **ID** :|定义一个名为**ID**的函数。IR程序中必须有一个名为`main`的函数作为虚拟机执行的入口|
 |**LValue** := **RValue**|赋值；若**LValue**为**ID**且该**ID**未被定义过，则在赋值之前将其作为当前函数的一个局部变量进行空间分配|
-|DEC **ID** **Size**|在栈上分配一块指定大小的连续的空间，**ID**代表存储在该空间前4字节的整数。用于在函数内部声明数组或结构体，也可用于声明整数变量|
-|GLOBAL_DEC **ID** **Size**|在全局变量存储区分配一块指定大小的连续的空间，**ID**代表存储在该空间前4字节的整数。用于声明全局整数变量、数组或结构体，*这是本虚拟机新增的一条IR指令*|
+|DEC **ID** **Size**|在栈上分配一块指定大小的连续的空间，**ID**代表存储在该空间前4字节的整数。用于在函数内部声明数组或结构体，也可用于声明整数变量。其占用的内存空间初始时为随机内容|
+|GLOBAL_DEC **ID** **Size**|在全局变量存储区分配一块指定大小的连续的空间，**ID**代表存储在该空间前4字节的整数。用于声明全局整数变量、数组或结构体，*这是本虚拟机新增的一条IR指令。*其占用的内存空间被全部初始化为0。全局变量的作用域为整个IR程序，与声明位置无关|
 |LABEL **ID** :|定义一个名为**ID**的标号|
 |GOTO **ID**|无条件跳转，跳转目标是名为**ID**的标号的下一条指令|
 |IF **CondValue** GOTO **ID**|条件跳转，若**CondValue**为真，则跳转目标是名为**ID**的标号的下一条指令；否则继续执行下一条IR指令|
@@ -85,7 +85,9 @@
 因为本虚拟机并不实际执行`FUNCTION`和`LABEL`指令，也不会将它们计算在执行步数内。而据本人观察，irsim不计入除了`main`函数外的所有`FUNCTION`指令，且会计入所有`LABEL`指令。这就会使得部分中间代码在本虚拟机上显示的执行步数略少于在irsim上的。那么，到底哪一种较为合理呢？我认为，不考虑虚拟机对每条指令的具体实现，单就语义层面来看，`FUNCTION`和`LABEL`起到的都只是代码标号的作用，并不代表一次执行，因此不将它们计入执行步数是合理的。除此之外，本虚拟机的计步策略与irsim相同，可以放心地用来评估中间代码优化的成效。
 - **单步执行中，被标注的那一行代表？**  
 代表的是下一条要被执行的指令，也就是再次点击单步执行后被执行的指令。注：irsim中，高亮的行是刚才执行完的指令，我认为自己的实现更直观，也更符合逻辑。
-- **让我的实验三代码能生成全局变量指令容易吗？**  
+- **全局变量声明指令的执行逻辑？**  
+所有全局变量声明指令都在进入main函数之前执行，并计入执行步数。假如全局变量声明指令出现在了函数内部，那么在之后执行时，全局变量声明指令就会被跳过（但是根据C--语法生成的全局变量声明指令是不应该出现在一个函数内部的）。全局变量占用的内存空间被全部初始化为0。全局变量的作用域为整个IR程序，与声明位置无关。即使一行IR指令引用的全局变量是在它下面声明的，它也可以正常访问到该全局变量。
+- **让我的实验三代码能生成全局变量声明指令容易吗？**  
 特别简单，修改一下处理语法树`ExtDecList`结点的代码即可。
 
 ## 一些脑洞操作的讨论
@@ -172,7 +174,7 @@
 - Step2: 打开`src/themes/index.ts`，在文件里含有`Add new theme entry here`指示的地方照例添加一个记录。注意记录对象的`className`属性一定要和刚才`scss`文件里类选择器的名字相同。
 - Step3: 在本地进行测试，然后提交PR即可。不要在本地进行构建。完成！
 
-## How to add a new language
+## How to add a new theme
 - Step1: Go to `src/themes`, and create a `yourThemeName.scss` file. Then copy the content of `light.scss` into your created file, modify colors, and DO REMEMBER to rename the class selector.
 - Step2: Open `src/themes/index.ts`, add an entry where there's an `Add new theme entry here` mark. Note that the `className` property must match the name of your theme's class selector.
 - Step3: Test your new theme and create a pull request. Don't run build. That's done!
