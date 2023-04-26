@@ -6,18 +6,13 @@ import type {
     VmMemoryUsage,
     VmErrorTable,
     VmVariableDetail,
-    VmOptions
+    VmOptions,
+    VmPeakMemoryUsage
 } from "@/modules/vm/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { AppDispatch } from "@/store/store";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-
-interface VmPeakMemoryUsage {
-    total: number;
-    stack: number;
-    globalVariable: number;
-}
 
 export interface SingleVmPageState {
     name: string;
