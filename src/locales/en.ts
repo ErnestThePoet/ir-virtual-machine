@@ -103,8 +103,8 @@ const en: AppLocale = {
     LABEL_NOT_FOUND: "Can't find label {id}",
     INSTRUCTION_READ_OUT_OF_BOUND:
         "Reading instruction from {address} is out of bound",
-    MEMORY_READ_OUT_OF_BOUND: "Writing 4 bytes to {address} is out of bound",
-    MEMORY_WRITE_OUT_OF_BOUND: "Reading 4 bytes from {address} is out of bound",
+    MEMORY_READ_OUT_OF_BOUND: "Reading 4 bytes from {address} is out of bound",
+    MEMORY_WRITE_OUT_OF_BOUND: "Writing 4 bytes to {address} is out of bound",
     EMPTY_VARIABLE_TABLE_STACK: "Empty local variable stack",
     DUPLICATE_DEC_ID: "DEC's variable id already declared",
     DUPLICATE_GLOBAL_DEC_ID: "GLOBAL_DEC's global variable id already declared",

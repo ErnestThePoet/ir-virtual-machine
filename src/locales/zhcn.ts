@@ -97,8 +97,8 @@ const zhCn = {
     LABEL_NOT_FOUND: "找不到标签{id}",
     INSTRUCTION_READ_OUT_OF_BOUND:
         "从地址{address}处读入指令超出了指令地址空间",
-    MEMORY_READ_OUT_OF_BOUND: "向地址{address}写入4字节时超出了地址空间",
-    MEMORY_WRITE_OUT_OF_BOUND: "从地址{address}读入4字节时超出了地址空间",
+    MEMORY_READ_OUT_OF_BOUND: "从地址{address}读入4字节时超出了地址空间",
+    MEMORY_WRITE_OUT_OF_BOUND: "向地址{address}写入4字节时超出了地址空间",
     EMPTY_VARIABLE_TABLE_STACK: "局部变量符号表栈为空",
     DUPLICATE_DEC_ID: "DEC指令声明的变量名已存在",
     DUPLICATE_GLOBAL_DEC_ID: "GLOBAL_DEC指令声明的全局变量名已存在",
