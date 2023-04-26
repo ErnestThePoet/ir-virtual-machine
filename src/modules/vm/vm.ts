@@ -708,6 +708,7 @@ export class Vm {
     private finalizeExcution() {
         // Cleanup global variable
         this.registers.edx = new Int32(0);
+        this.tables.globalVariableTable = {};
 
         if (this.alu.eq(this.registers.eax, new Int32(0))) {
             this.executionStatus.state = "EXITED_NORMALLY";
