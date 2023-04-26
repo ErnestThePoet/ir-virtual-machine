@@ -585,7 +585,7 @@ export class Vm {
 
     /**
      * Initialize registers and stack as if there's an outer caller to main function;
-     * randomize memory
+     * randomize memory; allocate space for global variables and remove GLOBAL_DEC text.
      */
     private initializeMemoryRegister() {
         this.registers.eip = this.alu.addInt32(
@@ -630,9 +630,11 @@ export class Vm {
         // Push call stack
         this.executionStatus.callStack.push(this.entryFunctionName);
 
-        for (const i of this.memory.text) {
-            if (i.type === "GLOBAL_DEC") {
-                const decodedGlobalDec = <DecodedGlobalDec>i.value;
+        for (let i = 0; i < this.memory.text.length; i++) {
+            if (this.memory.text[i].type === "GLOBAL_DEC") {
+                const decodedGlobalDec = <DecodedGlobalDec>(
+                    this.memory.text[i].value
+                );
 
                 if (
                     !this.checkGlobalVariableSegmentSize(decodedGlobalDec.size)
@@ -641,7 +643,7 @@ export class Vm {
                         {
                             key: "GLOBAL_VARIABLE_SEGMENT_OVERFLOW"
                         },
-                        i.lineNumber
+                        this.memory.text[i].lineNumber
                     );
                     return;
                 }
@@ -665,6 +667,9 @@ export class Vm {
 
                 // GLOBAL_DEC also counts for one step.
                 this.executionStatus.stepCount++;
+
+                this.memory.text.splice(i, 1);
+                i--;
             }
         }
     }
