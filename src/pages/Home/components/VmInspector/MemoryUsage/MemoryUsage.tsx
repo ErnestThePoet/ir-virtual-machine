@@ -8,6 +8,7 @@ interface MemoryUsageProps {
     title: string;
     usedBytes: number;
     totalBytes: number;
+    peakBytes: number;
 }
 
 const MemoryUsage: React.FC<MemoryUsageProps> = (props: MemoryUsageProps) => {
@@ -52,7 +53,35 @@ const MemoryUsage: React.FC<MemoryUsageProps> = (props: MemoryUsageProps) => {
             <Progress
                 percent={(props.usedBytes / props.totalBytes) * 100}
                 showInfo={false}
+                style={{ margin: 0 }}
                 status="normal"
+            />
+
+            <div>
+                <label>
+                    {intl.formatMessage({
+                        id: "PEAK_MEMORY_USAGE"
+                    })}
+                </label>
+
+                <label className="percentageUsage">
+                    {props.totalBytes === 0
+                        ? "-.-"
+                        : intl.formatMessage(
+                              { id: "PERCENTAGE_USAGE" },
+                              {
+                                  percentage:
+                                      (props.peakBytes / props.totalBytes) * 100
+                              }
+                          )}
+                </label>
+            </div>
+
+            <Progress
+                percent={(props.peakBytes / props.totalBytes) * 100}
+                showInfo={false}
+                style={{ margin: 0 }}
+                status="exception"
             />
         </div>
     );

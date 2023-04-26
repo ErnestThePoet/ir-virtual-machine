@@ -42,6 +42,7 @@ const zhCn = {
     TOTAL_MEMORY_USAGE: "总内存使用",
     STACK_MEMORY_USAGE: "栈内存使用",
     GLOBAL_VARIABLE_MEMORY_USAGE: "全局变量内存使用",
+    PEAK_MEMORY_USAGE: "峰值使用",
     PERCENTAGE_USAGE: "{percentage, number, ::.0}%",
     B_USAGE: "{used}B/{total}B",
     KB_USAGE: "{used, number, ::.0}KB/{total, number, ::.0}KB",

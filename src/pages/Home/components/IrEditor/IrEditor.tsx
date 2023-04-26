@@ -4,7 +4,7 @@ import { useIntl } from "react-intl";
 import styles from "./IrEditor.module.scss";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { splitLines } from "@/modules/utils";
-import { syncVmState, setIrString, setIsIrChanged } from "@/store/reducers/vm";
+import { syncVmState, setIrString, setIsIrChanged, setPeakMemoryUsage } from "@/store/reducers/vm";
 import LineHighlighter from "./LineHighlighter/LineHighlighter";
 import classNames from "classnames";
 
@@ -94,6 +94,14 @@ const IrEditor: React.FC = () => {
                             splitLines(e.currentTarget.value)
                         );
                         syncVmState(dispatch, vm);
+                        // Manually force reset peak memory usage
+                        dispatch(
+                            setPeakMemoryUsage({
+                                total: 0,
+                                stack: 0,
+                                globalVariable: 0
+                            })
+                        );
                         dispatch(setIrString(e.currentTarget.value));
                         dispatch(setIsIrChanged(true));
                         window.onbeforeunload = (e: BeforeUnloadEvent) => {

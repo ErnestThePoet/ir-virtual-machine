@@ -86,6 +86,12 @@ export interface VmMemoryUsage {
     globalVariableUsed: number;
 }
 
+export interface VmPeakMemoryUsage {
+    total: number;
+    stack: number;
+    globalVariable: number;
+}
+
 interface VmTables {
     labelTable: { [id: string]: VmLabel };
     functionTable: { [id: string]: VmFunction };
@@ -122,6 +128,12 @@ const initialMemory: VmMemory = {
     instructions: [],
     text: [],
     memory: new Uint8Array()
+};
+
+const initialPeakMemoryUsage: VmPeakMemoryUsage = {
+    total: 0,
+    stack: 0,
+    globalVariable: 0
 };
 
 const initialTables: VmTables = {
@@ -264,6 +276,10 @@ export class Vm {
         initialExecutionStatus
     );
 
+    private peakMemoryUsage: VmPeakMemoryUsage = cloneDeep(
+        initialPeakMemoryUsage
+    );
+
     // VM Options does not belong to its state
     private options: VmOptions = cloneDeep(defaultOptions);
 
@@ -394,6 +410,22 @@ export class Vm {
         };
     }
 
+    get currentPeakMemoryUsage(): VmPeakMemoryUsage {
+        return this.peakMemoryUsage;
+    }
+
+    updatePeakMemoryUsage() {
+        const memoryUsage = this.memoryUsage;
+        this.peakMemoryUsage = {
+            total: Math.max(this.peakMemoryUsage.total, memoryUsage.used),
+            stack: Math.max(this.peakMemoryUsage.stack, memoryUsage.stackUsed),
+            globalVariable: Math.max(
+                this.peakMemoryUsage.globalVariable,
+                memoryUsage.globalVariableUsed
+            )
+        };
+    }
+
     /**
      * Flush current write buffer content.
      * User is asked to provide an action on current write buffer because
@@ -448,6 +480,7 @@ export class Vm {
 
             this.initialRegisters.esp = new Int32(options.memorySize);
             this.registers.esp = new Int32(options.memorySize);
+            this.updatePeakMemoryUsage();
         }
 
         if (options.stackSize !== undefined) {
@@ -475,6 +508,7 @@ export class Vm {
         this.registers = cloneDeep(this.initialRegisters);
         this.tables = cloneDeep(initialTables);
         this.executionStatus = cloneDeep(initialExecutionStatus);
+        this.peakMemoryUsage = cloneDeep(initialPeakMemoryUsage);
         this.writeBuffer = [];
     }
 
@@ -603,6 +637,7 @@ export class Vm {
 
         // edx initially points to 0
         this.registers.edx = new Int32(0);
+        this.updatePeakMemoryUsage();
 
         // push ecx
         if (!this.pushl(this.registers.ecx)) {
@@ -672,6 +707,7 @@ export class Vm {
                     this.registers.edx,
                     decodedGlobalDec.size
                 );
+                this.updatePeakMemoryUsage();
 
                 // GLOBAL_DEC also counts for one step.
                 this.executionStatus.stepCount++;
@@ -708,6 +744,7 @@ export class Vm {
     private finalizeExcution() {
         // Cleanup global variable
         this.registers.edx = new Int32(0);
+        this.updatePeakMemoryUsage();
         this.tables.globalVariableTable = {};
 
         if (this.alu.eq(this.registers.eax, new Int32(0))) {
@@ -867,6 +904,7 @@ export class Vm {
             this.registers.esp,
             new Int32(4)
         );
+        this.updatePeakMemoryUsage();
         if (!this.storeMemory32(value, this.registers.esp)) {
             return false;
         }
@@ -890,6 +928,7 @@ export class Vm {
             this.registers.esp,
             new Int32(4)
         );
+        this.updatePeakMemoryUsage();
 
         return value;
     }
@@ -1078,6 +1117,7 @@ export class Vm {
         }
 
         this.registers.esp = this.alu.subInt32(this.registers.esp, size);
+        this.updatePeakMemoryUsage();
 
         const variable: VmVariable = {
             address: this.registers.esp,
@@ -1454,6 +1494,7 @@ export class Vm {
 
                 // movl ebp,esp
                 this.registers.esp = this.registers.ebp;
+                this.updatePeakMemoryUsage();
 
                 // popl ebp
                 const savedEbp = this.popl();
@@ -1484,6 +1525,7 @@ export class Vm {
                     this.registers.esp,
                     this.registers.ecx
                 );
+                this.updatePeakMemoryUsage();
 
                 // Pop local variable table
                 if (this.tables.variableTableStack.length === 0) {

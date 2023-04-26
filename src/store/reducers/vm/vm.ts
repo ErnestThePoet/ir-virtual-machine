@@ -13,6 +13,12 @@ import { AppDispatch } from "@/store/store";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
+interface VmPeakMemoryUsage {
+    total: number;
+    stack: number;
+    globalVariable: number;
+}
+
 export interface SingleVmPageState {
     name: string;
     irPath: string;
@@ -24,6 +30,7 @@ export interface SingleVmPageState {
     localVariableDetailsStack: VmLocalVariableDetail[];
     stepCount: number;
     memoryUsage: VmMemoryUsage;
+    peakMemoryUsage: VmPeakMemoryUsage;
 
     consoleOutputs: Array<ConsoleMessagePart[]>;
     consoleInputPrompt: FormattableMessage[];
@@ -111,6 +118,13 @@ export const vmSlice = createSlice({
             state.vmPageStates[state.activeVmIndex].memoryUsage =
                 action.payload;
         },
+        setPeakMemoryUsage: (
+            state,
+            action: PayloadAction<VmPeakMemoryUsage>
+        ) => {
+            state.vmPageStates[state.activeVmIndex].peakMemoryUsage =
+                action.payload;
+        },
         addConsoleOutputs: (
             state,
             action: PayloadAction<Array<ConsoleMessagePart[]>>
@@ -169,6 +183,7 @@ export const {
     setOptions,
     setStepCount,
     setMemoryUsage,
+    setPeakMemoryUsage,
     addConsoleOutputs,
     clearConsoleOutputs,
     setConsoleInputPrompt,
@@ -194,6 +209,11 @@ export const syncVmState = (dispatch: AppDispatch, vm: VmState) => {
     dispatch(setOptions(vmContainer.at(vm.activeVmIndex).currentOptions));
     dispatch(setStepCount(vmContainer.at(vm.activeVmIndex).stepCount));
     dispatch(setMemoryUsage(vmContainer.at(vm.activeVmIndex).memoryUsage));
+    dispatch(
+        setPeakMemoryUsage(
+            vmContainer.at(vm.activeVmIndex).currentPeakMemoryUsage
+        )
+    );
     dispatch(
         setStaticErrorTable(vmContainer.at(vm.activeVmIndex).staticErrorTable)
     );

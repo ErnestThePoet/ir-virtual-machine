@@ -82,6 +82,7 @@ export const importIrFile = (
                 options: newVm.currentOptions,
                 stepCount: newVm.stepCount,
                 memoryUsage: newVm.memoryUsage,
+                peakMemoryUsage: newVm.currentPeakMemoryUsage,
 
                 consoleOutputs: [],
                 consoleInputPrompt: [],
@@ -133,6 +134,7 @@ const SideBar: React.FC = () => {
                                 options: newVm.currentOptions,
                                 stepCount: newVm.stepCount,
                                 memoryUsage: newVm.memoryUsage,
+                                peakMemoryUsage: newVm.currentPeakMemoryUsage,
 
                                 consoleOutputs: [],
                                 consoleInputPrompt: [],

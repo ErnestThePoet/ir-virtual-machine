@@ -44,6 +44,7 @@ const en: AppLocale = {
     TOTAL_MEMORY_USAGE: "Total Memory Usage: ",
     STACK_MEMORY_USAGE: "Stack Memory Usage: ",
     GLOBAL_VARIABLE_MEMORY_USAGE: "GlobalVar Memory Usage: ",
+    PEAK_MEMORY_USAGE: "Peak Usage: ",
     PERCENTAGE_USAGE: "{percentage, number, ::.0}%",
     B_USAGE: "{used}B/{total}B",
     KB_USAGE: "{used, number, ::.0}KB/{total, number, ::.0}KB",

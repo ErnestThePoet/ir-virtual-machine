@@ -151,6 +151,9 @@ const VmInspector: React.FC = () => {
                     totalBytes={
                         vm.vmPageStates[vm.activeVmIndex].memoryUsage.total
                     }
+                    peakBytes={
+                        vm.vmPageStates[vm.activeVmIndex].peakMemoryUsage.total
+                    }
                 />
 
                 <MemoryUsage
@@ -160,6 +163,9 @@ const VmInspector: React.FC = () => {
                     }
                     totalBytes={
                         vm.vmPageStates[vm.activeVmIndex].memoryUsage.stackTotal
+                    }
+                    peakBytes={
+                        vm.vmPageStates[vm.activeVmIndex].peakMemoryUsage.stack
                     }
                 />
 
@@ -174,6 +180,10 @@ const VmInspector: React.FC = () => {
                     totalBytes={
                         vm.vmPageStates[vm.activeVmIndex].memoryUsage
                             .globalVariableTotal
+                    }
+                    peakBytes={
+                        vm.vmPageStates[vm.activeVmIndex].peakMemoryUsage
+                            .globalVariable
                     }
                 />
             </div>
