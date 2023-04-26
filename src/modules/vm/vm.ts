@@ -1178,6 +1178,7 @@ export class Vm {
      * Execute single step.
      * If a runtime error is detected, `this.executionStatus.state` will be set to
      * `"RUNTIME_ERROR"` with error message written to console.
+     * @async
      * @public
      */
     async executeSingleStep() {
@@ -1606,6 +1607,7 @@ export class Vm {
      * Execute continuously.
      * If a runtime error is detected, `this.executionStatus.state` will be set to
      * `"RUNTIME_ERROR"` with error message written to console.
+     * @async
      * @public
      */
     async execute() {
