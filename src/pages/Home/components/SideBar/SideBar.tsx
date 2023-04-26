@@ -12,10 +12,7 @@ import {
 import { message, Dropdown, Space, Modal, Button } from "antd";
 import SideBarIcon from "./SideBarIcon";
 import vmContainer from "@/modules/vmContainer";
-import {
-    addVmPageState,
-    setIsIrChanged
-} from "@/store/reducers/vm";
+import { addVmPageState, setIsIrChanged } from "@/store/reducers/vm";
 import { Vm } from "@/modules/vm/vm";
 import { getNextUntitledVmName, splitLines } from "@/modules/utils";
 import { IntlShape, useIntl } from "react-intl";
@@ -71,7 +68,7 @@ export const importIrFile = (
 
         const irLines = splitLines(res.target.result as string);
         vmContainer.at(vmContainer.length - 1).loadNewInstructions(irLines);
-        
+
         dispatch(
             addVmPageState({
                 name: file.name,
@@ -269,6 +266,7 @@ const SideBar: React.FC = () => {
                 })}
                 centered
                 closable={false}
+                onCancel={() => setIsAboutModalOpen(false)}
                 footer={[
                     <Button onClick={() => setIsAboutModalOpen(false)}>
                         {intl.formatMessage({ id: "OK" })}
