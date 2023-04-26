@@ -1,0 +1,100 @@
+int next;
+
+int mod(int x, int y)
+{
+    return x - y * (x / y);
+}
+
+int srand(int seed_)
+{
+    next = seed_;
+    return 0;
+}
+
+int rand()
+{
+    next = next * 1103515245 + 12345;
+    return mod(next / 65536, 32768);
+}
+
+int BuildHeap(int d_bh[1], int i_bh, int n_bh)
+{
+    int temp_bh = d_bh[i_bh];
+    int j_bh = 2 * i_bh + 1;
+    int break_bh = 0;
+    while (j_bh < n_bh && !break_bh)
+    {
+        if (j_bh + 1 < n_bh && d_bh[j_bh + 1] > d_bh[j_bh])
+        {
+            j_bh = j_bh + 1;
+        }
+
+        if (temp_bh < d_bh[j_bh])
+        {
+            d_bh[i_bh] = d_bh[j_bh];
+            i_bh = j_bh;
+        }
+        else
+        {
+            break_bh = 1;
+        }
+
+        j_bh = 2 * j_bh + 1;
+    }
+
+    d_bh[i_bh] = temp_bh;
+
+    return 0;
+}
+
+int HeapSort(int d_hs[1], int n_hs)
+{
+    int i_hs = n_hs / 2 - 1;
+    int t_hs;
+
+    while (i_hs >= 0)
+    {
+        BuildHeap(d_hs, i_hs, n_hs);
+        i_hs = i_hs - 1;
+    }
+
+    i_hs = n_hs - 1;
+
+    while (i_hs > 0)
+    {
+        t_hs = d_hs[0];
+        d_hs[0] = d_hs[i_hs];
+        d_hs[i_hs] = t_hs;
+        BuildHeap(d_hs, 0, i_hs);
+        i_hs = i_hs - 1;
+    }
+
+    return 0;
+}
+
+int main()
+{
+    int seed = read();
+    int data[25];
+    int i = 0;
+
+    srand(seed);
+
+    while (i < 25)
+    {
+        data[i] = rand();
+        i = i + 1;
+    }
+
+    HeapSort(data, 25);
+
+    i = 0;
+
+    while (i < 25)
+    {
+        write(data[i]);
+        i = i + 1;
+    }
+
+    return 0;
+}
