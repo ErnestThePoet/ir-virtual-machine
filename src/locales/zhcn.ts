@@ -46,6 +46,8 @@ const zhCn = {
     PERCENTAGE_USAGE: "{percentage, number, ::.0}%",
     B_USAGE: "{used}B/{total}B",
     KB_USAGE: "{used, number, ::.0}KB/{total, number, ::.0}KB",
+    BYTES: "{bytes}B",
+    KB: "{kb, number, ::.0}KB",
 
     GLOBAL_VARIABLE_TABLE: "全局变量表",
     LOCAL_VARIABLE_TABLE: "局部变量表",

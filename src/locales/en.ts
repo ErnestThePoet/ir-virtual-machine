@@ -48,6 +48,8 @@ const en: AppLocale = {
     PERCENTAGE_USAGE: "{percentage, number, ::.0}%",
     B_USAGE: "{used}B/{total}B",
     KB_USAGE: "{used, number, ::.0}KB/{total, number, ::.0}KB",
+    BYTES: "{bytes}B",
+    KB: "{kb, number, ::.0}KB",
 
     GLOBAL_VARIABLE_TABLE: "Global Variable Table",
     LOCAL_VARIABLE_TABLE: "Local Variable Table",

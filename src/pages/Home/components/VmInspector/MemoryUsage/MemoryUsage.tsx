@@ -16,73 +16,97 @@ const MemoryUsage: React.FC<MemoryUsageProps> = (props: MemoryUsageProps) => {
 
     return (
         <div className={styles.divMemoryUsageWrapper}>
-            <div>
-                <label>{props.title}</label>
+            <div className={styles.divUsageBlock}>
+                <Progress
+                    percent={(props.usedBytes / props.totalBytes) * 100}
+                    showInfo={false}
+                    style={{ margin: 0 }}
+                    status="normal"
+                />
 
-                <label className="percentageUsage">
-                    {props.totalBytes === 0
-                        ? "-.-"
-                        : intl.formatMessage(
-                              { id: "PERCENTAGE_USAGE" },
-                              {
-                                  percentage:
-                                      (props.usedBytes / props.totalBytes) * 100
-                              }
-                          )}
-                </label>
-            </div>
-            <span>
-                {intl.formatMessage(
-                    { id: "B_USAGE" },
-                    {
-                        used: props.usedBytes,
-                        total: props.totalBytes
-                    }
-                )}
-            </span>
-            <span>
-                {intl.formatMessage(
-                    { id: "KB_USAGE" },
-                    {
-                        used: toKiB(props.usedBytes),
-                        total: toKiB(props.totalBytes)
-                    }
-                )}
-            </span>
+                <div>
+                    <label>{props.title}</label>
 
-            <Progress
-                percent={(props.usedBytes / props.totalBytes) * 100}
-                showInfo={false}
-                style={{ margin: 0 }}
-                status="normal"
-            />
-
-            <div>
-                <label>
-                    {intl.formatMessage({
-                        id: "PEAK_MEMORY_USAGE"
-                    })}
-                </label>
-
-                <label className="percentageUsage">
-                    {props.totalBytes === 0
-                        ? "-.-"
-                        : intl.formatMessage(
-                              { id: "PERCENTAGE_USAGE" },
-                              {
-                                  percentage:
-                                      (props.peakBytes / props.totalBytes) * 100
-                              }
-                          )}
-                </label>
+                    <label className="percentageUsage">
+                        {props.totalBytes === 0
+                            ? "-.-"
+                            : intl.formatMessage(
+                                  { id: "PERCENTAGE_USAGE" },
+                                  {
+                                      percentage:
+                                          (props.usedBytes / props.totalBytes) *
+                                          100
+                                  }
+                              )}
+                    </label>
+                </div>
+                <span>
+                    {intl.formatMessage(
+                        { id: "B_USAGE" },
+                        {
+                            used: props.usedBytes,
+                            total: props.totalBytes
+                        }
+                    )}
+                </span>
+                <span>
+                    {intl.formatMessage(
+                        { id: "KB_USAGE" },
+                        {
+                            used: toKiB(props.usedBytes),
+                            total: toKiB(props.totalBytes)
+                        }
+                    )}
+                </span>
             </div>
 
-            <Progress
-                percent={(props.peakBytes / props.totalBytes) * 100}
-                showInfo={false}
-                style={{ margin: 0 }}
-                status="exception"
-            />
+            <div className={styles.divUsageBlock}>
+                <Progress
+                    percent={(props.peakBytes / props.totalBytes) * 100}
+                    showInfo={false}
+                    style={{ margin: 0 }}
+                    status="exception"
+                />
+
+                <div>
+                    <label>
+                        {intl.formatMessage({
+                            id: "PEAK_MEMORY_USAGE"
+                        })}
+                    </label>
+
+                    <label className="percentageUsage">
+                        {props.totalBytes === 0
+                            ? "-.-"
+                            : intl.formatMessage(
+                                  { id: "PERCENTAGE_USAGE" },
+                                  {
+                                      percentage:
+                                          (props.peakBytes / props.totalBytes) *
+                                          100
+                                  }
+                              )}
+                    </label>
+                </div>
+
+                <span>
+                    {intl.formatMessage(
+                        { id: "BYTES" },
+                        {
+                            bytes: props.peakBytes
+                        }
+                    )}
+                </span>
+
+                <span>
+                    {intl.formatMessage(
+                        { id: "KB" },
+                        {
+                            kb: toKiB(props.peakBytes)
+                        }
+                    )}
+                </span>
+            </div>
         </div>
     );
 };
