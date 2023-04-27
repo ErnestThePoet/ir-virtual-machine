@@ -24,7 +24,11 @@ const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
 
     useEffect(() => {
         if (isRename) {
-            document.getElementById("inVmRename")?.focus();
+            const inVmRename = document.getElementById("inVmRename");
+            if (inVmRename !== null) {
+                inVmRename.focus();
+                (inVmRename as HTMLInputElement).select();
+            }
         }
     }, [isRename]);
 
@@ -39,7 +43,10 @@ const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
                 props.onClick();
             }}
             title={props.title}
-            onDoubleClick={() => setIsRename(true)}>
+            onDoubleClick={() => {
+                setNewName(props.title);
+                setIsRename(true);
+            }}>
             <div className={styles.divIconTitleWrapper}>
                 <VmOutlined className={styles.iconVm} />
                 {isRename ? (
