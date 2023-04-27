@@ -3,7 +3,7 @@
  * using binary search. Writes the number if found; otherwise writes -1.
  */
 
-int bsearch(int bsearch_data[1], int bsearch_low, int bsearch_high, int bsearch_target)
+int bsearch(int bsearch_data[100], int bsearch_low, int bsearch_high, int bsearch_target)
 {
     int bsearch_mid;
     while (bsearch_low < bsearch_high)

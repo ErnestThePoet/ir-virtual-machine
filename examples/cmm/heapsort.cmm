@@ -22,7 +22,7 @@ int rand()
     return mod(kNext / 65536, 32768);
 }
 
-int buildheap(int buildheap_data[1], int buildheap_i, int buildheap_n)
+int buildheap(int buildheap_data[30], int buildheap_i, int buildheap_n)
 {
     int buildheap_temp = buildheap_data[buildheap_i];
     int buildheap_j = 2 * buildheap_i + 1;

@@ -22,7 +22,7 @@ int rand()
     return mod(kNext / 65536, 32768);
 }
 
-int partition(int partition_data[1], int partition_low, int partition_high)
+int partition(int partition_data[30], int partition_low, int partition_high)
 {
     int partition_ref = partition_data[partition_low];
     while (partition_low < partition_high)
@@ -52,7 +52,7 @@ int partition(int partition_data[1], int partition_low, int partition_high)
     return partition_low;
 }
 
-int qsort(int qsort_data[1], int qsort_low, int qsort_high)
+int qsort(int qsort_data[30], int qsort_low, int qsort_high)
 {
     int qsort_mid;
     if (qsort_low < qsort_high)

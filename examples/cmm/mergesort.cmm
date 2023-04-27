@@ -22,7 +22,7 @@ int rand()
     return mod(kNext / 65536, 32768);
 }
 
-int merge(int merge_data[1], int merge_low, int merge_mid, int merge_high)
+int merge(int merge_data[30], int merge_low, int merge_mid, int merge_high)
 {
     int merge_t[31];
     int merge_t_cur = 0;
@@ -71,7 +71,7 @@ int merge(int merge_data[1], int merge_low, int merge_mid, int merge_high)
     return 0;
 }
 
-int mergesort(int mergesort_data[1], int mergesort_low, int mergesort_high)
+int mergesort(int mergesort_data[30], int mergesort_low, int mergesort_high)
 {
     int mergesort_mid;
 

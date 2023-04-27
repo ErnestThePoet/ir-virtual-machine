@@ -22,7 +22,7 @@ int rand()
     return mod(kNext / 65536, 32768);
 }
 
-int insertsort(int sort_data[1], int sort_n)
+int insertsort(int sort_data[30], int sort_n)
 {
     int sort_i = 1;
     while (sort_i < sort_n)
