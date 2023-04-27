@@ -184,7 +184,7 @@ export const vmOptionLimits: {
 } = {
     maxExecutionStepCount: {
         min: 100,
-        max: 1_000_000
+        max: 5_000_000
     },
     memorySize: {
         min: 1024,
