@@ -27,7 +27,15 @@ const Home: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        document.getElementById("taIr")?.focus();
+        if (vm.vmPageStates[vm.activeVmIndex] === undefined) {
+            return;
+        }
+
+        if (vm.vmPageStates[vm.activeVmIndex].state === "WAIT_INPUT") {
+            document.getElementById("inConsole")?.focus();
+        } else {
+            document.getElementById("taIr")?.focus();
+        }
     }, [vm.activeVmIndex]);
 
     return (
