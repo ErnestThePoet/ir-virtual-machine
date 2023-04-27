@@ -197,7 +197,7 @@ export const vmOptionLimits: {
 };
 
 const defaultOptions: VmOptions = {
-    maxExecutionStepCount: 8000,
+    maxExecutionStepCount: 10000,
     memorySize: 8 * 1024,
     stackSize: 4 * 1024
 };
