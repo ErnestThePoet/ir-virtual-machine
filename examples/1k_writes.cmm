@@ -1,3 +1,8 @@
+/*
+ * This program writes 0 to 999 to console.
+ * Can be used to test VM's output performance.
+ */
+
 int main()
 {
     int i = 0;

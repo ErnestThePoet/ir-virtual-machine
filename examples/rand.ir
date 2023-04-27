@@ -8,7 +8,7 @@ var5 := var1 - var4
 RETURN var5
 FUNCTION srand :
 PARAM var6
-var0 := var6
+var6 := var6
 RETURN #0
 FUNCTION rand :
 var7 := var0 * #1103515245

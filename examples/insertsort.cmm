@@ -1,0 +1,69 @@
+/*
+ * This program reads a random number seed and generates 30 random numbers.
+ * Then it sorts the numbers using insert sort and prints the sorted array.
+ */
+
+int kNext;
+
+int mod(int mod_x, int mod_y)
+{
+    return mod_x - mod_y * (mod_x / mod_y);
+}
+
+int srand(int srand_seed)
+{
+    srand_seed = srand_seed;
+    return 0;
+}
+
+int rand()
+{
+    kNext = kNext * 1103515245 + 12345;
+    return mod(kNext / 65536, 32768);
+}
+
+int insertsort(int sort_data[1], int sort_n)
+{
+    int sort_i = 1;
+    while (sort_i < sort_n)
+    {
+        int sort_cur = sort_data[sort_i];
+        int sort_j = sort_i - 1;
+        while (sort_j >= 0 && sort_data[sort_j] > sort_cur)
+        {
+            sort_data[sort_j + 1] = sort_data[sort_j];
+            sort_j = sort_j - 1;
+        }
+        sort_data[sort_j + 1] = sort_cur;
+        sort_i = sort_i + 1;
+    }
+
+    return 0;
+}
+
+int main()
+{
+    int seed = read();
+    int data[30];
+    int i = 0;
+
+    srand(seed);
+
+    while (i < 30)
+    {
+        data[i] = rand();
+        i = i + 1;
+    }
+
+    insertsort(data, 30);
+
+    i = 0;
+
+    while (i < 30)
+    {
+        write(data[i]);
+        i = i + 1;
+    }
+
+    return 0;
+}

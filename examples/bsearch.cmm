@@ -1,20 +1,25 @@
-int bsearch(int data_[1], int low_, int high_, int target_)
+/*
+ * This program reads an input integer and searches it among 0 to 99
+ * using binary search. Writes the number if found; otherwise writes -1.
+ */
+
+int bsearch(int bsearch_data[1], int bsearch_low, int bsearch_high, int bsearch_target)
 {
-    int mid_;
-    while (low_ < high_)
+    int bsearch_mid;
+    while (bsearch_low < bsearch_high)
     {
-        mid_ = (low_ + high_) / 2;
-        if (data_[mid_] == target_)
+        bsearch_mid = (bsearch_low + bsearch_high) / 2;
+        if (bsearch_data[bsearch_mid] == bsearch_target)
         {
-            return mid_;
+            return bsearch_mid;
         }
-        else if (data_[mid_] > target_)
+        else if (bsearch_data[bsearch_mid] > bsearch_target)
         {
-            high_ = mid_;
+            bsearch_high = bsearch_mid;
         }
         else
         {
-            low_ = mid_ + 1;
+            bsearch_low = bsearch_mid + 1;
         }
     }
 

@@ -1,20 +1,26 @@
-int next;
+/*
+ * This program implements an extremely simple LCG.
+ * It reads a seed and the number of rendom numbers to generate,
+ * then writes the generated random numbers to console.
+ */
 
-int mod(int x, int y)
+int kNext;
+
+int mod(int mod_x, int mod_y)
 {
-    return x - y * (x / y);
+    return mod_x - mod_y * (mod_x / mod_y);
 }
 
-int srand(int seed_)
+int srand(int srand_seed)
 {
-    next = seed_;
+    srand_seed = srand_seed;
     return 0;
 }
 
 int rand()
 {
-    next = next * 1103515245 + 12345;
-    return mod(next / 65536, 32768);
+    kNext = kNext * 1103515245 + 12345;
+    return mod(kNext / 65536, 32768);
 }
 
 int main()

@@ -1,60 +1,65 @@
-int next;
+/*
+ * This program reads a random number seed and generates 30 random numbers.
+ * Then it sorts the numbers using quick sort and prints the sorted array.
+ */
 
-int mod(int x, int y)
+int kNext;
+
+int mod(int mod_x, int mod_y)
 {
-    return x - y * (x / y);
+    return mod_x - mod_y * (mod_x / mod_y);
 }
 
-int srand(int seed_)
+int srand(int srand_seed)
 {
-    next = seed_;
+    srand_seed = srand_seed;
     return 0;
 }
 
 int rand()
 {
-    next = next * 1103515245 + 12345;
-    return mod(next / 65536, 32768);
+    kNext = kNext * 1103515245 + 12345;
+    return mod(kNext / 65536, 32768);
 }
 
-int Partition(int data_[1], int low_, int high_)
+int partition(int partition_data[1], int partition_low, int partition_high)
 {
-    int ref_ = data_[low_];
-    while (low_ < high_)
+    int partition_ref = partition_data[partition_low];
+    while (partition_low < partition_high)
     {
-        while (low_ < high_ && data_[high_] >= ref_)
+        while (partition_low < partition_high && partition_data[partition_high] >= partition_ref)
         {
-            high_ = high_ - 1;
+            partition_high = partition_high - 1;
         }
-        if (low_ < high_)
+        if (partition_low < partition_high)
         {
-            data_[low_] = data_[high_];
-            low_ = low_ + 1;
+            partition_data[partition_low] = partition_data[partition_high];
+            partition_low = partition_low + 1;
         }
 
-        while (low_ < high_ && data_[low_] <= ref_)
+        while (partition_low < partition_high && partition_data[partition_low] <= partition_ref)
         {
-            low_ = low_ + 1;
+            partition_low = partition_low + 1;
         }
-        if (low_ < high_)
+        if (partition_low < partition_high)
         {
-            data_[high_] = data_[low_];
-            high_ = high_ - 1;
+            partition_data[partition_high] = partition_data[partition_low];
+            partition_high = partition_high - 1;
         }
     }
 
-    data_[low_] = ref_;
-    return low_;
+    partition_data[partition_low] = partition_ref;
+    return partition_low;
 }
 
-int QuickSort(int d_[1], int l_, int h_)
+int qsort(int qsort_data[1], int qsort_low, int qsort_high)
 {
-    int mid_;
-    if (l_ < h_)
+    int qsort_mid;
+    if (qsort_low < qsort_high)
     {
-        mid_ = Partition(d_, l_, h_);
-        QuickSort(d_, l_, mid_ - 1);
-        QuickSort(d_, mid_ + 1, h_);
+        qsort_mid = partition(qsort_data, qsort_low, qsort_high);
+        qsort(qsort_data, qsort_low, qsort_mid - 1);
+        qsort(qsort_data, qsort_mid + 1, qsort_high);
     }
 
     return 0;
@@ -63,22 +68,22 @@ int QuickSort(int d_[1], int l_, int h_)
 int main()
 {
     int seed = read();
-    int data[25];
+    int data[30];
     int i = 0;
 
     srand(seed);
 
-    while (i < 25)
+    while (i < 30)
     {
         data[i] = rand();
         i = i + 1;
     }
 
-    QuickSort(data, 0, 25);
+    qsort(data, 0, 30);
 
     i = 0;
 
-    while (i < 25)
+    while (i < 30)
     {
         write(data[i]);
         i = i + 1;

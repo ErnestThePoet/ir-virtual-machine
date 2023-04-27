@@ -8,7 +8,7 @@ var5 := var1 - var4
 RETURN var5
 FUNCTION srand :
 PARAM var6
-var0 := var6
+var6 := var6
 RETURN #0
 FUNCTION rand :
 var7 := var0 * #1103515245
@@ -19,7 +19,7 @@ ARG #32768
 ARG var9
 var10 := CALL mod
 RETURN var10
-FUNCTION Partition :
+FUNCTION partition :
 PARAM var11
 PARAM var12
 PARAM var13
@@ -140,7 +140,7 @@ var42 := #4 * var12
 var43 := var11 + var42
 *var43 := var14
 RETURN var12
-FUNCTION QuickSort :
+FUNCTION qsort :
 PARAM var44
 PARAM var45
 PARAM var46
@@ -156,29 +156,29 @@ LABEL label37 :
 ARG var46
 ARG var45
 ARG var44
-var49 := CALL Partition
+var49 := CALL partition
 var47 := var49
 var50 := var47 - #1
 ARG var50
 ARG var45
 ARG var44
-CALL QuickSort
+CALL qsort
 var51 := var47 + #1
 ARG var46
 ARG var51
 ARG var44
-CALL QuickSort
+CALL qsort
 LABEL label38 :
 RETURN #0
 FUNCTION main :
 READ var53
 var52 := var53
-DEC var54 100
+DEC var54 120
 var55 := #0
 ARG var52
 CALL srand
 LABEL label41 :
-IF var55 < #25 GOTO label39
+IF var55 < #30 GOTO label39
 var56 := #0
 GOTO label40
 LABEL label39 :
@@ -195,13 +195,13 @@ var60 := var55 + #1
 var55 := var60
 GOTO label41
 LABEL label43 :
-ARG #25
+ARG #30
 ARG #0
 ARG &var54
-CALL QuickSort
+CALL qsort
 var55 := #0
 LABEL label46 :
-IF var55 < #25 GOTO label44
+IF var55 < #30 GOTO label44
 var61 := #0
 GOTO label45
 LABEL label44 :

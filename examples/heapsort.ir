@@ -8,7 +8,7 @@ var5 := var1 - var4
 RETURN var5
 FUNCTION srand :
 PARAM var6
-var0 := var6
+var6 := var6
 RETURN #0
 FUNCTION rand :
 var7 := var0 * #1103515245
@@ -19,7 +19,7 @@ ARG #32768
 ARG var9
 var10 := CALL mod
 RETURN var10
-FUNCTION BuildHeap :
+FUNCTION buildheap :
 PARAM var11
 PARAM var12
 PARAM var13
@@ -117,7 +117,7 @@ var42 := #4 * var12
 var43 := var11 + var42
 *var43 := var14
 RETURN #0
-FUNCTION HeapSort :
+FUNCTION heapsort :
 PARAM var44
 PARAM var45
 var47 := var45 / #2
@@ -135,7 +135,7 @@ LABEL label28 :
 ARG var45
 ARG var46
 ARG var44
-CALL BuildHeap
+CALL buildheap
 var50 := var46 - #1
 var46 := var50
 GOTO label27
@@ -166,7 +166,7 @@ var60 := var44 + var59
 ARG var46
 ARG #0
 ARG var44
-CALL BuildHeap
+CALL buildheap
 var61 := var46 - #1
 var46 := var61
 GOTO label32
@@ -175,12 +175,12 @@ RETURN #0
 FUNCTION main :
 READ var63
 var62 := var63
-DEC var64 100
+DEC var64 120
 var65 := #0
 ARG var62
 CALL srand
 LABEL label37 :
-IF var65 < #25 GOTO label35
+IF var65 < #30 GOTO label35
 var66 := #0
 GOTO label36
 LABEL label35 :
@@ -197,12 +197,12 @@ var70 := var65 + #1
 var65 := var70
 GOTO label37
 LABEL label39 :
-ARG #25
+ARG #30
 ARG &var64
-CALL HeapSort
+CALL heapsort
 var65 := #0
 LABEL label42 :
-IF var65 < #25 GOTO label40
+IF var65 < #30 GOTO label40
 var71 := #0
 GOTO label41
 LABEL label40 :
