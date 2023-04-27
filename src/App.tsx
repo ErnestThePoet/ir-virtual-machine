@@ -6,7 +6,7 @@ import { IntlProvider } from "react-intl";
 import router from "./router";
 
 import "@/themes/light.scss";
-// Add new theme entry here //
+// Add new theme import here //
 
 /////////////////////////////////
 
