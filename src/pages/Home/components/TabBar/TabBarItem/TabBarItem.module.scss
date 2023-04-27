@@ -88,3 +88,15 @@
     fill: var(--tabbar-item-close-color);
     stroke: var(--tabbar-item-close-color);
 }
+
+.inVmRename{
+    width: 80px;
+    font-size: 13px;
+    height: 20px;
+    padding: 3px;
+    border: 1px solid var(--tabbar-item-rename-border-color);
+    border-radius: 3px;
+    outline: 0;
+    color: var(--tabbar-item-text-color);
+    background-color: transparent;
+}

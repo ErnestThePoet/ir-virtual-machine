@@ -55,6 +55,9 @@ export const vmSlice = createSlice({
         setActiveVmIndex: (state, action: PayloadAction<number>) => {
             state.activeVmIndex = action.payload;
         },
+        setName: (state, action: PayloadAction<string>) => {
+            state.vmPageStates[state.activeVmIndex].name = action.payload;
+        },
         addVmPageState: (state, action: PayloadAction<SingleVmPageState>) => {
             state.vmPageStates.push(action.payload);
             state.activeVmIndex = state.vmPageStates.length - 1;
@@ -167,6 +170,7 @@ export const vmSlice = createSlice({
 
 export const {
     setActiveVmIndex,
+    setName,
     addVmPageState,
     deleteVmPageState,
     setVmPageState,

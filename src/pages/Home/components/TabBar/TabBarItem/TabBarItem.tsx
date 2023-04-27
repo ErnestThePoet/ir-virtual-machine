@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./TabBarItem.module.scss";
 import classNames from "classnames";
 import { CloseOutlined } from "@ant-design/icons";
@@ -13,10 +13,20 @@ interface TabBarItemProps {
     isChanged: boolean;
     onClick: () => void;
     onCloseClick: () => void;
+    onRename: (e: string) => void;
 }
 
 const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
     const locale = useAppSelector(state => state.locale.currentLocale);
+
+    const [isRename, setIsRename] = useState(false);
+    const [newName, setNewName] = useState(props.title);
+
+    useEffect(() => {
+        if (isRename) {
+            document.getElementById("inVmRename")?.focus();
+        }
+    }, [isRename]);
 
     return (
         <div
@@ -28,12 +38,32 @@ const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
                 e.stopPropagation();
                 props.onClick();
             }}
-            title={props.title}>
+            title={props.title}
+            onDoubleClick={() => setIsRename(true)}>
             <div className={styles.divIconTitleWrapper}>
                 <VmOutlined className={styles.iconVm} />
-                <label className={styles.lblTitle}>
-                    {truncateString(props.title)}
-                </label>
+                {isRename ? (
+                    <input
+                        id="inVmRename"
+                        className={styles.inVmRename}
+                        value={newName}
+                        onChange={e => setNewName(e.currentTarget.value)}
+                        onKeyDown={e => {
+                            if (e.key === "Enter") {
+                                props.onRename(newName);
+                                setIsRename(false);
+                            }
+                        }}
+                        onBlur={() => {
+                            props.onRename(newName);
+                            setIsRename(false);
+                        }}
+                    />
+                ) : (
+                    <label className={styles.lblTitle}>
+                        {truncateString(props.title)}
+                    </label>
+                )}
             </div>
 
             {props.isChanged ? (

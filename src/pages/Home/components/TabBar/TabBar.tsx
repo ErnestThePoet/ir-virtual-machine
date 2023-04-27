@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import styles from "./TabBar.module.scss";
 import TabBarItem from "./TabBarItem";
-import { setActiveVmIndex, deleteVmPageState } from "@/store/reducers/vm";
+import {
+    setActiveVmIndex,
+    deleteVmPageState,
+    setName
+} from "@/store/reducers/vm";
 import { Button, Modal } from "antd";
 import { useIntl } from "react-intl";
 import vmContainer from "@/modules/vmContainer/vmContainer";
@@ -47,6 +51,13 @@ const TabBar: React.FC = () => {
 
                         setCurrentCloseVmIndex(i);
                         setIsCloseConfirmModalOpen(true);
+                    }}
+                    onRename={e => {
+                        if (e === "") {
+                            return;
+                        }
+
+                        dispatch(setName(e));
                     }}
                 />
             ))}
