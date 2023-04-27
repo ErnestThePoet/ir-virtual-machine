@@ -184,9 +184,11 @@ IR中的变量真的没有作用域吗？其实这样规定欠妥。如果变量
 ## 如何添加一个主题
 - Step1: 进入`src/themes`，新建一个`主题名.scss`文件。然后将`light.scss`的内容粘贴进去，修改各个颜色，并一定要修改类选择器的名字。
 - Step2: 打开`src/themes/index.ts`，在文件里含有`Add new theme entry here`指示的地方照例添加一个记录。注意记录对象的`className`属性一定要和刚才`scss`文件里类选择器的名字相同。
-- Step3: 在本地进行测试，然后提交PR即可。不要在本地进行构建。完成！
+- Step3: 打开`src/App.tsx`，在文件里含有`Add new theme import here`指示的地方照例添加对新主题`scss`文件的导入。
+- Step4: 在本地进行测试，然后提交PR即可。不要在本地进行构建。完成！
 
 ## How to add a new theme
 - Step1: Go to `src/themes`, and create a `yourThemeName.scss` file. Then copy the content of `light.scss` into your created file, modify colors, and DO REMEMBER to rename the class selector.
 - Step2: Open `src/themes/index.ts`, add an entry where there's an `Add new theme entry here` mark. Note that the `className` property must match the name of your theme's class selector.
-- Step3: Test your new theme and create a pull request. Don't run build. That's done!
+- Step3: Open `src/App.tsx`, add an import for the new `.scss` file where there's an `Add new theme import here` mark.
+- Step4: Test your new theme and create a pull request. Don't run build. That's done!
