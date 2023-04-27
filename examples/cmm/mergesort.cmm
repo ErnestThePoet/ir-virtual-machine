@@ -1,0 +1,118 @@
+/*
+ * This program reads a random number seed and generates 30 random numbers.
+ * Then it sorts the numbers using merge sort and prints the sorted array.
+ */
+
+int kNext;
+
+int mod(int mod_x, int mod_y)
+{
+    return mod_x - mod_y * (mod_x / mod_y);
+}
+
+int srand(int srand_seed)
+{
+    kNext = srand_seed;
+    return 0;
+}
+
+int rand()
+{
+    kNext = kNext * 1103515245 + 12345;
+    return mod(kNext / 65536, 32768);
+}
+
+int merge(int merge_data[1], int merge_low, int merge_mid, int merge_high)
+{
+    int merge_t[31];
+    int merge_t_cur = 0;
+    int merge_l_cur = merge_low, merge_r_cur = merge_mid + 1;
+    int merge_l_max = merge_mid, merge_r_max = merge_high;
+    int merge_i;
+
+    while (merge_l_cur <= merge_l_max && merge_r_cur <= merge_r_max)
+    {
+        if (merge_data[merge_l_cur] < merge_data[merge_r_cur])
+        {
+            merge_t[merge_t_cur] = merge_data[merge_l_cur];
+            merge_t_cur = merge_t_cur + 1;
+            merge_l_cur = merge_l_cur + 1;
+        }
+        else
+        {
+            merge_t[merge_t_cur] = merge_data[merge_r_cur];
+            merge_t_cur = merge_t_cur + 1;
+            merge_r_cur = merge_r_cur + 1;
+        }
+    }
+
+    while (merge_l_cur <= merge_l_max)
+    {
+        merge_t[merge_t_cur] = merge_data[merge_l_cur];
+        merge_t_cur = merge_t_cur + 1;
+        merge_l_cur = merge_l_cur + 1;
+    }
+
+    while (merge_r_cur <= merge_r_max)
+    {
+        merge_t[merge_t_cur] = merge_data[merge_r_cur];
+        merge_t_cur = merge_t_cur + 1;
+        merge_r_cur = merge_r_cur + 1;
+    }
+
+    merge_i = merge_low;
+
+    while (merge_i <= merge_high)
+    {
+        merge_data[merge_i] = merge_t[merge_i - merge_low];
+        merge_i = merge_i + 1;
+    }
+
+    return 0;
+}
+
+int mergesort(int mergesort_data[1], int mergesort_low, int mergesort_high)
+{
+    int mergesort_mid;
+
+    if (mergesort_low >= mergesort_high)
+    {
+        return 0;
+    }
+
+    mergesort_mid = (mergesort_low + mergesort_high) / 2;
+
+    mergesort(mergesort_data, mergesort_low, mergesort_mid);
+    mergesort(mergesort_data, mergesort_mid + 1, mergesort_high);
+
+    merge(mergesort_data, mergesort_low, mergesort_mid, mergesort_high);
+
+    return 0;
+}
+
+int main()
+{
+    int seed = read();
+    int data[30];
+    int i = 0;
+
+    srand(seed);
+
+    while (i < 30)
+    {
+        data[i] = rand();
+        i = i + 1;
+    }
+
+    mergesort(data, 0, 30);
+
+    i = 0;
+
+    while (i < 30)
+    {
+        write(data[i]);
+        i = i + 1;
+    }
+
+    return 0;
+}

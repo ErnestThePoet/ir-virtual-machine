@@ -1,0 +1,237 @@
+GLOBAL_DEC var0 4
+FUNCTION mod :
+PARAM var1
+PARAM var2
+var3 := var1 / var2
+var4 := var2 * var3
+var5 := var1 - var4
+RETURN var5
+FUNCTION srand :
+PARAM var6
+var0 := var6
+RETURN #0
+FUNCTION rand :
+var7 := var0 * #1103515245
+var8 := var7 + #12345
+var0 := var8
+var9 := var0 / #65536
+ARG #32768
+ARG var9
+var10 := CALL mod
+RETURN var10
+FUNCTION merge :
+PARAM var11
+PARAM var12
+PARAM var13
+PARAM var14
+DEC var15 124
+var16 := #0
+var17 := var12
+var18 := var13 + #1
+var19 := var13
+var20 := var14
+LABEL label12 :
+IF var17 <= var19 GOTO label0
+var22 := #0
+GOTO label1
+LABEL label0 :
+var22 := #1
+LABEL label1 :
+IF var18 <= var20 GOTO label2
+var23 := #0
+GOTO label3
+LABEL label2 :
+var23 := #1
+LABEL label3 :
+IF var22 != #0 GOTO label5
+LABEL label6 :
+var24 := #0
+GOTO label7
+LABEL label5 :
+IF var23 != #0 GOTO label4
+GOTO label6
+LABEL label4 :
+var24 := #1
+LABEL label7 :
+IF var24 != #0 GOTO label13
+GOTO label14
+LABEL label13 :
+var25 := #4 * var17
+var26 := var11 + var25
+var27 := #4 * var18
+var28 := var11 + var27
+IF *var26 < *var28 GOTO label8
+var29 := #0
+GOTO label9
+LABEL label8 :
+var29 := #1
+LABEL label9 :
+IF var29 != #0 GOTO label10
+var36 := #4 * var16
+var37 := &var15 + var36
+var38 := #4 * var18
+var39 := var11 + var38
+*var37 := *var39
+var40 := var16 + #1
+var16 := var40
+var41 := var18 + #1
+var18 := var41
+GOTO label11
+LABEL label10 :
+var30 := #4 * var16
+var31 := &var15 + var30
+var32 := #4 * var17
+var33 := var11 + var32
+*var31 := *var33
+var34 := var16 + #1
+var16 := var34
+var35 := var17 + #1
+var17 := var35
+LABEL label11 :
+GOTO label12
+LABEL label14 :
+LABEL label17 :
+IF var17 <= var19 GOTO label15
+var42 := #0
+GOTO label16
+LABEL label15 :
+var42 := #1
+LABEL label16 :
+IF var42 != #0 GOTO label18
+GOTO label19
+LABEL label18 :
+var43 := #4 * var16
+var44 := &var15 + var43
+var45 := #4 * var17
+var46 := var11 + var45
+*var44 := *var46
+var47 := var16 + #1
+var16 := var47
+var48 := var17 + #1
+var17 := var48
+GOTO label17
+LABEL label19 :
+LABEL label22 :
+IF var18 <= var20 GOTO label20
+var49 := #0
+GOTO label21
+LABEL label20 :
+var49 := #1
+LABEL label21 :
+IF var49 != #0 GOTO label23
+GOTO label24
+LABEL label23 :
+var50 := #4 * var16
+var51 := &var15 + var50
+var52 := #4 * var18
+var53 := var11 + var52
+*var51 := *var53
+var54 := var16 + #1
+var16 := var54
+var55 := var18 + #1
+var18 := var55
+GOTO label22
+LABEL label24 :
+var21 := var12
+LABEL label27 :
+IF var21 <= var14 GOTO label25
+var56 := #0
+GOTO label26
+LABEL label25 :
+var56 := #1
+LABEL label26 :
+IF var56 != #0 GOTO label28
+GOTO label29
+LABEL label28 :
+var57 := #4 * var21
+var58 := var11 + var57
+var59 := var21 - var12
+var60 := #4 * var59
+var61 := &var15 + var60
+*var58 := *var61
+var62 := var21 + #1
+var21 := var62
+GOTO label27
+LABEL label29 :
+RETURN #0
+FUNCTION mergesort :
+PARAM var63
+PARAM var64
+PARAM var65
+IF var64 >= var65 GOTO label30
+var67 := #0
+GOTO label31
+LABEL label30 :
+var67 := #1
+LABEL label31 :
+IF var67 != #0 GOTO label32
+GOTO label33
+LABEL label32 :
+RETURN #0
+LABEL label33 :
+var68 := var64 + var65
+var69 := var68 / #2
+var66 := var69
+ARG var66
+ARG var64
+ARG var63
+CALL mergesort
+var70 := var66 + #1
+ARG var65
+ARG var70
+ARG var63
+CALL mergesort
+ARG var65
+ARG var66
+ARG var64
+ARG var63
+CALL merge
+RETURN #0
+FUNCTION main :
+READ var72
+var71 := var72
+DEC var73 120
+var74 := #0
+ARG var71
+CALL srand
+LABEL label36 :
+IF var74 < #30 GOTO label34
+var75 := #0
+GOTO label35
+LABEL label34 :
+var75 := #1
+LABEL label35 :
+IF var75 != #0 GOTO label37
+GOTO label38
+LABEL label37 :
+var76 := #4 * var74
+var77 := &var73 + var76
+var78 := CALL rand
+*var77 := var78
+var79 := var74 + #1
+var74 := var79
+GOTO label36
+LABEL label38 :
+ARG #30
+ARG #0
+ARG &var73
+CALL mergesort
+var74 := #0
+LABEL label41 :
+IF var74 < #30 GOTO label39
+var80 := #0
+GOTO label40
+LABEL label39 :
+var80 := #1
+LABEL label40 :
+IF var80 != #0 GOTO label42
+GOTO label43
+LABEL label42 :
+var81 := #4 * var74
+var82 := &var73 + var81
+WRITE *var82
+var83 := var74 + #1
+var74 := var83
+GOTO label41
+LABEL label43 :
+RETURN #0

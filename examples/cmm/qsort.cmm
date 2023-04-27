@@ -12,7 +12,7 @@ int mod(int mod_x, int mod_y)
 
 int srand(int srand_seed)
 {
-    srand_seed = srand_seed;
+    kNext = srand_seed;
     return 0;
 }
 

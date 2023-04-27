@@ -22,25 +22,38 @@ RETURN var10
 FUNCTION main :
 READ var12
 var11 := var12
-READ var14
-var13 := var14
-var15 := #0
 ARG var11
 CALL srand
-LABEL label2 :
-IF var15 < var13 GOTO label0
-var16 := #0
+var15 := CALL rand
+var13 := var15
+READ var16
+var14 := var16
+LABEL label6 :
+IF var13 != var14 GOTO label0
+var17 := #0
 GOTO label1
 LABEL label0 :
-var16 := #1
+var17 := #1
 LABEL label1 :
-IF var16 != #0 GOTO label3
-GOTO label4
+IF var17 != #0 GOTO label7
+GOTO label8
+LABEL label7 :
+IF var14 > var13 GOTO label2
+var18 := #0
+GOTO label3
+LABEL label2 :
+var18 := #1
 LABEL label3 :
-var17 := CALL rand
-WRITE var17
-var18 := var15 + #1
-var15 := var18
-GOTO label2
+IF var18 != #0 GOTO label4
+var19 := #0 - #1
+WRITE var19
+GOTO label5
 LABEL label4 :
+WRITE #1
+LABEL label5 :
+READ var20
+var14 := var20
+GOTO label6
+LABEL label8 :
+WRITE #666
 RETURN #0
