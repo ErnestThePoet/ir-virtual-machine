@@ -87,6 +87,11 @@ const VmConsole: React.FC = () => {
                 onClearClick={() => {
                     dispatch(clearConsoleOutputs());
                     dispatch(setConsoleInput(""));
+                    if (
+                        vm.vmPageStates[vm.activeVmIndex].state === "WAIT_INPUT"
+                    ) {
+                        document.getElementById("inConsole")?.focus();
+                    }
                 }}
             />
 
