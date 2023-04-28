@@ -1,0 +1,60 @@
+/*
+ * This program writes reads a non-negative integer n and prints all
+ * permutations of {1,...,n}. Each permutation is separated by 11111111.
+ */
+
+int permu(int permu_n, int permu_cur, int permu_arr[100])
+{
+    int permu_i;
+    int permu_j;
+    int permu_ok;
+    if (permu_cur == permu_n)
+    {
+        permu_i = 0;
+        while (permu_i < permu_n)
+        {
+            write(permu_arr[permu_i]);
+            permu_i = permu_i + 1;
+        }
+
+        write(11111111);
+
+        return 0;
+    }
+
+    permu_i = 1;
+    while (permu_i <= permu_n)
+    {
+        permu_j = 0;
+        permu_ok = 1;
+        while (permu_j < permu_cur && permu_ok)
+        {
+            if (permu_arr[permu_j] == permu_i)
+            {
+                permu_ok = 0;
+            }
+
+            permu_j = permu_j + 1;
+        }
+
+        if (permu_ok)
+        {
+            permu_arr[permu_cur] = permu_i;
+            permu(permu_n, permu_cur + 1, permu_arr);
+        }
+
+        permu_i = permu_i + 1;
+    }
+
+    return 0;
+}
+
+int main()
+{
+    int n = read();
+    int arr[100];
+
+    permu(n, 0, arr);
+
+    return 0;
+}

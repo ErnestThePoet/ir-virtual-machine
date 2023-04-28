@@ -1,0 +1,110 @@
+FUNCTION permu :
+PARAM var0
+PARAM var1
+PARAM var2
+IF var1 == var0 GOTO label0
+var6 := #0
+GOTO label1
+LABEL label0 :
+var6 := #1
+LABEL label1 :
+IF var6 != #0 GOTO label7
+GOTO label8
+LABEL label7 :
+var3 := #0
+LABEL label4 :
+IF var3 < var0 GOTO label2
+var7 := #0
+GOTO label3
+LABEL label2 :
+var7 := #1
+LABEL label3 :
+IF var7 != #0 GOTO label5
+GOTO label6
+LABEL label5 :
+var8 := #4 * var3
+var9 := var2 + var8
+WRITE *var9
+var10 := var3 + #1
+var3 := var10
+GOTO label4
+LABEL label6 :
+WRITE #11111111
+RETURN #0
+LABEL label8 :
+var3 := #1
+LABEL label26 :
+IF var3 <= var0 GOTO label9
+var11 := #0
+GOTO label10
+LABEL label9 :
+var11 := #1
+LABEL label10 :
+IF var11 != #0 GOTO label27
+GOTO label28
+LABEL label27 :
+var4 := #0
+var5 := #1
+LABEL label21 :
+IF var4 < var1 GOTO label11
+var12 := #0
+GOTO label12
+LABEL label11 :
+var12 := #1
+LABEL label12 :
+IF var12 != #0 GOTO label14
+LABEL label15 :
+var13 := #0
+GOTO label16
+LABEL label14 :
+IF var5 != #0 GOTO label13
+GOTO label15
+LABEL label13 :
+var13 := #1
+LABEL label16 :
+IF var13 != #0 GOTO label22
+GOTO label23
+LABEL label22 :
+var14 := #4 * var4
+var15 := var2 + var14
+IF *var15 == var3 GOTO label17
+var16 := #0
+GOTO label18
+LABEL label17 :
+var16 := #1
+LABEL label18 :
+IF var16 != #0 GOTO label19
+GOTO label20
+LABEL label19 :
+var5 := #0
+LABEL label20 :
+var17 := var4 + #1
+var4 := var17
+GOTO label21
+LABEL label23 :
+IF var5 != #0 GOTO label24
+GOTO label25
+LABEL label24 :
+var18 := #4 * var1
+var19 := var2 + var18
+*var19 := var3
+var20 := var1 + #1
+ARG var2
+ARG var20
+ARG var0
+CALL permu
+LABEL label25 :
+var21 := var3 + #1
+var3 := var21
+GOTO label26
+LABEL label28 :
+RETURN #0
+FUNCTION main :
+READ var23
+var22 := var23
+DEC var24 400
+ARG &var24
+ARG #0
+ARG var22
+CALL permu
+RETURN #0
