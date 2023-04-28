@@ -1,0 +1,39 @@
+FUNCTION fib :
+PARAM var0
+IF var0 <= #0 GOTO label0
+var1 := #0
+GOTO label1
+LABEL label0 :
+var1 := #1
+LABEL label1 :
+IF var1 != #0 GOTO label2
+IF var0 == #1 GOTO label4
+var2 := #0
+GOTO label5
+LABEL label4 :
+var2 := #1
+LABEL label5 :
+IF var2 != #0 GOTO label6
+var3 := var0 - #1
+ARG var3
+var4 := CALL fib
+var5 := var0 - #2
+ARG var5
+var6 := CALL fib
+var7 := var4 + var6
+RETURN var7
+GOTO label7
+LABEL label6 :
+RETURN #1
+LABEL label7 :
+GOTO label3
+LABEL label2 :
+RETURN #0
+LABEL label3 :
+FUNCTION main :
+READ var9
+var8 := var9
+ARG var8
+var10 := CALL fib
+WRITE var10
+RETURN #0

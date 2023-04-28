@@ -1,0 +1,32 @@
+/*
+ * Calculates fib(n) using iterative O(n) algorithm.
+ */
+
+int fib(int fib_n)
+{
+    int fib_a = 0, fib_b = 1, fib_c;
+    int fib_i = 2;
+
+    if (fib_n == 0)
+    {
+        return fib_a;
+    }
+
+    while (fib_i <= fib_n)
+    {
+        fib_c = fib_a + fib_b;
+        fib_a = fib_b;
+        fib_b = fib_c;
+
+        fib_i = fib_i + 1;
+    }
+
+    return fib_b;
+}
+
+int main()
+{
+    int n = read();
+    write(fib(n));
+    return 0;
+}

@@ -1,0 +1,74 @@
+/*
+ * Calculates fib(n) using power of the matrix {{1,1},{1,0}}. O(logn)
+ */
+
+int mod(int mod_x, int mod_y)
+{
+    return mod_x - mod_y * (mod_x / mod_y);
+}
+
+int multiply(int multiply_f[4], int multiply_m[4])
+{
+    int multiply_x = multiply_f[0] * multiply_m[0] + multiply_f[1] * multiply_m[2];
+    int multiply_y = multiply_f[0] * multiply_m[1] + multiply_f[1] * multiply_m[3];
+    int multiply_z = multiply_f[2] * multiply_m[0] + multiply_f[3] * multiply_m[2];
+    int multiply_w = multiply_f[2] * multiply_m[1] + multiply_f[3] * multiply_m[3];
+
+    multiply_f[0] = multiply_x;
+    multiply_f[1] = multiply_y;
+    multiply_f[2] = multiply_z;
+    multiply_f[3] = multiply_w;
+
+    return 0;
+}
+
+int power(int power_f[4], int power_n)
+{
+    int power_m[4];
+
+    if (power_n == 0 || power_n == 1)
+    {
+        return 0;
+    }
+
+    power_m[0] = 1;
+    power_m[1] = 1;
+    power_m[2] = 1;
+    power_m[3] = 0;
+
+    power(power_f, power_n / 2);
+    multiply(power_f, power_f);
+
+    if (mod(power_n, 2) != 0)
+    {
+        multiply(power_f, power_m);
+    }
+
+    return 0;
+}
+
+int fib(int fib_n)
+{
+    int fib_f[4];
+
+    if (fib_n == 0)
+    {
+        return 0;
+    }
+
+    fib_f[0] = 1;
+    fib_f[1] = 1;
+    fib_f[2] = 1;
+    fib_f[3] = 0;
+
+    power(fib_f, fib_n - 1);
+
+    return fib_f[0];
+}
+
+int main()
+{
+    int n = read();
+    write(fib(n));
+    return 0;
+}
