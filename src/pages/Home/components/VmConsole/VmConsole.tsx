@@ -31,8 +31,6 @@ const VmConsole: React.FC = () => {
         vmContainer.at(vm.activeVmIndex).setReadConsoleFn(prompt => {
             dispatch(setConsoleInputPrompt(prompt));
 
-            console.log(vm.activeVmIndex)
-
             // When we click continously run and encounter a read,
             // this will get the page display updated.
             syncVmState(dispatch, vm);
