@@ -15,6 +15,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
 export interface SingleVmPageState {
+    // ID is used to definitely identify a VM
+    id: number;
     name: string;
     irPath: string;
     isIrChanged: boolean;
@@ -58,8 +60,15 @@ export const vmSlice = createSlice({
         setName: (state, action: PayloadAction<string>) => {
             state.vmPageStates[state.activeVmIndex].name = action.payload;
         },
-        addVmPageState: (state, action: PayloadAction<SingleVmPageState>) => {
-            state.vmPageStates.push(action.payload);
+        addVmPageState: (
+            state,
+            action: PayloadAction<Omit<SingleVmPageState, "id">>
+        ) => {
+            const id =
+                state.vmPageStates.length === 0
+                    ? 0
+                    : state.vmPageStates[state.vmPageStates.length - 1].id + 1;
+            state.vmPageStates.push({ ...action.payload, id });
             state.activeVmIndex = state.vmPageStates.length - 1;
         },
         deleteVmPageState: (state, action: PayloadAction<number>) => {

@@ -36,7 +36,7 @@ const Home: React.FC = () => {
         } else {
             document.getElementById("taIr")?.focus();
         }
-    }, [vm.activeVmIndex]);
+    }, [vm.vmPageStates[vm.activeVmIndex]?.id]);
 
     return (
         <main
