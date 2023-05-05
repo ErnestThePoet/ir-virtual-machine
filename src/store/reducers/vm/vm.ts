@@ -50,6 +50,8 @@ const initialState: VmState = {
     activeVmIndex: -1 // This enables auto-focus of IR editor when user creates/imports first VM
 };
 
+const vmIdIndexTable: { [id: number]: number | undefined } = {};
+
 export const vmSlice = createSlice({
     name: "vm",
     initialState,
@@ -70,6 +72,7 @@ export const vmSlice = createSlice({
                     : state.vmPageStates[state.vmPageStates.length - 1].id + 1;
             state.vmPageStates.push({ ...action.payload, id });
             state.activeVmIndex = state.vmPageStates.length - 1;
+            vmIdIndexTable[id] = state.vmPageStates.length - 1;
         },
         deleteVmPageState: (state, action: PayloadAction<number>) => {
             // If active VM is left to the closed one, do nothing.
@@ -86,10 +89,16 @@ export const vmSlice = createSlice({
                 }
             }
 
+            vmIdIndexTable[state.vmPageStates[action.payload].id] = undefined;
+            for (
+                let i = action.payload + 1;
+                i < state.vmPageStates.length;
+                i++
+            ) {
+                vmIdIndexTable[state.vmPageStates[i].id]!--;
+            }
+
             state.vmPageStates.splice(action.payload, 1);
-        },
-        setVmPageState: (state, action: PayloadAction<SingleVmPageState>) => {
-            state.vmPageStates[state.activeVmIndex] = action.payload;
         },
         setIsIrChanged: (state, action: PayloadAction<boolean>) => {
             state.vmPageStates[state.activeVmIndex].isIrChanged =
@@ -182,7 +191,6 @@ export const {
     setName,
     addVmPageState,
     deleteVmPageState,
-    setVmPageState,
     setIsIrChanged,
     setIrString,
     setState,
@@ -202,37 +210,33 @@ export const {
     setShouldIndicateCurrentLineNumber
 } = vmSlice.actions;
 
-export const syncVmState = (dispatch: AppDispatch, vm: VmState) => {
-    dispatch(setState(vmContainer.at(vm.activeVmIndex).state));
+export const syncVmState = (dispatch: AppDispatch, vmId: number) => {
+    const vmIndex = vmIdIndexTable[vmId];
+
+    if (vmIndex === undefined) {
+        return;
+    }
+
+    dispatch(setState(vmContainer.at(vmIndex).state));
     dispatch(
-        setGlobalVariableDetails(
-            vmContainer.at(vm.activeVmIndex).globalVariableDetails
-        )
+        setGlobalVariableDetails(vmContainer.at(vmIndex).globalVariableDetails)
     );
     dispatch(
         setLocalVariableDetailsStack(
-            vmContainer.at(vm.activeVmIndex).localVariableDetailsStack
+            vmContainer.at(vmIndex).localVariableDetailsStack
         )
     );
-    dispatch(setOptions(vmContainer.at(vm.activeVmIndex).currentOptions));
-    dispatch(setStepCount(vmContainer.at(vm.activeVmIndex).stepCount));
-    dispatch(setMemoryUsage(vmContainer.at(vm.activeVmIndex).memoryUsage));
+    dispatch(setOptions(vmContainer.at(vmIndex).currentOptions));
+    dispatch(setStepCount(vmContainer.at(vmIndex).stepCount));
+    dispatch(setMemoryUsage(vmContainer.at(vmIndex).memoryUsage));
     dispatch(
-        setPeakMemoryUsage(
-            vmContainer.at(vm.activeVmIndex).currentPeakMemoryUsage
-        )
+        setPeakMemoryUsage(vmContainer.at(vmIndex).currentPeakMemoryUsage)
     );
-    dispatch(
-        setStaticErrorTable(vmContainer.at(vm.activeVmIndex).staticErrorTable)
-    );
-    dispatch(
-        setRuntimeErrorTable(vmContainer.at(vm.activeVmIndex).runtimeErrorTable)
-    );
-    dispatch(
-        setCurrentLineNumber(vmContainer.at(vm.activeVmIndex).currentLineNumber)
-    );
+    dispatch(setStaticErrorTable(vmContainer.at(vmIndex).staticErrorTable));
+    dispatch(setRuntimeErrorTable(vmContainer.at(vmIndex).runtimeErrorTable));
+    dispatch(setCurrentLineNumber(vmContainer.at(vmIndex).currentLineNumber));
     vmContainer
-        .at(vm.activeVmIndex)
+        .at(vmIndex)
         .flushWriteBuffer(writeBuffer =>
             dispatch(addConsoleOutputs(writeBuffer))
         );
