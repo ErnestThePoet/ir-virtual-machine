@@ -38,7 +38,7 @@ export const saveIr = (name: string, irString: string) => {
 
     const anchor = document.createElement("a");
     anchor.href = stringUrl;
-    anchor.download = `${name}.ir`;
+    anchor.download = name.endsWith(".ir") ? name : `${name}.ir`;
 
     anchor.click();
 
