@@ -50,6 +50,11 @@ export const importIrFile = (
     intl: IntlShape,
     file: File
 ) => {
+    if (!file.name.endsWith(".ir")) {
+        message.error(`${file.name}不是一个ir文件`);
+        return;
+    }
+
     const fileReader = new FileReader();
 
     fileReader.readAsText(file);
