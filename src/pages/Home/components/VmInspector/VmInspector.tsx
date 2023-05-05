@@ -1,19 +1,23 @@
 import React from "react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useAppDispatch } from "@/store/hooks";
 import { InputNumber } from "antd";
 import styles from "./VmInspector.module.scss";
 import { useIntl } from "react-intl";
 import classNames from "classnames";
 import { vmOptionLimits } from "@/modules/vm/vm";
-import { syncVmState } from "@/store/reducers/vm";
+import { SingleVmPageState, syncVmState } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import MemoryUsage from "./MemoryUsage";
 import VariableTable from "./VariableTable";
 
-const VmInspector: React.FC = () => {
+interface VmInspectorProps {
+    vmIndex: number;
+    vm: SingleVmPageState;
+}
+
+const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
     const intl = useIntl();
     const dispatch = useAppDispatch();
-    const vm = useAppSelector(state => state.vm);
 
     return (
         <div className={styles.divVmInspectorWrapper}>
@@ -23,7 +27,7 @@ const VmInspector: React.FC = () => {
                         {intl.formatMessage({ id: "STEP_COUNT" })}
                     </label>
                     <div className={styles.divStepCount}>
-                        {vm.vmPageStates[vm.activeVmIndex].stepCount}
+                        {props.vm.stepCount}
                     </div>
                 </div>
 
@@ -34,37 +38,24 @@ const VmInspector: React.FC = () => {
                     <div
                         className={classNames({
                             [styles.divStateInitial]:
-                                vm.vmPageStates[vm.activeVmIndex].state ===
-                                "INITIAL",
-                            [styles.divStateBusy]:
-                                vm.vmPageStates[vm.activeVmIndex].state ===
-                                "BUSY",
+                                props.vm.state === "INITIAL",
+                            [styles.divStateBusy]: props.vm.state === "BUSY",
                             [styles.divStateWaitInput]:
-                                vm.vmPageStates[vm.activeVmIndex].state ===
-                                "WAIT_INPUT",
-                            [styles.divStateFree]:
-                                vm.vmPageStates[vm.activeVmIndex].state ===
-                                "FREE",
+                                props.vm.state === "WAIT_INPUT",
+                            [styles.divStateFree]: props.vm.state === "FREE",
                             [styles.divStateStaticCheckFailed]:
-                                vm.vmPageStates[vm.activeVmIndex].state ===
-                                "STATIC_CHECK_FAILED",
+                                props.vm.state === "STATIC_CHECK_FAILED",
                             [styles.divStateRuntimeError]:
-                                vm.vmPageStates[vm.activeVmIndex].state ===
-                                "RUNTIME_ERROR",
+                                props.vm.state === "RUNTIME_ERROR",
                             [styles.divStateMaxStepReached]:
-                                vm.vmPageStates[vm.activeVmIndex].state ===
-                                "MAX_STEP_REACHED",
+                                props.vm.state === "MAX_STEP_REACHED",
                             [styles.divStateExitedNormally]:
-                                vm.vmPageStates[vm.activeVmIndex].state ===
-                                "EXITED_NORMALLY",
+                                props.vm.state === "EXITED_NORMALLY",
                             [styles.divStateExitedAbnormally]:
-                                vm.vmPageStates[vm.activeVmIndex].state ===
-                                "EXITED_ABNORMALLY"
+                                props.vm.state === "EXITED_ABNORMALLY"
                         })}>
                         {intl.formatMessage({
-                            id:
-                                "STATE_" +
-                                vm.vmPageStates[vm.activeVmIndex].state
+                            id: "STATE_" + props.vm.state
                         })}
                     </div>
                 </div>
@@ -76,21 +67,15 @@ const VmInspector: React.FC = () => {
                         {intl.formatMessage({ id: "MAX_EXECUTION_STEP_COUNT" })}
                     </label>
                     <InputNumber
-                        disabled={
-                            vm.vmPageStates[vm.activeVmIndex].state !==
-                            "INITIAL"
-                        }
+                        disabled={props.vm.state !== "INITIAL"}
                         min={vmOptionLimits.maxExecutionStepCount.min}
                         max={vmOptionLimits.maxExecutionStepCount.max}
-                        value={
-                            vm.vmPageStates[vm.activeVmIndex].options
-                                .maxExecutionStepCount
-                        }
+                        value={props.vm.options.maxExecutionStepCount}
                         onChange={e => {
-                            vmContainer.at(vm.activeVmIndex).configure({
+                            vmContainer.at(props.vmIndex).configure({
                                 maxExecutionStepCount: e ?? undefined
                             });
-                            syncVmState(dispatch, vm);
+                            syncVmState(dispatch, props.vm.id);
                         }}
                     />
                 </div>
@@ -100,20 +85,15 @@ const VmInspector: React.FC = () => {
                         {intl.formatMessage({ id: "MEMORY_SIZE" })}
                     </label>
                     <InputNumber
-                        disabled={
-                            vm.vmPageStates[vm.activeVmIndex].state !==
-                            "INITIAL"
-                        }
+                        disabled={props.vm.state !== "INITIAL"}
                         min={vmOptionLimits.memorySize.min}
                         max={vmOptionLimits.memorySize.max}
-                        value={
-                            vm.vmPageStates[vm.activeVmIndex].options.memorySize
-                        }
+                        value={props.vm.options.memorySize}
                         onChange={e => {
-                            vmContainer.at(vm.activeVmIndex).configure({
+                            vmContainer.at(props.vmIndex).configure({
                                 memorySize: e ?? undefined
                             });
-                            syncVmState(dispatch, vm);
+                            syncVmState(dispatch, props.vm.id);
                         }}
                     />
                 </div>
@@ -123,20 +103,15 @@ const VmInspector: React.FC = () => {
                         {intl.formatMessage({ id: "STACK_SIZE" })}
                     </label>
                     <InputNumber
-                        disabled={
-                            vm.vmPageStates[vm.activeVmIndex].state !==
-                            "INITIAL"
-                        }
+                        disabled={props.vm.state !== "INITIAL"}
                         min={vmOptionLimits.stackSize.min}
                         max={vmOptionLimits.stackSize.max}
-                        value={
-                            vm.vmPageStates[vm.activeVmIndex].options.stackSize
-                        }
+                        value={props.vm.options.stackSize}
                         onChange={e => {
-                            vmContainer.at(vm.activeVmIndex).configure({
+                            vmContainer.at(props.vmIndex).configure({
                                 stackSize: e ?? undefined
                             });
-                            syncVmState(dispatch, vm);
+                            syncVmState(dispatch, props.vm.id);
                         }}
                     />
                 </div>
@@ -145,46 +120,25 @@ const VmInspector: React.FC = () => {
             <div className={styles.divMemoryUsageCard}>
                 <MemoryUsage
                     title={intl.formatMessage({ id: "TOTAL_MEMORY_USAGE" })}
-                    usedBytes={
-                        vm.vmPageStates[vm.activeVmIndex].memoryUsage.used
-                    }
-                    totalBytes={
-                        vm.vmPageStates[vm.activeVmIndex].memoryUsage.total
-                    }
-                    peakBytes={
-                        vm.vmPageStates[vm.activeVmIndex].peakMemoryUsage.total
-                    }
+                    usedBytes={props.vm.memoryUsage.used}
+                    totalBytes={props.vm.memoryUsage.total}
+                    peakBytes={props.vm.peakMemoryUsage.total}
                 />
 
                 <MemoryUsage
                     title={intl.formatMessage({ id: "STACK_MEMORY_USAGE" })}
-                    usedBytes={
-                        vm.vmPageStates[vm.activeVmIndex].memoryUsage.stackUsed
-                    }
-                    totalBytes={
-                        vm.vmPageStates[vm.activeVmIndex].memoryUsage.stackTotal
-                    }
-                    peakBytes={
-                        vm.vmPageStates[vm.activeVmIndex].peakMemoryUsage.stack
-                    }
+                    usedBytes={props.vm.memoryUsage.stackUsed}
+                    totalBytes={props.vm.memoryUsage.stackTotal}
+                    peakBytes={props.vm.peakMemoryUsage.stack}
                 />
 
                 <MemoryUsage
                     title={intl.formatMessage({
                         id: "GLOBAL_VARIABLE_MEMORY_USAGE"
                     })}
-                    usedBytes={
-                        vm.vmPageStates[vm.activeVmIndex].memoryUsage
-                            .globalVariableUsed
-                    }
-                    totalBytes={
-                        vm.vmPageStates[vm.activeVmIndex].memoryUsage
-                            .globalVariableTotal
-                    }
-                    peakBytes={
-                        vm.vmPageStates[vm.activeVmIndex].peakMemoryUsage
-                            .globalVariable
-                    }
+                    usedBytes={props.vm.memoryUsage.globalVariableUsed}
+                    totalBytes={props.vm.memoryUsage.globalVariableTotal}
+                    peakBytes={props.vm.peakMemoryUsage.globalVariable}
                 />
             </div>
 
@@ -192,11 +146,7 @@ const VmInspector: React.FC = () => {
                 <label className="title">
                     {intl.formatMessage({ id: "GLOBAL_VARIABLE_TABLE" })}
                 </label>
-                <VariableTable
-                    variables={
-                        vm.vmPageStates[vm.activeVmIndex].globalVariableDetails
-                    }
-                />
+                <VariableTable variables={props.vm.globalVariableDetails} />
             </div>
 
             <div className={styles.divLocalVariableTableCard}>
@@ -204,16 +154,13 @@ const VmInspector: React.FC = () => {
                     {intl.formatMessage({ id: "LOCAL_VARIABLE_TABLE" })}
                 </label>
 
-                {vm.vmPageStates[vm.activeVmIndex].localVariableDetailsStack
-                    .length === 0 ? (
+                {props.vm.localVariableDetailsStack.length === 0 ? (
                     <div className="emptyHolder">
                         {intl.formatMessage({ id: "EMPTY_VATIABLE_TABLE" })}
                     </div>
                 ) : (
                     <div className={styles.divLocalVariableTableWrapper}>
-                        {vm.vmPageStates[
-                            vm.activeVmIndex
-                        ].localVariableDetailsStack.map((x, i) => (
+                        {props.vm.localVariableDetailsStack.map((x, i) => (
                             <div
                                 key={i}
                                 className={styles.divLocalVariableTable}>

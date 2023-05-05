@@ -1,19 +1,30 @@
 import React from "react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useAppDispatch } from "@/store/hooks";
 import { useIntl } from "react-intl";
 import styles from "./IrEditor.module.scss";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { splitLines } from "@/modules/utils";
-import { syncVmState, setIrString, setIsIrChanged, setPeakMemoryUsage } from "@/store/reducers/vm";
+import {
+    syncVmState,
+    setIrString,
+    setIsIrChanged,
+    setPeakMemoryUsage,
+    SingleVmPageState
+} from "@/store/reducers/vm";
 import LineHighlighter from "./LineHighlighter/LineHighlighter";
 import classNames from "classnames";
 
-const IrEditor: React.FC = () => {
+interface IrEditorProps {
+    vmIndex: number;
+    vm: SingleVmPageState;
+}
+
+const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
     const intl = useIntl();
-    const vm = useAppSelector(state => state.vm);
+
     const dispatch = useAppDispatch();
 
-    const irLines = splitLines(vm.vmPageStates[vm.activeVmIndex].irString);
+    const irLines = splitLines(props.vm.irString);
 
     return (
         <div className={styles.divIrEditorWrapper}>
@@ -23,53 +34,38 @@ const IrEditor: React.FC = () => {
                         key={"label" + i}
                         className={classNames({
                             [styles.lblLineNumberNormal]:
-                                !vm.vmPageStates[vm.activeVmIndex]
-                                    .shouldIndicateCurrentLineNumber ||
-                                i + 1 !==
-                                    vm.vmPageStates[vm.activeVmIndex]
-                                        .currentLineNumber,
+                                !props.vm.shouldIndicateCurrentLineNumber ||
+                                i + 1 !== props.vm.currentLineNumber,
                             [styles.lblLineNumberIndication]:
-                                vm.vmPageStates[vm.activeVmIndex]
-                                    .shouldIndicateCurrentLineNumber &&
-                                i + 1 ===
-                                    vm.vmPageStates[vm.activeVmIndex]
-                                        .currentLineNumber
+                                props.vm.shouldIndicateCurrentLineNumber &&
+                                i + 1 === props.vm.currentLineNumber
                         })}>
-                        {vm.vmPageStates[vm.activeVmIndex].state ===
-                            "STATIC_CHECK_FAILED" &&
-                            i + 1 in
-                                vm.vmPageStates[vm.activeVmIndex]
-                                    .staticErrorTable && (
+                        {props.vm.state === "STATIC_CHECK_FAILED" &&
+                            i + 1 in props.vm.staticErrorTable && (
                                 <LineHighlighter
                                     key={"sehighlighter" + i}
                                     type="ERROR"
                                     title={intl.formatMessage(
                                         {
-                                            id: vm.vmPageStates[
-                                                vm.activeVmIndex
-                                            ].staticErrorTable[i + 1].key
+                                            id: props.vm.staticErrorTable[i + 1]
+                                                .key
                                         },
-                                        vm.vmPageStates[vm.activeVmIndex]
-                                            .staticErrorTable[i + 1].values
+                                        props.vm.staticErrorTable[i + 1].values
                                     )}
                                 />
                             )}
-                        {vm.vmPageStates[vm.activeVmIndex].state ===
-                            "RUNTIME_ERROR" &&
-                            i + 1 in
-                                vm.vmPageStates[vm.activeVmIndex]
-                                    .runtimeErrorTable && (
+                        {props.vm.state === "RUNTIME_ERROR" &&
+                            i + 1 in props.vm.runtimeErrorTable && (
                                 <LineHighlighter
                                     key={"rehighlighter" + i}
                                     type="ERROR"
                                     title={intl.formatMessage(
                                         {
-                                            id: vm.vmPageStates[
-                                                vm.activeVmIndex
-                                            ].runtimeErrorTable[i + 1].key
+                                            id: props.vm.runtimeErrorTable[
+                                                i + 1
+                                            ].key
                                         },
-                                        vm.vmPageStates[vm.activeVmIndex]
-                                            .runtimeErrorTable[i + 1].values
+                                        props.vm.runtimeErrorTable[i + 1].values
                                     )}
                                 />
                             )}
@@ -87,13 +83,13 @@ const IrEditor: React.FC = () => {
                     }}
                     spellCheck={false}
                     className={styles.taIr}
-                    value={vm.vmPageStates[vm.activeVmIndex].irString}
+                    value={props.vm.irString}
                     onChange={e => {
-                        const currentVm = vmContainer.at(vm.activeVmIndex);
+                        const currentVm = vmContainer.at(props.vmIndex);
                         currentVm.loadNewInstructions(
                             splitLines(e.currentTarget.value)
                         );
-                        syncVmState(dispatch, vm);
+                        syncVmState(dispatch, props.vm.id);
                         // Manually force reset peak memory usage
                         dispatch(
                             setPeakMemoryUsage({

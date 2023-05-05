@@ -36,7 +36,7 @@ const Home: React.FC = () => {
         } else {
             document.getElementById("taIr")?.focus();
         }
-    }, [vm.vmPageStates[vm.activeVmIndex]?.id]);
+    }, [vm.activeVmIndex, vm.vmPageStates[vm.activeVmIndex]?.id]);
 
     return (
         <main
@@ -53,7 +53,14 @@ const Home: React.FC = () => {
                 }
                 e.preventDefault();
             }}>
-            <SideBar />
+            <SideBar
+                vm={
+                    vm.vmPageStates.length === 0
+                        ? null
+                        : vm.vmPageStates[vm.activeVmIndex]
+                }
+                vmIndex={vm.activeVmIndex}
+            />
             <div className={styles.divRight}>
                 <TabBar />
                 <div
@@ -66,15 +73,24 @@ const Home: React.FC = () => {
                     ) : (
                         <>
                             <section className="sectionIrEditor">
-                                <IrEditor />
+                                <IrEditor
+                                    vm={vm.vmPageStates[vm.activeVmIndex]}
+                                    vmIndex={vm.activeVmIndex}
+                                />
                             </section>
 
                             <section className="sectionVmConsole">
-                                <VmConsole />
+                                <VmConsole
+                                    vm={vm.vmPageStates[vm.activeVmIndex]}
+                                    vmIndex={vm.activeVmIndex}
+                                />
                             </section>
 
                             <section className="sectionVmInspector">
-                                <VmInspector />
+                                <VmInspector
+                                    vm={vm.vmPageStates[vm.activeVmIndex]}
+                                    vmIndex={vm.activeVmIndex}
+                                />
                             </section>
                         </>
                     )}

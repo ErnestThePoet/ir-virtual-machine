@@ -12,7 +12,11 @@ import {
 import { message, Dropdown, Space, Modal, Button } from "antd";
 import SideBarIcon from "./SideBarIcon";
 import vmContainer from "@/modules/vmContainer";
-import { addVmPageState, setIsIrChanged } from "@/store/reducers/vm";
+import {
+    SingleVmPageState,
+    addVmPageState,
+    setIsIrChanged
+} from "@/store/reducers/vm";
 import { Vm } from "@/modules/vm/vm";
 import { getNextUntitledVmName, splitLines } from "@/modules/utils";
 import { IntlShape, useIntl } from "react-intl";
@@ -21,6 +25,11 @@ import { setLocale } from "@/store/reducers/locale";
 import { setTheme } from "@/store/reducers/theme";
 import themes from "@/themes";
 import { AppDispatch } from "@/store";
+
+interface SideBarProps {
+    vmIndex: number;
+    vm: SingleVmPageState | null;
+}
 
 export const saveIr = (name: string, irString: string) => {
     const stringUrl = URL.createObjectURL(
@@ -97,11 +106,18 @@ export const importIrFile = (
     };
 };
 
-const SideBar: React.FC = () => {
+const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
     const intl = useIntl();
     const dispatch = useAppDispatch();
     const locale = useAppSelector(state => state.locale.currentLocale);
-    const vm = useAppSelector(state => state.vm);
+
+    const nextVmName = useAppSelector(state =>
+        getNextUntitledVmName(state.vm.vmPageStates.map(x => x.name))
+    );
+
+    const isAllIrSaved = useAppSelector(state =>
+        state.vm.vmPageStates.every(x => !x.isIrChanged)
+    );
 
     const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
@@ -112,16 +128,12 @@ const SideBar: React.FC = () => {
                     icon={<FileAddOutlined />}
                     label={locale.ADD}
                     onClick={() => {
-                        const vmName = getNextUntitledVmName(
-                            vm.vmPageStates.map(x => x.name)
-                        );
-
                         const newVm = new Vm();
 
                         vmContainer.add(newVm);
                         dispatch(
                             addVmPageState({
-                                name: vmName,
+                                name: nextVmName,
                                 irPath: "",
                                 isIrChanged: false,
                                 irString: "",
@@ -187,22 +199,14 @@ const SideBar: React.FC = () => {
                     icon={<SaveOutlined />}
                     label={locale.SAVE}
                     onClick={() => {
-                        if (vm.vmPageStates[vm.activeVmIndex] === undefined) {
+                        if (props.vm === null) {
                             return;
                         }
 
-                        saveIr(
-                            vm.vmPageStates[vm.activeVmIndex].name,
-                            vm.vmPageStates[vm.activeVmIndex].irString
-                        );
+                        saveIr(props.vm.name, props.vm.irString);
 
                         dispatch(setIsIrChanged(false));
-                        if (
-                            vm.vmPageStates.every(
-                                (x, i) =>
-                                    i === vm.activeVmIndex || !x.isIrChanged
-                            )
-                        ) {
+                        if (isAllIrSaved) {
                             window.onbeforeunload = null;
                         }
                     }}

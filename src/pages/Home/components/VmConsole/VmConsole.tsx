@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import styles from "./VmConsole.module.scss";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useAppDispatch } from "@/store/hooks";
 import OutputBlock from "./OutputBlock/OutputBlock";
 import InputBlock from "./InputBlock/InputBlock";
 import {
@@ -9,127 +9,108 @@ import {
     clearConsoleOutputs,
     setShouldIndicateCurrentLineNumber,
     syncVmState,
-    addConsoleOutputs
+    addConsoleOutputs,
+    SingleVmPageState
 } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { ConsoleMessageType } from "@/modules/vm/vm";
 import ControlPanel from "./ControlPanel/ControlPanel";
 
-const VmConsole: React.FC = () => {
+interface VmConsoleProps {
+    vmIndex: number;
+    vm: SingleVmPageState;
+}
+
+const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
     const dispatch = useAppDispatch();
-    const vm = useAppSelector(state => state.vm);
 
-    const inputResolve = useRef<((_: string) => void) | null>(null);
+    let inputResolve: ((_: string) => void) | null = null;
 
-    useEffect(() => {
-        if (vm.vmPageStates[vm.activeVmIndex].state === "WAIT_INPUT") {
-            // Restore the resolve that current VM is awaiting
-            inputResolve.current = vmContainer.resolvesAt(vm.activeVmIndex);
-            return;
-        }
+    const divVmConsole = useRef<HTMLDivElement | null>(null);
 
-        vmContainer.at(vm.activeVmIndex).setReadConsoleFn(prompt => {
+    if (props.vm.state === "WAIT_INPUT") {
+        // Restore the resolve that current VM is awaiting
+        inputResolve = vmContainer.resolvesAt(props.vmIndex);
+    } else {
+        vmContainer.at(props.vmIndex).setReadConsoleFn(prompt => {
             dispatch(setConsoleInputPrompt(prompt));
 
             // When we click continously run and encounter a read,
             // this will get the page display updated.
-            syncVmState(dispatch, vm);
+            syncVmState(dispatch, props.vm.id);
 
             // Auto focus input
             document.getElementById("inConsole")?.focus();
 
             return new Promise(resolve => {
-                inputResolve.current = resolve;
-                vmContainer.setResolveAt(vm.activeVmIndex, resolve);
+                inputResolve = resolve;
+                vmContainer.setResolveAt(props.vmIndex, resolve);
             });
         });
-    }, [vm.vmPageStates[vm.activeVmIndex].id]);
+    }
 
-    useEffect(() => {
-        const divVmConsole = document.getElementById("divVmConsole");
-        if (divVmConsole === null) {
-            return;
-        }
-
-        divVmConsole.scrollTo(0, divVmConsole.scrollHeight);
-    }, [vm.vmPageStates[vm.activeVmIndex].consoleOutputs]);
+    divVmConsole.current?.scrollTo(0, divVmConsole.current.scrollHeight);
 
     return (
         <div className={styles.divVmConsoleWrapper}>
             <ControlPanel
                 onRunClick={async () => {
-                    if (
-                        !vmContainer.at(vm.activeVmIndex).canContinueExecution
-                    ) {
+                    if (!vmContainer.at(props.vmIndex).canContinueExecution) {
                         return;
                     }
                     dispatch(setShouldIndicateCurrentLineNumber(false));
-                    await vmContainer.at(vm.activeVmIndex).execute();
-                    syncVmState(dispatch, vm);
+                    await vmContainer.at(props.vmIndex).execute();
+                    syncVmState(dispatch, props.vm.id);
                 }}
                 onRunStepClick={async () => {
-                    if (
-                        !vmContainer.at(vm.activeVmIndex).canContinueExecution
-                    ) {
+                    if (!vmContainer.at(props.vmIndex).canContinueExecution) {
                         return;
                     }
                     dispatch(setShouldIndicateCurrentLineNumber(true));
-                    await vmContainer.at(vm.activeVmIndex).executeSingleStep();
-                    syncVmState(dispatch, vm);
+                    await vmContainer.at(props.vmIndex).executeSingleStep();
+                    syncVmState(dispatch, props.vm.id);
                 }}
                 onResetClick={() => {
                     dispatch(setShouldIndicateCurrentLineNumber(false));
                     dispatch(setConsoleInputPrompt([]));
                     dispatch(setConsoleInput(""));
-                    vmContainer.at(vm.activeVmIndex).reset();
-                    syncVmState(dispatch, vm);
+                    vmContainer.at(props.vmIndex).reset();
+                    syncVmState(dispatch, props.vm.id);
                 }}
                 onClearClick={() => {
                     dispatch(clearConsoleOutputs());
                     dispatch(setConsoleInput(""));
-                    if (
-                        vm.vmPageStates[vm.activeVmIndex].state === "WAIT_INPUT"
-                    ) {
+                    if (props.vm.state === "WAIT_INPUT") {
                         document.getElementById("inConsole")?.focus();
                     }
                 }}
             />
 
-            <div id="divVmConsole" className={styles.divVmConsole}>
-                {vm.vmPageStates[vm.activeVmIndex].consoleOutputs.map(
-                    (x, i) => (
-                        <OutputBlock key={i} message={x} />
-                    )
-                )}
+            <div ref={divVmConsole} className={styles.divVmConsole}>
+                {props.vm.consoleOutputs.map((x, i) => (
+                    <OutputBlock key={i} message={x} />
+                ))}
                 <InputBlock
-                    prompt={
-                        vm.vmPageStates[vm.activeVmIndex].consoleInputPrompt
-                    }
-                    value={vm.vmPageStates[vm.activeVmIndex].consoleInput}
+                    prompt={props.vm.consoleInputPrompt}
+                    value={props.vm.consoleInput}
                     onChange={e => dispatch(setConsoleInput(e))}
                     onEnter={() => {
-                        if (inputResolve.current !== null) {
-                            inputResolve.current(
-                                vm.vmPageStates[vm.activeVmIndex].consoleInput
-                            );
+                        if (inputResolve !== null) {
+                            inputResolve(props.vm.consoleInput);
                         }
 
                         dispatch(
                             addConsoleOutputs([
                                 [
                                     { key: "CONSOLE_ARROW", type: "ARROW" },
-                                    ...vm.vmPageStates[
-                                        vm.activeVmIndex
-                                    ].consoleInputPrompt.map(x => ({
+                                    ...props.vm.consoleInputPrompt.map(x => ({
                                         ...x,
                                         type: "PROMPT" as ConsoleMessageType
                                     })),
                                     {
                                         key: "READ_INPUT",
                                         values: {
-                                            value: vm.vmPageStates[
-                                                vm.activeVmIndex
-                                            ].consoleInput
+                                            value: props.vm.consoleInput
                                         },
                                         type: "NORMAL"
                                     }
