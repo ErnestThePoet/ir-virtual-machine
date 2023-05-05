@@ -16,6 +16,9 @@ const Home: React.FC = () => {
     const intl = useIntl();
     const dispatch = useAppDispatch();
     const vm = useAppSelector(state => state.vm);
+    const isAllIrSaved = useAppSelector(state =>
+        state.vm.vmPageStates.every(x => !x.isIrChanged)
+    );
 
     const [isVerticalScreen, setIsVerticalScreen] = useState(
         window.innerWidth < window.innerHeight
@@ -37,6 +40,15 @@ const Home: React.FC = () => {
             document.getElementById("taIr")?.focus();
         }
     }, [vm.activeVmIndex, vm.vmPageStates[vm.activeVmIndex]?.id]);
+
+    useEffect(() => {
+        window.onbeforeunload = isAllIrSaved
+            ? null
+            : (e: BeforeUnloadEvent) => {
+                  e.preventDefault();
+                  return (e.returnValue = "");
+              };
+    }, [isAllIrSaved]);
 
     return (
         <main

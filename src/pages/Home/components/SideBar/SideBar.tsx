@@ -114,10 +114,6 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
         getNextUntitledVmName(state.vm.vmPageStates.map(x => x.name))
     );
 
-    const isAllIrSaved = useAppSelector(state =>
-        state.vm.vmPageStates.every(x => !x.isIrChanged)
-    );
-
     const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
     return (
@@ -205,9 +201,6 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                         saveIr(props.vm.name, props.vm.irString);
 
                         dispatch(setIsIrChanged(false));
-                        if (isAllIrSaved) {
-                            window.onbeforeunload = null;
-                        }
                     }}
                 />
             </div>
