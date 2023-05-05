@@ -57,7 +57,7 @@ const TabBar: React.FC = () => {
                             return;
                         }
 
-                        dispatch(setName(e));
+                        dispatch(setName({ index: i, newName: e }));
                     }}
                 />
             ))}
