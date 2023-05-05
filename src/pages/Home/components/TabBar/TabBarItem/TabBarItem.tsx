@@ -5,7 +5,7 @@ import { CloseOutlined } from "@ant-design/icons";
 import VmOutlined from "./Icons/VmOutlined";
 import { truncateString } from "@/modules/utils";
 import Dot from "./Icons/Dot";
-import { useAppSelector } from "@/store/hooks";
+import { useIntl } from "react-intl";
 
 interface TabBarItemProps {
     title: string;
@@ -17,7 +17,7 @@ interface TabBarItemProps {
 }
 
 const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
-    const locale = useAppSelector(state => state.locale.currentLocale);
+    const intl = useIntl();
 
     const [isRename, setIsRename] = useState(false);
     const [newName, setNewName] = useState(props.title);
@@ -80,12 +80,14 @@ const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
                         e.stopPropagation();
                         props.onCloseClick();
                     }}
-                    title={locale.CLOSE}>
+                    title={intl.formatMessage({ id: "CLOSE" })}>
                     <Dot className={styles.iconDot} />
                     <CloseOutlined className={styles.iconClose} />
                 </div>
             ) : (
-                <div className={styles.divCloseWrapper} title={locale.CLOSE}>
+                <div
+                    className={styles.divCloseWrapper}
+                    title={intl.formatMessage({ id: "CLOSE" })}>
                     <CloseOutlined
                         className={styles.iconClose}
                         onClick={e => {

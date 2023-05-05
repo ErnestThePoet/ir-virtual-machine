@@ -109,7 +109,6 @@ export const importIrFile = (
 const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
     const intl = useIntl();
     const dispatch = useAppDispatch();
-    const locale = useAppSelector(state => state.locale.currentLocale);
 
     const nextVmName = useAppSelector(state =>
         getNextUntitledVmName(state.vm.vmPageStates.map(x => x.name))
@@ -126,7 +125,7 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
             <div className={styles.divIconWrapperUpper}>
                 <SideBarIcon
                     icon={<FileAddOutlined />}
-                    label={locale.ADD}
+                    label={intl.formatMessage({ id: "ADD" })}
                     onClick={() => {
                         const newVm = new Vm();
 
@@ -162,7 +161,7 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                 />
                 <SideBarIcon
                     icon={<FolderOpenOutlined />}
-                    label={locale.IMPORT}
+                    label={intl.formatMessage({ id: "IMPORT" })}
                     onClick={() => {
                         document.getElementById("inImportIr")?.click();
                     }}
@@ -197,7 +196,7 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                 />
                 <SideBarIcon
                     icon={<SaveOutlined />}
-                    label={locale.SAVE}
+                    label={intl.formatMessage({ id: "SAVE" })}
                     onClick={() => {
                         if (props.vm === null) {
                             return;
@@ -253,14 +252,14 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                     <Space>
                         <SideBarIcon
                             icon={<EyeOutlined />}
-                            label={locale.THEME}
+                            label={intl.formatMessage({ id: "THEME" })}
                         />
                     </Space>
                 </Dropdown>
 
                 <SideBarIcon
                     icon={<InfoCircleOutlined />}
-                    label={locale.ABOUT}
+                    label={intl.formatMessage({ id: "ABOUT" })}
                     onClick={() => setIsAboutModalOpen(true)}
                 />
             </div>
