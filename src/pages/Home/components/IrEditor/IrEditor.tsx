@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { useIntl } from "react-intl";
 import styles from "./IrEditor.module.scss";
@@ -24,7 +24,10 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
 
     const dispatch = useAppDispatch();
 
-    const irLines = splitLines(props.vm.irString);
+    const irLines = useMemo(
+        () => splitLines(props.vm.irString),
+        [props.vm.irString]
+    );
 
     return (
         <div className={styles.divIrEditorWrapper}>
