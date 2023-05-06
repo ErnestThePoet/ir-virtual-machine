@@ -76,25 +76,23 @@ const TabBarItem: React.FC<TabBarItemProps> = (props: TabBarItemProps) => {
             {props.isChanged ? (
                 <div
                     className={styles.divCloseWrapperChanged}
+                    title={intl.formatMessage({ id: "CLOSE" })}
                     onClick={e => {
                         e.stopPropagation();
                         props.onCloseClick();
-                    }}
-                    title={intl.formatMessage({ id: "CLOSE" })}>
+                    }}>
                     <Dot className={styles.iconDot} />
                     <CloseOutlined className={styles.iconClose} />
                 </div>
             ) : (
                 <div
                     className={styles.divCloseWrapper}
-                    title={intl.formatMessage({ id: "CLOSE" })}>
-                    <CloseOutlined
-                        className={styles.iconClose}
-                        onClick={e => {
-                            e.stopPropagation();
-                            props.onCloseClick();
-                        }}
-                    />
+                    title={intl.formatMessage({ id: "CLOSE" })}
+                    onClick={e => {
+                        e.stopPropagation();
+                        props.onCloseClick();
+                    }}>
+                    <CloseOutlined className={styles.iconClose} />
                 </div>
             )}
         </div>
