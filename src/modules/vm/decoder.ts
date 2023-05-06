@@ -174,7 +174,7 @@ export class Decoder {
     };
 
     private splitWhiteSpace(instruction: string): string[] {
-        return instruction.replace("\t", " ").split(" ");
+        return instruction.replaceAll("\t", " ").split(" ");
     }
 
     /**
