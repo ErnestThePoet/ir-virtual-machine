@@ -1467,6 +1467,11 @@ export class Vm {
                     return;
                 }
 
+                // Try load memory to detect out of bound error
+                if (this.loadMemory32(this.registers.ebx) === null) {
+                    return;
+                }
+
                 this.tables.variableTableStack[
                     this.tables.variableTableStack.length - 1
                 ][paramId] = {
