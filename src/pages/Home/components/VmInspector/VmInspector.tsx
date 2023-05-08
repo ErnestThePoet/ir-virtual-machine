@@ -30,7 +30,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
             0,
             props.vm.scrollHeights.vmInspector
         );
-    }, [props.vmIndex, props.vm.id]);
+    }, [props.vm.id]);
 
     return (
         <div

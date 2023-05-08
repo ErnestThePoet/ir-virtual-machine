@@ -24,15 +24,15 @@ interface VmConsoleProps {
 const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
     const dispatch = useAppDispatch();
 
-    let inputResolve: ((_: string) => void) | null = null;
+    const inputResolve = useRef<((_: string) => void) | null>(null);
 
     const divVmConsole = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (props.vm.state === "WAIT_INPUT") {
             // Restore the resolve that current VM is awaiting
-            inputResolve = vmContainer.resolvesAt(props.vmIndex);
-        
+            inputResolve.current = vmContainer.resolvesAt(props.vmIndex);
+
             document.getElementById("inConsole")?.focus();
         } else {
             vmContainer.at(props.vmIndex).setReadConsoleFn(prompt => {
@@ -46,15 +46,14 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                 document.getElementById("inConsole")?.focus();
 
                 return new Promise(resolve => {
-                    inputResolve = resolve;
+                    inputResolve.current = resolve;
                     vmContainer.setResolveAt(props.vmIndex, resolve);
                 });
             });
         }
-        
+
         divVmConsole.current?.scrollTo(0, divVmConsole.current.scrollHeight);
-        
-    }, [props.vmIndex, props.vm.id]);
+    }, [props.vm.id]);
 
     return (
         <div className={styles.divVmConsoleWrapper}>
@@ -113,8 +112,8 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                     value={props.vm.consoleInput}
                     onChange={e => dispatch(setConsoleInput(e))}
                     onEnter={() => {
-                        if (inputResolve !== null) {
-                            inputResolve(props.vm.consoleInput);
+                        if (inputResolve.current !== null) {
+                            inputResolve.current(props.vm.consoleInput);
                         }
 
                         dispatch(

@@ -48,7 +48,6 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
             props.vm.scrollHeights.irEditor
         );
     }, [
-        props.vmIndex,
         props.vm.id,
         props.vm.irSelection.start,
         props.vm.irSelection.end
