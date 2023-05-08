@@ -51,9 +51,15 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                 });
             });
         }
-
-        divVmConsole.current?.scrollTo(0, divVmConsole.current.scrollHeight);
     }, [props.vm.id]);
+
+    useEffect(() => {
+        divVmConsole.current?.scrollTo(0, divVmConsole.current.scrollHeight);
+    }, [
+        props.vm.consoleInput,
+        props.vm.consoleInputPrompt,
+        props.vm.consoleOutputs
+    ]);
 
     return (
         <div className={styles.divVmConsoleWrapper}>
