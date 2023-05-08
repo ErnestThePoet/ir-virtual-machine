@@ -21,8 +21,10 @@ export interface SingleVmPageState {
     irPath: string;
     isIrChanged: boolean;
     irString: string;
-    irSelectionStart: number;
-    irSelectionEnd: number;
+    irSelection: {
+        start: number;
+        end: number;
+    };
 
     state: VmExecutionState;
     globalVariableDetails: VmVariableDetail[];
@@ -117,10 +119,8 @@ export const vmSlice = createSlice({
             state,
             action: PayloadAction<{ start: number; end: number }>
         ) => {
-            state.vmPageStates[state.activeVmIndex].irSelectionStart =
-                action.payload.start;
-            state.vmPageStates[state.activeVmIndex].irSelectionEnd =
-                action.payload.end;
+            state.vmPageStates[state.activeVmIndex].irSelection =
+                action.payload;
         },
         setState: (state, action: PayloadAction<VmExecutionState>) => {
             state.vmPageStates[state.activeVmIndex].state = action.payload;

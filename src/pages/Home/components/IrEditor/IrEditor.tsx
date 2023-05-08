@@ -35,10 +35,10 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
     useEffect(() => {
         taIr.current?.focus();
         taIr.current?.setSelectionRange(
-            props.vm.irSelectionStart,
-            props.vm.irSelectionEnd
+            props.vm.irSelection.start,
+            props.vm.irSelection.end
         );
-    }, [props.vm.irSelectionStart, props.vm.irSelectionEnd]);
+    }, [props.vm.irSelection]);
 
     const onIrChange = (newIr: string) => {
         const currentVm = vmContainer.at(props.vmIndex);
