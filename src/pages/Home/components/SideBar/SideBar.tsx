@@ -299,7 +299,13 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                         <div>哈尔滨工业大学 120L021615 崔子健</div>
                         <div>Ernest Cui, Harbin Institute of Technology</div>
                     </p>
+
                     <p>April 🌼 2023</p>
+
+                    <p>
+                        <div>感谢陈鄞、单丽莉老师的大力支持</div>
+                        <div>虚拟机的说明请见仓库首页的文档</div>
+                    </p>
 
                     <p className="info">
                         <a href="https://ernestthepoet.github.io/ir-virtual-machine/">
