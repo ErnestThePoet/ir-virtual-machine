@@ -173,6 +173,10 @@ export class Decoder {
         messageKey: "ILLEGAL_INSTRUCTION_FORMAT"
     };
 
+    private purify(instruction: string): string {
+        return instruction.trim().replaceAll(/[ \t]+/g, " ");
+    }
+
     private splitWhiteSpace(instruction: string): string[] {
         return instruction.replaceAll("\t", " ").split(" ");
     }
@@ -743,7 +747,7 @@ export class Decoder {
             messageKey: "UNRECOGNIZED_INSTRUCTION"
         };
 
-        const splitResult = this.splitWhiteSpace(instruction);
+        const splitResult = this.splitWhiteSpace(this.purify(instruction));
 
         if (splitResult.length < 1) {
             return unrecognizedInstructionError;
