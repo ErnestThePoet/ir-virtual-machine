@@ -56,6 +56,11 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
             <ControlPanel
                 onRunClick={async () => {
                     if (!vmContainer.at(props.vmIndex).canContinueExecution) {
+                        if (
+                            vmContainer.at(props.vmIndex).state === "WAIT_INPUT"
+                        ) {
+                            document.getElementById("inConsole")?.focus();
+                        }
                         return;
                     }
                     dispatch(setShouldIndicateCurrentLineNumber(false));
@@ -64,6 +69,11 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                 }}
                 onRunStepClick={async () => {
                     if (!vmContainer.at(props.vmIndex).canContinueExecution) {
+                        if (
+                            vmContainer.at(props.vmIndex).state === "WAIT_INPUT"
+                        ) {
+                            document.getElementById("inConsole")?.focus();
+                        }
                         return;
                     }
                     dispatch(setShouldIndicateCurrentLineNumber(true));
