@@ -42,6 +42,12 @@ export interface SingleVmPageState {
     runtimeErrorTable: VmErrorTable;
     currentLineNumber: number;
     shouldIndicateCurrentLineNumber: boolean;
+
+    scrollHeights: {
+        irEditor: number;
+        // vmConsole: number;
+        vmInspector: number;
+    };
 }
 
 interface VmState {
@@ -197,6 +203,18 @@ export const vmSlice = createSlice({
             state.vmPageStates[
                 state.activeVmIndex
             ].shouldIndicateCurrentLineNumber = action.payload;
+        },
+        setScrollHeights: (
+            state,
+            action: PayloadAction<{
+                irEditor?: number;
+                vmInspector?: number;
+            }>
+        ) => {
+            Object.assign(
+                state.vmPageStates[state.activeVmIndex].scrollHeights,
+                action.payload
+            );
         }
     }
 });
@@ -223,7 +241,8 @@ export const {
     setStaticErrorTable,
     setRuntimeErrorTable,
     setCurrentLineNumber,
-    setShouldIndicateCurrentLineNumber
+    setShouldIndicateCurrentLineNumber,
+    setScrollHeights
 } = vmSlice.actions;
 
 export const syncVmState = (dispatch: AppDispatch, vmId: number) => {

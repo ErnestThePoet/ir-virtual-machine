@@ -109,7 +109,12 @@ export const importIrFile = (
                 staticErrorTable: newVm.staticErrorTable,
                 runtimeErrorTable: newVm.runtimeErrorTable,
                 currentLineNumber: newVm.currentLineNumber,
-                shouldIndicateCurrentLineNumber: false
+                shouldIndicateCurrentLineNumber: false,
+
+                scrollHeights: {
+                    irEditor: 0,
+                    vmInspector: 0
+                }
             })
         );
     };
@@ -163,7 +168,12 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                                 staticErrorTable: newVm.staticErrorTable,
                                 runtimeErrorTable: newVm.runtimeErrorTable,
                                 currentLineNumber: newVm.currentLineNumber,
-                                shouldIndicateCurrentLineNumber: false
+                                shouldIndicateCurrentLineNumber: false,
+
+                                scrollHeights: {
+                                    irEditor: 0,
+                                    vmInspector: 0
+                                }
                             })
                         );
                     }}

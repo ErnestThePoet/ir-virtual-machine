@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import styles from "./VmConsole.module.scss";
 import { useAppDispatch } from "@/store/hooks";
 import OutputBlock from "./OutputBlock/OutputBlock";
@@ -28,30 +28,33 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
 
     const divVmConsole = useRef<HTMLDivElement>(null);
 
-    if (props.vm.state === "WAIT_INPUT") {
-        // Restore the resolve that current VM is awaiting
-        inputResolve = vmContainer.resolvesAt(props.vmIndex);
+    useEffect(() => {
+        if (props.vm.state === "WAIT_INPUT") {
+            // Restore the resolve that current VM is awaiting
+            inputResolve = vmContainer.resolvesAt(props.vmIndex);
         
-        document.getElementById("inConsole")?.focus();
-    } else {
-        vmContainer.at(props.vmIndex).setReadConsoleFn(prompt => {
-            dispatch(setConsoleInputPrompt(prompt));
-
-            // When we click continously run and encounter a read,
-            // this will get the page display updated.
-            syncVmState(dispatch, props.vm.id);
-
-            // Auto focus input
             document.getElementById("inConsole")?.focus();
+        } else {
+            vmContainer.at(props.vmIndex).setReadConsoleFn(prompt => {
+                dispatch(setConsoleInputPrompt(prompt));
 
-            return new Promise(resolve => {
-                inputResolve = resolve;
-                vmContainer.setResolveAt(props.vmIndex, resolve);
+                // When we click continously run and encounter a read,
+                // this will get the page display updated.
+                syncVmState(dispatch, props.vm.id);
+
+                // Auto focus input
+                document.getElementById("inConsole")?.focus();
+
+                return new Promise(resolve => {
+                    inputResolve = resolve;
+                    vmContainer.setResolveAt(props.vmIndex, resolve);
+                });
             });
-        });
-    }
-
-    divVmConsole.current?.scrollTo(0, divVmConsole.current.scrollHeight);
+        }
+        
+        divVmConsole.current?.scrollTo(0, divVmConsole.current.scrollHeight);
+        
+    }, [props.vmIndex, props.vm.id]);
 
     return (
         <div className={styles.divVmConsoleWrapper}>
@@ -98,7 +101,10 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                 }}
             />
 
-            <div ref={divVmConsole} className={styles.divVmConsole}>
+            <div
+                ref={divVmConsole}
+                id="divVmConsole"
+                className={styles.divVmConsole}>
                 {props.vm.consoleOutputs.map((x, i) => (
                     <OutputBlock key={i} message={x} />
                 ))}

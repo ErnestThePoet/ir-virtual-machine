@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { InputNumber } from "antd";
 import styles from "./VmInspector.module.scss";
 import { useIntl } from "react-intl";
 import classNames from "classnames";
 import { vmOptionLimits } from "@/modules/vm/vm";
-import { SingleVmPageState, syncVmState } from "@/store/reducers/vm";
+import {
+    SingleVmPageState,
+    setScrollHeights,
+    syncVmState
+} from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import MemoryUsage from "./MemoryUsage";
 import VariableTable from "./VariableTable";
@@ -19,8 +23,24 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
     const intl = useIntl();
     const dispatch = useAppDispatch();
 
+    const divVmInspectorWrapper = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        divVmInspectorWrapper.current?.scrollTo(
+            0,
+            props.vm.scrollHeights.vmInspector
+        );
+    }, [props.vmIndex, props.vm.id]);
+
     return (
-        <div className={styles.divVmInspectorWrapper}>
+        <div
+            ref={divVmInspectorWrapper}
+            className={styles.divVmInspectorWrapper}
+            onScroll={e =>
+                dispatch(
+                    setScrollHeights({ vmInspector: e.currentTarget.scrollTop })
+                )
+            }>
             <div className={styles.divStepStateCard}>
                 <div className={styles.divStepStateWrapper}>
                     <label className={styles.lblStepStateLabel}>

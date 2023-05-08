@@ -10,7 +10,8 @@ import {
     setIsIrChanged,
     setPeakMemoryUsage,
     SingleVmPageState,
-    setIrSelection
+    setIrSelection,
+    setScrollHeights
 } from "@/store/reducers/vm";
 import LineHighlighter from "./LineHighlighter/LineHighlighter";
 import classNames from "classnames";
@@ -23,6 +24,7 @@ interface IrEditorProps {
 const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
     const intl = useIntl();
 
+    const divIrEditorWrapper = useRef<HTMLDivElement>(null);
     const taIr = useRef<HTMLTextAreaElement>(null);
 
     const dispatch = useAppDispatch();
@@ -33,12 +35,24 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
     );
 
     useEffect(() => {
-        taIr.current?.focus();
-        taIr.current?.setSelectionRange(
-            props.vm.irSelection.start,
-            props.vm.irSelection.end
+        if (props.vm.state !== "WAIT_INPUT") {
+            taIr.current?.focus({ preventScroll: true });
+            taIr.current?.setSelectionRange(
+                props.vm.irSelection.start,
+                props.vm.irSelection.end
+            );
+        }
+
+        divIrEditorWrapper.current?.scrollTo(
+            0,
+            props.vm.scrollHeights.irEditor
         );
-    }, [props.vm.irSelection]);
+    }, [
+        props.vmIndex,
+        props.vm.id,
+        props.vm.irSelection.start,
+        props.vm.irSelection.end
+    ]);
 
     const onIrChange = (newIr: string) => {
         const currentVm = vmContainer.at(props.vmIndex);
@@ -57,7 +71,16 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
     };
 
     return (
-        <div className={styles.divIrEditorWrapper}>
+        <div
+            ref={divIrEditorWrapper}
+            className={styles.divIrEditorWrapper}
+            onScroll={e =>
+                dispatch(
+                    setScrollHeights({
+                        irEditor: e.currentTarget.scrollTop
+                    })
+                )
+            }>
             <div className={styles.divLineNumberWrapper}>
                 {irLines.map((_, i) => (
                     <label
