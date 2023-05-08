@@ -543,7 +543,7 @@ export class Vm {
                 i + 1
             );
 
-            if (decoded.type === "EMPTY") {
+            if (decoded.type === "EMPTY" || decoded.type === "COMMENT") {
                 continue;
             }
 

@@ -114,11 +114,12 @@ type InstructionType =
     | "READ"
     | "WRITE"
     | "EMPTY"
+    | "COMMENT"
     | "ERROR";
 
 type ExecutableInstructionType = Exclude<
     InstructionType,
-    "FUNCTION" | "LABEL" | "EMPTY" | "ERROR"
+    "FUNCTION" | "LABEL" | "EMPTY" | "COMMENT" | "ERROR"
 >;
 
 type InstructionValue =
@@ -747,7 +748,16 @@ export class Decoder {
             messageKey: "UNRECOGNIZED_INSTRUCTION"
         };
 
-        const splitResult = this.splitWhiteSpace(this.purify(instruction));
+        const purified = this.purify(instruction);
+
+        if (purified.startsWith(";")) {
+            return {
+                type: "COMMENT",
+                lineNumber
+            };
+        }
+
+        const splitResult = this.splitWhiteSpace(purified);
 
         if (splitResult.length < 1) {
             return unrecognizedInstructionError;
