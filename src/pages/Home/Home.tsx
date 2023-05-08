@@ -29,18 +29,6 @@ const Home: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (vm.vmPageStates[vm.activeVmIndex] === undefined) {
-            return;
-        }
-
-        if (vm.vmPageStates[vm.activeVmIndex].state === "WAIT_INPUT") {
-            document.getElementById("inConsole")?.focus();
-        } else {
-            document.getElementById("taIr")?.focus();
-        }
-    }, [vm.activeVmIndex, vm.vmPageStates[vm.activeVmIndex]?.id]);
-
-    useEffect(() => {
         window.onbeforeunload = isAllIrSaved
             ? null
             : (e: BeforeUnloadEvent) => {

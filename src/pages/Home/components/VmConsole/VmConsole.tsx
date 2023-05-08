@@ -26,11 +26,13 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
 
     let inputResolve: ((_: string) => void) | null = null;
 
-    const divVmConsole = useRef<HTMLDivElement | null>(null);
+    const divVmConsole = useRef<HTMLDivElement>(null);
 
     if (props.vm.state === "WAIT_INPUT") {
         // Restore the resolve that current VM is awaiting
         inputResolve = vmContainer.resolvesAt(props.vmIndex);
+        
+        document.getElementById("inConsole")?.focus();
     } else {
         vmContainer.at(props.vmIndex).setReadConsoleFn(prompt => {
             dispatch(setConsoleInputPrompt(prompt));

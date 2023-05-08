@@ -89,6 +89,8 @@ export const importIrFile = (
                 irPath: "",
                 isIrChanged: false,
                 irString: res.target.result as string,
+                irSelectionStart: 0,
+                irSelectionEnd: 0,
 
                 state: newVm.state,
                 globalVariableDetails: newVm.globalVariableDetails,
@@ -137,6 +139,8 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                                 irPath: "",
                                 isIrChanged: false,
                                 irString: "",
+                                irSelectionStart: 0,
+                                irSelectionEnd: 0,
 
                                 state: newVm.state,
                                 globalVariableDetails:

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { useIntl } from "react-intl";
 import styles from "./IrEditor.module.scss";
@@ -9,7 +9,8 @@ import {
     setIrString,
     setIsIrChanged,
     setPeakMemoryUsage,
-    SingleVmPageState
+    SingleVmPageState,
+    setIrSelection
 } from "@/store/reducers/vm";
 import LineHighlighter from "./LineHighlighter/LineHighlighter";
 import classNames from "classnames";
@@ -22,12 +23,38 @@ interface IrEditorProps {
 const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
     const intl = useIntl();
 
+    const taIr = useRef<HTMLTextAreaElement>(null);
+
     const dispatch = useAppDispatch();
 
     const irLines = useMemo(
         () => splitLines(props.vm.irString),
         [props.vm.irString]
     );
+
+    useEffect(() => {
+        taIr.current?.focus();
+        taIr.current?.setSelectionRange(
+            props.vm.irSelectionStart,
+            props.vm.irSelectionEnd
+        );
+    }, [props.vm.irSelectionStart, props.vm.irSelectionEnd]);
+
+    const onIrChange = (newIr: string) => {
+        const currentVm = vmContainer.at(props.vmIndex);
+        currentVm.loadNewInstructions(splitLines(newIr));
+        syncVmState(dispatch, props.vm.id);
+        // Manually force reset peak memory usage
+        dispatch(
+            setPeakMemoryUsage({
+                total: 0,
+                stack: 0,
+                globalVariable: 0
+            })
+        );
+        dispatch(setIrString(newIr));
+        dispatch(setIsIrChanged(true));
+    };
 
     return (
         <div className={styles.divIrEditorWrapper}>
@@ -79,7 +106,7 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
 
             <div className={styles.divIrWrapper}>
                 <textarea
-                    id="taIr"
+                    ref={taIr}
                     // line-height*lineCount
                     style={{
                         height: `${20 * irLines.length}px`
@@ -87,23 +114,38 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
                     spellCheck={false}
                     className={styles.taIr}
                     value={props.vm.irString}
-                    onChange={e => {
-                        const currentVm = vmContainer.at(props.vmIndex);
-                        currentVm.loadNewInstructions(
-                            splitLines(e.currentTarget.value)
-                        );
-                        syncVmState(dispatch, props.vm.id);
-                        // Manually force reset peak memory usage
+                    onSelect={e => {
                         dispatch(
-                            setPeakMemoryUsage({
-                                total: 0,
-                                stack: 0,
-                                globalVariable: 0
+                            setIrSelection({
+                                start: e.currentTarget.selectionStart,
+                                end: e.currentTarget.selectionEnd
                             })
                         );
-                        dispatch(setIrString(e.currentTarget.value));
-                        dispatch(setIsIrChanged(true));
                     }}
+                    onKeyDown={e => {
+                        if (e.key === "Tab") {
+                            e.preventDefault();
+
+                            onIrChange(
+                                e.currentTarget.value.substring(
+                                    0,
+                                    e.currentTarget.selectionStart
+                                ) +
+                                    " ".repeat(4) +
+                                    e.currentTarget.value.substring(
+                                        e.currentTarget.selectionEnd
+                                    )
+                            );
+
+                            dispatch(
+                                setIrSelection({
+                                    start: e.currentTarget.selectionStart + 4,
+                                    end: e.currentTarget.selectionStart + 4
+                                })
+                            );
+                        }
+                    }}
+                    onChange={e => onIrChange(e.currentTarget.value)}
                 />
             </div>
         </div>
