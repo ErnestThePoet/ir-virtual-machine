@@ -303,8 +303,8 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                     <p>April 🌼 2023</p>
 
                     <p>
-                        <div>感谢陈鄞、单丽莉老师的大力支持</div>
-                        <div>虚拟机的说明请见仓库首页的文档</div>
+                        <div>🎉 感谢陈鄞、单丽莉老师的大力支持</div>
+                        <div>㊙️ 虚拟机的说明请见仓库首页的文档</div>
                     </p>
 
                     <p className="info">
