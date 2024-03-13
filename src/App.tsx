@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAppSelector } from "./store/hooks";
 import "antd/dist/reset.css";
 import { RouterProvider } from "react-router-dom";
@@ -16,11 +16,13 @@ const App: React.FC = () => {
         state => state.theme.currentClassName
     );
 
+    useEffect(() => {
+        document.body.className = currentThemeClassName;
+    }, [currentThemeClassName]);
+
     return (
         <IntlProvider messages={currentLocale} locale="en">
-            <div className={currentThemeClassName}>
-                <RouterProvider router={router} />
-            </div>
+            <RouterProvider router={router} />
         </IntlProvider>
     );
 };
