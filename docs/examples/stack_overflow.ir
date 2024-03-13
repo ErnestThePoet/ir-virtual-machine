@@ -1,0 +1,14 @@
+FUNCTION evil :
+WRITE #444
+GOTO exit
+
+FUNCTION attacker :
+var := #0
+ret_addr_ptr := &var + #8
+*ret_addr_ptr := #-1
+RETURN #0
+
+FUNCTION main :
+CALL attacker
+LABEL exit :
+RETURN #0

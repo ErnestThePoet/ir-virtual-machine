@@ -1,0 +1,93 @@
+/*
+ * This program reads a random number seed and generates 30 random numbers.
+ * Then it sorts the numbers using quick sort and prints the sorted array.
+ */
+
+int kNext;
+
+int mod(int mod_x, int mod_y)
+{
+    return mod_x - mod_y * (mod_x / mod_y);
+}
+
+int srand(int srand_seed)
+{
+    kNext = srand_seed;
+    return 0;
+}
+
+int rand()
+{
+    kNext = kNext * 1103515245 + 12345;
+    return mod(kNext / 65536, 32768);
+}
+
+int partition(int partition_data[30], int partition_low, int partition_high)
+{
+    int partition_ref = partition_data[partition_low];
+    while (partition_low < partition_high)
+    {
+        while (partition_low < partition_high && partition_data[partition_high] >= partition_ref)
+        {
+            partition_high = partition_high - 1;
+        }
+        if (partition_low < partition_high)
+        {
+            partition_data[partition_low] = partition_data[partition_high];
+            partition_low = partition_low + 1;
+        }
+
+        while (partition_low < partition_high && partition_data[partition_low] <= partition_ref)
+        {
+            partition_low = partition_low + 1;
+        }
+        if (partition_low < partition_high)
+        {
+            partition_data[partition_high] = partition_data[partition_low];
+            partition_high = partition_high - 1;
+        }
+    }
+
+    partition_data[partition_low] = partition_ref;
+    return partition_low;
+}
+
+int qsort(int qsort_data[30], int qsort_low, int qsort_high)
+{
+    int qsort_mid;
+    if (qsort_low < qsort_high)
+    {
+        qsort_mid = partition(qsort_data, qsort_low, qsort_high);
+        qsort(qsort_data, qsort_low, qsort_mid - 1);
+        qsort(qsort_data, qsort_mid + 1, qsort_high);
+    }
+
+    return 0;
+}
+
+int main()
+{
+    int seed = read();
+    int data[30];
+    int i = 0;
+
+    srand(seed);
+
+    while (i < 30)
+    {
+        data[i] = rand();
+        i = i + 1;
+    }
+
+    qsort(data, 0, 30);
+
+    i = 0;
+
+    while (i < 30)
+    {
+        write(data[i]);
+        i = i + 1;
+    }
+
+    return 0;
+}

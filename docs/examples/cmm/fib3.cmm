@@ -1,0 +1,51 @@
+/*
+ * Calculates fib(n) using an O(logn) recursion algorithm.
+ * Reference: https://stackoverflow.com/questions/10924096/optimization-of-fibonacci-sequence-generating-algorithm
+ */
+
+int kF[100];
+
+int mod(int mod_x, int mod_y)
+{
+    return mod_x - mod_y * (mod_x / mod_y);
+}
+
+int fib(int fib_n)
+{
+    int fib_k;
+
+    if (fib_n == 0)
+    {
+        return 0;
+    }
+
+    if (fib_n == 1 || fib_n == 2)
+    {
+        return (kF[fib_n] = 1);
+    }
+
+    if (kF[fib_n] != 0)
+    {
+        return kF[fib_n];
+    }
+
+    if (mod(fib_n, 2) == 1)
+    {
+        fib_k = (fib_n + 1) / 2;
+        kF[fib_n] = fib(fib_k) * fib(fib_k) + fib(fib_k - 1) * fib(fib_k - 1);
+    }
+    else
+    {
+        fib_k = fib_n / 2;
+        kF[fib_n] = (2 * fib(fib_k - 1) + fib(fib_k)) * fib(fib_k);
+    }
+
+    return kF[fib_n];
+}
+
+int main()
+{
+    int n = read();
+    write(fib(n));
+    return 0;
+}

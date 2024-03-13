@@ -1,0 +1,97 @@
+[
+    {
+        "name": "Textbook test1",
+        "irUrl": "examples/textbook/test1.ir",
+        "remark": "Textbook test case: test1"
+    },
+    {
+        "name": "Textbook test2",
+        "irUrl": "examples/textbook/test2.ir",
+        "remark": "Textbook test case: test2"
+    },
+    {
+        "name": "Textbook extra3",
+        "irUrl": "examples/textbook/extra3.ir",
+        "remark": "Textbook test case: extra3"
+    },
+    {
+        "name": "Textbook extra4",
+        "irUrl": "examples/textbook/extra4.ir",
+        "remark": "Textbook test case: extra4"
+    },
+    {
+        "name": "Binary search",
+        "irUrl": "examples/bsearch.ir",
+        "remark": "Binary search your input number in range 1 to 99"
+    },
+    {
+        "name": "Compute Fib(n) with naive recursion O(2^n)",
+        "irUrl": "examples/fib0.ir",
+        "remark": "You like to try this"
+    },
+    {
+        "name": "Compute Fib(n) with iteration O(n)",
+        "irUrl": "examples/fib1.ir",
+        "remark": "You have lost interest in this"
+    },
+    {
+        "name": "Compute Fib(n) with matrix O(logn)",
+        "irUrl": "examples/fib2.ir",
+        "remark": "You are amazed by this"
+    },
+    {
+        "name": "Compute Fib(n) with tricky recursion O(logn)",
+        "irUrl": "examples/fib3.ir",
+        "remark": "You want to comprehend this"
+    },
+    {
+        "name": "Permutation",
+        "irUrl": "examples/permu.ir",
+        "remark": "Enter a non-negative integer and we will prints all permutations of {1,...,n}, each of which is separated by 11111111"
+    },
+    {
+        "name": "Random number generator",
+        "irUrl": "examples/rand.ir",
+        "remark": "Enter a seed and the number of random numbers to generate. This VM's support of global vars makes it possible to implement LCG, which serves as the basis of many examples below."
+    },
+    {
+        "name": "Number guessing game",
+        "irUrl": "examples/guess_game.ir",
+        "remark": "Enter a seed and keep guessing the number generated in [0,32768). You will see -1 if your guess is smaller, 1 if larger."
+    },
+    {
+        "name": "Quick sort",
+        "irUrl": "examples/qsort.ir",
+        "remark": "Enter a seed and see quick sort result on 30 random numbers"
+    },
+    {
+        "name": "Heap sort",
+        "irUrl": "examples/heapsort.ir",
+        "remark": "Enter a seed and see heap sort result on 30 random numbers"
+    },
+    {
+        "name": "Insert sort",
+        "irUrl": "examples/insertsort.ir",
+        "remark": "Enter a seed and see insert sort result on 30 random numbers"
+    },
+    {
+        "name": "Merge sort",
+        "irUrl": "examples/mergesort.ir",
+        "remark": "Enter a seed and see merge sort result on 30 random numbers"
+    },
+    {
+        "name": "Stack overflow attack",
+        "irUrl": "examples/stack_overflow.ir",
+        "remark": "Is stack overflow attack also possible here?"
+    },
+    {
+        "name": "1k writes",
+        "irUrl": "examples/1k_writes.ir",
+        "remark": "Write 1000 lines of output"
+    },
+    {
+        "name": "Benchmark",
+        "irUrl": "examples/benchmark.ir",
+        "remark": "Keep the VM busy and do benchmark"
+    }
+]

@@ -1,0 +1,120 @@
+GLOBAL_DEC var0 400
+FUNCTION mod :
+PARAM var1
+PARAM var2
+var3 := var1 / var2
+var4 := var2 * var3
+var5 := var1 - var4
+RETURN var5
+FUNCTION fib :
+PARAM var6
+IF var6 == #0 GOTO label0
+var8 := #0
+GOTO label1
+LABEL label0 :
+var8 := #1
+LABEL label1 :
+IF var8 != #0 GOTO label2
+GOTO label3
+LABEL label2 :
+RETURN #0
+LABEL label3 :
+IF var6 == #1 GOTO label4
+var9 := #0
+GOTO label5
+LABEL label4 :
+var9 := #1
+LABEL label5 :
+IF var6 == #2 GOTO label6
+var10 := #0
+GOTO label7
+LABEL label6 :
+var10 := #1
+LABEL label7 :
+IF var9 != #0 GOTO label8
+IF var10 != #0 GOTO label8
+var11 := #0
+GOTO label9
+LABEL label8 :
+var11 := #1
+LABEL label9 :
+IF var11 != #0 GOTO label10
+GOTO label11
+LABEL label10 :
+var12 := #4 * var6
+var13 := &var0 + var12
+*var13 := #1
+RETURN #1
+LABEL label11 :
+var14 := #4 * var6
+var15 := &var0 + var14
+IF *var15 != #0 GOTO label12
+var16 := #0
+GOTO label13
+LABEL label12 :
+var16 := #1
+LABEL label13 :
+IF var16 != #0 GOTO label14
+GOTO label15
+LABEL label14 :
+var17 := #4 * var6
+var18 := &var0 + var17
+RETURN *var18
+LABEL label15 :
+ARG #2
+ARG var6
+var19 := CALL mod
+IF var19 == #1 GOTO label16
+var20 := #0
+GOTO label17
+LABEL label16 :
+var20 := #1
+LABEL label17 :
+IF var20 != #0 GOTO label18
+var34 := var6 / #2
+var7 := var34
+var35 := #4 * var6
+var36 := &var0 + var35
+var37 := var7 - #1
+ARG var37
+var38 := CALL fib
+var39 := #2 * var38
+ARG var7
+var40 := CALL fib
+var41 := var39 + var40
+ARG var7
+var42 := CALL fib
+var43 := var41 * var42
+*var36 := var43
+GOTO label19
+LABEL label18 :
+var21 := var6 + #1
+var22 := var21 / #2
+var7 := var22
+var23 := #4 * var6
+var24 := &var0 + var23
+ARG var7
+var25 := CALL fib
+ARG var7
+var26 := CALL fib
+var27 := var25 * var26
+var28 := var7 - #1
+ARG var28
+var29 := CALL fib
+var30 := var7 - #1
+ARG var30
+var31 := CALL fib
+var32 := var29 * var31
+var33 := var27 + var32
+*var24 := var33
+LABEL label19 :
+var44 := #4 * var6
+var45 := &var0 + var44
+RETURN *var45
+FUNCTION main :
+READ var47
+var46 := var47
+ARG var46
+var48 := CALL fib
+WRITE var48
+RETURN #0

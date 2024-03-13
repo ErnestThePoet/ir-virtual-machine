@@ -1,0 +1,53 @@
+/*
+ * This program first reads a seed and generates a secret random integer x in [0,32768).
+ * Then you guess the number. If your entered value is less than x, you'll see -1.
+ * Or if it's greater than x, you'll see 1. If you guess right, 666 will be written.
+ */
+
+int kNext;
+
+int mod(int mod_x, int mod_y)
+{
+    return mod_x - mod_y * (mod_x / mod_y);
+}
+
+int srand(int srand_seed)
+{
+    kNext = srand_seed;
+    return 0;
+}
+
+int rand()
+{
+    kNext = kNext * 1103515245 + 12345;
+    return mod(kNext / 65536, 32768);
+}
+
+int main()
+{
+    int seed = read();
+    int x, guess;
+
+    srand(seed);
+
+    x = rand();
+    guess = read();
+
+    while (x != guess)
+    {
+        if (guess > x)
+        {
+            write(1);
+        }
+        else
+        {
+            write(-1);
+        }
+
+        guess = read();
+    }
+
+    write(666);
+
+    return 0;
+}
