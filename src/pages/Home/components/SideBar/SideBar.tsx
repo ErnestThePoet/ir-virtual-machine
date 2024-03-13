@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import styles from "./SideBar.module.scss";
 import {
     FileAddOutlined,
+    BulbOutlined,
     FolderOpenOutlined,
     SaveOutlined,
     InfoCircleOutlined,
     TranslationOutlined,
     EyeOutlined
 } from "@ant-design/icons";
-import { message, Dropdown, Space, Modal, Button } from "antd";
+import { message, Dropdown, Space, Modal, Button, List, Avatar } from "antd";
 import SideBarIcon from "./SideBarIcon";
 import vmContainer from "@/modules/vmContainer";
 import {
@@ -45,13 +46,64 @@ export const saveIr = (name: string, irString: string) => {
     URL.revokeObjectURL(stringUrl);
 };
 
+const importIr = (dispatch: AppDispatch, vmName: string, irString: string) => {
+    const newVm = new Vm();
+
+    vmContainer.add(newVm);
+
+    const irLines = splitLines(irString);
+    vmContainer.at(vmContainer.length - 1).loadNewInstructions(irLines);
+
+    dispatch(
+        addVmPageState({
+            name: vmName,
+            irPath: "",
+            isIrChanged: false,
+            irString: irString,
+            irSelection: {
+                start: 0,
+                end: 0
+            },
+
+            state: newVm.state,
+            globalVariableDetails: newVm.globalVariableDetails,
+            localVariableDetailsStack: newVm.localVariableDetailsStack,
+            options: newVm.currentOptions,
+            stepCount: newVm.stepCount,
+            memoryUsage: newVm.memoryUsage,
+            peakMemoryUsage: newVm.currentPeakMemoryUsage,
+
+            consoleOutputs: [],
+            consoleInputPrompt: [],
+            consoleInput: "",
+
+            staticErrorTable: newVm.staticErrorTable,
+            runtimeErrorTable: newVm.runtimeErrorTable,
+            currentLineNumber: newVm.currentLineNumber,
+            shouldIndicateCurrentLineNumber: false,
+
+            scrollHeights: {
+                irEditor: 0,
+                vmInspector: 0
+            }
+        })
+    );
+};
+
 export const importIrFile = (
     dispatch: AppDispatch,
     intl: IntlShape,
     file: File
 ) => {
     if (!file.name.endsWith(".ir")) {
-        message.error(`${file.name}不是一个ir文件`);
+        message.error(
+            intl.formatMessage(
+                {
+                    id: "NOT_AN_IR_FILE"
+                },
+                { fileName: file.name }
+            )
+        );
         return;
     }
 
@@ -76,47 +128,7 @@ export const importIrFile = (
             return;
         }
 
-        const newVm = new Vm();
-
-        vmContainer.add(newVm);
-
-        const irLines = splitLines(res.target.result as string);
-        vmContainer.at(vmContainer.length - 1).loadNewInstructions(irLines);
-
-        dispatch(
-            addVmPageState({
-                name: file.name,
-                irPath: "",
-                isIrChanged: false,
-                irString: res.target.result as string,
-                irSelection: {
-                    start: 0,
-                    end: 0
-                },
-
-                state: newVm.state,
-                globalVariableDetails: newVm.globalVariableDetails,
-                localVariableDetailsStack: newVm.localVariableDetailsStack,
-                options: newVm.currentOptions,
-                stepCount: newVm.stepCount,
-                memoryUsage: newVm.memoryUsage,
-                peakMemoryUsage: newVm.currentPeakMemoryUsage,
-
-                consoleOutputs: [],
-                consoleInputPrompt: [],
-                consoleInput: "",
-
-                staticErrorTable: newVm.staticErrorTable,
-                runtimeErrorTable: newVm.runtimeErrorTable,
-                currentLineNumber: newVm.currentLineNumber,
-                shouldIndicateCurrentLineNumber: false,
-
-                scrollHeights: {
-                    irEditor: 0,
-                    vmInspector: 0
-                }
-            })
-        );
+        importIr(dispatch, file.name, res.target.result as string);
     };
 };
 
@@ -129,6 +141,45 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
     );
 
     const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
+    const [isDemosModalOpen, setIsDemosModalOpen] = useState(false);
+    const [demosData, setDemosData] = useState<
+        {
+            name: string;
+            irUrl: string;
+            remark: string;
+        }[]
+    >([]);
+
+    useEffect(() => {
+        const exampleListUrl = "examples.json";
+
+        if (isDemosModalOpen) {
+            fetch(exampleListUrl)
+                .then(res => {
+                    if (!res.ok) {
+                        return Promise.reject();
+                    }
+                    return res.text();
+                })
+                .catch(() => {
+                    message.error(
+                        intl.formatMessage(
+                            {
+                                id: "FETCH_FAILED"
+                            },
+                            { url: exampleListUrl }
+                        )
+                    );
+                })
+                .then(res => {
+                    if (!res) {
+                        return;
+                    }
+
+                    setDemosData(JSON.parse(res));
+                });
+        }
+    }, [isDemosModalOpen]);
 
     return (
         <aside className={styles.asideSideBarWrapper}>
@@ -177,6 +228,11 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                             })
                         );
                     }}
+                />
+                <SideBarIcon
+                    icon={<BulbOutlined />}
+                    label={intl.formatMessage({ id: "DEMOS" })}
+                    onClick={() => setIsDemosModalOpen(true)}
                 />
                 <SideBarIcon
                     icon={<FolderOpenOutlined />}
@@ -331,6 +387,66 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                         </a>
                     </p>
                 </article>
+            </Modal>
+
+            <Modal
+                open={isDemosModalOpen}
+                title={intl.formatMessage({
+                    id: "DEMOS"
+                })}
+                centered
+                closable
+                onCancel={() => setIsDemosModalOpen(false)}
+                footer>
+                <List
+                    className={styles.listDemosList}
+                    itemLayout="horizontal"
+                    dataSource={demosData}
+                    size="small"
+                    renderItem={(item, index) => (
+                        <List.Item
+                            key={index}
+                            onClick={() => {
+                                fetch(item.irUrl)
+                                    .then(res => {
+                                        if (!res.ok) {
+                                            return Promise.reject();
+                                        }
+                                        return res.text();
+                                    })
+                                    .catch(() => {
+                                        message.error(
+                                            intl.formatMessage(
+                                                {
+                                                    id: "FETCH_FAILED"
+                                                },
+                                                { url: item.irUrl }
+                                            )
+                                        );
+                                    })
+                                    .then(res => {
+                                        if (!res) {
+                                            return;
+                                        }
+
+                                        importIr(
+                                            dispatch,
+                                            item.irUrl
+                                                .split("/")
+                                                .at(-1) as string,
+                                            res
+                                        );
+                                        setIsDemosModalOpen(false);
+                                    });
+                            }}>
+                            <List.Item.Meta
+                                avatar={<Avatar icon={<BulbOutlined />} />}
+                                title={item.name}
+                                description={item.remark}
+                            />
+                        </List.Item>
+                    )}
+                />
             </Modal>
         </aside>
     );

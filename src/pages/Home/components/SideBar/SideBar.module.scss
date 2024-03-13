@@ -49,3 +49,20 @@
         gap: 5px;
     }
 }
+
+.listDemosList {
+    max-height: 80vh;
+    overflow-y: auto;
+
+    li {
+        cursor: pointer;
+        transition-duration: 200ms;
+        &:hover {
+            background-color: var(--demo-item-hover-color);
+        }
+
+        [class*="ant-avatar"] {
+            background-color: var(--demo-item-avatar-color);
+        }
+    }
+}

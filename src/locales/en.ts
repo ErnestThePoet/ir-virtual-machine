@@ -6,6 +6,7 @@ const en: AppLocale = {
     // UI strings
     ADD: "New",
     IMPORT: "Import",
+    DEMOS: "Demos",
     SAVE: "Save",
     THEME: "Theme",
     ABOUT: "About",
@@ -18,6 +19,8 @@ const en: AppLocale = {
     EMPTY_PLACEHOLDER: "No VM open. Try adding or importing an IR file! :)",
     EMPTY_PLACEHOLDER_SUPPORT_DRAG:
         "You may also drag multiple .ir files inside.",
+    FETCH_FAILED: "fetch() for {url} failed",
+    NOT_AN_IR_FILE: "{fileName} is not an ir file",
     IR_IMPORT_FAILED: "Failed to import {fileName}",
 
     RUN: "Run",

@@ -5,6 +5,7 @@ const zhCn = {
     // UI strings
     ADD: "新建",
     IMPORT: "导入",
+    DEMOS: "示例",
     SAVE: "保存",
     THEME: "主题",
     ABOUT: "关于",
@@ -16,6 +17,8 @@ const zhCn = {
     CANCEL: "取消",
     EMPTY_PLACEHOLDER: "暂无打开的虚拟机，快去新建或导入一个IR文件吧~",
     EMPTY_PLACEHOLDER_SUPPORT_DRAG: "可以直接将多个IR文件拖入哦",
+    FETCH_FAILED: "fetch() {url} 失败",
+    NOT_AN_IR_FILE: "{fileName}不是一个ir文件",
     IR_IMPORT_FAILED: "{fileName}导入失败",
 
     RUN: "运行",
