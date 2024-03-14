@@ -1,0 +1,30 @@
+/*
+ * Calculates greatest common divisor of a and b.
+ */
+
+int mod(int mod_x, int mod_y)
+{
+    return mod_x - mod_y * (mod_x / mod_y);
+}
+
+int gcd(int gcd_a, int gcd_n)
+{
+    while (gcd_n != 0)
+    {
+		int gcd_t = gcd_n;
+        gcd_n = mod(gcd_a, gcd_n);
+        gcd_a = gcd_t;
+    }
+
+    return gcd_a;
+}
+
+int main()
+{
+    int a = read();
+    int b = read();
+
+    write(gcd(a, b));
+
+    return 0;
+}

@@ -1,0 +1,40 @@
+/*
+ * Calculates least common multiple of a and b.
+ */
+
+int mod(int mod_x, int mod_y)
+{
+    return mod_x - mod_y * (mod_x / mod_y);
+}
+
+int gcd(int gcd_a, int gcd_n)
+{
+    while (gcd_n != 0)
+    {
+		int gcd_t = gcd_n;
+        gcd_n = mod(gcd_a, gcd_n);
+        gcd_a = gcd_t;
+    }
+
+    return gcd_a;
+}
+
+int lcm(int lcm_a, int lcm_b)
+{
+    if (lcm_a == 0 || lcm_b == 0)
+    {
+        return 0;
+    }
+
+	return lcm_a / gcd(lcm_a, lcm_b) * lcm_b;
+}
+
+int main()
+{
+    int a = read();
+    int b = read();
+
+    write(lcm(a, b));
+
+    return 0;
+}
