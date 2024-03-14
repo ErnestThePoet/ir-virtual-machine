@@ -6,6 +6,7 @@ const zhCn = {
     ADD: "新建",
     IMPORT: "导入",
     DEMOS: "示例",
+    DEMO_SOURCES: "源代码",
     SAVE: "保存",
     THEME: "主题",
     ABOUT: "关于",

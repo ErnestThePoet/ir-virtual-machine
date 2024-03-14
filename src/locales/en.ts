@@ -7,6 +7,7 @@ const en: AppLocale = {
     ADD: "New",
     IMPORT: "Import",
     DEMOS: "Demos",
+    DEMO_SOURCES: "Sources",
     SAVE: "Save",
     THEME: "Theme",
     ABOUT: "About",

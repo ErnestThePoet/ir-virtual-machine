@@ -481,9 +481,23 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
 
             <Modal
                 open={isDemosModalOpen}
-                title={intl.formatMessage({
-                    id: "DEMOS"
-                })}
+                title={
+                    <span>
+                        {intl.formatMessage({
+                            id: "DEMOS"
+                        })}
+
+                        <a
+                            className={styles.aDemoSources}
+                            href="https://github.com/ErnestThePoet/ir-virtual-machine/tree/master/public/demos">
+                            (
+                            {intl.formatMessage({
+                                id: "DEMO_SOURCES"
+                            })}
+                            )
+                        </a>
+                    </span>
+                }
                 centered
                 closable
                 onCancel={() => setIsDemosModalOpen(false)}
