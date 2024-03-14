@@ -23,3 +23,5 @@ node_modules
 *.njsproj
 *.sln
 *.sw?
+
+public/demos/parser.exe
