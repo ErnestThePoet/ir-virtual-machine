@@ -50,19 +50,47 @@
     }
 }
 
-.listDemosList {
+.menuDemos {
     max-height: 70vh;
     overflow-y: auto;
 
-    li {
-        cursor: pointer;
-        transition-duration: 200ms;
-        &:hover {
-            background-color: var(--demo-item-hover-color);
-        }
+    span[class~="ant-menu-title-content"] {
+        font-weight: bold;
+    }
 
-        [class*="ant-avatar"] {
-            background-color: var(--demo-item-avatar-color);
+    ul[class~="ant-menu"] {
+        background-color: #fff !important;
+
+        li[class~="ant-menu-item"] {
+            height: fit-content;
+            margin: 0 !important;
+            padding: 0 0 0 30px !important;
+            border-radius: 0;
+
+            &:hover {
+                background-color: #fff !important;
+            }
+
+            [class~="ant-avatar"] {
+                background-color: var(--demo-item-avatar-color);
+            }
+
+            li[class~="ant-list-item"] {
+                transition-duration: 200ms;
+                &:hover {
+                    background-color: var(--demo-item-hover-color);
+                }
+
+                [class~="ant-list-item-meta-title"] {
+                    text-wrap: wrap;
+                    font-weight: normal;
+                }
+
+                [class~="ant-list-item-meta-description"] {
+                    text-wrap: wrap;
+                    font-weight: normal;
+                }
+            }
         }
     }
 }

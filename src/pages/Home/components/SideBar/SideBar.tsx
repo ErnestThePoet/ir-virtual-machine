@@ -8,9 +8,20 @@ import {
     SaveOutlined,
     InfoCircleOutlined,
     TranslationOutlined,
-    EyeOutlined
+    EyeOutlined,
+    StarOutlined
 } from "@ant-design/icons";
-import { message, Dropdown, Space, Modal, Button, List, Avatar } from "antd";
+import {
+    message,
+    Dropdown,
+    Space,
+    Modal,
+    Button,
+    Menu,
+    List,
+    Avatar
+} from "antd";
+import type { MenuProps } from "antd";
 import SideBarIcon from "./SideBarIcon";
 import vmContainer from "@/modules/vmContainer";
 import {
@@ -31,6 +42,17 @@ interface SideBarProps {
     vmIndex: number;
     vm: SingleVmPageState | null;
 }
+
+interface DemoListGroup {
+    groupName: string;
+    demos: {
+        name: string;
+        irUrl: string;
+        remark: string;
+    }[];
+}
+
+const exampleListUrl = "demos.json";
 
 export const saveIr = (name: string, irString: string) => {
     const stringUrl = URL.createObjectURL(
@@ -142,43 +164,111 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
 
     const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
     const [isDemosModalOpen, setIsDemosModalOpen] = useState(false);
-    const [demosData, setDemosData] = useState<
-        {
-            name: string;
-            irUrl: string;
-            remark: string;
-        }[]
-    >([]);
+    const [demosData, setDemosData] = useState<MenuProps["items"]>([]);
 
     useEffect(() => {
-        const exampleListUrl = "examples.json";
-
-        if (isDemosModalOpen) {
-            fetch(exampleListUrl)
-                .then(res => {
-                    if (!res.ok) {
-                        return Promise.reject();
-                    }
-                    return res.text();
-                })
-                .catch(() => {
-                    message.error(
-                        intl.formatMessage(
-                            {
-                                id: "FETCH_FAILED"
-                            },
-                            { url: exampleListUrl }
-                        )
-                    );
-                })
-                .then(res => {
-                    if (!res) {
-                        return;
-                    }
-
-                    setDemosData(JSON.parse(res));
-                });
+        if (!isDemosModalOpen) {
+            return;
         }
+
+        fetch(exampleListUrl)
+            .then(res => {
+                if (!res.ok) {
+                    return Promise.reject();
+                }
+                return res.text();
+            })
+            .catch(() => {
+                message.error(
+                    intl.formatMessage(
+                        {
+                            id: "FETCH_FAILED"
+                        },
+                        { url: exampleListUrl }
+                    )
+                );
+            })
+            .then(res => {
+                if (!res) {
+                    return;
+                }
+
+                const demoListGroups: DemoListGroup[] = JSON.parse(res);
+
+                setDemosData(
+                    demoListGroups.map((x, i) => ({
+                        key: `g${i}`,
+                        icon: <StarOutlined />,
+                        label: x.groupName,
+                        children: [
+                            {
+                                key: `g${i}i`,
+                                label: (
+                                    <List
+                                        itemLayout="horizontal"
+                                        size="small"
+                                        dataSource={x.demos}
+                                        renderItem={item => (
+                                            <List.Item
+                                                onClick={() => {
+                                                    fetch(item.irUrl)
+                                                        .then(res => {
+                                                            if (!res.ok) {
+                                                                return Promise.reject();
+                                                            }
+                                                            return res.text();
+                                                        })
+                                                        .catch(() => {
+                                                            message.error(
+                                                                intl.formatMessage(
+                                                                    {
+                                                                        id: "FETCH_FAILED"
+                                                                    },
+                                                                    {
+                                                                        url: item.irUrl
+                                                                    }
+                                                                )
+                                                            );
+                                                        })
+                                                        .then(res => {
+                                                            if (!res) {
+                                                                return;
+                                                            }
+
+                                                            importIr(
+                                                                dispatch,
+                                                                item.irUrl
+                                                                    .split("/")
+                                                                    .at(
+                                                                        -1
+                                                                    ) as string,
+                                                                res
+                                                            );
+                                                            setIsDemosModalOpen(
+                                                                false
+                                                            );
+                                                        });
+                                                }}>
+                                                <List.Item.Meta
+                                                    avatar={
+                                                        <Avatar
+                                                            icon={
+                                                                <BulbOutlined />
+                                                            }
+                                                        />
+                                                    }
+                                                    title={item.name}
+                                                    description={item.remark}
+                                                />
+                                            </List.Item>
+                                        )}
+                                    />
+                                )
+                            }
+                        ]
+                    }))
+                );
+            });
     }, [isDemosModalOpen]);
 
     return (
@@ -398,54 +488,11 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                 closable
                 onCancel={() => setIsDemosModalOpen(false)}
                 footer>
-                <List
-                    className={styles.listDemosList}
-                    itemLayout="horizontal"
-                    dataSource={demosData}
-                    size="small"
-                    renderItem={(item, index) => (
-                        <List.Item
-                            key={index}
-                            onClick={() => {
-                                fetch(item.irUrl)
-                                    .then(res => {
-                                        if (!res.ok) {
-                                            return Promise.reject();
-                                        }
-                                        return res.text();
-                                    })
-                                    .catch(() => {
-                                        message.error(
-                                            intl.formatMessage(
-                                                {
-                                                    id: "FETCH_FAILED"
-                                                },
-                                                { url: item.irUrl }
-                                            )
-                                        );
-                                    })
-                                    .then(res => {
-                                        if (!res) {
-                                            return;
-                                        }
-
-                                        importIr(
-                                            dispatch,
-                                            item.irUrl
-                                                .split("/")
-                                                .at(-1) as string,
-                                            res
-                                        );
-                                        setIsDemosModalOpen(false);
-                                    });
-                            }}>
-                            <List.Item.Meta
-                                avatar={<Avatar icon={<BulbOutlined />} />}
-                                title={item.name}
-                                description={item.remark}
-                            />
-                        </List.Item>
-                    )}
+                <Menu
+                    className={styles.menuDemos}
+                    mode="inline"
+                    selectable={false}
+                    items={demosData}
                 />
             </Modal>
         </aside>
