@@ -1,32 +1,33 @@
-.divOutputBlockWrapper{
+.divOutputBlockWrapper {
     width: 100%;
     padding: 0 10px;
     font-size: 15px;
     line-height: 20px;
     display: flex;
     flex-wrap: wrap;
+    word-break: break-all;
 }
 
-.spanError{
+.spanError {
     color: var(--vm-console-error-color);
 }
 
-.spanWarning{
+.spanWarning {
     color: var(--vm-console-warning-color);
 }
 
-.spanSuccess{
+.spanSuccess {
     color: var(--vm-console-success-color);
 }
 
-.spanNormal{
+.spanNormal {
     color: var(--vm-console-normal-color);
 }
 
-.spanPrompt{
+.spanPrompt {
     color: var(--vm-console-prompt-color);
 }
 
-.spanArrow{
+.spanArrow {
     color: var(--vm-console-arrow-color);
 }

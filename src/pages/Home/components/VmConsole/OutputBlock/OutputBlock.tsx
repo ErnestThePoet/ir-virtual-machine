@@ -15,9 +15,9 @@ const OutputBlock: React.FC<OutputBlockProps> = (props: OutputBlockProps) => {
         <div className={styles.divOutputBlockWrapper}>
             {props.message.map((x, i) => {
                 const part = intl.formatMessage({ id: x.key }, x.values);
-                return part.split("").map((y, j) => (
+                return (
                     <span
-                        key={`x${i}y${j}`}
+                        key={i}
                         className={classNames({
                             [styles.spanError]: x.type === "ERROR",
                             [styles.spanWarning]: x.type === "WARNING",
@@ -26,9 +26,9 @@ const OutputBlock: React.FC<OutputBlockProps> = (props: OutputBlockProps) => {
                             [styles.spanPrompt]: x.type === "PROMPT",
                             [styles.spanArrow]: x.type === "ARROW"
                         })}>
-                        {y === " " ? <>&nbsp;</> : y}
+                        {part}
                     </span>
-                ));
+                );
             })}
         </div>
     );
