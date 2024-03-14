@@ -90,6 +90,21 @@
         ]
     },
     {
+        "groupName": "数学算法",
+        "demos": [
+            {
+                "name": "最大公约数(GCD)",
+                "irUrl": "demos/arithmetic/gcd.ir",
+                "remark": "输入a和b，使用欧几里得算法计算gcd(a,b)"
+            },
+            {
+                "name": "最小公倍数(LCM)",
+                "irUrl": "demos/arithmetic/lcm.ir",
+                "remark": "输入a和b，基于欧几里得GCD算法计算lcm(a,b)"
+            }
+        ]
+    },
+    {
         "groupName": "游戏",
         "demos": [
             {
