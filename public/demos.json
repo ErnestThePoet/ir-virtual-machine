@@ -29,32 +29,32 @@
         "demos": [
             {
                 "name": "二分搜索",
-                "irUrl": "demos/bsearch.ir",
+                "irUrl": "demos/ordinary/bsearch.ir",
                 "remark": "在1到99中对输入的数进行二分搜索，找到后输出下标，否则输出-1"
             },
             {
                 "name": "使用朴素递归方法计算Fib(n)",
-                "irUrl": "demos/fib0.ir",
+                "irUrl": "demos/ordinary/fib0.ir",
                 "remark": "O(2^n)，你迫不及待地想试试了吧"
             },
             {
                 "name": "使用迭代方法计算Fib(n)",
-                "irUrl": "demos/fib1.ir",
+                "irUrl": "demos/ordinary/fib1.ir",
                 "remark": "O(n)，你也觉得这样没有意思吗"
             },
             {
                 "name": "使用矩阵乘法计算Fib(n)",
-                "irUrl": "demos/fib2.ir",
+                "irUrl": "demos/ordinary/fib2.ir",
                 "remark": "O(logn)，你是否被迷住了呢"
             },
             {
                 "name": "使用高级迭代方法计算Fib(n)",
-                "irUrl": "demos/fib3.ir",
+                "irUrl": "demos/ordinary/fib3.ir",
                 "remark": "O(logn)，输入n不能超过99"
             },
             {
                 "name": "全排列",
-                "irUrl": "demos/permu.ir",
+                "irUrl": "demos/ordinary/permu.ir",
                 "remark": "输入非负整数n，程序会打印{1,...,n}的所有排列，使用11111111分隔"
             }
         ]
@@ -64,27 +64,27 @@
         "demos": [
             {
                 "name": "随机数生成器",
-                "irUrl": "demos/rand.ir",
+                "irUrl": "demos/rand_sort/rand.ir",
                 "remark": "输入种子和要生成的随机数数量。本虚拟机对全局变量的支持使得编写随机数生成器成为可能，许多示例都以这个随机数生成器为基础。"
             },
             {
                 "name": "快速排序",
-                "irUrl": "demos/qsort.ir",
+                "irUrl": "demos/rand_sort/qsort.ir",
                 "remark": "输入一个随机数种子，然后看程序对30个随机数进行快速排序后的结果"
             },
             {
                 "name": "堆排序",
-                "irUrl": "demos/heapsort.ir",
+                "irUrl": "demos/rand_sort/heapsort.ir",
                 "remark": "输入一个随机数种子，然后看程序对30个随机数进行堆排序后的结果"
             },
             {
                 "name": "插入排序",
-                "irUrl": "demos/insertsort.ir",
+                "irUrl": "demos/rand_sort/insertsort.ir",
                 "remark": "输入一个随机数种子，然后看程序对30个随机数进行插入排序后的结果"
             },
             {
                 "name": "归并排序",
-                "irUrl": "demos/mergesort.ir",
+                "irUrl": "demos/rand_sort/mergesort.ir",
                 "remark": "输入一个随机数种子，然后看程序对30个随机数进行归并排序后的结果"
             }
         ]
@@ -94,7 +94,7 @@
         "demos": [
             {
                 "name": "猜数游戏",
-                "irUrl": "demos/guess_game.ir",
+                "irUrl": "demos/games/guess_game.ir",
                 "remark": "输入一个随机数种子，然后猜测在[0,32768)内生成的数字。猜小了会输出-1，猜大了会输出1。猜对了会输出什么？"
             }
         ]
@@ -104,7 +104,7 @@
         "demos": [
             {
                 "name": "栈溢出攻击",
-                "irUrl": "demos/stack_overflow.ir",
+                "irUrl": "demos/cyber_security/stack_overflow.ir",
                 "remark": "在这个虚拟机上也能进行栈溢出攻击吗？"
             }
         ]
@@ -114,12 +114,12 @@
         "demos": [
             {
                 "name": "1000个输出",
-                "irUrl": "demos/1k_writes.ir",
-                "remark": "1000行不多也不少"
+                "irUrl": "demos/boring/1k_writes.ir",
+                "remark": "多乎哉，不多也"
             },
             {
                 "name": "Benchmark",
-                "irUrl": "demos/benchmark.ir",
+                "irUrl": "demos/boring/benchmark.ir",
                 "remark": "性能测试，让虚拟机跑一会"
             }
         ]
