@@ -10,7 +10,8 @@ import {
     setShouldIndicateCurrentLineNumber,
     syncVmState,
     addConsoleOutputs,
-    SingleVmPageState
+    SingleVmPageState,
+    setLocalVariableTablePageIndex
 } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { ConsoleMessageType } from "@/modules/vm/vm";
@@ -94,6 +95,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                     dispatch(setShouldIndicateCurrentLineNumber(false));
                     dispatch(setConsoleInputPrompt([]));
                     dispatch(setConsoleInput(""));
+                    dispatch(setLocalVariableTablePageIndex(1));
                     vmContainer.at(props.vmIndex).reset();
                     syncVmState(dispatch, props.vm.id);
                 }}

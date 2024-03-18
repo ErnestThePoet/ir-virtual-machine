@@ -48,6 +48,8 @@ export interface SingleVmPageState {
         // vmConsole: number;
         vmInspector: number;
     };
+
+    localVariableTablePageIndex: number;
 }
 
 interface VmState {
@@ -215,6 +217,14 @@ export const vmSlice = createSlice({
                 state.vmPageStates[state.activeVmIndex].scrollHeights,
                 action.payload
             );
+        },
+        setLocalVariableTablePageIndex: (
+            state,
+            action: PayloadAction<number>
+        ) => {
+            state.vmPageStates[
+                state.activeVmIndex
+            ].localVariableTablePageIndex = action.payload;
         }
     }
 });
@@ -242,7 +252,8 @@ export const {
     setRuntimeErrorTable,
     setCurrentLineNumber,
     setShouldIndicateCurrentLineNumber,
-    setScrollHeights
+    setScrollHeights,
+    setLocalVariableTablePageIndex
 } = vmSlice.actions;
 
 export const syncVmState = (dispatch: AppDispatch, vmId: number) => {

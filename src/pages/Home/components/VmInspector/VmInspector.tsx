@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import { useAppDispatch } from "@/store/hooks";
-import { InputNumber } from "antd";
+import { InputNumber, Pagination } from "antd";
 import styles from "./VmInspector.module.scss";
 import { useIntl } from "react-intl";
 import classNames from "classnames";
 import { vmOptionLimits } from "@/modules/vm/vm";
 import {
     SingleVmPageState,
+    setLocalVariableTablePageIndex,
     setScrollHeights,
     syncVmState
 } from "@/store/reducers/vm";
@@ -18,6 +19,8 @@ interface VmInspectorProps {
     vmIndex: number;
     vm: SingleVmPageState;
 }
+
+const LOCAL_VARIABLE_TABLE_PAGE_SIZE = 10;
 
 const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
     const intl = useIntl();
@@ -180,17 +183,48 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                     </div>
                 ) : (
                     <div className={styles.divLocalVariableTableWrapper}>
-                        {props.vm.localVariableDetailsStack.map((x, i) => (
-                            <div
-                                key={i}
-                                className={styles.divLocalVariableTable}>
-                                <label className="functionName">
-                                    {x.functionName}
-                                </label>
+                        {props.vm.localVariableDetailsStack
+                            .slice(
+                                LOCAL_VARIABLE_TABLE_PAGE_SIZE *
+                                    (props.vm.localVariableTablePageIndex - 1),
+                                LOCAL_VARIABLE_TABLE_PAGE_SIZE *
+                                    props.vm.localVariableTablePageIndex
+                            )
+                            .map((x, i) => (
+                                <div
+                                    key={i}
+                                    className={styles.divLocalVariableTable}>
+                                    <div className="titleWrapper">
+                                        <label className="functionName">
+                                            {x.functionName}
+                                        </label>
+                                        <label className="callStackDepth">
+                                            (
+                                            {intl.formatMessage(
+                                                { id: "CALL_STACK_DEPTH" },
+                                                { depth: x.stackDepth }
+                                            )}
+                                            )
+                                        </label>
+                                    </div>
 
-                                <VariableTable key={i} variables={x.details} />
-                            </div>
-                        ))}
+                                    <VariableTable
+                                        key={i}
+                                        variables={x.details}
+                                    />
+                                </div>
+                            ))}
+                        <Pagination
+                            className={styles.paginationLocalVariableTable}
+                            current={props.vm.localVariableTablePageIndex}
+                            onChange={e =>
+                                dispatch(setLocalVariableTablePageIndex(e))
+                            }
+                            pageSize={LOCAL_VARIABLE_TABLE_PAGE_SIZE}
+                            showSizeChanger={false}
+                            total={props.vm.localVariableDetailsStack.length}
+                            size="small"
+                        />
                     </div>
                 )}
             </div>

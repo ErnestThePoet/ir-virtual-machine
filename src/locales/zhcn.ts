@@ -60,6 +60,7 @@ const zhCn = {
     SIZE: "大小",
     VALUES: "值",
     EMPTY_VATIABLE_TABLE: "（空）",
+    CALL_STACK_DEPTH: "调用栈第{depth}层",
 
     // Static error check messages
     STATIC_ERROR_PREFIX: "静态分析错误：",

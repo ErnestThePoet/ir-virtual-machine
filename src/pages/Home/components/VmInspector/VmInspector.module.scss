@@ -182,10 +182,22 @@
     align-items: center;
     gap: 8px;
 
-    > label[class="functionName"] {
-        margin-left: 10px;
-        font-size: 14px;
-        user-select: none;
+    > div[class="titleWrapper"] {
         align-self: flex-start;
+
+        > label[class="functionName"] {
+            font-size: 14px;
+            font-weight: bold;
+            margin-left: 0.6em;
+        }
+
+        > label[class="callStackDepth"] {
+            margin-left: 0.6em;
+            font-size: 14px;
+        }
     }
+}
+
+.paginationLocalVariableTable {
+    user-select: none;
 }

@@ -72,6 +72,7 @@ export interface VmVariableDetail {
 
 export interface VmLocalVariableDetail {
     functionName: string;
+    stackDepth: number;
     details: VmVariableDetail[];
 }
 
@@ -365,6 +366,7 @@ export class Vm {
         for (let i = 0; i < this.tables.variableTableStack.length; i++) {
             detailsStack.push({
                 functionName: this.executionStatus.callStack[i],
+                stackDepth: i,
                 details: this.getSingleTableVariableDetails(
                     this.tables.variableTableStack[i]
                 )

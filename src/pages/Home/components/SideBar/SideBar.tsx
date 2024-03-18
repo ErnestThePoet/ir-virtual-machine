@@ -107,7 +107,9 @@ const importIr = (dispatch: AppDispatch, vmName: string, irString: string) => {
             scrollHeights: {
                 irEditor: 0,
                 vmInspector: 0
-            }
+            },
+
+            localVariableTablePageIndex: 1
         })
     );
 };
@@ -314,7 +316,9 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                                 scrollHeights: {
                                     irEditor: 0,
                                     vmInspector: 0
-                                }
+                                },
+
+                                localVariableTablePageIndex: 1
                             })
                         );
                     }}

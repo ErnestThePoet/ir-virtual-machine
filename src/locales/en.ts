@@ -62,6 +62,7 @@ const en: AppLocale = {
     SIZE: "Size",
     VALUES: "Value",
     EMPTY_VATIABLE_TABLE: "(Empty)",
+    CALL_STACK_DEPTH: "Call stack depth {depth}",
 
     // Static error check messages
     STATIC_ERROR_PREFIX: "Static Check Error: ",
