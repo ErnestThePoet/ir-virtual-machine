@@ -3,6 +3,23 @@
  * and print the high 32-bit and low 32-bit (both printed as signed 32-bit integers).
  */
 
+int kTwoPowers[31];
+
+int init_two_powers()
+{
+	int init_two_powers_i = 0;
+	int init_two_powers_power = 1;
+
+	while (init_two_powers_i < 31)
+	{
+		kTwoPowers[init_two_powers_i] = init_two_powers_power;
+		init_two_powers_power = init_two_powers_power * 2;
+		init_two_powers_i = init_two_powers_i + 1;
+	}
+
+	return 0;
+}
+
 int mod(int mod_x, int mod_y)
 {
 	return mod_x - mod_y * (mod_x / mod_y);
@@ -10,7 +27,10 @@ int mod(int mod_x, int mod_y)
 
 int unsigned_rshift(int usr_x, int usr_a)
 {
-	int usr_i = 0;
+	if (usr_a >= 32 || (usr_x >= 0 && usr_a == 31))
+	{
+		return 0;
+	}
 
 	if (usr_x < 0 && usr_a > 0)
 	{
@@ -20,16 +40,11 @@ int unsigned_rshift(int usr_x, int usr_a)
 		usr_x = usr_x / 2;
 		// reset msb
 		usr_x = usr_x + 1073741824;
-		usr_i = 1;
+		usr_a = usr_a - 1;
 	}
 
-	while (usr_i < usr_a)
-	{
-		usr_x = usr_x / 2;
-		usr_i = usr_i + 1;
-	}
-
-	return usr_x;
+	// Now a<31
+	return usr_x / kTwoPowers[usr_a];
 }
 
 int add_uint32(int add_uint32_carriage_out[1], int add_uint32_a, int add_uint32_b)
@@ -115,6 +130,8 @@ int main()
 
 	int prod64[2];
 
+	init_two_powers();
+	
 	uint32_mul(prod64, a, b);
 
 	write(prod64[0]);
