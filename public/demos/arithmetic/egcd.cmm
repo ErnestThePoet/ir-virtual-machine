@@ -1,0 +1,52 @@
+/*
+ * Calculates (d,X,Y) with d=gcd(a,b) and Xa+Yb=d
+ */
+
+int mod(int mod_x, int mod_y)
+{
+	return mod_x - mod_y * (mod_x / mod_y);
+}
+
+int egcd(int egcd_out[3], int egcd_a, int egcd_b)
+{
+	if (mod(egcd_a, egcd_b) == 0)
+	{
+		egcd_out[0] = egcd_b;
+		egcd_out[1] = 0;
+		egcd_out[2] = 1;
+	}
+    else
+    {
+        int egcd_q = egcd_a / egcd_b;
+        int egcd_r = egcd_a - egcd_q * egcd_b;
+        int egcd_dxy[3];
+
+        egcd(egcd_dxy, egcd_b, egcd_r);
+
+        egcd_out[0] = egcd_dxy[0];
+        egcd_out[1] = egcd_dxy[2];
+        egcd_out[2] = egcd_dxy[1] - egcd_dxy[2] * egcd_q;
+    }
+
+    return 0;
+}
+
+int main()
+{
+	int a = read();
+	int b = read();
+	int dxy[3];
+
+	if (!(a >= b && b > 0))
+	{
+		return 1;
+	}
+
+	egcd(dxy, a, b);
+
+	write(dxy[0]);
+	write(dxy[1]);
+	write(dxy[2]);
+
+	return 0;
+}

@@ -101,6 +101,16 @@
                 "name": "最小公倍数(LCM)",
                 "irUrl": "demos/arithmetic/lcm.ir",
                 "remark": "输入a和b，基于欧几里得GCD算法计算lcm(a,b)"
+            },
+            {
+                "name": "扩展欧几里得算法(EGCD)",
+                "irUrl": "demos/arithmetic/egcd.ir",
+                "remark": "输入a和b(a≥b>0)，输出(d,X,Y)使得d=gcd(a,b)且Xa+Yb=d"
+            },
+            {
+                "name": "32位无符号整数的完整乘法结果",
+                "irUrl": "demos/arithmetic/uint32_mul.ir",
+                "remark": "输入32位有符号整数a和b，以32位无符号整数的形式解释它们并计算a*b，输出64位结果的高32位和低32位的有符号数形式"
             }
         ]
     },
@@ -135,7 +145,7 @@
             {
                 "name": "Benchmark",
                 "irUrl": "demos/boring/benchmark.ir",
-                "remark": "性能测试，让虚拟机跑一会"
+                "remark": "性能测试，让虚拟机忙起来！"
             }
         ]
     }

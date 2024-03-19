@@ -1,0 +1,124 @@
+/*
+ * Calculates the 64-bit result of a*b (both interpreted as unsigned 32-bit integers)
+ * and print the high 32-bit and low 32-bit (both printed as signed 32-bit integers).
+ */
+
+int mod(int mod_x, int mod_y)
+{
+	return mod_x - mod_y * (mod_x / mod_y);
+}
+
+int unsigned_rshift(int usr_x, int usr_a)
+{
+	int usr_i = 0;
+
+	if (usr_x < 0 && usr_a > 0)
+	{
+		// clear msb
+		usr_x = usr_x + (-2147483648);
+		// perform normal right shift
+		usr_x = usr_x / 2;
+		// reset msb
+		usr_x = usr_x + 1073741824;
+		usr_i = 1;
+	}
+
+	while (usr_i < usr_a)
+	{
+		usr_x = usr_x / 2;
+		usr_i = usr_i + 1;
+	}
+
+	return usr_x;
+}
+
+int add_uint32(int add_uint32_carriage_out[1], int add_uint32_a, int add_uint32_b)
+{
+	// a=(31bit)ah (1bit)al=2ah+al
+	// b=(31bit)bh (1bit)bl=2bh+bl
+	// a+b=2(ah+bh)+(al+bl)
+	int add_uint32_ah = unsigned_rshift(add_uint32_a, 1);
+	int add_uint32_bh = unsigned_rshift(add_uint32_b, 1);
+	int add_uint32_ahbh = add_uint32_ah + add_uint32_bh;
+	int add_uint32_ahbh2 = add_uint32_ahbh + add_uint32_ahbh;
+	// ensure positive integer is passed to mod
+	int add_uint32_albl = mod(add_uint32_a - add_uint32_ah * 65536, 2) + mod(add_uint32_b - add_uint32_bh * 65536, 2);
+
+	if (add_uint32_ahbh < 0)
+	{
+		add_uint32_carriage_out[0] = 1;
+		return add_uint32_a + add_uint32_b;
+	}
+
+	// Now we know 2(ah+bh) will not overflow.
+	// Simply detect whether 2(ah+bh)+(al+bl) overflows.
+	if ((add_uint32_ahbh2 > 0 && (add_uint32_ahbh2 + add_uint32_albl < 0)) || (add_uint32_ahbh2 < 0 && (add_uint32_ahbh2 + add_uint32_albl > 0)))
+	{
+		add_uint32_carriage_out[0] = 1;
+		return add_uint32_a + add_uint32_b;
+	}
+
+	add_uint32_carriage_out[0] = 0;
+	return add_uint32_a + add_uint32_b;
+}
+
+int uint32_mul(int uint32_mul_int64_out[2], int uint32_mul_a, int uint32_mul_b)
+{
+	// a=ah al=(ah<<16)+al
+	// b=bh bl=(bh<<16)+bl
+	// a*b=((ah*bh)<<32)+((ah*bl)<<16)+((al*bh)<<16)+(al*bl)
+	// 
+	// |---------------(a*b)----------------|
+	// |-----(a*b)_h-----||-----(a*b)_l-----|
+	// 
+	// equals the sum of:
+	// 
+	// |      32bit      |00...............00  ((ah*bh)<<32)
+	// --------------------------------------
+	//          |      32bit      |00......00  ((ah*bl)<<16)
+	//          -----------------------------
+	//          |      32bit       |00......00  ((al*bh)<<16)
+	//          -----------------------------
+	//                    |       32bit     |  (al*bl)
+	//                    -------------------
+	// Therefore:
+	// (a*b)_l=(al*bl)+((ah*bl)<<16)+((al*bh)<<16) with carriage=C (note C could be 0,1,2)
+	// (a*b)_h=(ah*bh)+((ah*bl)>>16)+((al*bh)>>16)+C
+
+	int uint32_mul_ah = unsigned_rshift(uint32_mul_a, 16);
+	int uint32_mul_al = uint32_mul_a - uint32_mul_ah * 65536;
+
+	int uint32_mul_bh = unsigned_rshift(uint32_mul_b, 16);
+	int uint32_mul_bl = uint32_mul_b - uint32_mul_bh * 65536;
+
+	int uint32_mul_abh = uint32_mul_ah * uint32_mul_bh + unsigned_rshift(uint32_mul_ah * uint32_mul_bl, 16) + unsigned_rshift((uint32_mul_al * uint32_mul_bh), 16);
+
+	int uint32_mul_abl_carriage[1];
+	int uint32_mul_abl = add_uint32(uint32_mul_abl_carriage, uint32_mul_al * uint32_mul_bl, ((uint32_mul_ah * uint32_mul_bl) * 65536));
+
+	uint32_mul_abh = uint32_mul_abh + uint32_mul_abl_carriage[0];
+
+	uint32_mul_abl = add_uint32(uint32_mul_abl_carriage, uint32_mul_abl, ((uint32_mul_al * uint32_mul_bh) * 65536));
+
+	uint32_mul_abh = uint32_mul_abh + uint32_mul_abl_carriage[0];
+
+	uint32_mul_int64_out[0] = uint32_mul_abh;
+	uint32_mul_int64_out[1] = uint32_mul_abl;
+
+	return 0;
+}
+
+int main()
+{
+	int a = read();
+	int b = read();
+
+	int prod64[2];
+
+	uint32_mul(prod64, a, b);
+
+	write(prod64[0]);
+	write(prod64[1]);
+
+	return 0;
+}
