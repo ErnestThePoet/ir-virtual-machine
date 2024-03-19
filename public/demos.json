@@ -109,7 +109,7 @@
             },
             {
                 "name": "32位无符号整数的完整乘法结果",
-                "irUrl": "demos/arithmetic/uint32_mul.ir",
+                "irUrl": "demos/arithmetic/mul_uint32.ir",
                 "remark": "输入32位有符号整数a和b，以32位无符号整数的形式解释它们并计算a*b，输出64位结果的高32位和低32位的有符号数形式"
             }
         ]

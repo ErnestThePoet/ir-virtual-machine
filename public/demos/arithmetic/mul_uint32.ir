@@ -216,7 +216,7 @@ var62 := var31 + var61
 *var62 := #0
 var63 := var32 + var33
 RETURN var63
-FUNCTION uint32_mul :
+FUNCTION mul_uint32 :
 PARAM var64
 PARAM var65
 PARAM var66
@@ -281,7 +281,7 @@ CALL init_two_powers
 ARG var100
 ARG var98
 ARG &var102
-CALL uint32_mul
+CALL mul_uint32
 var103 := #4 * #0
 var104 := &var102 + var103
 WRITE *var104
