@@ -117,6 +117,7 @@ const en: AppLocale = {
     DUPLICATE_DEC_ID: "DEC's variable id already declared",
     DUPLICATE_GLOBAL_DEC_ID: "GLOBAL_DEC's global variable id already declared",
     DUPLICATE_PARAM_ID: "PARAM's param id already declared",
+    DIVIDE_BY_ZERO: "Cannot divide by 0",
 
     // Other error messages
     MAX_STEP_REACHED:

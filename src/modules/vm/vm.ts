@@ -1094,6 +1094,12 @@ export class Vm {
                             singularRValue
                         );
                     case "/":
+                        if (singularRValue.value === 0) {
+                            this.writeRuntimeError({
+                                key: "DIVIDE_BY_ZERO"
+                            });
+                            return null;
+                        }
                         return this.alu.divInt32(
                             singularLValue,
                             singularRValue

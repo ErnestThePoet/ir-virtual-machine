@@ -111,6 +111,7 @@ const zhCn = {
     DUPLICATE_DEC_ID: "DEC指令声明的变量名已存在",
     DUPLICATE_GLOBAL_DEC_ID: "GLOBAL_DEC指令声明的全局变量名已存在",
     DUPLICATE_PARAM_ID: "PARAM指令声明的形参名已存在",
+    DIVIDE_BY_ZERO: "不能除以0",
 
     // Other error messages
     MAX_STEP_REACHED: "已到达最大执行步数限制({maxExecutionStepCount})",
