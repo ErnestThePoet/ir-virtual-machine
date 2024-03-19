@@ -24,4 +24,5 @@ node_modules
 *.sln
 *.sw?
 
-public/demos/parser.exe
+public/demos/cc.exe
+public/demos/cc.bat
