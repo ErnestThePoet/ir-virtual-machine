@@ -1,0 +1,473 @@
+GLOBAL_DEC var0 128
+FUNCTION init_two_powers :
+var1 := #0
+var2 := #1
+LABEL label2 :
+IF var1 < #32 GOTO label0
+var3 := #0
+GOTO label1
+LABEL label0 :
+var3 := #1
+LABEL label1 :
+IF var3 != #0 GOTO label3
+GOTO label4
+LABEL label3 :
+var4 := #4 * var1
+var5 := &var0 + var4
+*var5 := var2
+var6 := var2 * #2
+var2 := var6
+var7 := var1 + #1
+var1 := var7
+GOTO label2
+LABEL label4 :
+RETURN #0
+FUNCTION rshift_uint32 :
+PARAM var8
+PARAM var9
+IF var9 >= #32 GOTO label5
+var10 := #0
+GOTO label6
+LABEL label5 :
+var10 := #1
+LABEL label6 :
+IF var8 >= #0 GOTO label7
+var11 := #0
+GOTO label8
+LABEL label7 :
+var11 := #1
+LABEL label8 :
+IF var9 == #31 GOTO label9
+var12 := #0
+GOTO label10
+LABEL label9 :
+var12 := #1
+LABEL label10 :
+IF var11 != #0 GOTO label12
+LABEL label13 :
+var13 := #0
+GOTO label14
+LABEL label12 :
+IF var12 != #0 GOTO label11
+GOTO label13
+LABEL label11 :
+var13 := #1
+LABEL label14 :
+IF var10 != #0 GOTO label15
+IF var13 != #0 GOTO label15
+var14 := #0
+GOTO label16
+LABEL label15 :
+var14 := #1
+LABEL label16 :
+IF var14 != #0 GOTO label17
+GOTO label18
+LABEL label17 :
+RETURN #0
+LABEL label18 :
+IF var8 < #0 GOTO label19
+var15 := #0
+GOTO label20
+LABEL label19 :
+var15 := #1
+LABEL label20 :
+IF var9 > #0 GOTO label21
+var16 := #0
+GOTO label22
+LABEL label21 :
+var16 := #1
+LABEL label22 :
+IF var15 != #0 GOTO label24
+LABEL label25 :
+var17 := #0
+GOTO label26
+LABEL label24 :
+IF var16 != #0 GOTO label23
+GOTO label25
+LABEL label23 :
+var17 := #1
+LABEL label26 :
+IF var17 != #0 GOTO label27
+GOTO label28
+LABEL label27 :
+var18 := #0 - #2147483648
+var19 := var8 + var18
+var8 := var19
+var20 := var8 / #2
+var8 := var20
+var21 := var8 + #1073741824
+var8 := var21
+var22 := var9 - #1
+var9 := var22
+LABEL label28 :
+var23 := #4 * var9
+var24 := &var0 + var23
+var25 := var8 / *var24
+RETURN var25
+FUNCTION get_bits_uint32 :
+PARAM var26
+var27 := #0
+LABEL label29 :
+ARG var27
+ARG var26
+var28 := CALL rshift_uint32
+IF var28 != #0 GOTO label30
+GOTO label31
+LABEL label30 :
+var29 := var27 + #1
+var27 := var29
+GOTO label29
+LABEL label31 :
+RETURN var27
+FUNCTION cmp_uint32 :
+PARAM var30
+PARAM var31
+IF var30 < #0 GOTO label32
+var32 := #0
+GOTO label33
+LABEL label32 :
+var32 := #1
+LABEL label33 :
+IF var31 < #0 GOTO label34
+var33 := #0
+GOTO label35
+LABEL label34 :
+var33 := #1
+LABEL label35 :
+IF var32 != #0 GOTO label37
+LABEL label38 :
+var34 := #0
+GOTO label39
+LABEL label37 :
+IF var33 != #0 GOTO label36
+GOTO label38
+LABEL label36 :
+var34 := #1
+LABEL label39 :
+IF var30 >= #0 GOTO label40
+var35 := #0
+GOTO label41
+LABEL label40 :
+var35 := #1
+LABEL label41 :
+IF var31 >= #0 GOTO label42
+var36 := #0
+GOTO label43
+LABEL label42 :
+var36 := #1
+LABEL label43 :
+IF var35 != #0 GOTO label45
+LABEL label46 :
+var37 := #0
+GOTO label47
+LABEL label45 :
+IF var36 != #0 GOTO label44
+GOTO label46
+LABEL label44 :
+var37 := #1
+LABEL label47 :
+IF var34 != #0 GOTO label48
+IF var37 != #0 GOTO label48
+var38 := #0
+GOTO label49
+LABEL label48 :
+var38 := #1
+LABEL label49 :
+IF var38 != #0 GOTO label58
+IF var30 < #0 GOTO label60
+var42 := #0
+GOTO label61
+LABEL label60 :
+var42 := #1
+LABEL label61 :
+IF var31 >= #0 GOTO label62
+var43 := #0
+GOTO label63
+LABEL label62 :
+var43 := #1
+LABEL label63 :
+IF var42 != #0 GOTO label65
+LABEL label66 :
+var44 := #0
+GOTO label67
+LABEL label65 :
+IF var43 != #0 GOTO label64
+GOTO label66
+LABEL label64 :
+var44 := #1
+LABEL label67 :
+IF var44 != #0 GOTO label68
+IF var31 < #0 GOTO label70
+var45 := #0
+GOTO label71
+LABEL label70 :
+var45 := #1
+LABEL label71 :
+IF var30 >= #0 GOTO label72
+var46 := #0
+GOTO label73
+LABEL label72 :
+var46 := #1
+LABEL label73 :
+IF var45 != #0 GOTO label75
+LABEL label76 :
+var47 := #0
+GOTO label77
+LABEL label75 :
+IF var46 != #0 GOTO label74
+GOTO label76
+LABEL label74 :
+var47 := #1
+LABEL label77 :
+IF var47 != #0 GOTO label78
+GOTO label79
+LABEL label78 :
+var48 := #0 - #1
+RETURN var48
+LABEL label79 :
+GOTO label69
+LABEL label68 :
+RETURN #1
+LABEL label69 :
+GOTO label59
+LABEL label58 :
+IF var30 > var31 GOTO label50
+var39 := #0
+GOTO label51
+LABEL label50 :
+var39 := #1
+LABEL label51 :
+IF var39 != #0 GOTO label52
+IF var30 < var31 GOTO label54
+var40 := #0
+GOTO label55
+LABEL label54 :
+var40 := #1
+LABEL label55 :
+IF var40 != #0 GOTO label56
+RETURN #0
+GOTO label57
+LABEL label56 :
+var41 := #0 - #1
+RETURN var41
+LABEL label57 :
+GOTO label53
+LABEL label52 :
+RETURN #1
+LABEL label53 :
+LABEL label59 :
+FUNCTION neg_uint32 :
+PARAM var49
+var50 := #0 - #1
+var51 := var50 - var49
+var52 := var51 + #1
+RETURN var52
+FUNCTION add_full_uint32 :
+PARAM var53
+PARAM var54
+PARAM var55
+var57 := #0 - #1
+var56 := var57 - var54
+ARG var55
+ARG var56
+var58 := CALL cmp_uint32
+IF var58 < #0 GOTO label80
+var59 := #0
+GOTO label81
+LABEL label80 :
+var59 := #1
+LABEL label81 :
+IF var59 != #0 GOTO label82
+var62 := #4 * #0
+var63 := var53 + var62
+*var63 := #0
+GOTO label83
+LABEL label82 :
+var60 := #4 * #0
+var61 := var53 + var60
+*var61 := #1
+LABEL label83 :
+var64 := var54 + var55
+RETURN var64
+FUNCTION sub_full_uint32 :
+PARAM var65
+PARAM var66
+PARAM var67
+ARG var67
+ARG var66
+var68 := CALL cmp_uint32
+IF var68 < #0 GOTO label84
+var69 := #0
+GOTO label85
+LABEL label84 :
+var69 := #1
+LABEL label85 :
+IF var69 != #0 GOTO label86
+var72 := #4 * #0
+var73 := var65 + var72
+*var73 := #0
+GOTO label87
+LABEL label86 :
+var70 := #4 * #0
+var71 := var65 + var70
+*var71 := #1
+LABEL label87 :
+var74 := var66 - var67
+RETURN var74
+FUNCTION mul_uint32 :
+PARAM var75
+PARAM var76
+PARAM var77
+ARG #16
+ARG var76
+var78 := CALL rshift_uint32
+var80 := var78 * #65536
+var79 := var76 - var80
+ARG #16
+ARG var77
+var81 := CALL rshift_uint32
+var83 := var81 * #65536
+var82 := var77 - var83
+var85 := var78 * var81
+var86 := var78 * var82
+ARG #16
+ARG var86
+var87 := CALL rshift_uint32
+var88 := var85 + var87
+var89 := var79 * var81
+ARG #16
+ARG var89
+var90 := CALL rshift_uint32
+var84 := var88 + var90
+DEC var91 4
+var93 := var79 * var82
+var94 := var78 * var82
+var95 := var94 * #65536
+ARG var95
+ARG var93
+ARG &var91
+var92 := CALL add_full_uint32
+var96 := #4 * #0
+var97 := &var91 + var96
+var98 := var84 + *var97
+var84 := var98
+var99 := var79 * var81
+var100 := var99 * #65536
+ARG var100
+ARG var92
+ARG &var91
+var101 := CALL add_full_uint32
+var92 := var101
+var102 := #4 * #0
+var103 := &var91 + var102
+var104 := var84 + *var103
+var84 := var104
+var105 := #4 * #0
+var106 := var75 + var105
+*var106 := var84
+var107 := #4 * #1
+var108 := var75 + var107
+*var108 := var92
+RETURN #0
+FUNCTION div_mod_uint32 :
+PARAM var109
+PARAM var110
+PARAM var111
+var115 := var110
+var116 := #0
+var117 := #0
+ARG var111
+ARG var110
+var118 := CALL cmp_uint32
+IF var118 < #0 GOTO label88
+var119 := #0
+GOTO label89
+LABEL label88 :
+var119 := #1
+LABEL label89 :
+IF var119 != #0 GOTO label90
+GOTO label91
+LABEL label90 :
+var120 := #4 * #0
+var121 := var109 + var120
+*var121 := var110
+RETURN #0
+LABEL label91 :
+ARG var110
+var122 := CALL get_bits_uint32
+var113 := var122
+ARG var111
+var123 := CALL get_bits_uint32
+var114 := var123
+var124 := var113 - var114
+var125 := #4 * var124
+var126 := &var0 + var125
+var127 := var111 * *var126
+var111 := var127
+var128 := var113 - var114
+var112 := var128
+LABEL label98 :
+IF var112 >= #0 GOTO label92
+var129 := #0
+GOTO label93
+LABEL label92 :
+var129 := #1
+LABEL label93 :
+IF var129 != #0 GOTO label99
+GOTO label100
+LABEL label99 :
+var130 := var117 * #2
+var117 := var130
+ARG var111
+ARG var115
+var131 := CALL cmp_uint32
+IF var131 >= #0 GOTO label94
+var132 := #0
+GOTO label95
+LABEL label94 :
+var132 := #1
+LABEL label95 :
+IF var132 != #0 GOTO label96
+ARG #1
+ARG var111
+var137 := CALL rshift_uint32
+var111 := var137
+GOTO label97
+LABEL label96 :
+var133 := var117 + #1
+var117 := var133
+var134 := var115 - var111
+var115 := var134
+var135 := var115 * #2
+var115 := var135
+var136 := var116 + #1
+var116 := var136
+LABEL label97 :
+var138 := var112 - #1
+var112 := var138
+GOTO label98
+LABEL label100 :
+var139 := #4 * #0
+var140 := var109 + var139
+ARG var116
+ARG var115
+var141 := CALL rshift_uint32
+*var140 := var141
+RETURN var117
+FUNCTION main :
+READ var143
+var142 := var143
+READ var145
+var144 := var145
+DEC var147 4
+CALL init_two_powers
+ARG var144
+ARG var142
+ARG &var147
+var148 := CALL div_mod_uint32
+var146 := var148
+WRITE var146
+var149 := #4 * #0
+var150 := &var147 + var149
+WRITE *var150
+RETURN #0
