@@ -1,0 +1,114 @@
+FUNCTION mod :
+PARAM var0
+PARAM var1
+var2 := var0 / var1
+var3 := var1 * var2
+var4 := var0 - var3
+RETURN var4
+FUNCTION egcd :
+PARAM var5
+PARAM var6
+PARAM var7
+ARG var7
+ARG var6
+var8 := CALL mod
+IF var8 == #0 GOTO label0
+var9 := #0
+GOTO label1
+LABEL label0 :
+var9 := #1
+LABEL label1 :
+IF var9 != #0 GOTO label2
+var16 := var6 / var7
+var18 := var16 * var7
+var17 := var6 - var18
+DEC var19 12
+ARG var17
+ARG var7
+ARG &var19
+CALL egcd
+var20 := #4 * #0
+var21 := var5 + var20
+var22 := #4 * #0
+var23 := &var19 + var22
+*var21 := *var23
+var24 := #4 * #1
+var25 := var5 + var24
+var26 := #4 * #2
+var27 := &var19 + var26
+*var25 := *var27
+var28 := #4 * #2
+var29 := var5 + var28
+var30 := #4 * #1
+var31 := &var19 + var30
+var32 := #4 * #2
+var33 := &var19 + var32
+var34 := *var33 * var16
+var35 := *var31 - var34
+*var29 := var35
+GOTO label3
+LABEL label2 :
+var10 := #4 * #0
+var11 := var5 + var10
+*var11 := var7
+var12 := #4 * #1
+var13 := var5 + var12
+*var13 := #0
+var14 := #4 * #2
+var15 := var5 + var14
+*var15 := #1
+LABEL label3 :
+RETURN #0
+FUNCTION main :
+READ var37
+var36 := var37
+READ var39
+var38 := var39
+DEC var40 12
+IF var36 >= var38 GOTO label4
+var41 := #0
+GOTO label5
+LABEL label4 :
+var41 := #1
+LABEL label5 :
+IF var38 > #0 GOTO label6
+var42 := #0
+GOTO label7
+LABEL label6 :
+var42 := #1
+LABEL label7 :
+IF var41 != #0 GOTO label9
+LABEL label10 :
+var43 := #0
+GOTO label11
+LABEL label9 :
+IF var42 != #0 GOTO label8
+GOTO label10
+LABEL label8 :
+var43 := #1
+LABEL label11 :
+IF var43 != #0 GOTO label12
+var44 := #1
+GOTO label13
+LABEL label12 :
+var44 := #0
+LABEL label13 :
+IF var44 != #0 GOTO label14
+GOTO label15
+LABEL label14 :
+RETURN #1
+LABEL label15 :
+ARG var38
+ARG var36
+ARG &var40
+CALL egcd
+var45 := #4 * #0
+var46 := &var40 + var45
+WRITE *var46
+var47 := #4 * #1
+var48 := &var40 + var47
+WRITE *var48
+var49 := #4 * #2
+var50 := &var40 + var49
+WRITE *var50
+RETURN #0

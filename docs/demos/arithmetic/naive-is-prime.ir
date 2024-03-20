@@ -1,0 +1,110 @@
+FUNCTION mod :
+PARAM var0
+PARAM var1
+var2 := var0 / var1
+var3 := var1 * var2
+var4 := var0 - var3
+RETURN var4
+FUNCTION isqrt :
+PARAM var5
+var6 := #0
+LABEL label12 :
+IF var6 < var5 GOTO label0
+var7 := #0
+GOTO label1
+LABEL label0 :
+var7 := #1
+LABEL label1 :
+IF var7 != #0 GOTO label13
+GOTO label14
+LABEL label13 :
+var8 := var6 * var6
+IF var8 <= var5 GOTO label2
+var9 := #0
+GOTO label3
+LABEL label2 :
+var9 := #1
+LABEL label3 :
+var10 := var6 + #1
+var11 := var6 + #1
+var12 := var10 * var11
+IF var12 > var5 GOTO label4
+var13 := #0
+GOTO label5
+LABEL label4 :
+var13 := #1
+LABEL label5 :
+IF var9 != #0 GOTO label7
+LABEL label8 :
+var14 := #0
+GOTO label9
+LABEL label7 :
+IF var13 != #0 GOTO label6
+GOTO label8
+LABEL label6 :
+var14 := #1
+LABEL label9 :
+IF var14 != #0 GOTO label10
+GOTO label11
+LABEL label10 :
+RETURN var6
+LABEL label11 :
+var15 := var6 + #1
+var6 := var15
+GOTO label12
+LABEL label14 :
+var16 := #0 - #1
+RETURN var16
+FUNCTION is_prime :
+PARAM var17
+var18 := #2
+IF var17 <= #1 GOTO label15
+var20 := #0
+GOTO label16
+LABEL label15 :
+var20 := #1
+LABEL label16 :
+IF var20 != #0 GOTO label17
+GOTO label18
+LABEL label17 :
+RETURN #0
+LABEL label18 :
+ARG var17
+var21 := CALL isqrt
+var19 := var21
+LABEL label25 :
+IF var18 <= var19 GOTO label19
+var22 := #0
+GOTO label20
+LABEL label19 :
+var22 := #1
+LABEL label20 :
+IF var22 != #0 GOTO label26
+GOTO label27
+LABEL label26 :
+ARG var18
+ARG var17
+var23 := CALL mod
+IF var23 == #0 GOTO label21
+var24 := #0
+GOTO label22
+LABEL label21 :
+var24 := #1
+LABEL label22 :
+IF var24 != #0 GOTO label23
+GOTO label24
+LABEL label23 :
+RETURN #0
+LABEL label24 :
+var25 := var18 + #1
+var18 := var25
+GOTO label25
+LABEL label27 :
+RETURN #1
+FUNCTION main :
+READ var27
+var26 := var27
+ARG var26
+var28 := CALL is_prime
+WRITE var28
+RETURN #0

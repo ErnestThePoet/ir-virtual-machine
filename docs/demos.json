@@ -65,7 +65,7 @@
             {
                 "name": "随机数生成器",
                 "irUrl": "demos/rand_sort/rand.ir",
-                "remark": "输入种子和正整数n，生成n个[0,32768)内的随机数。本虚拟机对全局变量的支持使得编写随机数生成器成为可能，许多示例都以这个随机数生成器为基础。"
+                "remark": "输入种子和正整数n，生成n个[0,32768)内的随机数。本虚拟机对全局变量的支持使得编写随机数生成器成为可能。"
             },
             {
                 "name": "快速排序",
@@ -101,16 +101,26 @@
                 "name": "最小公倍数(LCM)",
                 "irUrl": "demos/arithmetic/lcm.ir",
                 "remark": "输入a和b，基于欧几里得GCD算法计算lcm(a,b)"
-            }
-        ]
-    },
-    {
-        "groupName": "游戏",
-        "demos": [
+            },
             {
-                "name": "猜数游戏",
-                "irUrl": "demos/games/guess_game.ir",
-                "remark": "输入一个随机数种子，然后猜测在[0,32768)内生成的数字。猜小了会输出-1，猜大了会输出1。猜对了会输出什么？"
+                "name": "扩展欧几里得算法(EGCD)",
+                "irUrl": "demos/arithmetic/egcd.ir",
+                "remark": "输入a和b(a≥b>0)，输出(d,X,Y)使得d=gcd(a,b)且Xa+Yb=d"
+            },
+            {
+                "name": "32位无符号整数的完整乘法结果",
+                "irUrl": "demos/arithmetic/mul_uint32.ir",
+                "remark": "输入32位有符号整数a和b，以32位无符号整数的形式解释它们并计算a*b，将64位结果的高32位和低32位以有符号数的形式解释并输出"
+            },
+            {
+                "name": "朴素算法素性检验",
+                "irUrl": "demos/arithmetic/naive-is-prime.ir",
+                "remark": "输入正整数w，使用朴素算法判断w是否是素数。如果w是素数，输出1；如果w是合数，输出0。"
+            },
+            {
+                "name": "Miller-Rabin素性检验",
+                "irUrl": "demos/arithmetic/miller-rabin.ir",
+                "remark": "输入正整数w，使用基于Miller-Rabin素性检验的算法判断w是否*可能*是素数。如果w可能是素数，输出1；如果w是合数，输出0。当w为素数且值达到5.5亿左右时，此算法对比朴素算法开始显示出执行步数上的优势；当w为合数时，此算法几乎总是非常快。"
             }
         ]
     },
@@ -125,6 +135,16 @@
         ]
     },
     {
+        "groupName": "游戏",
+        "demos": [
+            {
+                "name": "猜数游戏",
+                "irUrl": "demos/games/guess_game.ir",
+                "remark": "输入一个随机数种子，然后猜测在[0,32768)内生成的数字。猜小了会输出-1，猜大了会输出1。猜对了会输出什么？"
+            }
+        ]
+    },
+    {
         "groupName": "无聊区",
         "demos": [
             {
@@ -135,7 +155,7 @@
             {
                 "name": "Benchmark",
                 "irUrl": "demos/boring/benchmark.ir",
-                "remark": "性能测试，让虚拟机跑一会"
+                "remark": "性能测试，让虚拟机忙起来！"
             }
         ]
     }
