@@ -1850,134 +1850,140 @@ RETURN #1
 FUNCTION is_prime :
 PARAM var690
 PARAM var691
-var692 := #64
+PARAM var692
+var693 := #64
 IF var691 <= #1 GOTO label303
-var694 := #0
+var695 := #0
 GOTO label304
 LABEL label303 :
-var694 := #1
+var695 := #1
 LABEL label304 :
-IF var694 != #0 GOTO label305
+IF var695 != #0 GOTO label305
 GOTO label306
 LABEL label305 :
 RETURN #0
 LABEL label306 :
 ARG #2
 ARG var691
-var695 := CALL mod
-IF var695 == #0 GOTO label307
-var696 := #0
+var696 := CALL mod
+IF var696 == #0 GOTO label307
+var697 := #0
 GOTO label308
 LABEL label307 :
-var696 := #1
+var697 := #1
 LABEL label308 :
-IF var696 != #0 GOTO label311
+IF var697 != #0 GOTO label311
 IF var691 == #3 GOTO label313
-var700 := #0
+var701 := #0
 GOTO label314
 LABEL label313 :
-var700 := #1
+var701 := #1
 LABEL label314 :
-IF var700 != #0 GOTO label315
+IF var701 != #0 GOTO label315
 GOTO label316
 LABEL label315 :
-var701 := #4 * #0
-var702 := var690 + var701
-*var702 := #1
+var702 := #4 * #0
+var703 := var690 + var702
+*var703 := #1
 RETURN #1
 LABEL label316 :
 GOTO label312
 LABEL label311 :
-var697 := #4 * #0
-var698 := var690 + var697
+var698 := #4 * #0
+var699 := var690 + var698
 IF var691 == #2 GOTO label309
-var699 := #0
+var700 := #0
 GOTO label310
 LABEL label309 :
-var699 := #1
+var700 := #1
 LABEL label310 :
-*var698 := var699
+*var699 := var700
 RETURN #1
 LABEL label312 :
-var693 := #1
-LABEL label325 :
-IF var693 < #64 GOTO label317
-var703 := #0
-GOTO label318
-LABEL label317 :
-var703 := #1
-LABEL label318 :
-IF var703 != #0 GOTO label326
-GOTO label327
-LABEL label326 :
-var704 := #4 * var693
-var705 := &var2 + var704
-ARG *var705
-ARG var691
-var706 := CALL mod
-IF var706 == #0 GOTO label319
-var707 := #0
-GOTO label320
-LABEL label319 :
-var707 := #1
-LABEL label320 :
-IF var707 != #0 GOTO label323
-GOTO label324
-LABEL label323 :
-var708 := #4 * #0
-var709 := var690 + var708
-var710 := #4 * var693
-var711 := &var2 + var710
-IF var691 == *var711 GOTO label321
-var712 := #0
-GOTO label322
-LABEL label321 :
-var712 := #1
-LABEL label322 :
-*var709 := var712
-RETURN #1
-LABEL label324 :
-var713 := var693 + #1
-var693 := var713
-GOTO label325
-LABEL label327 :
-ARG var692
-ARG var691
-ARG var690
-var714 := CALL miller_rabin_is_prime
-IF var714 != #0 GOTO label328
-var715 := #1
+IF var692 != #0 GOTO label328
 GOTO label329
 LABEL label328 :
-var715 := #0
+var694 := #1
+LABEL label325 :
+IF var694 < #64 GOTO label317
+var704 := #0
+GOTO label318
+LABEL label317 :
+var704 := #1
+LABEL label318 :
+IF var704 != #0 GOTO label326
+GOTO label327
+LABEL label326 :
+var705 := #4 * var694
+var706 := &var2 + var705
+ARG *var706
+ARG var691
+var707 := CALL mod
+IF var707 == #0 GOTO label319
+var708 := #0
+GOTO label320
+LABEL label319 :
+var708 := #1
+LABEL label320 :
+IF var708 != #0 GOTO label323
+GOTO label324
+LABEL label323 :
+var709 := #4 * #0
+var710 := var690 + var709
+var711 := #4 * var694
+var712 := &var2 + var711
+IF var691 == *var712 GOTO label321
+var713 := #0
+GOTO label322
+LABEL label321 :
+var713 := #1
+LABEL label322 :
+*var710 := var713
+RETURN #1
+LABEL label324 :
+var714 := var694 + #1
+var694 := var714
+GOTO label325
+LABEL label327 :
 LABEL label329 :
+ARG var693
+ARG var691
+ARG var690
+var715 := CALL miller_rabin_is_prime
 IF var715 != #0 GOTO label330
+var716 := #1
 GOTO label331
 LABEL label330 :
-RETURN #0
+var716 := #0
 LABEL label331 :
-RETURN #1
-FUNCTION main :
-READ var717
-var716 := var717
-DEC var718 4
-CALL init_two_powers
-CALL init_primes
-ARG var716
-ARG &var718
-var719 := CALL is_prime
-IF var719 != #0 GOTO label332
-var720 := #1
+IF var716 != #0 GOTO label332
 GOTO label333
 LABEL label332 :
-var720 := #0
+RETURN #0
 LABEL label333 :
+RETURN #1
+FUNCTION main :
+READ var718
+var717 := var718
+DEC var719 4
+CALL init_two_powers
+CALL init_primes
+ARG #1
+ARG var717
+ARG &var719
+var720 := CALL is_prime
 IF var720 != #0 GOTO label334
+var721 := #1
 GOTO label335
 LABEL label334 :
-RETURN #1
+var721 := #0
 LABEL label335 :
-var721 := #4 * #0
-var722 := &var718 + var721
-WRITE *var722
+IF var721 != #0 GOTO label336
+GOTO label337
+LABEL label336 :
+RETURN #1
+LABEL label337 :
+var722 := #4 * #0
+var723 := &var719 + var722
+WRITE *var723
 RETURN #0

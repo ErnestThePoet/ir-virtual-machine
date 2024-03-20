@@ -807,7 +807,7 @@ int miller_rabin_is_prime(int mr_out[1], int mr_w, int mr_iterations)
 	return 1;
 }
 
-int is_prime(int is_prime_out[1], int is_prime_w)
+int is_prime(int is_prime_out[1], int is_prime_w, int is_prime_do_trial_division)
 {
 	int is_prime_checks = 64;
 	int is_prime_i;
@@ -836,16 +836,19 @@ int is_prime(int is_prime_out[1], int is_prime_w)
 	}
 
 	// first look for small factors
-	is_prime_i = 1;
-	while (is_prime_i < 64)
+	if (is_prime_do_trial_division)
 	{
-		if (mod(is_prime_w, kPrimes[is_prime_i]) == 0)
+		is_prime_i = 1;
+		while (is_prime_i < 64)
 		{
-			is_prime_out[0] = (is_prime_w == kPrimes[is_prime_i]);
-			return 1;
-		}
+			if (mod(is_prime_w, kPrimes[is_prime_i]) == 0)
+			{
+				is_prime_out[0] = (is_prime_w == kPrimes[is_prime_i]);
+				return 1;
+			}
 
-		is_prime_i = is_prime_i + 1;
+			is_prime_i = is_prime_i + 1;
+		}
 	}
 
 	if (!miller_rabin_is_prime(is_prime_out, is_prime_w, is_prime_checks))
@@ -864,7 +867,7 @@ int main()
 	init_two_powers();
 	init_primes();
 
-	if (!is_prime(result, x))
+	if (!is_prime(result, x, 1))
 	{
 		return 1;
 	}
