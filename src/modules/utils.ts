@@ -1,4 +1,4 @@
-export function truncateString(title: string, length: number = 10) {
+export function truncateString(title: string, length: number = 18) {
     let stringLengthAtDisplayLength = 0;
     let displayLength = 0;
     for (let i = 0; i < title.length; i++) {
