@@ -1320,6 +1320,11 @@ export class Vm {
                     return;
                 }
 
+                this.registers.ecx = this.alu.addInt32(
+                    this.registers.ecx,
+                    new Int32(4)
+                );
+
                 break;
             }
             case "ASSIGN": {
@@ -1365,6 +1370,8 @@ export class Vm {
                 if (!this.pushl(this.registers.ecx)) {
                     return;
                 }
+
+                this.registers.ecx = new Int32(0);
 
                 // Push return address
                 if (!this.pushl(this.registers.eip)) {
@@ -1531,14 +1538,17 @@ export class Vm {
                     return;
                 }
 
-                this.registers.ecx = savedEcx;
-
                 // addl esp, ecx
                 this.registers.esp = this.alu.addInt32(
                     this.registers.esp,
-                    this.registers.ecx
+                    savedEcx
                 );
                 this.updatePeakMemoryUsage();
+
+                // If s sub function uses ARG without CALL, this will avoid
+                // incorrect ecx value when next ARGs are executed after
+                // control returns to parent function.
+                this.registers.ecx = new Int32(0);
 
                 // Pop local variable table
                 if (this.tables.variableTableStack.length === 0) {
