@@ -1,0 +1,56 @@
+/*
+ * Input x, checks whether it is a prime using
+ * naive algorithm.
+ */
+
+int mod(int mod_x, int mod_y)
+{
+    return mod_x - mod_y * (mod_x / mod_y);
+}
+
+int isqrt(int isqrt_n)
+{
+    int isqrt_i = 0;
+    while (isqrt_i < isqrt_n)
+    {
+        if (isqrt_i * isqrt_i <= isqrt_n && (isqrt_i + 1) * (isqrt_i + 1) > isqrt_n)
+        {
+            return isqrt_i;
+        }
+        isqrt_i = isqrt_i + 1;
+    }
+    return -1;
+}
+
+int is_prime(int is_prime_w)
+{
+    int is_prime_j = 2;
+    int is_prime_end;
+
+    if (is_prime_w <= 1)
+    {
+        return 0;
+    }
+
+    is_prime_end = isqrt(is_prime_w);
+
+    while (is_prime_j <= is_prime_end)
+    {
+        if (mod(is_prime_w, is_prime_j) == 0)
+        {
+            return 0;
+        }
+        is_prime_j = is_prime_j + 1;
+    }
+
+    return 1;
+}
+
+int main()
+{
+    int x = read();
+
+    write(is_prime(x));
+
+    return 0;
+}

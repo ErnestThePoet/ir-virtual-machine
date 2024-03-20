@@ -1,141 +1,161 @@
 /*
- * Calculates the 64-bit result of a*b (both interpreted as unsigned 32-bit integers)
- * and print the high 32-bit and low 32-bit (both printed as signed 32-bit integers).
+ * Input a and b, interpret them as uint32 and do unsigned multiplication.
+ * Interpret the high and low 32 bits of product as int32 and write them.
  */
 
-int kTwoPowers[31];
+int kTwoPowers[32]; // [31] is negative
 
 int init_two_powers()
 {
-	int init_two_powers_i = 0;
-	int init_two_powers_power = 1;
+    int init_two_powers_i = 0;
+    int init_two_powers_power = 1;
 
-	while (init_two_powers_i < 31)
-	{
-		kTwoPowers[init_two_powers_i] = init_two_powers_power;
-		init_two_powers_power = init_two_powers_power * 2;
-		init_two_powers_i = init_two_powers_i + 1;
-	}
+    while (init_two_powers_i < 32)
+    {
+        kTwoPowers[init_two_powers_i] = init_two_powers_power;
+        init_two_powers_power = init_two_powers_power * 2;
+        init_two_powers_i = init_two_powers_i + 1;
+    }
 
-	return 0;
+    return 0;
 }
 
-int mod(int mod_x, int mod_y)
+int rshift_uint32(int rshift_uint32_x, int rshift_uint32_usr_a)
 {
-	return mod_x - mod_y * (mod_x / mod_y);
+    if (rshift_uint32_usr_a >= 32 ||
+        (rshift_uint32_x >= 0 && rshift_uint32_usr_a == 31))
+    {
+        return 0;
+    }
+
+    if (rshift_uint32_x < 0 && rshift_uint32_usr_a > 0)
+    {
+        // clear msb
+        rshift_uint32_x = rshift_uint32_x + (-2147483648);
+        // perform normal right shift
+        rshift_uint32_x = rshift_uint32_x / 2;
+        // reset msb
+        rshift_uint32_x = rshift_uint32_x + 1073741824;
+        rshift_uint32_usr_a = rshift_uint32_usr_a - 1;
+    }
+
+    // Now a<31
+    return rshift_uint32_x / kTwoPowers[rshift_uint32_usr_a];
 }
 
-int unsigned_rshift(int usr_x, int usr_a)
+int cmp_uint32(int cmp_uint32_a, int cmp_uint32_b)
 {
-	if (usr_a >= 32 || (usr_x >= 0 && usr_a == 31))
-	{
-		return 0;
-	}
-
-	if (usr_x < 0 && usr_a > 0)
-	{
-		// clear msb
-		usr_x = usr_x + (-2147483648);
-		// perform normal right shift
-		usr_x = usr_x / 2;
-		// reset msb
-		usr_x = usr_x + 1073741824;
-		usr_a = usr_a - 1;
-	}
-
-	// Now a<31
-	return usr_x / kTwoPowers[usr_a];
+    if ((cmp_uint32_a < 0 && cmp_uint32_b < 0) ||
+        (cmp_uint32_a >= 0 && cmp_uint32_b >= 0))
+    {
+        if (cmp_uint32_a > cmp_uint32_b)
+        {
+            return 1;
+        }
+        else if (cmp_uint32_a < cmp_uint32_b)
+        {
+            return -1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else if (cmp_uint32_a < 0 && cmp_uint32_b >= 0)
+    {
+        return 1;
+    }
+    else if (cmp_uint32_b < 0 && cmp_uint32_a >= 0)
+    {
+        return -1;
+    }
 }
 
-int add_uint32(int add_uint32_carriage_out[1], int add_uint32_a, int add_uint32_b)
+int add_full_uint32(
+    int add_full_uint32_carry_out[1],
+    int add_full_uint32_a,
+    int add_full_uint32_b)
 {
-	// a=(31bit)ah (1bit)al=2ah+al
-	// b=(31bit)bh (1bit)bl=2bh+bl
-	// a+b=2(ah+bh)+(al+bl)
-	int add_uint32_ah = unsigned_rshift(add_uint32_a, 1);
-	int add_uint32_bh = unsigned_rshift(add_uint32_b, 1);
-	int add_uint32_ahbh = add_uint32_ah + add_uint32_bh;
-	int add_uint32_ahbh2 = add_uint32_ahbh + add_uint32_ahbh;
-	// ensure positive integer is passed to mod
-	int add_uint32_albl = mod(add_uint32_a - add_uint32_ah * 65536, 2) + mod(add_uint32_b - add_uint32_bh * 65536, 2);
+    int add_full_uint32_dist_a = -1 - add_full_uint32_a;
+    if (cmp_uint32(add_full_uint32_dist_a, add_full_uint32_b) < 0)
+    {
+        add_full_uint32_carry_out[0] = 1;
+    }
+    else
+    {
+        add_full_uint32_carry_out[0] = 0;
+    }
 
-	if (add_uint32_ahbh < 0)
-	{
-		add_uint32_carriage_out[0] = 1;
-		return add_uint32_a + add_uint32_b;
-	}
-
-	// Now we know 2(ah+bh) will not overflow.
-	// Simply detect whether 2(ah+bh)+(al+bl) overflows.
-	if ((add_uint32_ahbh2 > 0 && (add_uint32_ahbh2 + add_uint32_albl < 0)) || (add_uint32_ahbh2 < 0 && (add_uint32_ahbh2 + add_uint32_albl > 0)))
-	{
-		add_uint32_carriage_out[0] = 1;
-		return add_uint32_a + add_uint32_b;
-	}
-
-	add_uint32_carriage_out[0] = 0;
-	return add_uint32_a + add_uint32_b;
+    return add_full_uint32_a + add_full_uint32_b;
 }
 
 int mul_uint32(int mul_uint32_uint64_out[2], int mul_uint32_a, int mul_uint32_b)
 {
-	// a=ah al=(ah<<16)+al
-	// b=bh bl=(bh<<16)+bl
-	// a*b=((ah*bh)<<32)+((ah*bl)<<16)+((al*bh)<<16)+(al*bl)
-	// 
-	// |---------------(a*b)----------------|
-	// |-----(a*b)_h-----||-----(a*b)_l-----|
-	// 
-	// equals the sum of:
-	// 
-	// |      32bit      |00...............00  ((ah*bh)<<32)
-	// --------------------------------------
-	//          |      32bit      |00......00  ((ah*bl)<<16)
-	//          -----------------------------
-	//          |      32bit       |00......00  ((al*bh)<<16)
-	//          -----------------------------
-	//                    |       32bit     |  (al*bl)
-	//                    -------------------
-	// Therefore:
-	// (a*b)_l=(al*bl)+((ah*bl)<<16)+((al*bh)<<16) with carriage=C (note C could be 0,1,2)
-	// (a*b)_h=(ah*bh)+((ah*bl)>>16)+((al*bh)>>16)+C
+    // a=ah al=(ah<<16)+al
+    // b=bh bl=(bh<<16)+bl
+    // a*b=((ah*bh)<<32)+((ah*bl)<<16)+((al*bh)<<16)+(al*bl)
+    //
+    // |---------------(a*b)----------------|
+    // |-----(a*b)_h-----||-----(a*b)_l-----|
+    //
+    // equals the sum of:
+    //
+    // |      32bit      |00...............00  ((ah*bh)<<32)
+    // --------------------------------------
+    //          |      32bit      |00......00  ((ah*bl)<<16)
+    //          -----------------------------
+    //          |      32bit      |00......00  ((al*bh)<<16)
+    //          -----------------------------
+    //                    |       32bit     |  (al*bl)
+    //                    -------------------
+    // Therefore:
+    // (a*b)_l=(al*bl)+((ah*bl)<<16)+((al*bh)<<16) with carry=C (note C could be 0,1,2)
+    // (a*b)_h=(ah*bh)+((ah*bl)>>16)+((al*bh)>>16)+C
 
-	int mul_uint32_ah = unsigned_rshift(mul_uint32_a, 16);
-	int mul_uint32_al = mul_uint32_a - mul_uint32_ah * 65536;
+    int mul_uint32_ah = rshift_uint32(mul_uint32_a, 16);
+    int mul_uint32_al = mul_uint32_a - mul_uint32_ah * 65536;
 
-	int mul_uint32_bh = unsigned_rshift(mul_uint32_b, 16);
-	int mul_uint32_bl = mul_uint32_b - mul_uint32_bh * 65536;
+    int mul_uint32_bh = rshift_uint32(mul_uint32_b, 16);
+    int mul_uint32_bl = mul_uint32_b - mul_uint32_bh * 65536;
 
-	int mul_uint32_abh = mul_uint32_ah * mul_uint32_bh + unsigned_rshift(mul_uint32_ah * mul_uint32_bl, 16) + unsigned_rshift((mul_uint32_al * mul_uint32_bh), 16);
+    int mul_uint32_abh = mul_uint32_ah * mul_uint32_bh +
+                         rshift_uint32(mul_uint32_ah * mul_uint32_bl, 16) +
+                         rshift_uint32((mul_uint32_al * mul_uint32_bh), 16);
 
-	int mul_uint32_abl_carriage[1];
-	int mul_uint32_abl = add_uint32(mul_uint32_abl_carriage, mul_uint32_al * mul_uint32_bl, ((mul_uint32_ah * mul_uint32_bl) * 65536));
+    int mul_uint32_abl_carry[1];
+    int mul_uint32_abl = add_full_uint32(
+        mul_uint32_abl_carry,
+        mul_uint32_al * mul_uint32_bl,
+        ((mul_uint32_ah * mul_uint32_bl) * 65536));
 
-	mul_uint32_abh = mul_uint32_abh + mul_uint32_abl_carriage[0];
+    mul_uint32_abh = mul_uint32_abh + mul_uint32_abl_carry[0];
 
-	mul_uint32_abl = add_uint32(mul_uint32_abl_carriage, mul_uint32_abl, ((mul_uint32_al * mul_uint32_bh) * 65536));
+    mul_uint32_abl = add_full_uint32(
+        mul_uint32_abl_carry,
+        mul_uint32_abl,
+        ((mul_uint32_al * mul_uint32_bh) * 65536));
 
-	mul_uint32_abh = mul_uint32_abh + mul_uint32_abl_carriage[0];
+    mul_uint32_abh = mul_uint32_abh + mul_uint32_abl_carry[0];
 
-	mul_uint32_uint64_out[0] = mul_uint32_abh;
-	mul_uint32_uint64_out[1] = mul_uint32_abl;
+    mul_uint32_uint64_out[0] = mul_uint32_abh;
+    mul_uint32_uint64_out[1] = mul_uint32_abl;
 
-	return 0;
+    return 0;
 }
 
 int main()
 {
-	int a = read();
-	int b = read();
+    int a = read();
+    int b = read();
 
-	int prod64[2];
+    int prod64[2];
 
-	init_two_powers();
-	
-	mul_uint32(prod64, a, b);
+    init_two_powers();
 
-	write(prod64[0]);
-	write(prod64[1]);
+    mul_uint32(prod64, a, b);
 
-	return 0;
+    write(prod64[0]);
+    write(prod64[1]);
+
+    return 0;
 }
