@@ -1,4 +1,4 @@
-#include "crypto.h"
+#include "crypto_core.h"
 
 static int kPrimes[64];
 

@@ -1,5 +1,5 @@
-#ifndef CRYPTO_H_
-#define CRYPTO_H_
+#ifndef CRYPTO_CORE_H_
+#define CRYPTO_CORE_H_
 
 #include "unsigned_op.h"
 #include "common.h"
