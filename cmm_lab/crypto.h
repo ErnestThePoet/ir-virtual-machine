@@ -15,10 +15,25 @@ int rand_bits(int rand_bits_n, int rand_bits_top, int rand_bits_bottom);
 int rand_range(int rand_range_out[1], int rand_range_range);
 
 int miller_rabin_is_prime(int mr_out[1], int mr_w, int mr_iterations);
-int is_prime(int is_prime_out[1], int is_prime_checks, int is_prime_w, int is_prime_do_trial_division);
-int probable_prime(int out[1], int bits, int safe, int mods[64]);
-int probable_prime_dh(int out[1], int bits, int safe, int mods[64], int add, int rem);
-int generate_prime(int out[1], int bits, int safe, int add, int rem);
+int is_prime(
+	int is_prime_out[1],
+	int is_prime_checks,
+	int is_prime_w,
+	int is_prime_do_trial_division);
+int probable_prime(int pp_out[1], int pp_bits, int pp_safe, int pp_mods[64]);
+int probable_prime_dh(
+	int ppdh_out[1],
+	int ppdh_bits,
+	int ppdh_safe,
+	int ppdh_mods[64],
+	int ppdh_add,
+	int ppdh_rem);
+int generate_prime(
+	int genprime_out[1],
+	int genprime_bits,
+	int genprime_safe,
+	int genprime_add,
+	int genprime_rem);
 
 
 

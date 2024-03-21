@@ -359,7 +359,11 @@ int miller_rabin_is_prime(int mr_out[1], int mr_w, int mr_iterations)
 	return 1;
 }
 
-int is_prime(int is_prime_out[1], int is_prime_checks, int is_prime_w, int is_prime_do_trial_division)
+int is_prime(
+	int is_prime_out[1],
+	int is_prime_checks,
+	int is_prime_w,
+	int is_prime_do_trial_division)
 {
 	int is_prime_i;
 
@@ -411,83 +415,83 @@ int is_prime(int is_prime_out[1], int is_prime_checks, int is_prime_w, int is_pr
 }
 
 // bits must be >0 and <=31
-int probable_prime(int out[1], int bits, int safe, int mods[64])
+int probable_prime(int pp_out[1], int pp_bits, int pp_safe, int pp_mods[64])
 {
-	int i;
+	int pp_i;
 
-	int goto_again = 1;
-	int goto_loop = 1;
-	int loop_td = 1;
+	int pp_goto_again = 1;
+	int pp_goto_loop = 1;
+	int pp_loop_td = 1;
 
-	int rnd;
-	int delta[2];
-	int mod_64[2];
-	int prime_64[2];
-	int prime_square[2];
-	int rnd_64[2];
-	int temp1[2];
+	int pp_rnd;
+	int pp_delta[2];
+	int pp_mod_64[2];
+	int pp_prime_64[2];
+	int pp_prime_square[2];
+	int pp_rnd_64[2];
+	int pp_temp1[2];
 
-	int trial_divisions = 64;
+	int pp_trial_divisions = 64;
 
-	int max_delta[2];
-	int mask2[2];
-	int const_7fffffff[2];
-	int const_2[2];
-	int const_4[2];
+	int pp_max_delta[2];
+	int pp_mask2[2];
+	int pp_const_7fffffff[2];
+	int pp_const_2[2];
+	int pp_const_4[2];
 
 	// also use as subtrahend
-	max_delta[0] = 0;
-	max_delta[1] = kPrimes[63];
+	pp_max_delta[0] = 0;
+	pp_max_delta[1] = kPrimes[63];
 
-	mask2[0] = -1;
-	mask2[1] = -1;
+	pp_mask2[0] = -1;
+	pp_mask2[1] = -1;
 
-	const_7fffffff[0] = 0;
-	const_7fffffff[1] = kTwoPowers[31] - 1;
+	pp_const_7fffffff[0] = 0;
+	pp_const_7fffffff[1] = kTwoPowers[31] - 1;
 
-	const_2[0] = 0;
-	const_2[1] = 2;
+	pp_const_2[0] = 0;
+	pp_const_2[1] = 2;
 
-	const_4[0] = 0;
-	const_4[1] = 4;
+	pp_const_4[0] = 0;
+	pp_const_4[1] = 4;
 
-	sub_uint64(max_delta, mask2, max_delta);
+	sub_uint64(pp_max_delta, pp_mask2, pp_max_delta);
 
 	// again:
-	while (goto_again)
+	while (pp_goto_again)
 	{
-		goto_again = 0;
+		pp_goto_again = 0;
 
-		rnd = rand_bits(bits, 2, 1);
+		pp_rnd = rand_bits(pp_bits, 2, 1);
 
-		if (safe && mod(rnd / 2, 2) == 0)
+		if (pp_safe && mod(pp_rnd / 2, 2) == 0)
 		{
-			rnd = rnd + 2;
+			pp_rnd = pp_rnd + 2;
 		}
 
-		rnd_64[0] = 0;
-		rnd_64[1] = rnd;
+		pp_rnd_64[0] = 0;
+		pp_rnd_64[1] = pp_rnd;
 
-		i = 1;
-		while (i < trial_divisions)
+		pp_i = 1;
+		while (pp_i < pp_trial_divisions)
 		{
-			mods[i] = mod(rnd, kPrimes[i]);
+			pp_mods[pp_i] = mod(pp_rnd, kPrimes[pp_i]);
 
-			i = i + 1;
+			pp_i = pp_i + 1;
 		}
 
-		delta[0] = 0;
-		delta[1] = 0;
+		pp_delta[0] = 0;
+		pp_delta[1] = 0;
 
 		// loop:
-		while (!goto_again && goto_loop)
+		while (!pp_goto_again && pp_goto_loop)
 		{
-			goto_loop = 0;
+			pp_goto_loop = 0;
 
-			i = 1;
-			while (!goto_loop && !goto_again && loop_td && i < trial_divisions)
+			pp_i = 1;
+			while (!pp_goto_loop && !pp_goto_again && pp_loop_td && pp_i < pp_trial_divisions)
 			{
-				loop_td = 1;
+				pp_loop_td = 1;
 				/*
 				 * check that rnd is a prime and also that
 				 * gcd(rnd-1,primes) == 1 (except for 2)
@@ -496,186 +500,192 @@ int probable_prime(int out[1], int bits, int safe, int mods[64])
 				 * we check only the primes up to sqrt(rnd)
 				 */
 
-				mul_uint32(prime_square, kPrimes[i], kPrimes[i]);
-				add_uint64(temp1, rnd_64, delta);
-				if (bits <= 31 && cmp_uint64(delta, const_7fffffff) <= 0 &&
-					cmp_uint64(prime_square, temp1) > 0)
+				mul_uint32(pp_prime_square, kPrimes[pp_i], kPrimes[pp_i]);
+				add_uint64(pp_temp1, pp_rnd_64, pp_delta);
+				if (pp_bits <= 31 && cmp_uint64(pp_delta, pp_const_7fffffff) <= 0 &&
+					cmp_uint64(pp_prime_square, pp_temp1) > 0)
 				{
 					// break;
-					loop_td = 0;
+					pp_loop_td = 0;
 				}
 
-				if (loop_td)
+				if (pp_loop_td)
 				{
-					mod_64[0] = 0;
-					mod_64[1] = mods[i];
+					pp_mod_64[0] = 0;
+					pp_mod_64[1] = pp_mods[pp_i];
 
-					prime_64[0] = 0;
-					prime_64[1] = kPrimes[i];
+					pp_prime_64[0] = 0;
+					pp_prime_64[1] = kPrimes[pp_i];
 
-					add_uint64(temp1, mod_64, delta);
+					add_uint64(pp_temp1, pp_mod_64, pp_delta);
 
-					mod_uint64(temp1, temp1, prime_64);
+					mod_uint64(pp_temp1, pp_temp1, pp_prime_64);
 
 					// kPrimes are all 32bit positive, so 
 					// is the remainder
-					if ((safe && temp1[1] <= 1) || (!safe && temp1[1] == 0))
+					if ((pp_safe && pp_temp1[1] <= 1) || (!pp_safe && pp_temp1[1] == 0))
 					{
-						if (safe)
+						if (pp_safe)
 						{
-							add_uint64(delta, delta, const_4);
+							add_uint64(pp_delta, pp_delta, pp_const_4);
 						}
 						else
 						{
-							add_uint64(delta, delta, const_2);
+							add_uint64(pp_delta, pp_delta, pp_const_2);
 						}
 
-						if (cmp_uint64(delta, max_delta) > 0)
+						if (cmp_uint64(pp_delta, pp_max_delta) > 0)
 						{
 							// goto again;
-							goto_again = 1;
+							pp_goto_again = 1;
 						}
 
-						if (!goto_again)
+						if (!pp_goto_again)
 						{
 							// goto loop;
-							goto_loop = 1;
+							pp_goto_loop = 1;
 						}
 					}
 
-					if (!goto_again && !goto_loop)
+					if (!pp_goto_again && !pp_goto_loop)
 					{
-						i = i + 1;
+						pp_i = pp_i + 1;
 					}
 				}
 			}
 
-			if (!goto_again && !goto_loop)
+			if (!pp_goto_again && !pp_goto_loop)
 			{
-				rnd = rnd + delta[1];
-				if (get_bits_uint32(rnd) != bits)
+				pp_rnd = pp_rnd + pp_delta[1];
+				if (get_bits_uint32(pp_rnd) != pp_bits)
 				{
-					goto_again = 1;
+					pp_goto_again = 1;
 				}
 			}
 		}
 	}
 
-	out[0] = rnd;
+	pp_out[0] = pp_rnd;
 
 	return 1;
 }
 
 // bits must be >0 and <=31; add must be >0; rem must be either >0 or -1
-int probable_prime_dh(int out[1], int bits, int safe, int mods[64], int add, int rem)
+int probable_prime_dh(
+	int ppdh_out[1],
+	int ppdh_bits,
+	int ppdh_safe,
+	int ppdh_mods[64],
+	int ppdh_add,
+	int ppdh_rem)
 {
-	int i;
+	int ppdh_i;
 
-	int goto_again = 1;
-	int goto_loop = 1;
-	int loop_td = 1;
+	int ppdh_goto_again = 1;
+	int ppdh_goto_loop = 1;
+	int ppdh_loop_td = 1;
 
-	int rnd;
-	int delta[2];
-	int add_64[2];
-	int mod_64[2];
-	int prime_64[2];
-	int prime_square[2];
-	int rnd_64[2];
-	int temp1[2];
+	int ppdh_rnd;
+	int ppdh_delta[2];
+	int ppdh_add_64[2];
+	int ppdh_mod_64[2];
+	int ppdh_prime_64[2];
+	int ppdh_prime_square[2];
+	int ppdh_rnd_64[2];
+	int ppdh_temp1[2];
 
-	int trial_divisions = 64;
+	int ppdh_trial_divisions = 64;
 
-	int max_delta[2];
-	int mask2[2];
-	int const_7fffffff[2];
-	int const_2[2];
-	int const_4[2];
+	int ppdh_max_delta[2];
+	int ppdh_mask2[2];
+	int ppdh_const_7fffffff[2];
+	int ppdh_const_2[2];
+	int ppdh_const_4[2];
 
-	add_64[0] = 0;
-	add_64[1] = add;
+	ppdh_add_64[0] = 0;
+	ppdh_add_64[1] = ppdh_add;
 
 	// also use as subtrahend
-	max_delta[0] = 0;
-	max_delta[1] = kPrimes[63];
+	ppdh_max_delta[0] = 0;
+	ppdh_max_delta[1] = kPrimes[63];
 
-	mask2[0] = -1;
-	mask2[1] = -1;
+	ppdh_mask2[0] = -1;
+	ppdh_mask2[1] = -1;
 
-	const_7fffffff[0] = 0;
-	const_7fffffff[1] = kTwoPowers[31] - 1;
+	ppdh_const_7fffffff[0] = 0;
+	ppdh_const_7fffffff[1] = kTwoPowers[31] - 1;
 
-	const_2[0] = 0;
-	const_2[1] = 2;
+	ppdh_const_2[0] = 0;
+	ppdh_const_2[1] = 2;
 
-	const_4[0] = 0;
-	const_4[1] = 4;
+	ppdh_const_4[0] = 0;
+	ppdh_const_4[1] = 4;
 
-	sub_uint64(max_delta, mask2, max_delta);
+	sub_uint64(ppdh_max_delta, ppdh_mask2, ppdh_max_delta);
 
-	sub_uint64(add_64, mask2, add_64);
+	sub_uint64(ppdh_add_64, ppdh_mask2, ppdh_add_64);
 
-	if (cmp_uint64(max_delta, add_64) > 0)
+	if (cmp_uint64(ppdh_max_delta, ppdh_add_64) > 0)
 	{
-		max_delta[0] = add_64[0];
-		max_delta[1] = add_64[1];
+		ppdh_max_delta[0] = ppdh_add_64[0];
+		ppdh_max_delta[1] = ppdh_add_64[1];
 	}
 
 	// again:
-	while (goto_again)
+	while (ppdh_goto_again)
 	{
-		goto_again = 0;
+		ppdh_goto_again = 0;
 
-		rnd = rand_bits(bits, 1, 1);
+		ppdh_rnd = rand_bits(ppdh_bits, 1, 1);
 
-		rnd = rnd - mod(rnd, add);
+		ppdh_rnd = ppdh_rnd - mod(ppdh_rnd, ppdh_add);
 
-		if (rem == -1)
+		if (ppdh_rem == -1)
 		{
-			if (safe)
+			if (ppdh_safe)
 			{
-				rnd = rnd + 3;
+				ppdh_rnd = ppdh_rnd + 3;
 			}
 			else
 			{
-				rnd = rnd + 1;
+				ppdh_rnd = ppdh_rnd + 1;
 			}
 		}
 		else
 		{
-			rnd = rnd + rem;
+			ppdh_rnd = ppdh_rnd + ppdh_rem;
 		}
 
-		if (get_bits_uint32(rnd) < bits || ((safe && rnd < 5) || (!safe && rnd < 3)))
+		if (get_bits_uint32(ppdh_rnd) < ppdh_bits || ((ppdh_safe && ppdh_rnd < 5) || (!ppdh_safe && ppdh_rnd < 3)))
 		{
-			rnd = rnd + add;
+			ppdh_rnd = ppdh_rnd + ppdh_add;
 		}
 
 		// we now have a random number 'rnd' to test.
 
-		rnd_64[0] = 0;
-		rnd_64[1] = rnd;
+		ppdh_rnd_64[0] = 0;
+		ppdh_rnd_64[1] = ppdh_rnd;
 
-		i = 1;
-		while (i < trial_divisions)
+		ppdh_i = 1;
+		while (ppdh_i < ppdh_trial_divisions)
 		{
-			mods[i] = mod(rnd, kPrimes[i]);
+			ppdh_mods[ppdh_i] = mod(ppdh_rnd, kPrimes[ppdh_i]);
 
-			i = i + 1;
+			ppdh_i = ppdh_i + 1;
 		}
 
-		delta[0] = 0;
-		delta[1] = 0;
+		ppdh_delta[0] = 0;
+		ppdh_delta[1] = 0;
 
 		// loop:
-		while (!goto_again && goto_loop)
+		while (!ppdh_goto_again && ppdh_goto_loop)
 		{
-			goto_loop = 0;
+			ppdh_goto_loop = 0;
 
-			i = 1;
-			while (!goto_loop && !goto_again && loop_td && i < trial_divisions)
+			ppdh_i = 1;
+			while (!ppdh_goto_loop && !ppdh_goto_again && ppdh_loop_td && ppdh_i < ppdh_trial_divisions)
 			{
-				loop_td = 1;
+				ppdh_loop_td = 1;
 				/*
 				 * check that rnd is a prime and also that
 				 * gcd(rnd-1,primes) == 1 (except for 2)
@@ -684,81 +694,86 @@ int probable_prime_dh(int out[1], int bits, int safe, int mods[64], int add, int
 				 * we check only the primes up to sqrt(rnd)
 				 */
 
-				mul_uint32(prime_square, kPrimes[i], kPrimes[i]);
-				add_uint64(temp1, rnd_64, delta);
-				if (bits <= 31 && cmp_uint64(delta, const_7fffffff) <= 0 &&
-					cmp_uint64(prime_square, temp1) > 0)
+				mul_uint32(ppdh_prime_square, kPrimes[ppdh_i], kPrimes[ppdh_i]);
+				add_uint64(ppdh_temp1, ppdh_rnd_64, ppdh_delta);
+				if (ppdh_bits <= 31 && cmp_uint64(ppdh_delta, ppdh_const_7fffffff) <= 0 &&
+					cmp_uint64(ppdh_prime_square, ppdh_temp1) > 0)
 				{
 					// break;
-					loop_td = 0;
+					ppdh_loop_td = 0;
 				}
 
-				if (loop_td)
+				if (ppdh_loop_td)
 				{
-					mod_64[0] = 0;
-					mod_64[1] = mods[i];
+					ppdh_mod_64[0] = 0;
+					ppdh_mod_64[1] = ppdh_mods[ppdh_i];
 
-					prime_64[0] = 0;
-					prime_64[1] = kPrimes[i];
+					ppdh_prime_64[0] = 0;
+					ppdh_prime_64[1] = kPrimes[ppdh_i];
 
-					add_uint64(temp1, mod_64, delta);
+					add_uint64(ppdh_temp1, ppdh_mod_64, ppdh_delta);
 
-					mod_uint64(temp1, temp1, prime_64);
+					mod_uint64(ppdh_temp1, ppdh_temp1, ppdh_prime_64);
 
 					// kPrimes are all 32bit positive, so 
 					// is the remainder
-					if ((safe && temp1[1] <= 1) || (!safe && temp1[1] == 0))
+					if ((ppdh_safe && ppdh_temp1[1] <= 1) || (!ppdh_safe && ppdh_temp1[1] == 0))
 					{
-						add_uint64(delta, delta, add_64);
+						add_uint64(ppdh_delta, ppdh_delta, ppdh_add_64);
 
-						if (cmp_uint64(delta, max_delta) > 0)
+						if (cmp_uint64(ppdh_delta, ppdh_max_delta) > 0)
 						{
 							// goto again;
-							goto_again = 1;
+							ppdh_goto_again = 1;
 						}
 
-						if (!goto_again)
+						if (!ppdh_goto_again)
 						{
 							// goto loop;
-							goto_loop = 1;
+							ppdh_goto_loop = 1;
 						}
 					}
 
-					if (!goto_again && !goto_loop)
+					if (!ppdh_goto_again && !ppdh_goto_loop)
 					{
-						i = i + 1;
+						ppdh_i = ppdh_i + 1;
 					}
 				}
 			}
 
-			if (!goto_again && !goto_loop)
+			if (!ppdh_goto_again && !ppdh_goto_loop)
 			{
-				rnd = rnd + delta[1];
+				ppdh_rnd = ppdh_rnd + ppdh_delta[1];
 			}
 		}
 	}
 
-	out[0] = rnd;
+	ppdh_out[0] = ppdh_rnd;
 
 	return 1;
 }
 
 // bits must be >0 and <=31; add and rem must be either positive or -1
-int generate_prime(int out[1], int bits, int safe, int add, int rem)
+int generate_prime(
+	int genprime_out[1],
+	int genprime_bits,
+	int genprime_safe,
+	int genprime_add,
+	int genprime_rem)
 {
-	int found = 0;
-	int t;
-	int i;
-	int is_prime_out[1];
-	int mods[64];
-	int checks = 64;
-	int goto_loop = 1;
+	int genprime_found = 0;
+	int genprime_t;
+	int genprime_i;
+	int genprime_is_prime_out[1];
+	int genprime_mods[64];
+	int genprime_checks = 64;
+	int genprime_goto_loop = 1;
 
-	if (bits < 2 || bits>31)
+	if (genprime_bits < 2 || genprime_bits>31)
 	{
 		return 0;
 	}
-	else if (add == -1 && safe && bits < 6 && bits != 3)
+	else if (genprime_add == -1 && genprime_safe && genprime_bits < 6 && genprime_bits != 3)
 	{
 		/*
 		 * The smallest safe prime (7) is three bits.
@@ -769,79 +784,79 @@ int generate_prime(int out[1], int bits, int safe, int add, int rem)
 	}
 
 	// loop:
-	while (goto_loop)
+	while (genprime_goto_loop)
 	{
-		goto_loop = 0;
+		genprime_goto_loop = 0;
 
-		if (add == -1)
+		if (genprime_add == -1)
 		{
-			if (!probable_prime(out, bits, safe, mods))
+			if (!probable_prime(genprime_out, genprime_bits, genprime_safe, genprime_mods))
 			{
 				return 0;
 			}
 		}
 		else
 		{
-			if (!probable_prime_dh(out, bits, safe, mods, add, rem))
+			if (!probable_prime_dh(genprime_out, genprime_bits, genprime_safe, genprime_mods, genprime_add, genprime_rem))
 			{
 				return 0;
 			}
 		}
 
-		if (!safe)
+		if (!genprime_safe)
 		{
-			if (!is_prime(is_prime_out, checks, out[0], 0))
+			if (!is_prime(genprime_is_prime_out, genprime_checks, genprime_out[0], 0))
 			{
 				return 0;
 			}
 
-			if (is_prime_out[0] == 0)
+			if (genprime_is_prime_out[0] == 0)
 			{
-				goto_loop = 1;
+				genprime_goto_loop = 1;
 			}
 		}
 		else
 		{
-			t = out[0] / 2;
+			genprime_t = genprime_out[0] / 2;
 
-			i = 0;
-			while (!goto_loop && i < checks)
+			genprime_i = 0;
+			while (!genprime_goto_loop && genprime_i < genprime_checks)
 			{
-				if (!is_prime(is_prime_out, 1, out[0], 0))
+				if (!is_prime(genprime_is_prime_out, 1, genprime_out[0], 0))
 				{
 					return 0;
 				}
 
-				if (is_prime_out[0] == 0)
+				if (genprime_is_prime_out[0] == 0)
 				{
-					goto_loop = 1;
+					genprime_goto_loop = 1;
 				}
 
-				if (!goto_loop)
+				if (!genprime_goto_loop)
 				{
-					if (!is_prime(is_prime_out, 1, t, 0))
+					if (!is_prime(genprime_is_prime_out, 1, genprime_t, 0))
 					{
 						return 0;
 					}
 
-					if (is_prime_out[0] == 0)
+					if (genprime_is_prime_out[0] == 0)
 					{
-						goto_loop = 1;
+						genprime_goto_loop = 1;
 					}
 
-					if (!goto_loop)
+					if (!genprime_goto_loop)
 					{
-						i = i + 1;
+						genprime_i = genprime_i + 1;
 					}
 				}
 			}
 		}
 
-		if (!goto_loop)
+		if (!genprime_goto_loop)
 		{
-			found = 1;
+			genprime_found = 1;
 		}
 	}
 
-	return found;
+	return genprime_found;
 }
