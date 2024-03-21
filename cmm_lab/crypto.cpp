@@ -766,7 +766,7 @@ int generate_prime(
 	int genprime_i;
 	int genprime_is_prime_out[1];
 	int genprime_mods[64];
-	int genprime_checks = 64;
+	int genprime_checks = 1;
 	int genprime_goto_loop = 1;
 
 	if (genprime_bits < 2 || genprime_bits>31)
