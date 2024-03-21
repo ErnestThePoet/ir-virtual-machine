@@ -185,7 +185,6 @@ int rand_range(int rand_range_out[1], int rand_range_range)
 	if (rand_range_n == 1)
 	{
 		rand_range_out[0] = 0;
-		return 1;
 	}
 	else if (!is_bit_set(rand_range_range, rand_range_n - 2) &&
 		!is_bit_set(rand_range_range, rand_range_n - 3))
@@ -247,19 +246,27 @@ int miller_rabin_is_prime(int mr_out[1], int mr_w, int mr_iterations)
 	int mr_i, mr_j, mr_a;
 	int mr_w1, mr_w3, mr_x, mr_m, mr_z, mr_b;
 	int mr_temp[1];
+	int goto_outer_loop = 0;
+
+	// w must be >2 and odd
 	if (mr_w <= 2 || mod(mr_w, 2) == 0)
 	{
 		return 0;
 	}
 
+	// w1 := w - 1
 	mr_w1 = mr_w - 1;
+	// w3 := w - 3
 	mr_w3 = mr_w - 3;
 
+	//check w is larger than 3, otherwise the random b will be too small
 	if (mr_w3 <= 0)
 	{
 		return 0;
 	}
 
+	// (Step 1) Calculate largest integer 'a' such that 2^a divides w-1
+	// (Step 2) m = (w-1) / 2^a
 	mr_a = 1;
 	mr_m = mr_w1 / 2;
 	while (mod(mr_m, 2) == 0)
@@ -268,12 +275,13 @@ int miller_rabin_is_prime(int mr_out[1], int mr_w, int mr_iterations)
 		mr_m = mr_m / 2;
 	}
 
-	mr_m = rshift_uint32(mr_w1, mr_a);
-
+	// (Step 4)
 	mr_i = 0;
-
 	while (mr_i < mr_iterations)
 	{
+		goto_outer_loop = 0;
+
+		// (Step 4.1) obtain a Random string of bits b where 1 < b < w-1
 		if (!rand_range(mr_temp, mr_w3))
 		{
 			return 0;
@@ -281,51 +289,71 @@ int miller_rabin_is_prime(int mr_out[1], int mr_w, int mr_iterations)
 
 		mr_b = mr_temp[0] + 2;
 
+		// (Step 4.5) z = b^m mod w
 		mr_z = exp_mod(mr_b, mr_m, mr_w);
 
+		// (Step 4.6) if (z = 1 or z = w-1)
 		if (mr_z == 1 || mr_z == mr_w1)
 		{
-			mr_out[0] = 1;
-			return 1;
+			goto_outer_loop = 1;
 		}
 
-		mr_j = 1;
-		while (mr_j < mr_a)
+		if (!goto_outer_loop)
 		{
-			mr_x = mr_z;
-			mr_z = mul_mod(mr_x, mr_x, mr_w);
-
-			if (mr_z == mr_w1)
+			// (Step 4.7) for j = 1 to a-1
+			mr_j = 1;
+			while (!goto_outer_loop && mr_j < mr_a)
 			{
-				mr_out[0] = 1;
-				return 1;
+				// (Step 4.7.1 - 4.7.2) x = z. z = x^2 mod w
+				mr_x = mr_z;
+				mr_z = mul_mod(mr_x, mr_x, mr_w);
+
+				// (Step 4.7.3)
+				if (mr_z == mr_w1)
+				{
+					goto_outer_loop = 1;
+				}
+
+				if (!goto_outer_loop)
+				{
+					// (Step 4.7.4)
+					if (mr_z == 1)
+					{
+						mr_out[0] = 0;
+						return 1;
+					}
+
+					mr_j = mr_j + 1;
+				}
 			}
 
-			if (mr_z == 1)
+			if (!goto_outer_loop)
 			{
+				// At this point z = b^((w-1)/2) mod w
+				// (Steps 4.8 - 4.9) x = z, z = x^2 mod w
+				mr_x = mr_z;
+				mr_z = mul_mod(mr_x, mr_x, mr_w);
+
+				// (Step 4.10)
+				if (mr_z == 1)
+				{
+					mr_out[0] = 0;
+					return 1;
+				}
+
+				// (Step 4.11) x = b^(w-1) mod w
+				mr_x = mr_z;
+
 				mr_out[0] = 0;
 				return 1;
 			}
-
-			mr_j = mr_j + 1;
 		}
 
-		mr_x = mr_z;
-		mr_z = mul_mod(mr_x, mr_x, mr_w);
-
-		if (mr_z == 1)
-		{
-			mr_out[0] = 0;
-			return 1;
-		}
-
-		mr_x = mr_z;
-
-		mr_out[0] = 0;
-
+		// outer_loop:
 		mr_i = mr_i + 1;
 	}
 
+	// (Step 5)
 	mr_out[0] = 1;
 
 	return 1;
