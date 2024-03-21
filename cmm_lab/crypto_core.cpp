@@ -753,7 +753,7 @@ int probable_prime_dh(
 	return 1;
 }
 
-// bits must be >0 and <=31; add and rem must be either positive or -1
+// bits must be >=2 and <=31; add and rem must be either positive or -1
 int generate_prime(
 	int genprime_out[1],
 	int genprime_bits,
