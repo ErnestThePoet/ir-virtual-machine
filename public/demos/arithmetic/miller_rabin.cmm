@@ -1,7 +1,7 @@
 /*
  * Input x, checks whether it is possibly a prime using
  * Miller-Rabin primality test based algorithm.
- * This implementation is adapted from OpenSSL.
+ * This implementation is adapted from OpenSSL v3.3.0.
  */
 
 int kNext;

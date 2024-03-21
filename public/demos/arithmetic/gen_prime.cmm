@@ -1,7 +1,7 @@
 /*
  * Input random seed, b and s, the program generates a b-bit prime.
  * If s it not zero, the prime is guaranteed to be a safe prime.
- * This implementation is adapted from OpenSSL.
+ * This implementation is adapted from OpenSSL v3.3.0.
  */
 
 int kNext;
