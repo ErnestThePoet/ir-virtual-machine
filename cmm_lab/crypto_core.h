@@ -35,6 +35,4 @@ int generate_prime(
 	int genprime_add,
 	int genprime_rem);
 
-
-
 #endif
