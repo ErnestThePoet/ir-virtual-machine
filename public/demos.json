@@ -135,12 +135,27 @@
             {
                 "name": "Miller-Rabin素性检验",
                 "irUrl": "demos/arithmetic/miller_rabin.ir",
-                "remark": "输入正整数w，使用基于Miller-Rabin素性检验的算法判断w是否*可能*是素数。如果w可能是素数，输出1；如果w是合数，输出0。当w为素数且值达到5.5亿左右时，此算法对比朴素算法开始显示出执行步数上的优势；当w为合数时，此算法几乎总是非常快。"
+                "remark": "输入正整数w，使用基于Miller-Rabin素性检验的算法判断w是否*可能*是素数。如果w可能是素数，输出1；如果w是合数，输出0。当w为素数且值达到5亿左右时，此算法对比朴素算法开始显示出执行步数上的优势；当w为合数时，此算法几乎总是非常快。"
+            },
+            {
+                "name": "随机素数生成",
+                "irUrl": "demos/arithmetic/gen_prime.ir",
+                "remark": "输入随机数种子、b和s (2≤b≤31)，生成一个b位素数。如果s非零，则生成的是安全素数((p-1)/2同样是素数)。"
             }
         ]
     },
     {
-        "groupName": "信息安全/密码学专区❤️",
+        "groupName": "密码学专区❤️",
+        "demos": [
+            {
+                "name": "栈溢出攻击",
+                "irUrl": "demos/cyber_security/stack_overflow.ir",
+                "remark": "在这个虚拟机上也能进行栈溢出攻击吗？"
+            }
+        ]
+    },
+    {
+        "groupName": "信息安全",
         "demos": [
             {
                 "name": "栈溢出攻击",
