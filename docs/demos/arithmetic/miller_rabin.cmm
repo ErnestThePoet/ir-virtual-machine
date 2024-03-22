@@ -1,7 +1,7 @@
 /*
  * Input x, checks whether it is possibly a prime using
  * Miller-Rabin primality test based algorithm.
- * This implementation is adapted from OpenSSL.
+ * This implementation is adapted from OpenSSL v3.3.0.
  */
 
 int kNext;
@@ -190,11 +190,6 @@ int cmp_uint32(int cmp_uint32_a, int cmp_uint32_b)
 	}
 }
 
-int neg_uint32(int neg_uint32_a)
-{
-	return -1 - neg_uint32_a + 1;
-}
-
 int add_full_uint32(
 	int add_full_uint32_carry_out[1],
 	int add_full_uint32_a,
@@ -213,34 +208,17 @@ int add_full_uint32(
 	return add_full_uint32_a + add_full_uint32_b;
 }
 
-int sub_full_uint32(
-	int sub_full_uint32_borrow_out[1],
-	int sub_full_uint32_a,
-	int sub_full_uint32_b)
-{
-	if (cmp_uint32(sub_full_uint32_a, sub_full_uint32_b) < 0)
-	{
-		sub_full_uint32_borrow_out[0] = 1;
-	}
-	else
-	{
-		sub_full_uint32_borrow_out[0] = 0;
-	}
-
-	return sub_full_uint32_a - sub_full_uint32_b;
-}
-
 int mul_uint32(int mul_uint32_uint64_out[2], int mul_uint32_a, int mul_uint32_b)
 {
 	// a=ah al=(ah<<16)+al
 	// b=bh bl=(bh<<16)+bl
 	// a*b=((ah*bh)<<32)+((ah*bl)<<16)+((al*bh)<<16)+(al*bl)
-	// 
+	//
 	// |---------------(a*b)----------------|
 	// |-----(a*b)_h-----||-----(a*b)_l-----|
-	// 
+	//
 	// equals the sum of:
-	// 
+	//
 	// |      32bit      |00...............00  ((ah*bh)<<32)
 	// --------------------------------------
 	//          |      32bit      |00......00  ((ah*bl)<<16)
@@ -260,8 +238,8 @@ int mul_uint32(int mul_uint32_uint64_out[2], int mul_uint32_a, int mul_uint32_b)
 	int mul_uint32_bl = mul_uint32_b - mul_uint32_bh * 65536;
 
 	int mul_uint32_abh = mul_uint32_ah * mul_uint32_bh +
-		rshift_uint32(mul_uint32_ah * mul_uint32_bl, 16) +
-		rshift_uint32((mul_uint32_al * mul_uint32_bh), 16);
+						 rshift_uint32(mul_uint32_ah * mul_uint32_bl, 16) +
+						 rshift_uint32((mul_uint32_al * mul_uint32_bh), 16);
 
 	int mul_uint32_abl_carry[1];
 	int mul_uint32_abl = add_full_uint32(
@@ -332,12 +310,6 @@ int div_mod_uint32(
 	return div_mod_uint32_result;
 }
 
-int div_uint32(int div_uint32_a, int div_uint32_b)
-{
-	int div_uint32_rem[1];
-	return div_mod_uint32(div_uint32_rem, div_uint32_a, div_uint32_b);
-}
-
 int mod_uint32(int mod_uint32_a, int mod_uint32_b)
 {
 	int mod_uint32_rem[1];
@@ -365,13 +337,13 @@ int rshift_uint64(int rshift_uint64_out[2], int rshift_uint64_x[2], int rshift_u
 	if (rshift_uint64_a >= 32)
 	{
 		rshift_uint64_out[1] = rshift_uint64_out[1] +
-			rshift_uint32(rshift_uint64_xh, rshift_uint64_a - 32);
+							   rshift_uint32(rshift_uint64_xh, rshift_uint64_a - 32);
 	}
 	else
 	{
 		rshift_uint64_out[1] = rshift_uint64_out[1] +
-			(rshift_uint64_xh - rshift_uint64_out[0] * kTwoPowers[rshift_uint64_a]) *
-			kTwoPowers[32 - rshift_uint64_a];
+							   (rshift_uint64_xh - rshift_uint64_out[0] * kTwoPowers[rshift_uint64_a]) *
+								   kTwoPowers[32 - rshift_uint64_a];
 	}
 
 	return 0;
@@ -394,7 +366,7 @@ int lshift_uint64(int lshift_uint64_out[2], int lshift_uint64_x[2], int lshift_u
 	else
 	{
 		lshift_uint64_out[0] = lshift_uint64_x[0] * kTwoPowers[lshift_uint64_a] +
-			rshift_uint32(lshift_uint64_x[1], 32 - lshift_uint64_a);
+							   rshift_uint32(lshift_uint64_x[1], 32 - lshift_uint64_a);
 		lshift_uint64_out[1] = lshift_uint64_x[1] * kTwoPowers[lshift_uint64_a];
 	}
 
@@ -428,25 +400,6 @@ int cmp_uint64(int cmp_uint64_a[2], int cmp_uint64_b[2])
 	return cmp_uint32(cmp_uint64_a[1], cmp_uint64_b[1]);
 }
 
-int add_full_uint64(
-	int add_full_uint64_out[2],
-	int add_full_uint64_carry_out[1],
-	int add_full_uint64_a[2],
-	int add_full_uint64_b[2])
-{
-	int add_full_uint64_low_carry[1];
-	int add_full_uint64_high_carry[1];
-	add_full_uint64_out[1] = add_full_uint32(
-		add_full_uint64_low_carry, add_full_uint64_a[1], add_full_uint64_b[1]);
-	add_full_uint64_out[0] = add_full_uint32(
-		add_full_uint64_high_carry, add_full_uint64_a[0], add_full_uint64_b[0]);
-	add_full_uint64_carry_out[0] = add_full_uint64_high_carry[0];
-	add_full_uint64_out[0] = add_full_uint32(
-		add_full_uint64_high_carry, add_full_uint64_out[0], add_full_uint64_low_carry[0]);
-	add_full_uint64_carry_out[0] = add_full_uint64_carry_out[0] + add_full_uint64_high_carry[0];
-	return 0;
-}
-
 int add_uint64(int add_uint64_out[2], int add_uint64_a[2], int add_uint64_b[2])
 {
 	int add_uint64_low_carry[1];
@@ -472,30 +425,6 @@ int neg_uint64(int neg_uint64_out[2], int neg_uint64_a[2])
 	return 0;
 }
 
-int sub_full_uint64(
-	int sub_full_uint64_out[2],
-	int sub_full_uint64_borrow_out[1],
-	int sub_full_uint64_a[2],
-	int sub_full_uint64_b[2])
-{
-	int sub_full_uint64_neg_b[2];
-
-	if (cmp_uint64(sub_full_uint64_a, sub_full_uint64_b) < 0)
-	{
-		sub_full_uint64_borrow_out[0] = 1;
-	}
-	else
-	{
-		sub_full_uint64_borrow_out[0] = 0;
-	}
-
-	neg_uint64(sub_full_uint64_neg_b, sub_full_uint64_b);
-
-	add_uint64(sub_full_uint64_out, sub_full_uint64_a, sub_full_uint64_neg_b);
-
-	return 0;
-}
-
 int sub_uint64(int sub_uint64_out[2], int sub_uint64_a[2], int sub_uint64_b[2])
 {
 	int sub_uint64_neg_b[2];
@@ -512,12 +441,12 @@ int mul_uint64(int mul_uint64_out[2], int mul_uint64_a[2], int mul_uint64_b[2])
 	// a=ah al=(ah<<32)+al
 	// b=bh bl=(bh<<32)+bl
 	// a*b=((ah*bh)<<64)+((ah*bl)<<32)+((al*bh)<<32)+(al*bl)
-	// 
+	//
 	// |---------------(a*b)----------------|
 	// |-----(a*b)_h-----||-----(a*b)_l-----|
-	// 
+	//
 	// equals the sum of:
-	// 
+	//
 	// |      64bit      |00...............00  ((ah*bh)<<64)
 	// --------------------------------------
 	//          |      64bit      |00......00  ((ah*bl)<<32)
@@ -616,13 +545,6 @@ int div_mod_uint64(
 	return 0;
 }
 
-int div_uint64(int div_uint64_out[2], int div_uint64_a[2], int div_uint64_b[2])
-{
-	int div_uint64_rem[2];
-	div_mod_uint64(div_uint64_out, div_uint64_rem, div_uint64_a, div_uint64_b);
-	return 0;
-}
-
 int mod_uint64(int mod_uint64_out[2], int mod_uint64_a[2], int mod_uint64_b[2])
 {
 	int mod_uint64_quot[2];
@@ -640,8 +562,9 @@ int is_bit_set(int is_bit_set_x, int is_bit_set_n)
 	}
 
 	return mod_uint32(
-		rshift_uint32(
-			is_bit_set_x, is_bit_set_n), 2) == 1;
+			   rshift_uint32(
+				   is_bit_set_x, is_bit_set_n),
+			   2) == 1;
 }
 
 int rand_bits(int rand_bits_n, int rand_bits_top, int rand_bits_bottom)
@@ -656,8 +579,8 @@ int rand_bits(int rand_bits_n, int rand_bits_top, int rand_bits_bottom)
 	if (rand_bits_n < 32)
 	{
 		rand_bits_result = rand_bits_result -
-			kTwoPowers[rand_bits_n] *
-			rshift_uint32(rand_bits_result, rand_bits_n);
+						   kTwoPowers[rand_bits_n] *
+							   rshift_uint32(rand_bits_result, rand_bits_n);
 	}
 
 	if (rand_bits_top == 1 || rand_bits_top == 2)
@@ -702,7 +625,7 @@ int rand_range(int rand_range_out[1], int rand_range_range)
 		return 1;
 	}
 	else if (!is_bit_set(rand_range_range, rand_range_n - 2) &&
-		!is_bit_set(rand_range_range, rand_range_n - 3))
+			 !is_bit_set(rand_range_range, rand_range_n - 3))
 	{
 		while (1)
 		{
@@ -802,31 +725,42 @@ int miller_rabin_is_prime(int mr_out[1], int mr_w, int mr_iterations)
 	int mr_i, mr_j, mr_a;
 	int mr_w1, mr_w3, mr_x, mr_m, mr_z, mr_b;
 	int mr_temp[1];
+	int goto_outer_loop = 0;
+
+	// w must be >2 and odd
 	if (mr_w <= 2 || mod(mr_w, 2) == 0)
 	{
 		return 0;
 	}
 
+	// w1 := w - 1
 	mr_w1 = mr_w - 1;
+	// w3 := w - 3
 	mr_w3 = mr_w - 3;
 
+	// check w is larger than 3, otherwise the random b will be too small
 	if (mr_w3 <= 0)
 	{
 		return 0;
 	}
 
+	// (Step 1) Calculate largest integer 'a' such that 2^a divides w-1
+	// (Step 2) m = (w-1) / 2^a
 	mr_a = 1;
-	while (mod(rshift_uint32(mr_w1, mr_a), 2) == 0)
+	mr_m = mr_w1 / 2;
+	while (mod(mr_m, 2) == 0)
 	{
 		mr_a = mr_a + 1;
+		mr_m = mr_m / 2;
 	}
 
-	mr_m = rshift_uint32(mr_w1, mr_a);
-
+	// (Step 4)
 	mr_i = 0;
-
 	while (mr_i < mr_iterations)
 	{
+		goto_outer_loop = 0;
+
+		// (Step 4.1) obtain a Random string of bits b where 1 < b < w-1
 		if (!rand_range(mr_temp, mr_w3))
 		{
 			return 0;
@@ -834,59 +768,78 @@ int miller_rabin_is_prime(int mr_out[1], int mr_w, int mr_iterations)
 
 		mr_b = mr_temp[0] + 2;
 
+		// (Step 4.5) z = b^m mod w
 		mr_z = exp_mod(mr_b, mr_m, mr_w);
 
+		// (Step 4.6) if (z = 1 or z = w-1)
 		if (mr_z == 1 || mr_z == mr_w1)
 		{
-			mr_out[0] = 1;
-			return 1;
+			goto_outer_loop = 1;
 		}
 
-		mr_j = 1;
-		while (mr_j < mr_a)
+		if (!goto_outer_loop)
 		{
-			mr_x = mr_z;
-			mr_z = mul_mod(mr_x, mr_x, mr_w);
-
-			if (mr_z == mr_w1)
+			// (Step 4.7) for j = 1 to a-1
+			mr_j = 1;
+			while (!goto_outer_loop && mr_j < mr_a)
 			{
-				mr_out[0] = 1;
-				return 1;
+				// (Step 4.7.1 - 4.7.2) x = z. z = x^2 mod w
+				mr_x = mr_z;
+				mr_z = mul_mod(mr_x, mr_x, mr_w);
+
+				// (Step 4.7.3)
+				if (mr_z == mr_w1)
+				{
+					goto_outer_loop = 1;
+				}
+
+				if (!goto_outer_loop)
+				{
+					// (Step 4.7.4)
+					if (mr_z == 1)
+					{
+						mr_out[0] = 0;
+						return 1;
+					}
+
+					mr_j = mr_j + 1;
+				}
 			}
 
-			if (mr_z == 1)
+			if (!goto_outer_loop)
 			{
+				// At this point z = b^((w-1)/2) mod w
+				// (Steps 4.8 - 4.9) x = z, z = x^2 mod w
+				mr_x = mr_z;
+				mr_z = mul_mod(mr_x, mr_x, mr_w);
+
+				// (Step 4.10)
+				if (mr_z == 1)
+				{
+					mr_out[0] = 0;
+					return 1;
+				}
+
+				// (Step 4.11) x = b^(w-1) mod w
+				mr_x = mr_z;
+
 				mr_out[0] = 0;
 				return 1;
 			}
-
-			mr_j = mr_j + 1;
 		}
 
-		mr_x = mr_z;
-		mr_z = mul_mod(mr_x, mr_x, mr_w);
-
-		if (mr_z == 1)
-		{
-			mr_out[0] = 0;
-			return 1;
-		}
-
-		mr_x = mr_z;
-
-		mr_out[0] = 0;
-
+		// outer_loop:
 		mr_i = mr_i + 1;
 	}
 
+	// (Step 5)
 	mr_out[0] = 1;
 
 	return 1;
 }
 
-int is_prime(int is_prime_out[1], int is_prime_w)
+int is_prime(int is_prime_out[1], int is_prime_checks, int is_prime_w, int is_prime_do_trial_division)
 {
-	int is_prime_checks = 64;
 	int is_prime_i;
 
 	// w must be bigger than 1
@@ -913,16 +866,19 @@ int is_prime(int is_prime_out[1], int is_prime_w)
 	}
 
 	// first look for small factors
-	is_prime_i = 1;
-	while (is_prime_i < 64)
+	if (is_prime_do_trial_division)
 	{
-		if (mod(is_prime_w, kPrimes[is_prime_i]) == 0)
+		is_prime_i = 1;
+		while (is_prime_i < 64)
 		{
-			is_prime_out[0] = (is_prime_w == kPrimes[is_prime_i]);
-			return 1;
-		}
+			if (mod(is_prime_w, kPrimes[is_prime_i]) == 0)
+			{
+				is_prime_out[0] = (is_prime_w == kPrimes[is_prime_i]);
+				return 1;
+			}
 
-		is_prime_i = is_prime_i + 1;
+			is_prime_i = is_prime_i + 1;
+		}
 	}
 
 	if (!miller_rabin_is_prime(is_prime_out, is_prime_w, is_prime_checks))
@@ -941,7 +897,7 @@ int main()
 	init_two_powers();
 	init_primes();
 
-	if (!is_prime(result, x))
+	if (!is_prime(result, 1, x, 1))
 	{
 		return 1;
 	}
