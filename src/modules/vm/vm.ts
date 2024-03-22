@@ -290,8 +290,6 @@ export class Vm {
         eip: 0
     };
 
-    // Pre-allocated local variables for each method
-
     private decoder: Decoder = new Decoder();
 
     private memory: VmMemory = cloneDeep(initialMemory);
@@ -307,6 +305,8 @@ export class Vm {
 
     // VM Options does not belong to its state
     private options: VmOptions = cloneDeep(defaultOptions);
+
+    private executionStartTime: Date = new Date();
 
     private writeBuffer: Array<ConsoleMessagePart[]> = [];
     private readConsole: ReadConsoleFn = _ => Promise.resolve("");
@@ -745,6 +745,8 @@ export class Vm {
      * will be written to buffer.
      */
     private prepareExcution() {
+        this.executionStartTime = new Date();
+
         this.decodeInstructions();
 
         if (this.executionStatus.state !== VmExecutionState.INITIAL) {
@@ -769,30 +771,37 @@ export class Vm {
         this.updatePeakMemoryUsage();
         this.tables.globalVariableTable = {};
 
-        if (this.registers.eax === 0) {
-            this.executionStatus.state = VmExecutionState.EXITED_NORMALLY;
-            this.writeBuffer.push([
-                {
-                    key: "EXITED_NORMALLY",
-                    values: {
-                        stepCount: this.executionStatus.stepCount
-                    },
-                    type: ConsoleMessageType.SUCCESS
-                }
-            ]);
-        } else {
-            this.executionStatus.state = VmExecutionState.EXITED_ABNORMALLY;
-            this.writeBuffer.push([
-                {
-                    key: "EXITED_ABNORMALLY",
-                    values: {
-                        returnValue: this.registers.eax,
-                        stepCount: this.executionStatus.stepCount
-                    },
-                    type: ConsoleMessageType.WARNING
-                }
-            ]);
-        }
+        const executionEndTime = new Date();
+
+        this.executionStatus.state =
+            this.registers.eax === 0
+                ? VmExecutionState.EXITED_NORMALLY
+                : VmExecutionState.EXITED_ABNORMALLY;
+        this.writeBuffer.push([
+            {
+                key: "PROGRAM_EXITED",
+                values: {
+                    returnValue: this.registers.eax
+                },
+                type:
+                    this.registers.eax === 0
+                        ? ConsoleMessageType.SUCCESS
+                        : ConsoleMessageType.WARNING
+            },
+            {
+                key: "EXECUTION_STEP_COUNT_TIME",
+                values: {
+                    stepCount: this.executionStatus.stepCount,
+                    time:
+                        executionEndTime.getTime() -
+                        this.executionStartTime.getTime()
+                },
+                type:
+                    this.registers.eax === 0
+                        ? ConsoleMessageType.SUCCESS
+                        : ConsoleMessageType.WARNING
+            }
+        ]);
     }
 
     /**

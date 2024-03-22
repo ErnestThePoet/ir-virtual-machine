@@ -74,7 +74,10 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                         {intl.formatMessage({ id: "STEP_COUNT" })}
                     </label>
                     <div className={styles.divStepCount}>
-                        {props.vm.stepCount}
+                        {intl.formatMessage(
+                            { id: "STEP_COUNT_NUMBER" },
+                            { stepCount: props.vm.stepCount }
+                        )}
                     </div>
                 </div>
 

@@ -28,6 +28,7 @@ const zhCn = {
     CLEAR_CONSOLE: "清屏",
 
     STEP_COUNT: "执行步数：",
+    STEP_COUNT_NUMBER: "{stepCount, number}",
     STATE: "VM状态：",
     STATE_INITIAL: "初始",
     STATE_BUSY: "忙碌",
@@ -122,9 +123,7 @@ const zhCn = {
     DIVIDE_BY_ZERO: "不能除以0",
 
     // Other error messages
-    MAX_STEP_REACHED: "已到达最大执行步数限制({maxExecutionStepCount})",
-    EXITED_ABNORMALLY:
-        "程序执行结束，返回值为{returnValue}。总执行步数：{stepCount}",
+    MAX_STEP_REACHED: "已到达最大执行步数限制({maxExecutionStepCount, number})",
     INPUT_INT_ILLEGAL: "输入的整数格式非法",
     INPUT_INT_ABS_TOO_LARGE: "输入的整数绝对值过大",
 
@@ -133,7 +132,9 @@ const zhCn = {
     READ_PROMPT: "请输入{name}的值：",
     CONSOLE_ARROW: ">",
     READ_INPUT: "{value}",
-    EXITED_NORMALLY: "程序执行结束，返回值为0。总执行步数：{stepCount}"
+    PROGRAM_EXITED: "程序执行结束，返回值为{returnValue}。",
+    EXECUTION_STEP_COUNT_TIME:
+        "总执行步数：{stepCount, number}；总执行耗时：{time, number}ms"
 };
 
 export default zhCn;

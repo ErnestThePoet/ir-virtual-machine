@@ -30,6 +30,7 @@ const en: AppLocale = {
     CLEAR_CONSOLE: "Clear",
 
     STEP_COUNT: "Step Count: ",
+    STEP_COUNT_NUMBER: "{stepCount, number}",
     STATE: "VM State: ",
     STATE_INITIAL: "Initial",
     STATE_BUSY: "Busy",
@@ -134,9 +135,7 @@ const en: AppLocale = {
 
     // Other error messages
     MAX_STEP_REACHED:
-        "Maximum execution step count reached({maxExecutionStepCount})",
-    EXITED_ABNORMALLY:
-        "Program exited with return value {returnValue}. Total execution step count: {stepCount}",
+        "Maximum execution step count reached({maxExecutionStepCount, number})",
     INPUT_INT_ILLEGAL: "Illegal input integer",
     INPUT_INT_ABS_TOO_LARGE: "Absolute value of input integer too large",
 
@@ -145,8 +144,9 @@ const en: AppLocale = {
     READ_PROMPT: "Please enter a value for {name}: ",
     CONSOLE_ARROW: ">",
     READ_INPUT: "{value}",
-    EXITED_NORMALLY:
-        "Program exited with return value 0. Total execution step count: {stepCount}"
+    PROGRAM_EXITED: "Program exited with return value {returnValue}.",
+    EXECUTION_STEP_COUNT_TIME:
+        "Execution step count: {stepCount, number}; Execution time: {time, number}ms"
 };
 
 export default en;
