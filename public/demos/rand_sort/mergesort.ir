@@ -240,26 +240,27 @@ var94 := var86 + #1
 var86 := var94
 GOTO label36
 LABEL label38 :
-ARG var84
+var95 := var84 - #1
+ARG var95
 ARG #0
 ARG &var85
 CALL mergesort
 var86 := #0
 LABEL label41 :
 IF var86 < var84 GOTO label39
-var95 := #0
+var96 := #0
 GOTO label40
 LABEL label39 :
-var95 := #1
+var96 := #1
 LABEL label40 :
-IF var95 != #0 GOTO label42
+IF var96 != #0 GOTO label42
 GOTO label43
 LABEL label42 :
-var96 := #4 * var86
-var97 := &var85 + var96
-WRITE *var97
-var98 := var86 + #1
-var86 := var98
+var97 := #4 * var86
+var98 := &var85 + var97
+WRITE *var98
+var99 := var86 + #1
+var86 := var99
 GOTO label41
 LABEL label43 :
 RETURN #0

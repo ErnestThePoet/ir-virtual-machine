@@ -223,26 +223,27 @@ var75 := var67 + #1
 var67 := var75
 GOTO label41
 LABEL label43 :
-ARG var65
+var76 := var65 - #1
+ARG var76
 ARG #0
 ARG &var66
 CALL qsort
 var67 := #0
 LABEL label46 :
 IF var67 < var65 GOTO label44
-var76 := #0
+var77 := #0
 GOTO label45
 LABEL label44 :
-var76 := #1
+var77 := #1
 LABEL label45 :
-IF var76 != #0 GOTO label47
+IF var77 != #0 GOTO label47
 GOTO label48
 LABEL label47 :
-var77 := #4 * var67
-var78 := &var66 + var77
-WRITE *var78
-var79 := var67 + #1
-var67 := var79
+var78 := #4 * var67
+var79 := &var66 + var78
+WRITE *var79
+var80 := var67 + #1
+var67 := var80
 GOTO label46
 LABEL label48 :
 RETURN #0
