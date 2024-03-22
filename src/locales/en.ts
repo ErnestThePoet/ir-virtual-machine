@@ -72,11 +72,17 @@ const en: AppLocale = {
     FUNCTION_ILLEGAL_ID: "FUNCTION id illegal",
     ASSIGN_ILLEGAL_LEFT: "Illegal left hand side of assignment",
     ASSIGN_ILLEGAL_RIGHT: "Illegal right hand side of assignment",
+    ASSIGN_RIGHT_IMM_TOO_LARGE:
+        "Right hand side immediate number of assignment too large",
     ASSIGN_ILLEGAL_RIGHT_OPERATOR: "Illegal math operator on RHS of assignment",
     ASSIGN_ILLEGAL_RIGHT_OPERAND1:
         "Illegal first Singular operand on RHS of assignment",
+    ASSIGN_RIGHT_OPERAND1_IMM_TOO_LARGE:
+        "First immediate number operand on RHS of assignment too large",
     ASSIGN_ILLEGAL_RIGHT_OPERAND2:
         "Illegal second Singular operand on RHS of assignment",
+    ASSIGN_RIGHT_OPERAND2_IMM_TOO_LARGE:
+        "Second immediate number operand on RHS of assignment too large",
     DEC_ILLEGAL_ID: "DEC's id illegal",
     DEC_ILLEGAL_SIZE_FORMAT: "DEC's size format illegal",
     DEC_SIZE_TOO_LARGE: "DEC's size too large",
@@ -90,15 +96,22 @@ const en: AppLocale = {
     IF_ILLEGAL_COND_OPERATOR: "IF's relop illegal",
     IF_ILLEGAL_COND_OPERAND1:
         "IF's first Singular operand in condition illegal",
+    IF_COND_OPERAND1_IMM_TOO_LARGE:
+        "IF's first immediate number operand in condition too large",
     IF_ILLEGAL_COND_OPERAND2:
         "IF's second Singular operand in condition illegal",
+    IF_COND_OPERAND2_IMM_TOO_LARGE:
+        "IF's second immediate number operand in condition too large",
     IF_ILLEGAL_GOTO_ID: "IF's GOTO id illegal",
     ARG_ILLEGAL: "ARG's Singular arg illegal",
+    ARG_IMM_TOO_LARGE: "ARG's immediate number arg too large",
     CALL_ILLEGAL_ID: "CALL's function id illegal",
     PARAM_ILLEGAL_ID: "PARAM's param id illegal",
     RETURN_ILLEGAL: "RETURN's Singular return value illegal",
+    RETURN_IMM_TOO_LARGE: "RETURN's immediate number return value too large",
     READ_ILLEGAL: "Illegal LValue for READ",
     WRITE_ILLEGAL: "Illegal Singular for WRITE",
+    WRITE_IMM_TOO_LARGE: "Immediate number for WRITE too large",
     NO_MAIN_FUNCTION: "Function main is not defined",
 
     // Runtime error messages

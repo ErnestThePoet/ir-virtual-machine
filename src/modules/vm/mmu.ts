@@ -1,73 +1,73 @@
-import { Uint32 } from "./data_types";
+import { i32 } from "./alu";
 
-type MmuLoadStatus = "SUCCESS" | "OUT_OF_BOUND";
-type MmuStoreStatus = "SUCCESS" | "OUT_OF_BOUND";
-
-interface MmuLoadResult {
-    status: MmuLoadStatus;
-    value?: Uint32;
+export enum MmuLoadStatus {
+    SUCCESS,
+    OUT_OF_BOUND
 }
 
-interface MmuStoreResult {
-    status: MmuStoreStatus;
+export interface MmuLoadResult {
+    value: number | null;
+    status: MmuLoadStatus;
+}
+
+export enum MmuStoreStatus {
+    SUCCESS,
+    OUT_OF_BOUND
 }
 
 /**
  * Oh our MMU is so simple--only responsible for loading and storing data into memory!
+ * For performance concerns, MMU is not implemented as a class.
  */
-export class Mmu {
-    /**
-     * Read 4 bytes from given address and return the result as uint32.
-     * @param addrss - The memory address.
-     * @param memory - The memory.
-     * @returns Load result. If unsuccessful, value=`0`
-     * @public
-     */
-    load32(address: Uint32, memory: Uint8Array): MmuLoadResult {
-        if (address.value + 4 > memory.length) {
-            return {
-                status: "OUT_OF_BOUND"
-            };
-        }
 
-        // Little endian
+/**
+ * Read 4 bytes from given address and return the truncated result.
+ * @param addrss - The memory address, must have been truncated.
+ * @param memory - The memory.
+ * @returns Load result, in which the `value` is truncated.
+ * @public
+ */
+export function load32(address: number, memory: Uint8Array): MmuLoadResult {
+    if (address < 0 || address + 4 > memory.length) {
         return {
-            status: "SUCCESS",
-            value: new Uint32(
-                memory[address.value] |
-                    (memory[address.value + 1] << 8) |
-                    (memory[address.value + 2] << 16) |
-                    (memory[address.value + 3] << 24)
-            )
+            value: null,
+            status: MmuLoadStatus.OUT_OF_BOUND
         };
     }
 
-    /**
-     * Write 4 bytes to given address.
-     * @param value - The value to be stored.
-     * @param addrss - The memory address.
-     * @param memory - The memory.
-     * @returns Store result
-     * @public
-     */
-    store32(
-        value: Uint32,
-        address: Uint32,
-        memory: Uint8Array
-    ): MmuStoreResult {
-        if (address.value + 4 > memory.length) {
-            return {
-                status: "OUT_OF_BOUND"
-            };
-        }
+    // Little endian
+    return {
+        value: i32(
+            memory[address] |
+                (memory[address + 1] << 8) |
+                (memory[address + 2] << 16) |
+                (memory[address + 3] << 24)
+        ),
+        status: MmuLoadStatus.SUCCESS
+    };
+}
 
-        memory[address.value] = value.value & 0x000000ff;
-        memory[address.value + 1] = (value.value & 0x0000ff00) >>> 8;
-        memory[address.value + 2] = (value.value & 0x00ff0000) >>> 16;
-        memory[address.value + 3] = (value.value & 0xff000000) >>> 24;
-
-        return {
-            status: "SUCCESS"
-        };
+/**
+ * Write 4 bytes to given address.
+ * @param value - The value to be stored, must have been truncated.
+ * @param addrss - The memory address, must have been truncated.
+ * @param memory - The memory.
+ * @returns Store status
+ * @public
+ */
+export function store32(
+    value: number,
+    address: number,
+    memory: Uint8Array
+): MmuStoreStatus {
+    if (address < 0 || address + 4 > memory.length) {
+        return MmuStoreStatus.OUT_OF_BOUND;
     }
+
+    memory[address] = value & 0x000000ff;
+    memory[address + 1] = (value & 0x0000ff00) >>> 8;
+    memory[address + 2] = (value & 0x00ff0000) >>> 16;
+    memory[address + 3] = (value & 0xff000000) >>> 24;
+
+    return MmuStoreStatus.SUCCESS;
 }

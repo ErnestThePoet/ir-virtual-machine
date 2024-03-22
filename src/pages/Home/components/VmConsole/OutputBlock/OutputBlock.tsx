@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./OutputBlock.module.scss";
-import { ConsoleMessagePart } from "@/modules/vm/vm";
+import { ConsoleMessagePart, ConsoleMessageType } from "@/modules/vm/vm";
 import classNames from "classnames";
 import { useIntl } from "react-intl";
 
@@ -19,12 +19,18 @@ const OutputBlock: React.FC<OutputBlockProps> = (props: OutputBlockProps) => {
                     <span
                         key={i}
                         className={classNames({
-                            [styles.spanError]: x.type === "ERROR",
-                            [styles.spanWarning]: x.type === "WARNING",
-                            [styles.spanSuccess]: x.type === "SUCCESS",
-                            [styles.spanNormal]: x.type === "NORMAL",
-                            [styles.spanPrompt]: x.type === "PROMPT",
-                            [styles.spanArrow]: x.type === "ARROW"
+                            [styles.spanError]:
+                                x.type === ConsoleMessageType.ERROR,
+                            [styles.spanWarning]:
+                                x.type === ConsoleMessageType.WARNING,
+                            [styles.spanSuccess]:
+                                x.type === ConsoleMessageType.SUCCESS,
+                            [styles.spanNormal]:
+                                x.type === ConsoleMessageType.NORMAL,
+                            [styles.spanPrompt]:
+                                x.type === ConsoleMessageType.PROMPT,
+                            [styles.spanArrow]:
+                                x.type === ConsoleMessageType.ARROW
                         })}>
                         {part}
                     </span>

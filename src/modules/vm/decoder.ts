@@ -1,23 +1,55 @@
-import { Int32 } from "./data_types";
 import type { AppLocaleKey } from "@/locales";
+import { i32 } from "./alu";
 
 // Component types
+
+export enum SingularType {
+    IMM,
+    ID,
+    ADDRESS_ID,
+    DEREF_ID
+}
+
 export interface Singular {
-    type: "IMM" | "ID" | "ADDRESS_ID" | "DEREF_ID";
-    imm?: Int32;
+    type: SingularType;
+    // Contract: truncated
+    imm?: number;
     id?: string;
 }
 
-type BinaryMathOp = "+" | "-" | "*" | "/";
-type BinaryRelOp = "==" | "!=" | "<" | "<=" | ">" | ">=";
+export enum BinaryMathOp {
+    ADD,
+    SUB,
+    MUL,
+    DIV
+}
+
+export enum BinaryRelOp {
+    EQ,
+    NE,
+    LT,
+    LE,
+    GT,
+    GE
+}
+
+export enum LValueType {
+    ID,
+    DEREF_ID
+}
 
 export interface LValue {
-    type: "ID" | "DEREF_ID";
+    type: LValueType;
     id: string;
 }
 
+export enum RValueType {
+    SINGULAR,
+    BINARY_MATH_OP
+}
+
 export interface RValue {
-    type: "SINGULAR" | "BINARY_MATH_OP";
+    type: RValueType;
     singular?: Singular;
     singularL?: Singular;
     binaryMathOp?: BinaryMathOp;
@@ -43,12 +75,14 @@ export interface DecodedAssign {
 
 export interface DecodedDec {
     id: string;
-    size: Int32;
+    // Contract: truncated
+    size: number;
 }
 
 export interface DecodedGlobalDec {
     id: string;
-    size: Int32;
+    // Contract: truncated
+    size: number;
 }
 
 export interface DecodedLabel {
@@ -98,29 +132,45 @@ export interface DecodedWrite {
 }
 
 // Decode result type
-type InstructionType =
-    | "FUNCTION"
-    | "ASSIGN"
-    | "DEC"
-    | "GLOBAL_DEC"
-    | "LABEL"
-    | "GOTO"
-    | "IF"
-    | "ARG"
-    | "CALL"
-    | "ASSIGN_CALL"
-    | "PARAM"
-    | "RETURN"
-    | "READ"
-    | "WRITE"
-    | "EMPTY"
-    | "COMMENT"
-    | "ERROR";
+export enum InstructionType {
+    FUNCTION,
+    ASSIGN,
+    DEC,
+    GLOBAL_DEC,
+    LABEL,
+    GOTO,
+    IF,
+    ARG,
+    CALL,
+    ASSIGN_CALL,
+    PARAM,
+    RETURN,
+    READ,
+    WRITE,
+    EMPTY,
+    COMMENT,
+    ERROR
+}
 
-type ExecutableInstructionType = Exclude<
-    InstructionType,
-    "FUNCTION" | "LABEL" | "EMPTY" | "COMMENT" | "ERROR"
->;
+export enum ExecutableInstructionType {
+    // FUNCTION,
+    ASSIGN = InstructionType.ASSIGN,
+    DEC = InstructionType.DEC,
+    GLOBAL_DEC = InstructionType.GLOBAL_DEC,
+    // LABEL,
+    GOTO = InstructionType.GOTO,
+    IF = InstructionType.IF,
+    ARG = InstructionType.ARG,
+    CALL = InstructionType.CALL,
+    ASSIGN_CALL = InstructionType.ASSIGN_CALL,
+    PARAM = InstructionType.PARAM,
+    RETURN = InstructionType.RETURN,
+    READ = InstructionType.READ,
+    WRITE = InstructionType.WRITE
+    // EMPTY,
+    // COMMENT,
+    // ERROR
+}
 
 type InstructionValue =
     | DecodedFunction
@@ -145,10 +195,9 @@ export interface DecodedInstruction {
     value?: InstructionValue;
 }
 
-export interface DecodedExecutableInstruction extends DecodedInstruction {
+export type DecodedExecutableInstruction = Omit<DecodedInstruction, "type"> & {
     type: ExecutableInstructionType;
-    value?: InstructionValue;
-}
+};
 
 type DecodedInstructionNoMeta = Omit<DecodedInstruction, "lineNumber">;
 
@@ -156,7 +205,7 @@ type DecodedInstructionNoMeta = Omit<DecodedInstruction, "lineNumber">;
  * Decoder breaks down an IR instruction
  */
 export class Decoder {
-    // Named group is an ES2018 feature and we want some polyfill.
+    // TODO: Named group is an ES2018 feature and we want some polyfill.
     private readonly patternId = new RegExp(/^(?<id>[a-zA-Z_]\w*)$/);
 
     private readonly patternSize = new RegExp(/^(?<size>\d+)$/);
@@ -170,7 +219,7 @@ export class Decoder {
     );
 
     private readonly illegalInstructionFormatError: DecodedInstructionNoMeta = {
-        type: "ERROR",
+        type: InstructionType.ERROR,
         messageKey: "ILLEGAL_INSTRUCTION_FORMAT"
     };
 
@@ -185,7 +234,7 @@ export class Decoder {
     /**
      * Decode the ID string into a string.
      * @param id - The ID string.
-     * @returns A string, or null if illegal.
+     * @returns A string, or `null` if illegal.
      */
     private decodeComponentId(id: string): string | null {
         const match = id.match(this.patternId);
@@ -198,24 +247,33 @@ export class Decoder {
     }
 
     /**
-     * Decode the size string into a Int32.
+     * Decode the size string into a truncated 32-bit signed int
+     * and return it.
      * @param size - The size string.
-     * @returns An Int32, or null if illegal.
+     * @returns An number, or `null` if illegal. If `size` is not a
+     * safe integer, the returned number will be `Infinity`.
      */
-    private decodeComponentSize(size: string): Int32 | null {
+    private decodeComponentSize(size: string): number | null {
         const match = size.match(this.patternSize);
 
         if (match === null) {
             return null;
         }
 
-        return new Int32(parseInt(match.groups!.size));
+        const sizeValue = parseInt(match.groups!.size);
+
+        if (!Number.isSafeInteger(sizeValue)) {
+            return Infinity;
+        }
+
+        return i32(sizeValue);
     }
 
     /**
-     * Decode the singular string into a Singular object.
+     * Decode the singular string into a Singular object. If the singular
+     * is imm, its value in the returned Singular object is truncated.
      * @param singular - The singular string.
-     * @returns A Singular object, or null if illegal.
+     * @returns A Singular object, or `null` if illegal.
      */
     private decodeComponentSingular(singular: string): Singular | null {
         const match = singular.match(this.patternSingular);
@@ -227,26 +285,29 @@ export class Decoder {
         if (match.groups!.imm !== undefined) {
             const numberValue = parseInt(match.groups!.imm);
             if (!Number.isSafeInteger(numberValue)) {
-                return null;
+                return {
+                    type: SingularType.IMM,
+                    imm: Infinity
+                };
             }
 
             return {
-                type: "IMM",
-                imm: new Int32(numberValue)
+                type: SingularType.IMM,
+                imm: i32(numberValue)
             };
         } else if (match.groups!.id !== undefined) {
             return {
-                type: "ID",
+                type: SingularType.ID,
                 id: match.groups!.id
             };
         } else if (match.groups!.derefId !== undefined) {
             return {
-                type: "DEREF_ID",
+                type: SingularType.DEREF_ID,
                 id: match.groups!.derefId
             };
         } else {
             return {
-                type: "ADDRESS_ID",
+                type: SingularType.ADDRESS_ID,
                 id: match.groups!.addressId
             };
         }
@@ -266,12 +327,12 @@ export class Decoder {
 
         if (match.groups!.id !== undefined) {
             return {
-                type: "ID",
+                type: LValueType.ID,
                 id: match.groups!.id
             };
         } else {
             return {
-                type: "DEREF_ID",
+                type: LValueType.DEREF_ID,
                 id: match.groups!.derefId
             };
         }
@@ -288,13 +349,13 @@ export class Decoder {
 
         if (id === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "FUNCTION_ILLEGAL_ID"
             };
         }
 
         return {
-            type: "FUNCTION",
+            type: InstructionType.FUNCTION,
             value: <DecodedFunction>{
                 id
             }
@@ -312,7 +373,7 @@ export class Decoder {
         const lValue = this.decodeComponentLValue(splitResult[0]);
         if (lValue === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "ASSIGN_ILLEGAL_LEFT"
             };
         }
@@ -320,7 +381,7 @@ export class Decoder {
         const rSingular1 = this.decodeComponentSingular(splitResult[2]);
         if (rSingular1 === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey:
                     splitResult.length === 3
                         ? "ASSIGN_ILLEGAL_RIGHT"
@@ -328,29 +389,48 @@ export class Decoder {
             };
         }
 
+        if (
+            rSingular1.type === SingularType.IMM &&
+            !Number.isFinite(rSingular1.imm)
+        ) {
+            return {
+                type: InstructionType.ERROR,
+                messageKey:
+                    splitResult.length === 3
+                        ? "ASSIGN_RIGHT_IMM_TOO_LARGE"
+                        : "ASSIGN_RIGHT_OPERAND1_IMM_TOO_LARGE"
+            };
+        }
+
         if (splitResult.length === 3) {
             return {
-                type: "ASSIGN",
+                type: InstructionType.ASSIGN,
                 value: <DecodedAssign>{
                     lValue,
                     rValue: {
-                        type: "SINGULAR",
+                        type: RValueType.SINGULAR,
                         singular: rSingular1
                     }
                 }
             };
         } else {
-            let operator: BinaryMathOp = "+";
+            let operator: BinaryMathOp = BinaryMathOp.ADD;
             switch (splitResult[3]) {
                 case "+":
+                    operator = BinaryMathOp.ADD;
+                    break;
                 case "-":
+                    operator = BinaryMathOp.SUB;
+                    break;
                 case "*":
+                    operator = BinaryMathOp.MUL;
+                    break;
                 case "/":
-                    operator = splitResult[3];
+                    operator = BinaryMathOp.DIV;
                     break;
                 default:
                     return {
-                        type: "ERROR",
+                        type: InstructionType.ERROR,
                         messageKey: "ASSIGN_ILLEGAL_RIGHT_OPERATOR"
                     };
             }
@@ -358,17 +438,27 @@ export class Decoder {
             const rSingular2 = this.decodeComponentSingular(splitResult[4]);
             if (rSingular2 === null) {
                 return {
-                    type: "ERROR",
+                    type: InstructionType.ERROR,
                     messageKey: "ASSIGN_ILLEGAL_RIGHT_OPERAND2"
                 };
             }
 
+            if (
+                rSingular2.type === SingularType.IMM &&
+                !Number.isFinite(rSingular2.imm)
+            ) {
+                return {
+                    type: InstructionType.ERROR,
+                    messageKey: "ASSIGN_RIGHT_OPERAND2_IMM_TOO_LARGE"
+                };
+            }
+
             return {
-                type: "ASSIGN",
+                type: InstructionType.ASSIGN,
                 value: <DecodedAssign>{
                     lValue,
                     rValue: {
-                        type: "BINARY_MATH_OP",
+                        type: RValueType.BINARY_MATH_OP,
                         singularL: rSingular1,
                         singularR: rSingular2,
                         binaryMathOp: operator
@@ -386,7 +476,7 @@ export class Decoder {
         const id = this.decodeComponentId(splitResult[1]);
         if (id === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "DEC_ILLEGAL_ID"
             };
         }
@@ -394,27 +484,27 @@ export class Decoder {
         const size = this.decodeComponentSize(splitResult[2]);
         if (size === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "DEC_ILLEGAL_SIZE_FORMAT"
             };
         }
 
-        if (!Number.isSafeInteger(parseInt(splitResult[2]))) {
+        if (!Number.isFinite(size)) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "DEC_SIZE_TOO_LARGE"
             };
         }
 
-        if (size.value % 4 !== 0) {
+        if (size % 4 !== 0) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "DEC_SIZE_NOT_4_MULTIPLE"
             };
         }
 
         return {
-            type: "DEC",
+            type: InstructionType.DEC,
             value: <DecodedDec>{
                 id,
                 size
@@ -430,7 +520,7 @@ export class Decoder {
         const id = this.decodeComponentId(splitResult[1]);
         if (id === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "GLOBAL_DEC_ILLEGAL_ID"
             };
         }
@@ -438,27 +528,27 @@ export class Decoder {
         const size = this.decodeComponentSize(splitResult[2]);
         if (size === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "GLOBAL_DEC_ILLEGAL_SIZE_FORMAT"
             };
         }
 
-        if (!Number.isSafeInteger(parseInt(splitResult[2]))) {
+        if (!Number.isFinite(size)) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "GLOBAL_DEC_SIZE_TOO_LARGE"
             };
         }
 
-        if (size.value % 4 !== 0) {
+        if (size % 4 !== 0) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "GLOBAL_DEC_SIZE_NOT_4_MULTIPLE"
             };
         }
 
         return {
-            type: "GLOBAL_DEC",
+            type: InstructionType.GLOBAL_DEC,
             value: <DecodedGlobalDec>{
                 id,
                 size
@@ -474,13 +564,13 @@ export class Decoder {
         const id = this.decodeComponentId(splitResult[1]);
         if (id === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "LABEL_ILLEGAL_ID"
             };
         }
 
         return {
-            type: "LABEL",
+            type: InstructionType.LABEL,
             value: <DecodedLabel>{
                 id
             }
@@ -495,13 +585,13 @@ export class Decoder {
         const id = this.decodeComponentId(splitResult[1]);
         if (id === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "GOTO_ILLEGAL_ID"
             };
         }
 
         return {
-            type: "GOTO",
+            type: InstructionType.GOTO,
             value: <DecodedGoto>{
                 id
             }
@@ -516,24 +606,44 @@ export class Decoder {
         const singular1 = this.decodeComponentSingular(splitResult[1]);
         if (singular1 === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "IF_ILLEGAL_COND_OPERAND1"
             };
         }
 
-        let operator: BinaryRelOp = "==";
+        if (
+            singular1.type === SingularType.IMM &&
+            !Number.isFinite(singular1.imm)
+        ) {
+            return {
+                type: InstructionType.ERROR,
+                messageKey: "IF_COND_OPERAND1_IMM_TOO_LARGE"
+            };
+        }
+
+        let operator: BinaryRelOp = BinaryRelOp.EQ;
         switch (splitResult[2]) {
             case "==":
+                operator = BinaryRelOp.EQ;
+                break;
             case "!=":
+                operator = BinaryRelOp.NE;
+                break;
             case "<":
+                operator = BinaryRelOp.LT;
+                break;
             case "<=":
+                operator = BinaryRelOp.LE;
+                break;
             case ">":
+                operator = BinaryRelOp.GT;
+                break;
             case ">=":
-                operator = splitResult[2];
+                operator = BinaryRelOp.GE;
                 break;
             default:
                 return {
-                    type: "ERROR",
+                    type: InstructionType.ERROR,
                     messageKey: "IF_ILLEGAL_COND_OPERATOR"
                 };
         }
@@ -541,21 +651,31 @@ export class Decoder {
         const singular2 = this.decodeComponentSingular(splitResult[3]);
         if (singular2 === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "IF_ILLEGAL_COND_OPERAND2"
+            };
+        }
+
+        if (
+            singular2.type === SingularType.IMM &&
+            !Number.isFinite(singular2.imm)
+        ) {
+            return {
+                type: InstructionType.ERROR,
+                messageKey: "IF_COND_OPERAND2_IMM_TOO_LARGE"
             };
         }
 
         const gotoId = this.decodeComponentId(splitResult[5]);
         if (gotoId === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "IF_ILLEGAL_GOTO_ID"
             };
         }
 
         return {
-            type: "IF",
+            type: InstructionType.IF,
             value: <DecodedIf>{
                 condition: {
                     singularL: singular1,
@@ -575,13 +695,23 @@ export class Decoder {
         const singular = this.decodeComponentSingular(splitResult[1]);
         if (singular === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "ARG_ILLEGAL"
             };
         }
 
+        if (
+            singular.type === SingularType.IMM &&
+            !Number.isFinite(singular.imm)
+        ) {
+            return {
+                type: InstructionType.ERROR,
+                messageKey: "ARG_IMM_TOO_LARGE"
+            };
+        }
+
         return {
-            type: "ARG",
+            type: InstructionType.ARG,
             value: <DecodedArg>{
                 value: singular
             }
@@ -596,13 +726,13 @@ export class Decoder {
         const id = this.decodeComponentId(splitResult[1]);
         if (id === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "CALL_ILLEGAL_ID"
             };
         }
 
         return {
-            type: "CALL",
+            type: InstructionType.CALL,
             value: <DecodedCall>{
                 id
             }
@@ -621,7 +751,7 @@ export class Decoder {
         const lValue = this.decodeComponentLValue(splitResult[0]);
         if (lValue === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "ASSIGN_ILLEGAL_LEFT"
             };
         }
@@ -629,13 +759,13 @@ export class Decoder {
         const id = this.decodeComponentId(splitResult[3]);
         if (id === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "CALL_ILLEGAL_ID"
             };
         }
 
         return {
-            type: "ASSIGN_CALL",
+            type: InstructionType.ASSIGN_CALL,
             value: <DecodedAssignCall>{
                 lValue,
                 functionId: id
@@ -651,13 +781,13 @@ export class Decoder {
         const id = this.decodeComponentId(splitResult[1]);
         if (id === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "PARAM_ILLEGAL_ID"
             };
         }
 
         return {
-            type: "PARAM",
+            type: InstructionType.PARAM,
             value: <DecodedParam>{
                 id
             }
@@ -672,13 +802,23 @@ export class Decoder {
         const singular = this.decodeComponentSingular(splitResult[1]);
         if (singular === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "RETURN_ILLEGAL"
             };
         }
 
+        if (
+            singular.type === SingularType.IMM &&
+            !Number.isFinite(singular.imm)
+        ) {
+            return {
+                type: InstructionType.ERROR,
+                messageKey: "RETURN_IMM_TOO_LARGE"
+            };
+        }
+
         return {
-            type: "RETURN",
+            type: InstructionType.RETURN,
             value: <DecodedReturn>{
                 value: singular
             }
@@ -693,13 +833,13 @@ export class Decoder {
         const lValue = this.decodeComponentLValue(splitResult[1]);
         if (lValue === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "READ_ILLEGAL"
             };
         }
 
         return {
-            type: "READ",
+            type: InstructionType.READ,
             value: <DecodedRead>{
                 lValue
             }
@@ -714,13 +854,23 @@ export class Decoder {
         const singular = this.decodeComponentSingular(splitResult[1]);
         if (singular === null) {
             return {
-                type: "ERROR",
+                type: InstructionType.ERROR,
                 messageKey: "WRITE_ILLEGAL"
             };
         }
 
+        if (
+            singular.type === SingularType.IMM &&
+            !Number.isFinite(singular.imm)
+        ) {
+            return {
+                type: InstructionType.ERROR,
+                messageKey: "WRITE_IMM_TOO_LARGE"
+            };
+        }
+
         return {
-            type: "WRITE",
+            type: InstructionType.WRITE,
             value: <DecodedWrite>{
                 value: singular
             }
@@ -731,19 +881,19 @@ export class Decoder {
      * Decode the given IR instruction.
      * @param instruction - The instruction to be decoded.
      * @param lineNumber - The line number of current instruction in original instruction sequence.
-     * @returns Decode result. Will have `type==="ERROR"` if instruction is illegal.
+     * @returns Decode result. Will have `type===InstructionType.ERROR` if instruction is illegal.
      * @public
      */
     decode(instruction: string, lineNumber: number): DecodedInstruction {
         if (instruction.match(/^[ \t]*$/)) {
             return {
-                type: "EMPTY",
+                type: InstructionType.EMPTY,
                 lineNumber
             };
         }
 
         const unrecognizedInstructionError: DecodedInstruction = {
-            type: "ERROR",
+            type: InstructionType.ERROR,
             lineNumber,
             messageKey: "UNRECOGNIZED_INSTRUCTION"
         };
@@ -752,7 +902,7 @@ export class Decoder {
 
         if (purified.startsWith(";")) {
             return {
-                type: "COMMENT",
+                type: InstructionType.COMMENT,
                 lineNumber
             };
         }
@@ -793,12 +943,12 @@ export class Decoder {
                 return addLineNumber(this.decodeWrite(splitResult));
             default:
                 const assign = this.decodeAssign(splitResult);
-                if (assign.type === "ASSIGN") {
+                if (assign.type === InstructionType.ASSIGN) {
                     return addLineNumber(assign);
                 }
 
                 const assignCall = this.decodeAssignCall(splitResult);
-                if (assignCall.type === "ASSIGN_CALL") {
+                if (assignCall.type === InstructionType.ASSIGN_CALL) {
                     return addLineNumber(assignCall);
                 }
 

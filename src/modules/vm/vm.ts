@@ -1,7 +1,14 @@
-import { Int32, Uint32 } from "./data_types";
-import { Alu } from "./alu";
-import { Mmu } from "./mmu";
-import { CondValue, Decoder } from "./decoder";
+import { i32, i32Add, i32Sub, i32Mul, i32Div } from "./alu";
+import { load32, store32, MmuLoadStatus, MmuStoreStatus } from "./mmu";
+import {
+    BinaryMathOp,
+    BinaryRelOp,
+    CondValue,
+    Decoder,
+    LValueType,
+    RValueType,
+    SingularType
+} from "./decoder";
 import type {
     Singular,
     LValue,
@@ -22,23 +29,30 @@ import type {
     DecodedWrite,
     DecodedExecutableInstruction
 } from "./decoder";
+
+import { InstructionType, ExecutableInstructionType } from "./decoder";
+
 import type { FormattableMessage } from "@/locales";
 import { cloneDeep } from "lodash";
 
 // VM Table element types
 interface VmLabel {
     // Equals actual address-1 because EIP increases after the address is set
-    addressBefore: Int32;
+    // Contract: truncated
+    addressBefore: number;
 }
 
 interface VmFunction {
     // Equals actual address-1 because EIP increases after the address is set
-    addressBefore: Int32;
+    // Contract: truncated
+    addressBefore: number;
 }
 
 interface VmVariable {
-    address: Int32;
-    size: Int32;
+    // Contract: truncated
+    address: number;
+    // Contract: truncated
+    size: number;
 }
 
 // VM Component types
@@ -48,14 +62,15 @@ interface VmMemory {
     memory: Uint8Array;
 }
 
+// Contract: All truncated
 interface VmRegisters {
-    eax: Int32;
-    ebx: Int32;
-    ecx: Int32;
-    edx: Int32;
-    ebp: Int32;
-    esp: Int32;
-    eip: Int32;
+    eax: number;
+    ebx: number;
+    ecx: number;
+    edx: number;
+    ebp: number;
+    esp: number;
+    eip: number;
 }
 
 interface VmVariableTable {
@@ -101,16 +116,17 @@ interface VmTables {
     assignCallLValueStack: (LValue | null)[];
 }
 
-export type VmExecutionState =
-    | "INITIAL"
-    | "BUSY"
-    | "WAIT_INPUT"
-    | "FREE" // 2023.04.18-22:20 就在刚才，我收到她的消息了。我的心情复杂而又幸福。我感到圆满了。一切都值了。请允许我把此时此刻的感受永远记录在这里——与本项目无关。
-    | "STATIC_CHECK_FAILED"
-    | "RUNTIME_ERROR"
-    | "MAX_STEP_REACHED"
-    | "EXITED_NORMALLY"
-    | "EXITED_ABNORMALLY";
+export enum VmExecutionState {
+    INITIAL,
+    BUSY,
+    WAIT_INPUT,
+    FREE, // 2023.04.18-22:20 就在刚才，我收到她的消息了。我的心情复杂而又幸福。我感到圆满了。一切都值了。请允许我把此时此刻的感受永远记录在这里——与本项目无关。
+    STATIC_CHECK_FAILED,
+    RUNTIME_ERROR,
+    MAX_STEP_REACHED,
+    EXITED_NORMALLY,
+    EXITED_ABNORMALLY
+}
 
 export interface VmErrorTable {
     [lineNumber: string | number]: FormattableMessage;
@@ -147,20 +163,22 @@ const initialTables: VmTables = {
 
 const initialExecutionStatus: VmExecutionStatus = {
     stepCount: 0,
-    state: "INITIAL",
+    state: VmExecutionState.INITIAL,
     callStack: [],
     staticErrorTable: {},
     runtimeErrorTable: {}
 };
 
 // Console message type
-export type ConsoleMessageType =
-    | "SUCCESS"
-    | "ERROR"
-    | "WARNING"
-    | "NORMAL"
-    | "PROMPT"
-    | "ARROW";
+export enum ConsoleMessageType {
+    SUCCESS,
+    ERROR,
+    WARNING,
+    NORMAL,
+    PROMPT,
+    ARROW
+}
+
 export type ConsoleMessagePart = FormattableMessage & {
     type: ConsoleMessageType;
 };
@@ -215,6 +233,12 @@ const defaultOptions: VmOptions = {
  * esp
  * eip
  *
+ * Note that all fields remarked with 'Contract: truncated' are
+ * guaranteed to have been truncated with `i32()`, so there's
+ * no need to truncate them again when reading their values.
+ * However, when using them to calculate new values, another
+ * truncation on the result is required.
+ *
  * Memory layout(memory.memory) of a running IR VM:
  * ----------------------------------
  * |                                | <- options.memorySize-1
@@ -257,17 +281,17 @@ export class Vm {
     // Initial esp varies with Vm's memory size. So
     // each VM has its own initialRegisters.
     private initialRegisters: VmRegisters = {
-        eax: new Int32(0),
-        ebx: new Int32(0),
-        ecx: new Int32(0),
-        edx: new Int32(0),
-        ebp: new Int32(0),
-        esp: new Int32(defaultOptions.memorySize),
-        eip: new Int32(0)
+        eax: 0,
+        ebx: 0,
+        ecx: 0,
+        edx: 0,
+        ebp: 0,
+        esp: defaultOptions.memorySize,
+        eip: 0
     };
 
-    private alu: Alu = new Alu();
-    private mmu: Mmu = new Mmu();
+    // Pre-allocated local variables for each method
+
     private decoder: Decoder = new Decoder();
 
     private memory: VmMemory = cloneDeep(initialMemory);
@@ -298,22 +322,16 @@ export class Vm {
 
         for (
             let i = variable.address;
-            this.alu.ltInt32(
-                i,
-                this.alu.addInt32(variable.address, variable.size)
-            );
-            i = this.alu.addInt32(i, new Int32(4))
+            i < i32Add(variable.address, variable.size);
+            i = i32Add(i, 4)
         ) {
             // Bypass VM's encapsulated loadMemory32 because we do not want to
             // record runtime error here
-            const loadResult = this.mmu.load32(
-                new Uint32(i.value),
-                this.memory.memory
-            );
-            if (loadResult.status === "OUT_OF_BOUND") {
+            const loadResult = load32(i, this.memory.memory);
+            if (loadResult.status === MmuLoadStatus.OUT_OF_BOUND) {
                 values.push(NaN);
             } else {
-                values.push(new Int32(loadResult.value!.value).value);
+                values.push(loadResult.value!);
             }
         }
 
@@ -327,8 +345,8 @@ export class Vm {
         for (const id in table) {
             details.push({
                 id,
-                address: table[id].address.value,
-                size: table[id].size.value,
+                address: table[id].address,
+                size: table[id].size,
                 values: this.getSingleVariableValues(table[id])
             });
         }
@@ -338,21 +356,21 @@ export class Vm {
 
     get canContinueExecution(): boolean {
         return (
-            this.executionStatus.state === "INITIAL" ||
-            this.executionStatus.state === "FREE" ||
-            this.executionStatus.state === "EXITED_NORMALLY" ||
-            this.executionStatus.state === "EXITED_ABNORMALLY"
+            this.executionStatus.state === VmExecutionState.INITIAL ||
+            this.executionStatus.state === VmExecutionState.FREE ||
+            this.executionStatus.state === VmExecutionState.EXITED_NORMALLY ||
+            this.executionStatus.state === VmExecutionState.EXITED_ABNORMALLY
         );
     }
 
     get currentLineNumber(): number {
         if (
-            this.registers.eip.value < 0 ||
-            this.registers.eip.value >= this.memory.text.length
+            this.registers.eip < 0 ||
+            this.registers.eip >= this.memory.text.length
         ) {
             return -1;
         }
-        return this.memory.text[this.registers.eip.value].lineNumber;
+        return this.memory.text[this.registers.eip].lineNumber;
     }
 
     get globalVariableDetails(): VmVariableDetail[] {
@@ -399,16 +417,16 @@ export class Vm {
         return {
             total: this.options.memorySize,
             used:
-                this.registers.edx.value +
+                this.registers.edx +
                 this.options.memorySize -
-                this.registers.esp.value,
+                this.registers.esp,
 
             stackTotal: this.options.stackSize,
-            stackUsed: this.options.memorySize - this.registers.esp.value,
+            stackUsed: this.options.memorySize - this.registers.esp,
 
             globalVariableTotal:
                 this.options.memorySize - this.options.stackSize,
-            globalVariableUsed: this.registers.edx.value
+            globalVariableUsed: this.registers.edx
         };
     }
 
@@ -448,7 +466,7 @@ export class Vm {
      * @public
      */
     configure(options: VmOptionsPartial) {
-        if (this.executionStatus.state !== "INITIAL") {
+        if (this.executionStatus.state !== VmExecutionState.INITIAL) {
             return;
         }
 
@@ -480,8 +498,9 @@ export class Vm {
 
             this.options.memorySize = options.memorySize;
 
-            this.initialRegisters.esp = new Int32(options.memorySize);
-            this.registers.esp = new Int32(options.memorySize);
+            this.initialRegisters.esp = i32(options.memorySize);
+            this.registers.esp = i32(options.memorySize);
+
             this.updatePeakMemoryUsage();
         }
 
@@ -545,28 +564,32 @@ export class Vm {
                 i + 1
             );
 
-            if (decoded.type === "EMPTY" || decoded.type === "COMMENT") {
+            if (
+                decoded.type === InstructionType.EMPTY ||
+                decoded.type === InstructionType.COMMENT
+            ) {
                 continue;
             }
 
-            if (decoded.type === "ERROR") {
-                this.executionStatus.state = "STATIC_CHECK_FAILED";
+            if (decoded.type === InstructionType.ERROR) {
+                this.executionStatus.state =
+                    VmExecutionState.STATIC_CHECK_FAILED;
 
                 this.writeBuffer.push([
                     // {
                     //     key: "STATIC_ERROR_PREFIX",
-                    //     type: "ERROR"
+                    //     type: ConsoleMessageType.ERROR
                     // },
                     {
                         key: "DECODE_ERROR_PREFIX",
                         values: {
                             lineNumber: i + 1
                         },
-                        type: "ERROR"
+                        type: ConsoleMessageType.ERROR
                     },
                     {
                         key: decoded.messageKey!,
-                        type: "ERROR"
+                        type: ConsoleMessageType.ERROR
                     }
                 ]);
 
@@ -577,41 +600,39 @@ export class Vm {
                 continue;
             }
 
-            const currentAddress = new Int32(this.memory.text.length - 1);
-
             switch (decoded.type) {
-                case "LABEL":
+                case InstructionType.LABEL:
                     this.tables.labelTable[(<DecodedLabel>decoded.value!).id] =
                         {
-                            addressBefore: currentAddress
+                            addressBefore: i32(this.memory.text.length - 1)
                         };
                     break;
-                case "FUNCTION":
+                case InstructionType.FUNCTION:
                     this.tables.functionTable[
                         (<DecodedFunction>decoded.value!).id
                     ] = {
-                        addressBefore: currentAddress
+                        addressBefore: i32(this.memory.text.length - 1)
                     };
                     break;
                 default:
                     this.memory.text.push(
-                        decoded as DecodedExecutableInstruction
+                        decoded as unknown as DecodedExecutableInstruction
                     );
                     break;
             }
         }
 
         if (!(this.entryFunctionName in this.tables.functionTable)) {
-            this.executionStatus.state = "STATIC_CHECK_FAILED";
+            this.executionStatus.state = VmExecutionState.STATIC_CHECK_FAILED;
 
             this.writeBuffer.push([
                 {
                     key: "STATIC_ERROR_PREFIX",
-                    type: "ERROR"
+                    type: ConsoleMessageType.ERROR
                 },
                 {
                     key: "NO_MAIN_FUNCTION",
-                    type: "ERROR"
+                    type: ConsoleMessageType.ERROR
                 }
             ]);
 
@@ -624,9 +645,9 @@ export class Vm {
      * randomize memory; allocate space for global variables and remove GLOBAL_DEC text.
      */
     private initializeMemoryRegister() {
-        this.registers.eip = this.alu.addInt32(
+        this.registers.eip = i32Add(
             this.tables.functionTable[this.entryFunctionName].addressBefore,
-            new Int32(1)
+            1
         );
 
         // Fill memory with a random number
@@ -635,10 +656,8 @@ export class Vm {
         );
 
         // esp initially points to one byte up outside
-        this.registers.esp = new Int32(this.options.memorySize);
+        this.registers.esp = i32(this.options.memorySize);
 
-        // edx initially points to 0
-        this.registers.edx = new Int32(0);
         this.updatePeakMemoryUsage();
 
         // push ecx
@@ -647,7 +666,7 @@ export class Vm {
         }
 
         // push this.memory.text.length as main's special return address
-        if (!this.pushl(new Int32(this.memory.text.length))) {
+        if (!this.pushl(i32(this.memory.text.length))) {
             return;
         }
 
@@ -668,7 +687,7 @@ export class Vm {
         this.executionStatus.callStack.push(this.entryFunctionName);
 
         for (const text of this.memory.text) {
-            if (text.type === "GLOBAL_DEC") {
+            if (text.type === ExecutableInstructionType.GLOBAL_DEC) {
                 const decodedGlobalDec = <DecodedGlobalDec>text.value;
 
                 if (
@@ -695,8 +714,8 @@ export class Vm {
 
                 this.memory.memory
                     .subarray(
-                        this.registers.edx.value,
-                        this.registers.edx.value + decodedGlobalDec.size.value
+                        this.registers.edx,
+                        i32Add(this.registers.edx, decodedGlobalDec.size)
                     )
                     .fill(0);
 
@@ -705,10 +724,11 @@ export class Vm {
                     address: this.registers.edx
                 };
 
-                this.registers.edx = this.alu.addInt32(
+                this.registers.edx = i32Add(
                     this.registers.edx,
                     decodedGlobalDec.size
                 );
+
                 this.updatePeakMemoryUsage();
 
                 // GLOBAL_DEC also counts for one step.
@@ -727,17 +747,17 @@ export class Vm {
     private prepareExcution() {
         this.decodeInstructions();
 
-        if (this.executionStatus.state !== "INITIAL") {
+        if (this.executionStatus.state !== VmExecutionState.INITIAL) {
             return;
         }
 
         this.initializeMemoryRegister();
 
-        if (this.executionStatus.state !== "INITIAL") {
+        if (this.executionStatus.state !== VmExecutionState.INITIAL) {
             return;
         }
 
-        this.executionStatus.state = "FREE";
+        this.executionStatus.state = VmExecutionState.FREE;
     }
 
     /**
@@ -745,31 +765,31 @@ export class Vm {
      */
     private finalizeExcution() {
         // Cleanup global variable
-        this.registers.edx = new Int32(0);
+        this.registers.edx = 0;
         this.updatePeakMemoryUsage();
         this.tables.globalVariableTable = {};
 
-        if (this.alu.eq(this.registers.eax, new Int32(0))) {
-            this.executionStatus.state = "EXITED_NORMALLY";
+        if (this.registers.eax === 0) {
+            this.executionStatus.state = VmExecutionState.EXITED_NORMALLY;
             this.writeBuffer.push([
                 {
                     key: "EXITED_NORMALLY",
                     values: {
                         stepCount: this.executionStatus.stepCount
                     },
-                    type: "SUCCESS"
+                    type: ConsoleMessageType.SUCCESS
                 }
             ]);
         } else {
-            this.executionStatus.state = "EXITED_ABNORMALLY";
+            this.executionStatus.state = VmExecutionState.EXITED_ABNORMALLY;
             this.writeBuffer.push([
                 {
                     key: "EXITED_ABNORMALLY",
                     values: {
-                        returnValue: this.registers.eax.value,
+                        returnValue: this.registers.eax,
                         stepCount: this.executionStatus.stepCount
                     },
-                    type: "WARNING"
+                    type: ConsoleMessageType.WARNING
                 }
             ]);
         }
@@ -786,10 +806,10 @@ export class Vm {
         message: FormattableMessage,
         lineNumber?: number
     ) {
-        this.executionStatus.state = "RUNTIME_ERROR";
+        this.executionStatus.state = VmExecutionState.RUNTIME_ERROR;
 
         this.executionStatus.runtimeErrorTable[
-            lineNumber ?? this.memory.text[this.registers.eip.value].lineNumber
+            lineNumber ?? this.memory.text[this.registers.eip].lineNumber
         ] = message;
 
         this.writeBuffer.push([
@@ -798,86 +818,64 @@ export class Vm {
                 values: {
                     lineNumber:
                         lineNumber ??
-                        this.memory.text[this.registers.eip.value].lineNumber
+                        this.memory.text[this.registers.eip].lineNumber
                 },
-                type: "ERROR"
+                type: ConsoleMessageType.ERROR
             },
-            Object.assign(message, { type: "ERROR" as ConsoleMessageType })
+            Object.assign(message, { type: ConsoleMessageType.ERROR })
         ]);
     }
 
-    private checkStackSize(size: Int32): boolean {
-        if (
-            this.alu.gtInt32(
-                this.alu.subInt32(
-                    new Int32(this.options.memorySize),
-                    this.alu.subInt32(this.registers.esp, size)
-                ),
-                new Int32(this.options.stackSize)
-            )
-        ) {
-            return false;
-        }
-
-        return true;
+    private checkStackSize(size: number): boolean {
+        return (
+            this.options.memorySize - i32Sub(this.registers.esp, size) <=
+            this.options.stackSize
+        );
     }
 
-    private checkGlobalVariableSegmentSize(size: Int32) {
-        if (
-            this.alu.gtInt32(
-                this.alu.addInt32(this.registers.edx, size),
-                new Int32(this.options.memorySize - this.options.stackSize)
-            )
-        ) {
-            return false;
-        }
-
-        return true;
+    private checkGlobalVariableSegmentSize(size: number): boolean {
+        return (
+            i32Add(this.registers.edx, size) <=
+            this.options.memorySize - this.options.stackSize
+        );
     }
 
     /**
-     * Read an `Int32` from memory at given address. If memory reading caused an MMU
+     * Read an int32 from memory at given address. If memory reading caused an MMU
      * `OUT_OF_BOUND` error, `null` is returned and error will be written to buffer.
-     * @param address - The memory read address.
-     * @returns An `Int32` value or `null`
+     * @param address - The truncated memory read address.
+     * @returns The truncated value read from memory or `null`.
      */
-    private loadMemory32(address: Int32): Int32 | null {
-        const uint32address = new Uint32(address.value);
-
-        const loadResult = this.mmu.load32(uint32address, this.memory.memory);
-        if (loadResult.status === "OUT_OF_BOUND") {
+    private loadMemory32(address: number): number | null {
+        const loadResult = load32(address, this.memory.memory);
+        if (loadResult.status === MmuLoadStatus.OUT_OF_BOUND) {
             this.writeRuntimeError({
                 key: "MEMORY_READ_OUT_OF_BOUND",
                 values: {
-                    address: uint32address.value
+                    address: address
                 }
             });
 
             return null;
         }
 
-        return new Int32(loadResult.value!.value);
+        return loadResult.value;
     }
 
     /**
-     * Store an `Int32` to memory at given address. If memory writing caused an MMU
+     * Store an `number` to memory at given address. If memory writing caused an MMU
      * `OUT_OF_BOUND` error, `false` is returned and error will be written to buffer.
-     * @param value - The `Int32` value to be stored.
+     * @param value - The truncated `number` value to be stored.
      * @param address - The memory write address.
      * @returns A `boolean` value indicating whether memory write is successful.
      */
-    private storeMemory32(value: Int32, address: Int32): boolean {
-        const uint32address = new Uint32(address.value);
-        const storeResult = this.mmu.store32(
-            new Uint32(value.value),
-            uint32address,
-            this.memory.memory
-        );
-        if (storeResult.status === "OUT_OF_BOUND") {
+    private storeMemory32(value: number, address: number): boolean {
+        const storeResult = store32(value, address, this.memory.memory);
+        if (storeResult === MmuStoreStatus.OUT_OF_BOUND) {
             this.writeRuntimeError({
                 key: "MEMORY_WRITE_OUT_OF_BOUND",
                 values: {
-                    address: uint32address.value
+                    address: address
                 }
             });
 
@@ -888,24 +886,22 @@ export class Vm {
     }
 
     /**
-     * Sub `esp` by 4 and store the given `Int32` value on top of stack.
+     * Sub `esp` by 4 and store the given `number` value on top of stack.
      * If memory writing caused an MMU `OUT_OF_BOUND` error, `false` is
      * returned and error will be written to buffer.
-     * @param value - The `Int32` value to be pushed onto stack.
+     * @param value - The truncated `number` value to be pushed onto stack.
      * @returns A `boolean` value indicating whether push is successful.
      */
-    private pushl(value: Int32): boolean {
-        if (!this.checkStackSize(new Int32(4))) {
+    private pushl(value: number): boolean {
+        if (!this.checkStackSize(4)) {
             this.writeRuntimeError({
                 key: "STACK_OVERFLOW"
             });
             return false;
         }
 
-        this.registers.esp = this.alu.subInt32(
-            this.registers.esp,
-            new Int32(4)
-        );
+        this.registers.esp = i32Sub(this.registers.esp, 4);
+
         this.updatePeakMemoryUsage();
         if (!this.storeMemory32(value, this.registers.esp)) {
             return false;
@@ -915,24 +911,22 @@ export class Vm {
     }
 
     /**
-     * Return the top `Int32` on stack and add `esp` by `4`. If memory reading
+     * Return the top int32 on stack and add `esp` by `4`. If memory reading
      * caused an MMU `OUT_OF_BOUND` error, `null` is returned and error will
      * be written to buffer.
-     * @returns An `Int32` value or `null`
+     * @returns The truncated result value or `null`.
      */
-    private popl(): Int32 | null {
-        const value = this.loadMemory32(this.registers.esp);
-        if (value === null) {
+    private popl(): number | null {
+        const loadResult = this.loadMemory32(this.registers.esp);
+        if (loadResult === null) {
             return null;
         }
 
-        this.registers.esp = this.alu.addInt32(
-            this.registers.esp,
-            new Int32(4)
-        );
+        this.registers.esp = i32Add(this.registers.esp, 4);
+
         this.updatePeakMemoryUsage();
 
-        return value;
+        return loadResult;
     }
 
     /**
@@ -983,15 +977,15 @@ export class Vm {
     }
 
     /**
-     * Get the `Int32` or `Int32` value of given singular. If the singular
+     * Get the truncated value of given singular. If the singular
      * contains an `ID` which can't be found, or memory reading caused an MMU
      * `OUT_OF_BOUND` error, `null` is returned and error will be written to buffer.
      * @param singular - The Singular object.
-     * @returns An `Int32` value or `null`
+     * @returns The truncated value obtained or `null`.
      */
-    private getSingularValue(singular: Singular): Int32 | null {
+    private getSingularValue(singular: Singular): number | null {
         switch (singular.type) {
-            case "IMM":
+            case SingularType.IMM:
                 return singular.imm!;
             default: {
                 const variable = this.getVariableById(singular.id!, true);
@@ -999,74 +993,42 @@ export class Vm {
                     return null;
                 }
 
-                if (singular.type === "ADDRESS_ID") {
+                if (singular.type === SingularType.ADDRESS_ID) {
                     return variable.address;
                 }
 
-                const value = this.loadMemory32(variable.address);
-                if (value === null) {
+                const loadResult = this.loadMemory32(variable.address);
+                if (loadResult === null) {
                     return null;
                 }
 
-                if (singular.type === "ID") {
-                    return value;
+                if (singular.type === SingularType.ID) {
+                    return loadResult;
                 }
 
-                const derefValue = this.loadMemory32(value);
-                if (derefValue === null) {
+                const valueReadResult = this.loadMemory32(loadResult);
+                if (valueReadResult === null) {
                     return null;
                 }
 
-                return derefValue;
+                return valueReadResult;
             }
         }
     }
 
-    // Legacy functions when Uint32 is still used
-    // private aint32BinaryMathOp(
-    //     a: Int32,
-    //     b: Int32,
-    //     int32Op: (_a: Int32, _b: Int32) => Int32,
-    //     uint32Op: (_a: Int32, _b: Int32) => Int32
-    // ): Int32 {
-    //     if (a.type === "UINT32" || b.type === "UINT32") {
-    //         return uint32Op.bind(this.alu)(
-    //             new Int32(a.value),
-    //             new Int32(b.value)
-    //         );
-    //     }
-
-    //     return int32Op.bind(this.alu)(a as Int32, b as Int32);
-    // }
-
-    // private aint32BinaryRelOp(
-    //     a: Int32,
-    //     b: Int32,
-    //     int32Op: (_a: Int32, _b: Int32) => boolean,
-    //     uint32Op: (_a: Int32, _b: Int32) => boolean
-    // ): boolean {
-    //     if (a.type === "UINT32" || b.type === "UINT32") {
-    //         return uint32Op.bind(this.alu)(
-    //             new Int32(a.value),
-    //             new Int32(b.value)
-    //         );
-    //     }
-
-    //     return int32Op.bind(this.alu)(a as Int32, b as Int32);
-    // }
-
     /**
-     * Get the `Int32` or `Int32` value of given `RValue`. If its singular
+     * Get the truncated value of given `RValue`. If its singular
      * contains an `ID` which can't be found, or memory reading caused an MMU
      * `OUT_OF_BOUND` error, `null` is returned and error will be written to buffer.
+     * @param out - The output buffer.
      * @param rValue - The `RValue` object.
-     * @returns An `Int32` value or `null`
+     * @returns The truncated value obtained or `null`.
      */
-    private getRValue(rValue: RValue): Int32 | null {
+    private getRValue(rValue: RValue): number | null {
         switch (rValue.type) {
-            case "SINGULAR":
+            case RValueType.SINGULAR:
                 return this.getSingularValue(rValue.singular!);
-            case "BINARY_MATH_OP": {
+            case RValueType.BINARY_MATH_OP: {
                 const singularLValue = this.getSingularValue(rValue.singularL!);
                 if (singularLValue === null) {
                     return null;
@@ -1078,32 +1040,20 @@ export class Vm {
                 }
 
                 switch (rValue.binaryMathOp!) {
-                    case "+":
-                        return this.alu.addInt32(
-                            singularLValue,
-                            singularRValue
-                        );
-                    case "-":
-                        return this.alu.subInt32(
-                            singularLValue,
-                            singularRValue
-                        );
-                    case "*":
-                        return this.alu.mulInt32(
-                            singularLValue,
-                            singularRValue
-                        );
-                    case "/":
-                        if (singularRValue.value === 0) {
+                    case BinaryMathOp.ADD:
+                        return i32Add(singularLValue, singularRValue);
+                    case BinaryMathOp.SUB:
+                        return i32Sub(singularLValue, singularRValue);
+                    case BinaryMathOp.MUL:
+                        return i32Mul(singularLValue, singularRValue);
+                    case BinaryMathOp.DIV:
+                        if (singularRValue === 0) {
                             this.writeRuntimeError({
                                 key: "DIVIDE_BY_ZERO"
                             });
                             return null;
                         }
-                        return this.alu.divInt32(
-                            singularLValue,
-                            singularRValue
-                        );
+                        return i32Div(singularLValue, singularRValue);
                 }
             }
         }
@@ -1116,7 +1066,7 @@ export class Vm {
      * @param size - The variable size.
      * @returns A `VmVariable` value or `null`
      */
-    private createStackVariable(id: string, size: Int32): VmVariable | null {
+    private createStackVariable(id: string, size: number): VmVariable | null {
         if (!this.checkStackSize(size)) {
             this.writeRuntimeError({
                 key: "STACK_OVERFLOW"
@@ -1124,7 +1074,7 @@ export class Vm {
             return null;
         }
 
-        this.registers.esp = this.alu.subInt32(this.registers.esp, size);
+        this.registers.esp = i32Sub(this.registers.esp, size);
         this.updatePeakMemoryUsage();
 
         const variable: VmVariable = {
@@ -1167,16 +1117,16 @@ export class Vm {
      * is an `ID` which can't be found, the variable will be immediately
      * created. If an error is caused, it will be written to buffer.
      * @param lValue - The `LValue` object.
-     * @returns An `Int32` value or `null`
+     * @returns An `number` value or `null`
      */
-    private getLValueAddress(lValue: LValue): Int32 | null {
+    private getLValueAddress(lValue: LValue): number | null {
         let variable = this.getVariableById(
             lValue.id,
-            lValue.type === "DEREF_ID"
+            lValue.type === LValueType.DEREF_ID
         );
         if (variable === null) {
-            if (lValue.type === "ID") {
-                variable = this.createStackVariable(lValue.id, new Int32(4));
+            if (lValue.type === LValueType.ID) {
+                variable = this.createStackVariable(lValue.id, 4);
                 if (variable === null) {
                     return null;
                 }
@@ -1187,7 +1137,7 @@ export class Vm {
 
         let storeAddress = variable.address;
 
-        if (lValue.type === "DEREF_ID") {
+        if (lValue.type === LValueType.DEREF_ID) {
             const derefAddress = this.loadMemory32(variable.address);
             if (derefAddress === null) {
                 return null;
@@ -1218,18 +1168,18 @@ export class Vm {
         }
 
         switch (condValue.binaryRelOp) {
-            case "==":
-                return this.alu.eq(singularLValue, singularRValue);
-            case "!=":
-                return this.alu.ne(singularLValue, singularRValue);
-            case "<":
-                return this.alu.ltInt32(singularLValue, singularRValue);
-            case "<=":
-                return this.alu.leInt32(singularLValue, singularRValue);
-            case ">":
-                return this.alu.gtInt32(singularLValue, singularRValue);
-            case ">=":
-                return this.alu.geInt32(singularLValue, singularRValue);
+            case BinaryRelOp.EQ:
+                return singularLValue === singularRValue;
+            case BinaryRelOp.NE:
+                return singularLValue !== singularRValue;
+            case BinaryRelOp.LT:
+                return singularLValue < singularRValue;
+            case BinaryRelOp.LE:
+                return singularLValue <= singularRValue;
+            case BinaryRelOp.GT:
+                return singularLValue > singularRValue;
+            case BinaryRelOp.GE:
+                return singularLValue >= singularRValue;
         }
     }
 
@@ -1243,27 +1193,27 @@ export class Vm {
     async executeSingleStep() {
         // Allow immediate rerun after exit
         if (
-            this.executionStatus.state === "EXITED_NORMALLY" ||
-            this.executionStatus.state === "EXITED_ABNORMALLY"
+            this.executionStatus.state === VmExecutionState.EXITED_NORMALLY ||
+            this.executionStatus.state === VmExecutionState.EXITED_ABNORMALLY
         ) {
             this.reset();
         }
 
-        if (this.executionStatus.state === "INITIAL") {
+        if (this.executionStatus.state === VmExecutionState.INITIAL) {
             this.prepareExcution();
         }
 
-        if (this.executionStatus.state !== "FREE") {
+        if (this.executionStatus.state !== VmExecutionState.FREE) {
             return;
         }
 
-        this.executionStatus.state = "BUSY";
+        this.executionStatus.state = VmExecutionState.BUSY;
 
         // Check step limit
         if (
             this.executionStatus.stepCount >= this.options.maxExecutionStepCount
         ) {
-            this.executionStatus.state = "MAX_STEP_REACHED";
+            this.executionStatus.state = VmExecutionState.MAX_STEP_REACHED;
             this.writeBuffer.push([
                 {
                     key: "MAX_STEP_REACHED",
@@ -1271,7 +1221,7 @@ export class Vm {
                         maxExecutionStepCount:
                             this.options.maxExecutionStepCount
                     },
-                    type: "ERROR"
+                    type: ConsoleMessageType.ERROR
                 }
             ]);
             return;
@@ -1279,26 +1229,23 @@ export class Vm {
 
         // Check text index
         if (
-            this.alu.geInt32(
-                this.registers.eip,
-                new Int32(this.memory.text.length) ||
-                    this.alu.ltInt32(this.registers.eip, new Int32(0))
-            )
+            this.registers.eip >= this.memory.text.length ||
+            this.registers.eip < 0
         ) {
             // Here we don't call writeRuntimeError because we can't get line number.
-            this.executionStatus.state = "RUNTIME_ERROR";
+            this.executionStatus.state = VmExecutionState.RUNTIME_ERROR;
 
             this.writeBuffer.push([
                 {
                     key: "RUNTIME_ERROR_PREFIX_NO_LN",
-                    type: "ERROR"
+                    type: ConsoleMessageType.ERROR
                 },
                 {
                     key: "INSTRUCTION_READ_OUT_OF_BOUND",
                     values: {
-                        address: this.registers.eip.value
+                        address: this.registers.eip
                     },
-                    type: "ERROR"
+                    type: ConsoleMessageType.ERROR
                 }
             ]);
 
@@ -1306,13 +1253,13 @@ export class Vm {
         }
 
         // Step count increase
-        // We do not increase after thw switch because main's RETURN will
+        // We do not increase after the switch because main's RETURN will
         // exit this function directly
         this.executionStatus.stepCount++;
 
-        const ir = this.memory.text[this.registers.eip.value];
+        const ir = this.memory.text[this.registers.eip];
         switch (ir.type) {
-            case "ARG": {
+            case ExecutableInstructionType.ARG: {
                 const value = this.getSingularValue(
                     (<DecodedArg>ir.value).value
                 );
@@ -1320,14 +1267,11 @@ export class Vm {
                     return;
                 }
 
-                this.registers.ecx = this.alu.addInt32(
-                    this.registers.ecx,
-                    new Int32(4)
-                );
+                this.registers.ecx = i32Add(this.registers.ecx, 4);
 
                 break;
             }
-            case "ASSIGN": {
+            case ExecutableInstructionType.ASSIGN: {
                 const rValue = this.getRValue((<DecodedAssign>ir.value).rValue);
                 if (rValue === null) {
                     return;
@@ -1346,10 +1290,10 @@ export class Vm {
 
                 break;
             }
-            case "ASSIGN_CALL":
-            case "CALL": {
+            case ExecutableInstructionType.ASSIGN_CALL:
+            case ExecutableInstructionType.CALL: {
                 const functionId =
-                    ir.type === "CALL"
+                    ir.type === ExecutableInstructionType.CALL
                         ? (<DecodedCall>ir.value).id
                         : (<DecodedAssignCall>ir.value).functionId;
                 if (!(functionId in this.tables.functionTable)) {
@@ -1371,7 +1315,7 @@ export class Vm {
                     return;
                 }
 
-                this.registers.ecx = new Int32(0);
+                this.registers.ecx = 0;
 
                 // Push return address
                 if (!this.pushl(this.registers.eip)) {
@@ -1387,7 +1331,7 @@ export class Vm {
                 // movl esp ebp
                 this.registers.ebp = this.registers.esp;
 
-                if (ir.type === "ASSIGN_CALL") {
+                if (ir.type === ExecutableInstructionType.ASSIGN_CALL) {
                     this.tables.assignCallLValueStack.push(
                         (<DecodedAssignCall>ir.value).lValue
                     );
@@ -1406,7 +1350,7 @@ export class Vm {
                 break;
             }
 
-            case "DEC": {
+            case ExecutableInstructionType.DEC: {
                 const variable = this.createStackVariable(
                     (<DecodedDec>ir.value).id,
                     (<DecodedDec>ir.value).size
@@ -1418,7 +1362,7 @@ export class Vm {
                 break;
             }
 
-            case "GOTO": {
+            case ExecutableInstructionType.GOTO: {
                 const labelId = (<DecodedGoto>ir.value).id;
                 if (!(labelId in this.tables.labelTable)) {
                     this.writeRuntimeError({
@@ -1436,7 +1380,7 @@ export class Vm {
 
                 break;
             }
-            case "IF": {
+            case ExecutableInstructionType.IF: {
                 const condValue = this.getCondValue(
                     (<DecodedIf>ir.value).condition
                 );
@@ -1464,7 +1408,7 @@ export class Vm {
                 break;
             }
 
-            case "PARAM": {
+            case ExecutableInstructionType.PARAM: {
                 const paramId = (<DecodedParam>ir.value).id;
                 if (
                     paramId in
@@ -1491,18 +1435,15 @@ export class Vm {
                     this.tables.variableTableStack.length - 1
                 ][paramId] = {
                     address: this.registers.ebx,
-                    size: new Int32(4)
+                    size: 4
                 };
 
-                this.registers.ebx = this.alu.addInt32(
-                    this.registers.ebx,
-                    new Int32(4)
-                );
+                this.registers.ebx = i32Add(this.registers.ebx, 4);
 
                 break;
             }
 
-            case "RETURN": {
+            case ExecutableInstructionType.RETURN: {
                 const returnValue = this.getSingularValue(
                     (<DecodedReturn>ir.value).value
                 );
@@ -1539,16 +1480,13 @@ export class Vm {
                 }
 
                 // addl esp, ecx
-                this.registers.esp = this.alu.addInt32(
-                    this.registers.esp,
-                    savedEcx
-                );
+                this.registers.esp = i32Add(this.registers.esp, savedEcx);
                 this.updatePeakMemoryUsage();
 
                 // If s sub function uses ARG without CALL, this will avoid
                 // incorrect ecx value when next ARGs are executed after
                 // control returns to parent function.
-                this.registers.ecx = new Int32(0);
+                this.registers.ecx = 0;
 
                 // Pop local variable table
                 if (this.tables.variableTableStack.length === 0) {
@@ -1565,12 +1503,7 @@ export class Vm {
                 this.tables.variableTableStack.pop();
 
                 // Whether main function returns
-                if (
-                    this.alu.eq(
-                        this.registers.eip,
-                        new Int32(this.memory.text.length)
-                    )
-                ) {
+                if (this.registers.eip === this.memory.text.length) {
                     this.finalizeExcution();
                     return;
                 }
@@ -1595,7 +1528,7 @@ export class Vm {
                 break;
             }
 
-            case "READ": {
+            case ExecutableInstructionType.READ: {
                 const decodedRead = <DecodedRead>ir.value;
 
                 const lValueAddress = this.getLValueAddress(decodedRead.lValue);
@@ -1604,11 +1537,11 @@ export class Vm {
                 }
 
                 const lValueName =
-                    decodedRead.lValue.type === "ID"
+                    decodedRead.lValue.type === LValueType.ID
                         ? decodedRead.lValue.id
                         : "*" + decodedRead.lValue.id;
 
-                this.executionStatus.state = "WAIT_INPUT";
+                this.executionStatus.state = VmExecutionState.WAIT_INPUT;
 
                 const valueString = await this.readConsole([
                     {
@@ -1619,7 +1552,7 @@ export class Vm {
                     }
                 ]);
 
-                this.executionStatus.state = "BUSY";
+                this.executionStatus.state = VmExecutionState.BUSY;
 
                 const value = parseInt(valueString);
                 if (isNaN(value)) {
@@ -1638,14 +1571,14 @@ export class Vm {
                     return;
                 }
 
-                if (!this.storeMemory32(new Int32(value), lValueAddress)) {
+                if (!this.storeMemory32(i32(value), lValueAddress)) {
                     return;
                 }
 
                 break;
             }
 
-            case "WRITE": {
+            case ExecutableInstructionType.WRITE: {
                 const value = this.getSingularValue(
                     (<DecodedWrite>ir.value).value
                 );
@@ -1657,9 +1590,9 @@ export class Vm {
                     {
                         key: "WRITE_OUTPUT",
                         values: {
-                            value: value.value
+                            value: value
                         },
-                        type: "NORMAL"
+                        type: ConsoleMessageType.NORMAL
                     }
                 ]);
 
@@ -1671,27 +1604,19 @@ export class Vm {
         }
 
         // inc eip
-        this.registers.eip = this.alu.addInt32(
-            this.registers.eip,
-            new Int32(1)
-        );
+        this.registers.eip = i32Add(this.registers.eip, 1);
 
         // Skip GLOBAL_DEC
         while (
-            this.alu.ltInt32(
-                this.registers.eip,
-                new Int32(this.memory.text.length)
-            ) &&
-            this.alu.geInt32(this.registers.eip, new Int32(0)) &&
-            this.memory.text[this.registers.eip.value].type === "GLOBAL_DEC"
+            this.registers.eip < this.memory.text.length &&
+            this.registers.eip >= 0 &&
+            this.memory.text[this.registers.eip].type ===
+                ExecutableInstructionType.GLOBAL_DEC
         ) {
-            this.registers.eip = this.alu.addInt32(
-                this.registers.eip,
-                new Int32(1)
-            );
+            this.registers.eip = i32Add(this.registers.eip, 1);
         }
 
-        this.executionStatus.state = "FREE";
+        this.executionStatus.state = VmExecutionState.FREE;
     }
 
     /**
@@ -1704,7 +1629,7 @@ export class Vm {
     async execute() {
         while (true) {
             await this.executeSingleStep();
-            if (this.executionStatus.state !== "FREE") {
+            if (this.executionStatus.state !== VmExecutionState.FREE) {
                 break;
             }
         }

@@ -14,7 +14,7 @@ import {
     setLocalVariableTablePageIndex
 } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
-import { ConsoleMessageType } from "@/modules/vm/vm";
+import { ConsoleMessageType, VmExecutionState } from "@/modules/vm/vm";
 import ControlPanel from "./ControlPanel/ControlPanel";
 
 interface VmConsoleProps {
@@ -30,7 +30,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
     const divVmConsole = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (props.vm.state === "WAIT_INPUT") {
+        if (props.vm.state === VmExecutionState.WAIT_INPUT) {
             // Restore the resolve that current VM is awaiting
             inputResolve.current = vmContainer.resolvesAt(props.vmIndex);
 
@@ -68,7 +68,8 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                 onRunClick={async () => {
                     if (!vmContainer.at(props.vmIndex).canContinueExecution) {
                         if (
-                            vmContainer.at(props.vmIndex).state === "WAIT_INPUT"
+                            vmContainer.at(props.vmIndex).state ===
+                            VmExecutionState.WAIT_INPUT
                         ) {
                             document.getElementById("inConsole")?.focus();
                         }
@@ -81,7 +82,8 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                 onRunStepClick={async () => {
                     if (!vmContainer.at(props.vmIndex).canContinueExecution) {
                         if (
-                            vmContainer.at(props.vmIndex).state === "WAIT_INPUT"
+                            vmContainer.at(props.vmIndex).state ===
+                            VmExecutionState.WAIT_INPUT
                         ) {
                             document.getElementById("inConsole")?.focus();
                         }
@@ -102,7 +104,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                 onClearClick={() => {
                     dispatch(clearConsoleOutputs());
                     dispatch(setConsoleInput(""));
-                    if (props.vm.state === "WAIT_INPUT") {
+                    if (props.vm.state === VmExecutionState.WAIT_INPUT) {
                         document.getElementById("inConsole")?.focus();
                     }
                 }}
@@ -127,17 +129,20 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                         dispatch(
                             addConsoleOutputs([
                                 [
-                                    { key: "CONSOLE_ARROW", type: "ARROW" },
+                                    {
+                                        key: "CONSOLE_ARROW",
+                                        type: ConsoleMessageType.ARROW
+                                    },
                                     ...props.vm.consoleInputPrompt.map(x => ({
                                         ...x,
-                                        type: "PROMPT" as ConsoleMessageType
+                                        type: ConsoleMessageType.PROMPT
                                     })),
                                     {
                                         key: "READ_INPUT",
                                         values: {
                                             value: props.vm.consoleInput
                                         },
-                                        type: "NORMAL"
+                                        type: ConsoleMessageType.NORMAL
                                     }
                                 ]
                             ])

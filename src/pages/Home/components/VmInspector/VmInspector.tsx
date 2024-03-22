@@ -4,7 +4,7 @@ import { InputNumber, Pagination } from "antd";
 import styles from "./VmInspector.module.scss";
 import { useIntl } from "react-intl";
 import classNames from "classnames";
-import { vmOptionLimits } from "@/modules/vm/vm";
+import { VmExecutionState, vmOptionLimits } from "@/modules/vm/vm";
 import {
     SingleVmPageState,
     setLocalVariableTablePageIndex,
@@ -14,10 +14,34 @@ import {
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import MemoryUsage from "./MemoryUsage";
 import VariableTable from "./VariableTable";
+import type { AppLocaleKey } from "@/locales";
 
 interface VmInspectorProps {
     vmIndex: number;
     vm: SingleVmPageState;
+}
+
+function getVmStateLocaleKey(state: VmExecutionState): AppLocaleKey {
+    switch (state) {
+        case VmExecutionState.BUSY:
+            return "STATE_BUSY";
+        case VmExecutionState.EXITED_ABNORMALLY:
+            return "STATE_EXITED_ABNORMALLY";
+        case VmExecutionState.EXITED_NORMALLY:
+            return "STATE_EXITED_NORMALLY";
+        case VmExecutionState.FREE:
+            return "STATE_FREE";
+        case VmExecutionState.INITIAL:
+            return "STATE_INITIAL";
+        case VmExecutionState.MAX_STEP_REACHED:
+            return "STATE_MAX_STEP_REACHED";
+        case VmExecutionState.RUNTIME_ERROR:
+            return "STATE_RUNTIME_ERROR";
+        case VmExecutionState.STATIC_CHECK_FAILED:
+            return "STATE_STATIC_CHECK_FAILED";
+        case VmExecutionState.WAIT_INPUT:
+            return "STATE_WAIT_INPUT";
+    }
 }
 
 const LOCAL_VARIABLE_TABLE_PAGE_SIZE = 10;
@@ -61,24 +85,31 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                     <div
                         className={classNames({
                             [styles.divStateInitial]:
-                                props.vm.state === "INITIAL",
-                            [styles.divStateBusy]: props.vm.state === "BUSY",
+                                props.vm.state === VmExecutionState.INITIAL,
+                            [styles.divStateBusy]:
+                                props.vm.state === VmExecutionState.BUSY,
                             [styles.divStateWaitInput]:
-                                props.vm.state === "WAIT_INPUT",
-                            [styles.divStateFree]: props.vm.state === "FREE",
+                                props.vm.state === VmExecutionState.WAIT_INPUT,
+                            [styles.divStateFree]:
+                                props.vm.state === VmExecutionState.FREE,
                             [styles.divStateStaticCheckFailed]:
-                                props.vm.state === "STATIC_CHECK_FAILED",
+                                props.vm.state ===
+                                VmExecutionState.STATIC_CHECK_FAILED,
                             [styles.divStateRuntimeError]:
-                                props.vm.state === "RUNTIME_ERROR",
+                                props.vm.state ===
+                                VmExecutionState.RUNTIME_ERROR,
                             [styles.divStateMaxStepReached]:
-                                props.vm.state === "MAX_STEP_REACHED",
+                                props.vm.state ===
+                                VmExecutionState.MAX_STEP_REACHED,
                             [styles.divStateExitedNormally]:
-                                props.vm.state === "EXITED_NORMALLY",
+                                props.vm.state ===
+                                VmExecutionState.EXITED_NORMALLY,
                             [styles.divStateExitedAbnormally]:
-                                props.vm.state === "EXITED_ABNORMALLY"
+                                props.vm.state ===
+                                VmExecutionState.EXITED_ABNORMALLY
                         })}>
                         {intl.formatMessage({
-                            id: "STATE_" + props.vm.state
+                            id: getVmStateLocaleKey(props.vm.state)
                         })}
                     </div>
                 </div>
@@ -90,7 +121,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                         {intl.formatMessage({ id: "MAX_EXECUTION_STEP_COUNT" })}
                     </label>
                     <InputNumber
-                        disabled={props.vm.state !== "INITIAL"}
+                        disabled={props.vm.state !== VmExecutionState.INITIAL}
                         min={vmOptionLimits.maxExecutionStepCount.min}
                         max={vmOptionLimits.maxExecutionStepCount.max}
                         value={props.vm.options.maxExecutionStepCount}
@@ -108,7 +139,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                         {intl.formatMessage({ id: "MEMORY_SIZE" })}
                     </label>
                     <InputNumber
-                        disabled={props.vm.state !== "INITIAL"}
+                        disabled={props.vm.state !== VmExecutionState.INITIAL}
                         min={vmOptionLimits.memorySize.min}
                         max={vmOptionLimits.memorySize.max}
                         value={props.vm.options.memorySize}
@@ -126,7 +157,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                         {intl.formatMessage({ id: "STACK_SIZE" })}
                     </label>
                     <InputNumber
-                        disabled={props.vm.state !== "INITIAL"}
+                        disabled={props.vm.state !== VmExecutionState.INITIAL}
                         min={vmOptionLimits.stackSize.min}
                         max={vmOptionLimits.stackSize.max}
                         value={props.vm.options.stackSize}

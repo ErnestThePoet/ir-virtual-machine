@@ -15,6 +15,7 @@ import {
 } from "@/store/reducers/vm";
 import LineHighlighter from "./LineHighlighter/LineHighlighter";
 import classNames from "classnames";
+import { VmExecutionState } from "@/modules/vm/vm";
 
 interface IrEditorProps {
     vmIndex: number;
@@ -35,7 +36,7 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
     );
 
     useEffect(() => {
-        if (props.vm.state !== "WAIT_INPUT") {
+        if (props.vm.state !== VmExecutionState.WAIT_INPUT) {
             taIr.current?.focus({ preventScroll: true });
             taIr.current?.setSelectionRange(
                 props.vm.irSelection.start,
@@ -92,7 +93,7 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
                                 props.vm.shouldIndicateCurrentLineNumber &&
                                 i + 1 === props.vm.currentLineNumber
                         })}>
-                        {props.vm.state === "STATIC_CHECK_FAILED" &&
+                        {props.vm.state === VmExecutionState.STATIC_CHECK_FAILED &&
                             i + 1 in props.vm.staticErrorTable && (
                                 <LineHighlighter
                                     key={"sehighlighter" + i}
@@ -106,7 +107,7 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
                                     )}
                                 />
                             )}
-                        {props.vm.state === "RUNTIME_ERROR" &&
+                        {props.vm.state === VmExecutionState.RUNTIME_ERROR &&
                             i + 1 in props.vm.runtimeErrorTable && (
                                 <LineHighlighter
                                     key={"rehighlighter" + i}
