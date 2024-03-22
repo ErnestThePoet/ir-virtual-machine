@@ -192,7 +192,7 @@ export interface VmOptions {
     stackSize: number;
 }
 
-type VmOptionsPartial = Partial<VmOptions>;
+export type VmOptionsPartial = Partial<VmOptions>;
 
 type VmNumberOptionKeys = {
     [K in keyof VmOptions]: VmOptions[K] extends number ? K : never;
@@ -216,7 +216,7 @@ export const vmOptionLimits: {
 };
 
 const defaultOptions: VmOptions = {
-    maxExecutionStepCount: 3_000_000,
+    maxExecutionStepCount: 1_000_000,
     memorySize: 16 * 1024,
     stackSize: 8 * 1024
 };
@@ -787,7 +787,9 @@ export class Vm {
                     this.registers.eax === 0
                         ? ConsoleMessageType.SUCCESS
                         : ConsoleMessageType.WARNING
-            },
+            }
+        ]);
+        this.writeBuffer.push([
             {
                 key: "EXECUTION_STEP_COUNT_TIME",
                 values: {
