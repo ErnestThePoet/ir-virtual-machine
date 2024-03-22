@@ -29,7 +29,7 @@ import {
     addVmPageState,
     setIsIrChanged
 } from "@/store/reducers/vm";
-import { Vm } from "@/modules/vm/vm";
+import { Vm, VmOptionsPartial } from "@/modules/vm/vm";
 import { getNextUntitledVmName, splitLines } from "@/modules/utils";
 import { IntlShape, useIntl } from "react-intl";
 import locales from "@/locales";
@@ -49,6 +49,7 @@ interface DemoListGroup {
         name: string;
         irUrl: string;
         remark: string;
+        vmOptions?: VmOptionsPartial;
     }[];
 }
 
@@ -68,8 +69,16 @@ export const saveIr = (name: string, irString: string) => {
     URL.revokeObjectURL(stringUrl);
 };
 
-const importIr = (dispatch: AppDispatch, vmName: string, irString: string) => {
+const importIr = (
+    dispatch: AppDispatch,
+    vmName: string,
+    irString: string,
+    options?: VmOptionsPartial
+) => {
     const newVm = new Vm();
+    if (options !== undefined) {
+        newVm.configure(options);
+    }
 
     vmContainer.add(newVm);
 
@@ -201,7 +210,7 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                     demoListGroups.map((x, i) => ({
                         key: `g${i}`,
                         icon: <StarOutlined />,
-                        label: x.groupName,
+                        label: `${x.groupName} (${x.demos.length})`,
                         children: [
                             {
                                 key: `g${i}i`,
@@ -244,7 +253,8 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                                                                     .at(
                                                                         -1
                                                                     ) as string,
-                                                                res
+                                                                res,
+                                                                item.vmOptions
                                                             );
                                                             setIsDemosModalOpen(
                                                                 false
