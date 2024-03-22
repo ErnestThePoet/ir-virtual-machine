@@ -6,215 +6,243 @@ var3 := var1 / var2
 var4 := var2 * var3
 var5 := var1 - var4
 RETURN var5
-FUNCTION srand :
+FUNCTION srand32 :
 PARAM var6
 var0 := var6
 RETURN #0
-FUNCTION rand :
-var7 := var0 * #1103515245
-var8 := var7 + #12345
+FUNCTION rand32 :
+var8 := var0 * #1103515245
 var0 := var8
-var9 := var0 / #65536
-ARG #32768
-ARG var9
-var10 := CALL mod
-RETURN var10
+var9 := var0 + #12345
+var0 := var9
+var10 := var0 / #65536
+ARG #2048
+ARG var10
+var11 := CALL mod
+var7 := var11
+var12 := var0 * #1103515245
+var0 := var12
+var13 := var0 + #12345
+var0 := var13
+var14 := var7 * #1024
+var7 := var14
+var15 := var0 / #65536
+ARG #1024
+ARG var15
+var16 := CALL mod
+var17 := var7 + var16
+var7 := var17
+var18 := var0 * #1103515245
+var0 := var18
+var19 := var0 + #12345
+var0 := var19
+var20 := var7 * #1024
+var7 := var20
+var21 := var0 / #65536
+ARG #1024
+ARG var21
+var22 := CALL mod
+var23 := var7 + var22
+var7 := var23
+RETURN var7
 FUNCTION partition :
-PARAM var11
-PARAM var12
-PARAM var13
-var15 := #4 * var12
-var16 := var11 + var15
-var14 := *var16
+PARAM var24
+PARAM var25
+PARAM var26
+var28 := #4 * var25
+var29 := var24 + var28
+var27 := *var29
 LABEL label32 :
-IF var12 < var13 GOTO label0
-var17 := #0
+IF var25 < var26 GOTO label0
+var30 := #0
 GOTO label1
 LABEL label0 :
-var17 := #1
+var30 := #1
 LABEL label1 :
-IF var17 != #0 GOTO label33
+IF var30 != #0 GOTO label33
 GOTO label34
 LABEL label33 :
 LABEL label10 :
-IF var12 < var13 GOTO label2
-var18 := #0
+IF var25 < var26 GOTO label2
+var31 := #0
 GOTO label3
 LABEL label2 :
-var18 := #1
+var31 := #1
 LABEL label3 :
-var19 := #4 * var13
-var20 := var11 + var19
-IF *var20 >= var14 GOTO label4
-var21 := #0
+var32 := #4 * var26
+var33 := var24 + var32
+IF *var33 >= var27 GOTO label4
+var34 := #0
 GOTO label5
 LABEL label4 :
-var21 := #1
+var34 := #1
 LABEL label5 :
-IF var18 != #0 GOTO label7
+IF var31 != #0 GOTO label7
 LABEL label8 :
-var22 := #0
+var35 := #0
 GOTO label9
 LABEL label7 :
-IF var21 != #0 GOTO label6
+IF var34 != #0 GOTO label6
 GOTO label8
 LABEL label6 :
-var22 := #1
+var35 := #1
 LABEL label9 :
-IF var22 != #0 GOTO label11
+IF var35 != #0 GOTO label11
 GOTO label12
 LABEL label11 :
-var23 := var13 - #1
-var13 := var23
+var36 := var26 - #1
+var26 := var36
 GOTO label10
 LABEL label12 :
-IF var12 < var13 GOTO label13
-var24 := #0
+IF var25 < var26 GOTO label13
+var37 := #0
 GOTO label14
 LABEL label13 :
-var24 := #1
+var37 := #1
 LABEL label14 :
-IF var24 != #0 GOTO label15
+IF var37 != #0 GOTO label15
 GOTO label16
 LABEL label15 :
-var25 := #4 * var12
-var26 := var11 + var25
-var27 := #4 * var13
-var28 := var11 + var27
-*var26 := *var28
-var29 := var12 + #1
-var12 := var29
+var38 := #4 * var25
+var39 := var24 + var38
+var40 := #4 * var26
+var41 := var24 + var40
+*var39 := *var41
+var42 := var25 + #1
+var25 := var42
 LABEL label16 :
 LABEL label25 :
-IF var12 < var13 GOTO label17
-var30 := #0
+IF var25 < var26 GOTO label17
+var43 := #0
 GOTO label18
 LABEL label17 :
-var30 := #1
+var43 := #1
 LABEL label18 :
-var31 := #4 * var12
-var32 := var11 + var31
-IF *var32 <= var14 GOTO label19
-var33 := #0
+var44 := #4 * var25
+var45 := var24 + var44
+IF *var45 <= var27 GOTO label19
+var46 := #0
 GOTO label20
 LABEL label19 :
-var33 := #1
+var46 := #1
 LABEL label20 :
-IF var30 != #0 GOTO label22
+IF var43 != #0 GOTO label22
 LABEL label23 :
-var34 := #0
+var47 := #0
 GOTO label24
 LABEL label22 :
-IF var33 != #0 GOTO label21
+IF var46 != #0 GOTO label21
 GOTO label23
 LABEL label21 :
-var34 := #1
+var47 := #1
 LABEL label24 :
-IF var34 != #0 GOTO label26
+IF var47 != #0 GOTO label26
 GOTO label27
 LABEL label26 :
-var35 := var12 + #1
-var12 := var35
+var48 := var25 + #1
+var25 := var48
 GOTO label25
 LABEL label27 :
-IF var12 < var13 GOTO label28
-var36 := #0
+IF var25 < var26 GOTO label28
+var49 := #0
 GOTO label29
 LABEL label28 :
-var36 := #1
+var49 := #1
 LABEL label29 :
-IF var36 != #0 GOTO label30
+IF var49 != #0 GOTO label30
 GOTO label31
 LABEL label30 :
-var37 := #4 * var13
-var38 := var11 + var37
-var39 := #4 * var12
-var40 := var11 + var39
-*var38 := *var40
-var41 := var13 - #1
-var13 := var41
+var50 := #4 * var26
+var51 := var24 + var50
+var52 := #4 * var25
+var53 := var24 + var52
+*var51 := *var53
+var54 := var26 - #1
+var26 := var54
 LABEL label31 :
 GOTO label32
 LABEL label34 :
-var42 := #4 * var12
-var43 := var11 + var42
-*var43 := var14
-RETURN var12
+var55 := #4 * var25
+var56 := var24 + var55
+*var56 := var27
+RETURN var25
 FUNCTION qsort :
-PARAM var44
-PARAM var45
-PARAM var46
-IF var45 < var46 GOTO label35
-var48 := #0
+PARAM var57
+PARAM var58
+PARAM var59
+IF var58 < var59 GOTO label35
+var61 := #0
 GOTO label36
 LABEL label35 :
-var48 := #1
+var61 := #1
 LABEL label36 :
-IF var48 != #0 GOTO label37
+IF var61 != #0 GOTO label37
 GOTO label38
 LABEL label37 :
-ARG var46
-ARG var45
-ARG var44
-var49 := CALL partition
-var47 := var49
-var50 := var47 - #1
-ARG var50
-ARG var45
-ARG var44
+ARG var59
+ARG var58
+ARG var57
+var62 := CALL partition
+var60 := var62
+var63 := var60 - #1
+ARG var63
+ARG var58
+ARG var57
 CALL qsort
-var51 := var47 + #1
-ARG var46
-ARG var51
-ARG var44
+var64 := var60 + #1
+ARG var59
+ARG var64
+ARG var57
 CALL qsort
 LABEL label38 :
 RETURN #0
 FUNCTION main :
-READ var53
-var52 := var53
-DEC var54 120
-var55 := #0
-ARG var52
-CALL srand
+var65 := #50
+DEC var66 200
+var67 := #0
+DEC var68 4
+var69 := #4 * #0
+var70 := &var68 + var69
+ARG *var70
+CALL srand32
 LABEL label41 :
-IF var55 < #30 GOTO label39
-var56 := #0
+IF var67 < var65 GOTO label39
+var71 := #0
 GOTO label40
 LABEL label39 :
-var56 := #1
+var71 := #1
 LABEL label40 :
-IF var56 != #0 GOTO label42
+IF var71 != #0 GOTO label42
 GOTO label43
 LABEL label42 :
-var57 := #4 * var55
-var58 := &var54 + var57
-var59 := CALL rand
-*var58 := var59
-var60 := var55 + #1
-var55 := var60
+var72 := #4 * var67
+var73 := &var66 + var72
+var74 := CALL rand32
+*var73 := var74
+var75 := var67 + #1
+var67 := var75
 GOTO label41
 LABEL label43 :
-ARG #30
+ARG var65
 ARG #0
-ARG &var54
+ARG &var66
 CALL qsort
-var55 := #0
+var67 := #0
 LABEL label46 :
-IF var55 < #30 GOTO label44
-var61 := #0
+IF var67 < var65 GOTO label44
+var76 := #0
 GOTO label45
 LABEL label44 :
-var61 := #1
+var76 := #1
 LABEL label45 :
-IF var61 != #0 GOTO label47
+IF var76 != #0 GOTO label47
 GOTO label48
 LABEL label47 :
-var62 := #4 * var55
-var63 := &var54 + var62
-WRITE *var63
-var64 := var55 + #1
-var55 := var64
+var77 := #4 * var67
+var78 := &var66 + var77
+WRITE *var78
+var79 := var67 + #1
+var67 := var79
 GOTO label46
 LABEL label48 :
 RETURN #0

@@ -1,5 +1,5 @@
 /*
- * Input random seed, b and s, the program generates a b-bit prime.
+ * Input b and s (2≤b≤31), the program generates a b-bit prime.
  * If s it not zero, the prime is guaranteed to be a safe prime.
  * This implementation is adapted from OpenSSL v3.3.0.
  */
@@ -1338,16 +1338,18 @@ int generate_prime(
 
 int main()
 {
-    int seed = read();
     int bits = read();
     int safe = read();
 
     int result[1];
 
+    // Take advantage of Virtual Machine's randomized stack to provide
+    // random seed. In C this is undefined behaviour and DON'T DO THIS.
+    int seed[1];
+    srand32(seed[0]);
+
     init_two_powers();
     init_primes();
-
-    srand32(seed);
 
     if (!generate_prime(result, bits, safe, -1, -1))
     {

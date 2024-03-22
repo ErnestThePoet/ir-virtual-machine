@@ -1,5 +1,5 @@
 /*
- * This program reads a random number seed and generates 30 random numbers.
+ * This program reads a random number seed and generates 50 random numbers.
  * Then it sorts the numbers using quick sort and prints the sorted array.
  */
 
@@ -10,19 +10,34 @@ int mod(int mod_x, int mod_y)
     return mod_x - mod_y * (mod_x / mod_y);
 }
 
-int srand(int srand_seed)
+int srand32(int srand32_seed)
 {
-    kNext = srand_seed;
+    kNext = srand32_seed;
     return 0;
 }
 
-int rand()
+int rand32()
 {
-    kNext = kNext * 1103515245 + 12345;
-    return mod(kNext / 65536, 32768);
+    int rand32_result;
+
+    kNext = kNext * 1103515245;
+    kNext = kNext + 12345;
+    rand32_result = mod(kNext / 65536, 2048);
+
+    kNext = kNext * 1103515245;
+    kNext = kNext + 12345;
+    rand32_result = rand32_result * 1024;
+    rand32_result = rand32_result + mod(kNext / 65536, 1024);
+
+    kNext = kNext * 1103515245;
+    kNext = kNext + 12345;
+    rand32_result = rand32_result * 1024;
+    rand32_result = rand32_result + mod(kNext / 65536, 1024);
+
+    return rand32_result;
 }
 
-int partition(int partition_data[30], int partition_low, int partition_high)
+int partition(int partition_data[50], int partition_low, int partition_high)
 {
     int partition_ref = partition_data[partition_low];
     while (partition_low < partition_high)
@@ -52,7 +67,7 @@ int partition(int partition_data[30], int partition_low, int partition_high)
     return partition_low;
 }
 
-int qsort(int qsort_data[30], int qsort_low, int qsort_high)
+int qsort(int qsort_data[50], int qsort_low, int qsort_high)
 {
     int qsort_mid;
     if (qsort_low < qsort_high)
@@ -67,23 +82,26 @@ int qsort(int qsort_data[30], int qsort_low, int qsort_high)
 
 int main()
 {
-    int seed = read();
-    int data[30];
+    int n = 50;
+    int data[50];
     int i = 0;
 
-    srand(seed);
+    // Take advantage of Virtual Machine's randomized stack to provide
+    // random seed. In C this is undefined behaviour and DON'T DO THIS.
+    int seed[1];
+    srand32(seed[0]);
 
-    while (i < 30)
+    while (i < n)
     {
-        data[i] = rand();
+        data[i] = rand32();
         i = i + 1;
     }
 
-    qsort(data, 0, 30);
+    qsort(data, 0, n);
 
     i = 0;
 
-    while (i < 30)
+    while (i < n)
     {
         write(data[i]);
         i = i + 1;

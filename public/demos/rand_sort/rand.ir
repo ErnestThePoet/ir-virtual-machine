@@ -6,41 +6,68 @@ var3 := var1 / var2
 var4 := var2 * var3
 var5 := var1 - var4
 RETURN var5
-FUNCTION srand :
+FUNCTION srand32 :
 PARAM var6
 var0 := var6
 RETURN #0
-FUNCTION rand :
-var7 := var0 * #1103515245
-var8 := var7 + #12345
+FUNCTION rand32 :
+var8 := var0 * #1103515245
 var0 := var8
-var9 := var0 / #65536
-ARG #32768
-ARG var9
-var10 := CALL mod
-RETURN var10
+var9 := var0 + #12345
+var0 := var9
+var10 := var0 / #65536
+ARG #2048
+ARG var10
+var11 := CALL mod
+var7 := var11
+var12 := var0 * #1103515245
+var0 := var12
+var13 := var0 + #12345
+var0 := var13
+var14 := var7 * #1024
+var7 := var14
+var15 := var0 / #65536
+ARG #1024
+ARG var15
+var16 := CALL mod
+var17 := var7 + var16
+var7 := var17
+var18 := var0 * #1103515245
+var0 := var18
+var19 := var0 + #12345
+var0 := var19
+var20 := var7 * #1024
+var7 := var20
+var21 := var0 / #65536
+ARG #1024
+ARG var21
+var22 := CALL mod
+var23 := var7 + var22
+var7 := var23
+RETURN var7
 FUNCTION main :
-READ var12
-var11 := var12
-READ var14
-var13 := var14
-var15 := #0
-ARG var11
-CALL srand
+READ var25
+var24 := var25
+var26 := #0
+DEC var27 4
+var28 := #4 * #0
+var29 := &var27 + var28
+ARG *var29
+CALL srand32
 LABEL label2 :
-IF var15 < var13 GOTO label0
-var16 := #0
+IF var26 < var24 GOTO label0
+var30 := #0
 GOTO label1
 LABEL label0 :
-var16 := #1
+var30 := #1
 LABEL label1 :
-IF var16 != #0 GOTO label3
+IF var30 != #0 GOTO label3
 GOTO label4
 LABEL label3 :
-var17 := CALL rand
-WRITE var17
-var18 := var15 + #1
-var15 := var18
+var31 := CALL rand32
+WRITE var31
+var32 := var26 + #1
+var26 := var32
 GOTO label2
 LABEL label4 :
 RETURN #0

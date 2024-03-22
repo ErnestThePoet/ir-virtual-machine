@@ -6,128 +6,156 @@ var3 := var1 / var2
 var4 := var2 * var3
 var5 := var1 - var4
 RETURN var5
-FUNCTION srand :
+FUNCTION srand32 :
 PARAM var6
 var0 := var6
 RETURN #0
-FUNCTION rand :
-var7 := var0 * #1103515245
-var8 := var7 + #12345
+FUNCTION rand32 :
+var8 := var0 * #1103515245
 var0 := var8
-var9 := var0 / #65536
-ARG #32768
-ARG var9
-var10 := CALL mod
-RETURN var10
+var9 := var0 + #12345
+var0 := var9
+var10 := var0 / #65536
+ARG #2048
+ARG var10
+var11 := CALL mod
+var7 := var11
+var12 := var0 * #1103515245
+var0 := var12
+var13 := var0 + #12345
+var0 := var13
+var14 := var7 * #1024
+var7 := var14
+var15 := var0 / #65536
+ARG #1024
+ARG var15
+var16 := CALL mod
+var17 := var7 + var16
+var7 := var17
+var18 := var0 * #1103515245
+var0 := var18
+var19 := var0 + #12345
+var0 := var19
+var20 := var7 * #1024
+var7 := var20
+var21 := var0 / #65536
+ARG #1024
+ARG var21
+var22 := CALL mod
+var23 := var7 + var22
+var7 := var23
+RETURN var7
 FUNCTION insertsort :
-PARAM var11
-PARAM var12
-var13 := #1
+PARAM var24
+PARAM var25
+var26 := #1
 LABEL label13 :
-IF var13 < var12 GOTO label0
-var14 := #0
+IF var26 < var25 GOTO label0
+var27 := #0
 GOTO label1
 LABEL label0 :
-var14 := #1
+var27 := #1
 LABEL label1 :
-IF var14 != #0 GOTO label14
+IF var27 != #0 GOTO label14
 GOTO label15
 LABEL label14 :
-var16 := #4 * var13
-var17 := var11 + var16
-var15 := *var17
-var18 := var13 - #1
+var29 := #4 * var26
+var30 := var24 + var29
+var28 := *var30
+var31 := var26 - #1
 LABEL label10 :
-IF var18 >= #0 GOTO label2
-var19 := #0
+IF var31 >= #0 GOTO label2
+var32 := #0
 GOTO label3
 LABEL label2 :
-var19 := #1
+var32 := #1
 LABEL label3 :
-var20 := #4 * var18
-var21 := var11 + var20
-IF *var21 > var15 GOTO label4
-var22 := #0
+var33 := #4 * var31
+var34 := var24 + var33
+IF *var34 > var28 GOTO label4
+var35 := #0
 GOTO label5
 LABEL label4 :
-var22 := #1
+var35 := #1
 LABEL label5 :
-IF var19 != #0 GOTO label7
+IF var32 != #0 GOTO label7
 LABEL label8 :
-var23 := #0
+var36 := #0
 GOTO label9
 LABEL label7 :
-IF var22 != #0 GOTO label6
+IF var35 != #0 GOTO label6
 GOTO label8
 LABEL label6 :
-var23 := #1
+var36 := #1
 LABEL label9 :
-IF var23 != #0 GOTO label11
+IF var36 != #0 GOTO label11
 GOTO label12
 LABEL label11 :
-var24 := var18 + #1
-var25 := #4 * var24
-var26 := var11 + var25
-var27 := #4 * var18
-var28 := var11 + var27
-*var26 := *var28
-var29 := var18 - #1
-var18 := var29
+var37 := var31 + #1
+var38 := #4 * var37
+var39 := var24 + var38
+var40 := #4 * var31
+var41 := var24 + var40
+*var39 := *var41
+var42 := var31 - #1
+var31 := var42
 GOTO label10
 LABEL label12 :
-var30 := var18 + #1
-var31 := #4 * var30
-var32 := var11 + var31
-*var32 := var15
-var33 := var13 + #1
-var13 := var33
+var43 := var31 + #1
+var44 := #4 * var43
+var45 := var24 + var44
+*var45 := var28
+var46 := var26 + #1
+var26 := var46
 GOTO label13
 LABEL label15 :
 RETURN #0
 FUNCTION main :
-READ var35
-var34 := var35
-DEC var36 120
-var37 := #0
-ARG var34
-CALL srand
+var47 := #50
+DEC var48 200
+var49 := #0
+DEC var50 4
+var51 := #4 * #0
+var52 := &var50 + var51
+ARG *var52
+CALL srand32
 LABEL label18 :
-IF var37 < #30 GOTO label16
-var38 := #0
+IF var49 < var47 GOTO label16
+var53 := #0
 GOTO label17
 LABEL label16 :
-var38 := #1
+var53 := #1
 LABEL label17 :
-IF var38 != #0 GOTO label19
+IF var53 != #0 GOTO label19
 GOTO label20
 LABEL label19 :
-var39 := #4 * var37
-var40 := &var36 + var39
-var41 := CALL rand
-*var40 := var41
-var42 := var37 + #1
-var37 := var42
+var54 := #4 * var49
+var55 := &var48 + var54
+var56 := CALL rand32
+*var55 := var56
+var57 := var49 + #1
+var49 := var57
 GOTO label18
 LABEL label20 :
-ARG #30
-ARG &var36
+ARG var47
+ARG &var48
 CALL insertsort
-var37 := #0
+var49 := #0
 LABEL label23 :
-IF var37 < #30 GOTO label21
-var43 := #0
+IF var49 < var47 GOTO label21
+var58 := #0
 GOTO label22
 LABEL label21 :
-var43 := #1
+var58 := #1
 LABEL label22 :
-IF var43 != #0 GOTO label24
+IF var58 != #0 GOTO label24
 GOTO label25
 LABEL label24 :
-var44 := #4 * var37
-var45 := &var36 + var44
-WRITE *var45
-var46 := var37 + #1
-var37 := var46
+var59 := #4 * var49
+var60 := &var48 + var59
+WRITE *var60
+var61 := var49 + #1
+var49 := var61
 GOTO label23
 LABEL label25 :
 RETURN #0

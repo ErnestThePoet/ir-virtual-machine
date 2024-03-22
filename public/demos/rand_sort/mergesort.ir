@@ -6,232 +6,260 @@ var3 := var1 / var2
 var4 := var2 * var3
 var5 := var1 - var4
 RETURN var5
-FUNCTION srand :
+FUNCTION srand32 :
 PARAM var6
 var0 := var6
 RETURN #0
-FUNCTION rand :
-var7 := var0 * #1103515245
-var8 := var7 + #12345
+FUNCTION rand32 :
+var8 := var0 * #1103515245
 var0 := var8
-var9 := var0 / #65536
-ARG #32768
-ARG var9
-var10 := CALL mod
-RETURN var10
+var9 := var0 + #12345
+var0 := var9
+var10 := var0 / #65536
+ARG #2048
+ARG var10
+var11 := CALL mod
+var7 := var11
+var12 := var0 * #1103515245
+var0 := var12
+var13 := var0 + #12345
+var0 := var13
+var14 := var7 * #1024
+var7 := var14
+var15 := var0 / #65536
+ARG #1024
+ARG var15
+var16 := CALL mod
+var17 := var7 + var16
+var7 := var17
+var18 := var0 * #1103515245
+var0 := var18
+var19 := var0 + #12345
+var0 := var19
+var20 := var7 * #1024
+var7 := var20
+var21 := var0 / #65536
+ARG #1024
+ARG var21
+var22 := CALL mod
+var23 := var7 + var22
+var7 := var23
+RETURN var7
 FUNCTION merge :
-PARAM var11
-PARAM var12
-PARAM var13
-PARAM var14
-DEC var15 124
-var16 := #0
-var17 := var12
-var18 := var13 + #1
-var19 := var13
-var20 := var14
+PARAM var24
+PARAM var25
+PARAM var26
+PARAM var27
+DEC var28 204
+var29 := #0
+var30 := var25
+var31 := var26 + #1
+var32 := var26
+var33 := var27
 LABEL label12 :
-IF var17 <= var19 GOTO label0
-var22 := #0
+IF var30 <= var32 GOTO label0
+var35 := #0
 GOTO label1
 LABEL label0 :
-var22 := #1
+var35 := #1
 LABEL label1 :
-IF var18 <= var20 GOTO label2
-var23 := #0
+IF var31 <= var33 GOTO label2
+var36 := #0
 GOTO label3
 LABEL label2 :
-var23 := #1
+var36 := #1
 LABEL label3 :
-IF var22 != #0 GOTO label5
+IF var35 != #0 GOTO label5
 LABEL label6 :
-var24 := #0
+var37 := #0
 GOTO label7
 LABEL label5 :
-IF var23 != #0 GOTO label4
+IF var36 != #0 GOTO label4
 GOTO label6
 LABEL label4 :
-var24 := #1
+var37 := #1
 LABEL label7 :
-IF var24 != #0 GOTO label13
+IF var37 != #0 GOTO label13
 GOTO label14
 LABEL label13 :
-var25 := #4 * var17
-var26 := var11 + var25
-var27 := #4 * var18
-var28 := var11 + var27
-IF *var26 < *var28 GOTO label8
-var29 := #0
+var38 := #4 * var30
+var39 := var24 + var38
+var40 := #4 * var31
+var41 := var24 + var40
+IF *var39 < *var41 GOTO label8
+var42 := #0
 GOTO label9
 LABEL label8 :
-var29 := #1
+var42 := #1
 LABEL label9 :
-IF var29 != #0 GOTO label10
-var36 := #4 * var16
-var37 := &var15 + var36
-var38 := #4 * var18
-var39 := var11 + var38
-*var37 := *var39
-var40 := var16 + #1
-var16 := var40
-var41 := var18 + #1
-var18 := var41
+IF var42 != #0 GOTO label10
+var49 := #4 * var29
+var50 := &var28 + var49
+var51 := #4 * var31
+var52 := var24 + var51
+*var50 := *var52
+var53 := var29 + #1
+var29 := var53
+var54 := var31 + #1
+var31 := var54
 GOTO label11
 LABEL label10 :
-var30 := #4 * var16
-var31 := &var15 + var30
-var32 := #4 * var17
-var33 := var11 + var32
-*var31 := *var33
-var34 := var16 + #1
-var16 := var34
-var35 := var17 + #1
-var17 := var35
+var43 := #4 * var29
+var44 := &var28 + var43
+var45 := #4 * var30
+var46 := var24 + var45
+*var44 := *var46
+var47 := var29 + #1
+var29 := var47
+var48 := var30 + #1
+var30 := var48
 LABEL label11 :
 GOTO label12
 LABEL label14 :
 LABEL label17 :
-IF var17 <= var19 GOTO label15
-var42 := #0
+IF var30 <= var32 GOTO label15
+var55 := #0
 GOTO label16
 LABEL label15 :
-var42 := #1
+var55 := #1
 LABEL label16 :
-IF var42 != #0 GOTO label18
+IF var55 != #0 GOTO label18
 GOTO label19
 LABEL label18 :
-var43 := #4 * var16
-var44 := &var15 + var43
-var45 := #4 * var17
-var46 := var11 + var45
-*var44 := *var46
-var47 := var16 + #1
-var16 := var47
-var48 := var17 + #1
-var17 := var48
+var56 := #4 * var29
+var57 := &var28 + var56
+var58 := #4 * var30
+var59 := var24 + var58
+*var57 := *var59
+var60 := var29 + #1
+var29 := var60
+var61 := var30 + #1
+var30 := var61
 GOTO label17
 LABEL label19 :
 LABEL label22 :
-IF var18 <= var20 GOTO label20
-var49 := #0
+IF var31 <= var33 GOTO label20
+var62 := #0
 GOTO label21
 LABEL label20 :
-var49 := #1
+var62 := #1
 LABEL label21 :
-IF var49 != #0 GOTO label23
+IF var62 != #0 GOTO label23
 GOTO label24
 LABEL label23 :
-var50 := #4 * var16
-var51 := &var15 + var50
-var52 := #4 * var18
-var53 := var11 + var52
-*var51 := *var53
-var54 := var16 + #1
-var16 := var54
-var55 := var18 + #1
-var18 := var55
+var63 := #4 * var29
+var64 := &var28 + var63
+var65 := #4 * var31
+var66 := var24 + var65
+*var64 := *var66
+var67 := var29 + #1
+var29 := var67
+var68 := var31 + #1
+var31 := var68
 GOTO label22
 LABEL label24 :
-var21 := var12
+var34 := var25
 LABEL label27 :
-IF var21 <= var14 GOTO label25
-var56 := #0
+IF var34 <= var27 GOTO label25
+var69 := #0
 GOTO label26
 LABEL label25 :
-var56 := #1
+var69 := #1
 LABEL label26 :
-IF var56 != #0 GOTO label28
+IF var69 != #0 GOTO label28
 GOTO label29
 LABEL label28 :
-var57 := #4 * var21
-var58 := var11 + var57
-var59 := var21 - var12
-var60 := #4 * var59
-var61 := &var15 + var60
-*var58 := *var61
-var62 := var21 + #1
-var21 := var62
+var70 := #4 * var34
+var71 := var24 + var70
+var72 := var34 - var25
+var73 := #4 * var72
+var74 := &var28 + var73
+*var71 := *var74
+var75 := var34 + #1
+var34 := var75
 GOTO label27
 LABEL label29 :
 RETURN #0
 FUNCTION mergesort :
-PARAM var63
-PARAM var64
-PARAM var65
-IF var64 >= var65 GOTO label30
-var67 := #0
+PARAM var76
+PARAM var77
+PARAM var78
+IF var77 >= var78 GOTO label30
+var80 := #0
 GOTO label31
 LABEL label30 :
-var67 := #1
+var80 := #1
 LABEL label31 :
-IF var67 != #0 GOTO label32
+IF var80 != #0 GOTO label32
 GOTO label33
 LABEL label32 :
 RETURN #0
 LABEL label33 :
-var68 := var64 + var65
-var69 := var68 / #2
-var66 := var69
-ARG var66
-ARG var64
-ARG var63
+var81 := var77 + var78
+var82 := var81 / #2
+var79 := var82
+ARG var79
+ARG var77
+ARG var76
 CALL mergesort
-var70 := var66 + #1
-ARG var65
-ARG var70
-ARG var63
+var83 := var79 + #1
+ARG var78
+ARG var83
+ARG var76
 CALL mergesort
-ARG var65
-ARG var66
-ARG var64
-ARG var63
+ARG var78
+ARG var79
+ARG var77
+ARG var76
 CALL merge
 RETURN #0
 FUNCTION main :
-READ var72
-var71 := var72
-DEC var73 120
-var74 := #0
-ARG var71
-CALL srand
+var84 := #50
+DEC var85 200
+var86 := #0
+DEC var87 4
+var88 := #4 * #0
+var89 := &var87 + var88
+ARG *var89
+CALL srand32
 LABEL label36 :
-IF var74 < #30 GOTO label34
-var75 := #0
+IF var86 < var84 GOTO label34
+var90 := #0
 GOTO label35
 LABEL label34 :
-var75 := #1
+var90 := #1
 LABEL label35 :
-IF var75 != #0 GOTO label37
+IF var90 != #0 GOTO label37
 GOTO label38
 LABEL label37 :
-var76 := #4 * var74
-var77 := &var73 + var76
-var78 := CALL rand
-*var77 := var78
-var79 := var74 + #1
-var74 := var79
+var91 := #4 * var86
+var92 := &var85 + var91
+var93 := CALL rand32
+*var92 := var93
+var94 := var86 + #1
+var86 := var94
 GOTO label36
 LABEL label38 :
-ARG #30
+ARG var84
 ARG #0
-ARG &var73
+ARG &var85
 CALL mergesort
-var74 := #0
+var86 := #0
 LABEL label41 :
-IF var74 < #30 GOTO label39
-var80 := #0
+IF var86 < var84 GOTO label39
+var95 := #0
 GOTO label40
 LABEL label39 :
-var80 := #1
+var95 := #1
 LABEL label40 :
-IF var80 != #0 GOTO label42
+IF var95 != #0 GOTO label42
 GOTO label43
 LABEL label42 :
-var81 := #4 * var74
-var82 := &var73 + var81
-WRITE *var82
-var83 := var74 + #1
-var74 := var83
+var96 := #4 * var86
+var97 := &var85 + var96
+WRITE *var97
+var98 := var86 + #1
+var86 := var98
 GOTO label41
 LABEL label43 :
 RETURN #0

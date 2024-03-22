@@ -3331,33 +3331,34 @@ READ var1059
 var1058 := var1059
 READ var1061
 var1060 := var1061
-READ var1063
-var1062 := var1063
-DEC var1064 4
+DEC var1062 4
+DEC var1063 4
+var1064 := #4 * #0
+var1065 := &var1063 + var1064
+ARG *var1065
+CALL srand32
 CALL init_two_powers
 CALL init_primes
-ARG var1058
-CALL srand32
-var1065 := #0 - #1
 var1066 := #0 - #1
+var1067 := #0 - #1
+ARG var1067
 ARG var1066
-ARG var1065
-ARG var1062
 ARG var1060
-ARG &var1064
-var1067 := CALL generate_prime
-IF var1067 != #0 GOTO label696
-var1068 := #1
+ARG var1058
+ARG &var1062
+var1068 := CALL generate_prime
+IF var1068 != #0 GOTO label696
+var1069 := #1
 GOTO label697
 LABEL label696 :
-var1068 := #0
+var1069 := #0
 LABEL label697 :
-IF var1068 != #0 GOTO label698
+IF var1069 != #0 GOTO label698
 GOTO label699
 LABEL label698 :
 RETURN #1
 LABEL label699 :
-var1069 := #4 * #0
-var1070 := &var1064 + var1069
-WRITE *var1070
+var1070 := #4 * #0
+var1071 := &var1062 + var1070
+WRITE *var1071
 RETURN #0
