@@ -1,0 +1,62 @@
+/*
+ * Input a and b, interpret them as uint32 and calculate a+b.
+ * Interpret the sum as int32, write the sum and carry signal.
+ */
+
+int cmp_uint32(int cmp_uint32_a, int cmp_uint32_b)
+{
+    if ((cmp_uint32_a < 0 && cmp_uint32_b < 0) ||
+        (cmp_uint32_a >= 0 && cmp_uint32_b >= 0))
+    {
+        if (cmp_uint32_a > cmp_uint32_b)
+        {
+            return 1;
+        }
+        else if (cmp_uint32_a < cmp_uint32_b)
+        {
+            return -1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else if (cmp_uint32_a < 0 && cmp_uint32_b >= 0)
+    {
+        return 1;
+    }
+    else if (cmp_uint32_b < 0 && cmp_uint32_a >= 0)
+    {
+        return -1;
+    }
+}
+
+int add_full_uint32(
+    int add_full_uint32_carry_out[1],
+    int add_full_uint32_a,
+    int add_full_uint32_b)
+{
+    int add_full_uint32_dist_a = -1 - add_full_uint32_a;
+    if (cmp_uint32(add_full_uint32_dist_a, add_full_uint32_b) < 0)
+    {
+        add_full_uint32_carry_out[0] = 1;
+    }
+    else
+    {
+        add_full_uint32_carry_out[0] = 0;
+    }
+
+    return add_full_uint32_a + add_full_uint32_b;
+}
+
+int main()
+{
+    int a = read();
+    int b = read();
+    int carry[1];
+
+    write(add_full_uint32(carry, a, b));
+    write(carry[0]);
+
+    return 0;
+}

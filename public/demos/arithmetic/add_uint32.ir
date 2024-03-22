@@ -1,0 +1,179 @@
+FUNCTION cmp_uint32 :
+PARAM var0
+PARAM var1
+IF var0 < #0 GOTO label0
+var2 := #0
+GOTO label1
+LABEL label0 :
+var2 := #1
+LABEL label1 :
+IF var1 < #0 GOTO label2
+var3 := #0
+GOTO label3
+LABEL label2 :
+var3 := #1
+LABEL label3 :
+IF var2 != #0 GOTO label5
+LABEL label6 :
+var4 := #0
+GOTO label7
+LABEL label5 :
+IF var3 != #0 GOTO label4
+GOTO label6
+LABEL label4 :
+var4 := #1
+LABEL label7 :
+IF var0 >= #0 GOTO label8
+var5 := #0
+GOTO label9
+LABEL label8 :
+var5 := #1
+LABEL label9 :
+IF var1 >= #0 GOTO label10
+var6 := #0
+GOTO label11
+LABEL label10 :
+var6 := #1
+LABEL label11 :
+IF var5 != #0 GOTO label13
+LABEL label14 :
+var7 := #0
+GOTO label15
+LABEL label13 :
+IF var6 != #0 GOTO label12
+GOTO label14
+LABEL label12 :
+var7 := #1
+LABEL label15 :
+IF var4 != #0 GOTO label16
+IF var7 != #0 GOTO label16
+var8 := #0
+GOTO label17
+LABEL label16 :
+var8 := #1
+LABEL label17 :
+IF var8 != #0 GOTO label26
+IF var0 < #0 GOTO label28
+var12 := #0
+GOTO label29
+LABEL label28 :
+var12 := #1
+LABEL label29 :
+IF var1 >= #0 GOTO label30
+var13 := #0
+GOTO label31
+LABEL label30 :
+var13 := #1
+LABEL label31 :
+IF var12 != #0 GOTO label33
+LABEL label34 :
+var14 := #0
+GOTO label35
+LABEL label33 :
+IF var13 != #0 GOTO label32
+GOTO label34
+LABEL label32 :
+var14 := #1
+LABEL label35 :
+IF var14 != #0 GOTO label36
+IF var1 < #0 GOTO label38
+var15 := #0
+GOTO label39
+LABEL label38 :
+var15 := #1
+LABEL label39 :
+IF var0 >= #0 GOTO label40
+var16 := #0
+GOTO label41
+LABEL label40 :
+var16 := #1
+LABEL label41 :
+IF var15 != #0 GOTO label43
+LABEL label44 :
+var17 := #0
+GOTO label45
+LABEL label43 :
+IF var16 != #0 GOTO label42
+GOTO label44
+LABEL label42 :
+var17 := #1
+LABEL label45 :
+IF var17 != #0 GOTO label46
+GOTO label47
+LABEL label46 :
+var18 := #0 - #1
+RETURN var18
+LABEL label47 :
+GOTO label37
+LABEL label36 :
+RETURN #1
+LABEL label37 :
+GOTO label27
+LABEL label26 :
+IF var0 > var1 GOTO label18
+var9 := #0
+GOTO label19
+LABEL label18 :
+var9 := #1
+LABEL label19 :
+IF var9 != #0 GOTO label20
+IF var0 < var1 GOTO label22
+var10 := #0
+GOTO label23
+LABEL label22 :
+var10 := #1
+LABEL label23 :
+IF var10 != #0 GOTO label24
+RETURN #0
+GOTO label25
+LABEL label24 :
+var11 := #0 - #1
+RETURN var11
+LABEL label25 :
+GOTO label21
+LABEL label20 :
+RETURN #1
+LABEL label21 :
+LABEL label27 :
+FUNCTION add_full_uint32 :
+PARAM var19
+PARAM var20
+PARAM var21
+var23 := #0 - #1
+var22 := var23 - var20
+ARG var21
+ARG var22
+var24 := CALL cmp_uint32
+IF var24 < #0 GOTO label48
+var25 := #0
+GOTO label49
+LABEL label48 :
+var25 := #1
+LABEL label49 :
+IF var25 != #0 GOTO label50
+var28 := #4 * #0
+var29 := var19 + var28
+*var29 := #0
+GOTO label51
+LABEL label50 :
+var26 := #4 * #0
+var27 := var19 + var26
+*var27 := #1
+LABEL label51 :
+var30 := var20 + var21
+RETURN var30
+FUNCTION main :
+READ var32
+var31 := var32
+READ var34
+var33 := var34
+DEC var35 4
+ARG var33
+ARG var31
+ARG &var35
+var36 := CALL add_full_uint32
+WRITE var36
+var37 := #4 * #0
+var38 := &var35 + var37
+WRITE *var38
+RETURN #0
