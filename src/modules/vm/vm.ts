@@ -203,7 +203,7 @@ export const vmOptionLimits: {
 } = {
     maxExecutionStepCount: {
         min: 100,
-        max: 100_000_000
+        max: 500_000_000
     },
     memorySize: {
         min: 1024,
@@ -216,7 +216,7 @@ export const vmOptionLimits: {
 };
 
 const defaultOptions: VmOptions = {
-    maxExecutionStepCount: 1_000_000,
+    maxExecutionStepCount: 3_000_000,
     memorySize: 16 * 1024,
     stackSize: 8 * 1024
 };
@@ -745,8 +745,6 @@ export class Vm {
      * will be written to buffer.
      */
     private prepareExcution() {
-        this.executionStartTime = new Date();
-
         this.decodeInstructions();
 
         if (this.executionStatus.state !== VmExecutionState.INITIAL) {
@@ -760,18 +758,20 @@ export class Vm {
         }
 
         this.executionStatus.state = VmExecutionState.FREE;
+
+        this.executionStartTime = new Date();
     }
 
     /**
      * Finalize the VM when main function returns.
      */
     private finalizeExcution() {
+        const executionEndTime = new Date();
+
         // Cleanup global variable
         this.registers.edx = 0;
         this.updatePeakMemoryUsage();
         this.tables.globalVariableTable = {};
-
-        const executionEndTime = new Date();
 
         this.executionStatus.state =
             this.registers.eax === 0
