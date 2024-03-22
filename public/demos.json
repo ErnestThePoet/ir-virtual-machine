@@ -140,17 +140,26 @@
             {
                 "name": "朴素算法素性检验",
                 "irUrl": "demos/arithmetic/is_prime_naive.ir",
-                "remark": "输入正整数w，使用朴素算法判断w是否是素数。如果w是素数，输出1；如果w是合数，输出0。"
+                "remark": "输入正整数w，使用朴素算法判断w是否是素数。如果w是素数，输出1；如果w是合数，输出0。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 5000000
+                }
             },
             {
                 "name": "Miller-Rabin素性检验",
                 "irUrl": "demos/arithmetic/miller_rabin.ir",
-                "remark": "输入正整数w，使用基于Miller-Rabin素性检验的算法判断w是否*可能*是素数。如果w可能是素数，输出1；如果w是合数，输出0。当w为素数且值达到5亿左右时，此算法对比朴素算法开始显示出执行步数上的优势；当w为合数时，此算法几乎总是非常快。"
+                "remark": "输入正整数w，使用基于Miller-Rabin素性检验的算法判断w是否*可能*是素数。如果w可能是素数，输出1；如果w是合数，输出0。当w为素数且值达到5亿左右时，此算法对比朴素算法开始显示出执行步数上的优势；当w为合数时，此算法几乎总是非常快。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 5000000
+                }
             },
             {
                 "name": "随机素数生成",
                 "irUrl": "demos/arithmetic/gen_prime.ir",
-                "remark": "输入随机数种子、b和s (2≤b≤31)，生成一个b位素数。如果s非零，则生成的是安全素数((p-1)/2同样是素数)。"
+                "remark": "输入随机数种子、b和s (2≤b≤31)，生成一个b位素数。如果s非零，则生成的是安全素数((p-1)/2同样是素数)。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 50000000
+                }
             }
         ]
     },
@@ -158,9 +167,20 @@
         "groupName": "密码学专区❤️",
         "demos": [
             {
-                "name": "DH密钥交换：参数生成",
-                "irUrl": "demos/cryptography/dh_genparam.ir",
-                "remark": "输入随机数种子，生成DH密钥交换参数(g,p)，其中g为生成元，p为24位安全素数。仅可用于原理演示。"
+                "name": "DH密钥交换：Alice",
+                "irUrl": "demos/cryptography/dh_alice.ir",
+                "remark": "Alice进行如下步骤：(1)生成并输出DH密钥交换参数(g,p)，其中g为生成元，p=2q+1为24位安全素数；(2)生成私钥x∈Zq，计算并输出公钥h_A=(g^x) mod p；(3)读取Bob的公钥h_B；(4)计算并输出共享密钥k_A=(h_B^x) mod p",
+                "vmOptions": {
+                    "maxExecutionStepCount": 50000000
+                }
+            },
+            {
+                "name": "DH密钥交换：Bob",
+                "irUrl": "demos/cryptography/dh_bob.ir",
+                "remark": "Bob进行如下步骤：(1)读取Alice生成的DH密钥交换参数(g,p)和公钥h_A；(2)生成私钥y∈Zq，计算并输出公钥h_B=(g^y) mod p；(3)计算并输出共享密钥k_B=(h_A^y) mod p",
+                "vmOptions": {
+                    "maxExecutionStepCount": 2000000
+                }
             }
         ]
     },

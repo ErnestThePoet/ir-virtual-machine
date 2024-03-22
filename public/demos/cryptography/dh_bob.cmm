@@ -1,6 +1,11 @@
 /*
- * Input random seed, generate DH parameters g and p where
- * g is the group generator and p is a safe prime.
+ * Diffie-Hellman key-exchange Bob:
+ * (1) Read parameters (g,p) and Alice's public key h_A from Alice;
+ * (2) Choose a uniform y∈Zq as private key, compute
+ * public key h_B=(g^y) mod p, output h_B;
+ * (3) Compute shared key k_B=(h_A^y) mod p and output k_B.
+ *
+ * This implementation is for demonstration purposes only.
  * This implementation is adapted from OpenSSL v3.3.0.
  */
 
@@ -8,6 +13,21 @@ int kNext;
 
 int kTwoPowers[32]; // [31] is negative
 int kPrimes[64];
+
+struct FFCParams
+{
+    int g;
+    int p;
+    int q;
+};
+
+struct DH
+{
+    struct FFCParams params;
+
+    int pubkey;
+    int privkey;
+};
 
 int init_two_powers()
 {
@@ -1336,62 +1356,131 @@ int generate_prime(
     return genprime_found;
 }
 
-int dh_generate_paremeters(
-    int dh_genparam_p_out[1],
-    int dh_genparam_prime_len,
-    int dh_genparam_generator)
+int dh_q_from_p(int dh_q_from_p_p)
 {
-    int dh_genparam_t1, dh_genparam_t2;
+    return (dh_q_from_p_p - 1) / 2;
+}
 
-    if (dh_genparam_prime_len < 2 || dh_genparam_prime_len > 31)
+// n must be either >=2 and <=qbits or -1
+int ffc_generate_privkey(
+    int ffc_genprivkey_privkey_out[1],
+    int ffc_genprivkey_q,
+    int ffc_genprivkey_n)
+{
+    int ffc_genprivkey_qbits = get_bits_uint32(ffc_genprivkey_q);
+    int ffc_genprivkey_two_power_n, ffc_genprivkey_m;
+
+    if (ffc_genprivkey_qbits < 2 || ffc_genprivkey_qbits > 31)
     {
         return 0;
     }
 
-    if (dh_genparam_generator <= 1)
+    if (ffc_genprivkey_n == -1)
+    {
+        ffc_genprivkey_n = ffc_genprivkey_qbits;
+    }
+
+    if (ffc_genprivkey_n < 2 || ffc_genprivkey_n > ffc_genprivkey_qbits)
     {
         return 0;
     }
 
-    if (dh_genparam_generator == 2)
+    ffc_genprivkey_two_power_n = kTwoPowers[ffc_genprivkey_n];
+
+    if (ffc_genprivkey_q < ffc_genprivkey_two_power_n)
     {
-        dh_genparam_t1 = 24;
-        dh_genparam_t2 = 23;
-    }
-    else if (dh_genparam_generator == 5)
-    {
-        dh_genparam_t1 = 60;
-        dh_genparam_t2 = 59;
+        ffc_genprivkey_m = ffc_genprivkey_q;
     }
     else
     {
-        dh_genparam_t1 = 12;
-        dh_genparam_t2 = 11;
+        ffc_genprivkey_m = ffc_genprivkey_two_power_n;
     }
 
-    return generate_prime(dh_genparam_p_out, dh_genparam_prime_len, 1, dh_genparam_t1, dh_genparam_t2);
+    while (1)
+    {
+        if (!rand_range(ffc_genprivkey_privkey_out, ffc_genprivkey_two_power_n))
+        {
+            return 0;
+        }
+
+        ffc_genprivkey_privkey_out[0] = ffc_genprivkey_privkey_out[0] + 1;
+
+        if (ffc_genprivkey_privkey_out[0] < ffc_genprivkey_m)
+        {
+            return 1;
+        }
+    }
+}
+
+int dh_generate_key(struct DH dh_genkey_out[1])
+{
+    int dh_genkey_privkey[1];
+    if (!ffc_generate_privkey(dh_genkey_privkey, dh_genkey_out[0].params.q, -1))
+    {
+        return 0;
+    }
+
+    dh_genkey_out[0].privkey = dh_genkey_privkey[0];
+
+    dh_genkey_out[0].pubkey = exp_mod(
+        dh_genkey_out[0].params.g, dh_genkey_privkey[0], dh_genkey_out[0].params.p);
+
+    return 1;
+}
+
+int dh_compute_key(
+    int dh_compute_key_key_out[1],
+    struct DH dh_compute_key_dh[1],
+    int dh_compute_key_pubkey)
+{
+    int dh_compute_key_shared_key = exp_mod(
+        dh_compute_key_pubkey,
+        dh_compute_key_dh[0].privkey,
+        dh_compute_key_dh[0].params.p);
+
+    if (dh_compute_key_shared_key <= 1 ||
+        dh_compute_key_shared_key == dh_compute_key_dh[0].params.p - 1)
+    {
+        return 0;
+    }
+
+    dh_compute_key_key_out[0] = dh_compute_key_shared_key;
+
+    return 1;
 }
 
 int main()
 {
-    int seed = read();
-
-    int g = 2;
-
-    int p[1];
+    struct DH dh[1];
+    int pubkey_alice;
+    int shared_key[1];
+    // Take advantage of Virtual Machine's randomized stack to provide
+    // random seed. In C this is undefined behaviour and DON'T DO THIS.
+    int seed[1];
+    srand32(seed[0]);
 
     init_two_powers();
     init_primes();
 
-    srand32(seed);
+    dh[0].params.g = read();
+    dh[0].params.p = read();
+    pubkey_alice = read();
 
-    if (!dh_generate_paremeters(p, 24, g))
+    dh[0].params.q = dh_q_from_p(dh[0].params.p);
+
+    if (!dh_generate_key(dh))
     {
         return 1;
     }
 
-    write(g);
-    write(p[0]);
+    write(dh[0].pubkey);
+
+    if (!dh_compute_key(shared_key, dh, pubkey_alice))
+    {
+        return 1;
+    }
+
+    write(shared_key[0]);
 
     return 0;
 }

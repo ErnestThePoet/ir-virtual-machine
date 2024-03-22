@@ -860,3 +860,54 @@ int generate_prime(
 
 	return genprime_found;
 }
+
+// n must be either >=2 and <=qbits or -1
+int ffc_generate_privkey(
+	int ffc_genprivkey_privkey_out[1],
+	int ffc_genprivkey_q,
+	int ffc_genprivkey_n)
+{
+	int ffc_genprivkey_qbits = get_bits_uint32(ffc_genprivkey_q);
+	int ffc_genprivkey_two_power_n, ffc_genprivkey_m;
+
+	if (ffc_genprivkey_qbits < 2 || ffc_genprivkey_qbits > 31)
+	{
+		return 0;
+	}
+
+	if (ffc_genprivkey_n == -1)
+	{
+		ffc_genprivkey_n = ffc_genprivkey_qbits;
+	}
+
+	if (ffc_genprivkey_n<2 || ffc_genprivkey_n>ffc_genprivkey_qbits)
+	{
+		return 0;
+	}
+
+	ffc_genprivkey_two_power_n = kTwoPowers[ffc_genprivkey_n];
+
+	if (ffc_genprivkey_q < ffc_genprivkey_two_power_n)
+	{
+		ffc_genprivkey_m = ffc_genprivkey_q;
+	}
+	else
+	{
+		ffc_genprivkey_m = ffc_genprivkey_two_power_n;
+	}
+
+	while (1)
+	{
+		if (!rand_range(ffc_genprivkey_privkey_out, ffc_genprivkey_two_power_n))
+		{
+			return 0;
+		}
+
+		ffc_genprivkey_privkey_out[0] = ffc_genprivkey_privkey_out[0] + 1;
+
+		if (ffc_genprivkey_privkey_out[0] < ffc_genprivkey_m)
+		{
+			return 1;
+		}
+	}
+}

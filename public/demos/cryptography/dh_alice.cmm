@@ -1,0 +1,1539 @@
+/*
+ * Diffie-Hellman key-exchange Alice:
+ * (1) Generate parameters (g,p) where g is generator
+ * and p is a 24-bit safe prime (=2q+1), output g and p;
+ * (2) Choose a uniform x∈Zq as private key, compute
+ * public key h_A=(g^x) mod p, output h_A;
+ * (3) Receive Bob's public key h_B from Bob;
+ * (4) Compute shared key k_A=(h_B^x) mod p and output k_A.
+ *
+ * This implementation is for demonstration purposes only.
+ * This implementation is adapted from OpenSSL v3.3.0.
+ */
+
+int kNext;
+
+int kTwoPowers[32]; // [31] is negative
+int kPrimes[64];
+
+struct FFCParams
+{
+    int g;
+    int p;
+    int q;
+};
+
+struct DH
+{
+    struct FFCParams params;
+
+    int pubkey;
+    int privkey;
+};
+
+int init_two_powers()
+{
+    int init_two_powers_i = 0;
+    int init_two_powers_power = 1;
+
+    while (init_two_powers_i < 32)
+    {
+        kTwoPowers[init_two_powers_i] = init_two_powers_power;
+        init_two_powers_power = init_two_powers_power * 2;
+        init_two_powers_i = init_two_powers_i + 1;
+    }
+
+    return 0;
+}
+
+int init_primes()
+{
+    kPrimes[0] = 2;
+    kPrimes[1] = 3;
+    kPrimes[2] = 5;
+    kPrimes[3] = 7;
+    kPrimes[4] = 11;
+    kPrimes[5] = 13;
+    kPrimes[6] = 17;
+    kPrimes[7] = 19;
+    kPrimes[8] = 23;
+    kPrimes[9] = 29;
+    kPrimes[10] = 31;
+    kPrimes[11] = 37;
+    kPrimes[12] = 41;
+    kPrimes[13] = 43;
+    kPrimes[14] = 47;
+    kPrimes[15] = 53;
+    kPrimes[16] = 59;
+    kPrimes[17] = 61;
+    kPrimes[18] = 67;
+    kPrimes[19] = 71;
+    kPrimes[20] = 73;
+    kPrimes[21] = 79;
+    kPrimes[22] = 83;
+    kPrimes[23] = 89;
+    kPrimes[24] = 97;
+    kPrimes[25] = 101;
+    kPrimes[26] = 103;
+    kPrimes[27] = 107;
+    kPrimes[28] = 109;
+    kPrimes[29] = 113;
+    kPrimes[30] = 127;
+    kPrimes[31] = 131;
+    kPrimes[32] = 137;
+    kPrimes[33] = 139;
+    kPrimes[34] = 149;
+    kPrimes[35] = 151;
+    kPrimes[36] = 157;
+    kPrimes[37] = 163;
+    kPrimes[38] = 167;
+    kPrimes[39] = 173;
+    kPrimes[40] = 179;
+    kPrimes[41] = 181;
+    kPrimes[42] = 191;
+    kPrimes[43] = 193;
+    kPrimes[44] = 197;
+    kPrimes[45] = 199;
+    kPrimes[46] = 211;
+    kPrimes[47] = 223;
+    kPrimes[48] = 227;
+    kPrimes[49] = 229;
+    kPrimes[50] = 233;
+    kPrimes[51] = 239;
+    kPrimes[52] = 241;
+    kPrimes[53] = 251;
+    kPrimes[54] = 257;
+    kPrimes[55] = 263;
+    kPrimes[56] = 269;
+    kPrimes[57] = 271;
+    kPrimes[58] = 277;
+    kPrimes[59] = 281;
+    kPrimes[60] = 283;
+    kPrimes[61] = 293;
+    kPrimes[62] = 307;
+    kPrimes[63] = 311;
+
+    return 0;
+}
+
+int mod(int mod_x, int mod_y)
+{
+    return mod_x - mod_y * (mod_x / mod_y);
+}
+
+int srand32(int srand32_seed)
+{
+    kNext = srand32_seed;
+    return 0;
+}
+
+int rand32()
+{
+    int rand32_result;
+
+    kNext = kNext * 1103515245;
+    kNext = kNext + 12345;
+    rand32_result = mod(kNext / 65536, 2048);
+
+    kNext = kNext * 1103515245;
+    kNext = kNext + 12345;
+    rand32_result = rand32_result * 1024;
+    rand32_result = rand32_result + mod(kNext / 65536, 1024);
+
+    kNext = kNext * 1103515245;
+    kNext = kNext + 12345;
+    rand32_result = rand32_result * 1024;
+    rand32_result = rand32_result + mod(kNext / 65536, 1024);
+
+    return rand32_result;
+}
+
+// uint32 operations
+
+int rshift_uint32(int rshift_uint32_x, int rshift_uint32_usr_a)
+{
+    if (rshift_uint32_usr_a >= 32 ||
+        (rshift_uint32_x >= 0 && rshift_uint32_usr_a == 31))
+    {
+        return 0;
+    }
+
+    if (rshift_uint32_x < 0 && rshift_uint32_usr_a > 0)
+    {
+        // clear msb
+        rshift_uint32_x = rshift_uint32_x + (-2147483648);
+        // perform normal right shift
+        rshift_uint32_x = rshift_uint32_x / 2;
+        // reset msb
+        rshift_uint32_x = rshift_uint32_x + 1073741824;
+        rshift_uint32_usr_a = rshift_uint32_usr_a - 1;
+    }
+
+    // Now a<31
+    return rshift_uint32_x / kTwoPowers[rshift_uint32_usr_a];
+}
+
+int get_bits_uint32(int get_bits_uint32_a)
+{
+    int get_bits_uint32_bits = 0;
+    while (rshift_uint32(get_bits_uint32_a, get_bits_uint32_bits))
+    {
+        get_bits_uint32_bits = get_bits_uint32_bits + 1;
+    }
+
+    return get_bits_uint32_bits;
+}
+
+int cmp_uint32(int cmp_uint32_a, int cmp_uint32_b)
+{
+    if ((cmp_uint32_a < 0 && cmp_uint32_b < 0) ||
+        (cmp_uint32_a >= 0 && cmp_uint32_b >= 0))
+    {
+        if (cmp_uint32_a > cmp_uint32_b)
+        {
+            return 1;
+        }
+        else if (cmp_uint32_a < cmp_uint32_b)
+        {
+            return -1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else if (cmp_uint32_a < 0 && cmp_uint32_b >= 0)
+    {
+        return 1;
+    }
+    else if (cmp_uint32_b < 0 && cmp_uint32_a >= 0)
+    {
+        return -1;
+    }
+}
+
+int add_full_uint32(
+    int add_full_uint32_carry_out[1],
+    int add_full_uint32_a,
+    int add_full_uint32_b)
+{
+    int add_full_uint32_dist_a = -1 - add_full_uint32_a;
+    if (cmp_uint32(add_full_uint32_dist_a, add_full_uint32_b) < 0)
+    {
+        add_full_uint32_carry_out[0] = 1;
+    }
+    else
+    {
+        add_full_uint32_carry_out[0] = 0;
+    }
+
+    return add_full_uint32_a + add_full_uint32_b;
+}
+
+int mul_uint32(int mul_uint32_uint64_out[2], int mul_uint32_a, int mul_uint32_b)
+{
+    // a=ah al=(ah<<16)+al
+    // b=bh bl=(bh<<16)+bl
+    // a*b=((ah*bh)<<32)+((ah*bl)<<16)+((al*bh)<<16)+(al*bl)
+    //
+    // |---------------(a*b)----------------|
+    // |-----(a*b)_h-----||-----(a*b)_l-----|
+    //
+    // equals the sum of:
+    //
+    // |      32bit      |00...............00  ((ah*bh)<<32)
+    // --------------------------------------
+    //          |      32bit      |00......00  ((ah*bl)<<16)
+    //          -----------------------------
+    //          |      32bit      |00......00  ((al*bh)<<16)
+    //          -----------------------------
+    //                    |       32bit     |  (al*bl)
+    //                    -------------------
+    // Therefore:
+    // (a*b)_l=(al*bl)+((ah*bl)<<16)+((al*bh)<<16) with carry=C (note C could be 0,1,2)
+    // (a*b)_h=(ah*bh)+((ah*bl)>>16)+((al*bh)>>16)+C
+
+    int mul_uint32_ah = rshift_uint32(mul_uint32_a, 16);
+    int mul_uint32_al = mul_uint32_a - mul_uint32_ah * 65536;
+
+    int mul_uint32_bh = rshift_uint32(mul_uint32_b, 16);
+    int mul_uint32_bl = mul_uint32_b - mul_uint32_bh * 65536;
+
+    int mul_uint32_abh = mul_uint32_ah * mul_uint32_bh +
+                         rshift_uint32(mul_uint32_ah * mul_uint32_bl, 16) +
+                         rshift_uint32((mul_uint32_al * mul_uint32_bh), 16);
+
+    int mul_uint32_abl_carry[1];
+    int mul_uint32_abl = add_full_uint32(
+        mul_uint32_abl_carry,
+        mul_uint32_al * mul_uint32_bl,
+        ((mul_uint32_ah * mul_uint32_bl) * 65536));
+
+    mul_uint32_abh = mul_uint32_abh + mul_uint32_abl_carry[0];
+
+    mul_uint32_abl = add_full_uint32(
+        mul_uint32_abl_carry,
+        mul_uint32_abl,
+        ((mul_uint32_al * mul_uint32_bh) * 65536));
+
+    mul_uint32_abh = mul_uint32_abh + mul_uint32_abl_carry[0];
+
+    mul_uint32_uint64_out[0] = mul_uint32_abh;
+    mul_uint32_uint64_out[1] = mul_uint32_abl;
+
+    return 0;
+}
+
+int div_mod_uint32(
+    int div_mod_uint32_rem_out[1],
+    int div_mod_uint32_a,
+    int div_mod_uint32_b)
+{
+    int div_mod_uint32_i;
+    int div_mod_uint32_a_bits, div_mod_uint32_b_bits;
+    int div_mod_uint32_rem = div_mod_uint32_a;
+    int div_mod_uint32_rem_lshift_count = 0;
+    int div_mod_uint32_result = 0;
+
+    if (cmp_uint32(div_mod_uint32_a, div_mod_uint32_b) < 0)
+    {
+        div_mod_uint32_rem_out[0] = div_mod_uint32_a;
+        return 0;
+    }
+
+    div_mod_uint32_a_bits = get_bits_uint32(div_mod_uint32_a);
+    div_mod_uint32_b_bits = get_bits_uint32(div_mod_uint32_b);
+
+    div_mod_uint32_b = div_mod_uint32_b * kTwoPowers[div_mod_uint32_a_bits - div_mod_uint32_b_bits];
+
+    // iterate (a_bits-b_bits+1) rounds
+    div_mod_uint32_i = div_mod_uint32_a_bits - div_mod_uint32_b_bits;
+    while (div_mod_uint32_i >= 0)
+    {
+        div_mod_uint32_result = div_mod_uint32_result * 2;
+
+        if (cmp_uint32(div_mod_uint32_rem, div_mod_uint32_b) >= 0)
+        {
+            div_mod_uint32_result = div_mod_uint32_result + 1;
+            div_mod_uint32_rem = div_mod_uint32_rem - div_mod_uint32_b;
+            div_mod_uint32_rem = div_mod_uint32_rem * 2;
+            div_mod_uint32_rem_lshift_count = div_mod_uint32_rem_lshift_count + 1;
+        }
+        else
+        {
+            div_mod_uint32_b = rshift_uint32(div_mod_uint32_b, 1);
+        }
+
+        div_mod_uint32_i = div_mod_uint32_i - 1;
+    }
+
+    div_mod_uint32_rem_out[0] = rshift_uint32(div_mod_uint32_rem, div_mod_uint32_rem_lshift_count);
+
+    return div_mod_uint32_result;
+}
+
+int mod_uint32(int mod_uint32_a, int mod_uint32_b)
+{
+    int mod_uint32_rem[1];
+    div_mod_uint32(mod_uint32_rem, mod_uint32_a, mod_uint32_b);
+    return mod_uint32_rem[0];
+}
+
+// uint64 operations
+
+int rshift_uint64(int rshift_uint64_out[2], int rshift_uint64_x[2], int rshift_uint64_a)
+{
+    int rshift_uint64_xh = rshift_uint64_x[0];
+    int rshift_uint64_xl = rshift_uint64_x[1];
+    if (rshift_uint64_a >= 64 ||
+        (rshift_uint64_xh >= 0 && rshift_uint64_a == 63))
+    {
+        rshift_uint64_out[0] = 0;
+        rshift_uint64_out[1] = 0;
+        return 0;
+    }
+
+    rshift_uint64_out[0] = rshift_uint32(rshift_uint64_xh, rshift_uint64_a);
+    rshift_uint64_out[1] = rshift_uint32(rshift_uint64_xl, rshift_uint64_a);
+
+    if (rshift_uint64_a >= 32)
+    {
+        rshift_uint64_out[1] = rshift_uint64_out[1] +
+                               rshift_uint32(rshift_uint64_xh, rshift_uint64_a - 32);
+    }
+    else
+    {
+        rshift_uint64_out[1] = rshift_uint64_out[1] +
+                               (rshift_uint64_xh - rshift_uint64_out[0] * kTwoPowers[rshift_uint64_a]) *
+                                   kTwoPowers[32 - rshift_uint64_a];
+    }
+
+    return 0;
+}
+
+int lshift_uint64(int lshift_uint64_out[2], int lshift_uint64_x[2], int lshift_uint64_a)
+{
+    if (lshift_uint64_a >= 64)
+    {
+        lshift_uint64_out[0] = 0;
+        lshift_uint64_out[1] = 0;
+        return 0;
+    }
+
+    if (lshift_uint64_a >= 32)
+    {
+        lshift_uint64_out[0] = lshift_uint64_x[1] * kTwoPowers[lshift_uint64_a - 32];
+        lshift_uint64_out[1] = 0;
+    }
+    else
+    {
+        lshift_uint64_out[0] = lshift_uint64_x[0] * kTwoPowers[lshift_uint64_a] +
+                               rshift_uint32(lshift_uint64_x[1], 32 - lshift_uint64_a);
+        lshift_uint64_out[1] = lshift_uint64_x[1] * kTwoPowers[lshift_uint64_a];
+    }
+
+    return 0;
+}
+
+int get_bits_uint64(int get_bits_uint64_a[2])
+{
+    int get_bits_uint64_bits = 0;
+    int get_bits_uint64_shifted[2];
+
+    rshift_uint64(get_bits_uint64_shifted, get_bits_uint64_a, get_bits_uint64_bits);
+
+    while (get_bits_uint64_shifted[0] || get_bits_uint64_shifted[1])
+    {
+        get_bits_uint64_bits = get_bits_uint64_bits + 1;
+        rshift_uint64(get_bits_uint64_shifted, get_bits_uint64_a, get_bits_uint64_bits);
+    }
+
+    return get_bits_uint64_bits;
+}
+
+int cmp_uint64(int cmp_uint64_a[2], int cmp_uint64_b[2])
+{
+    int cmp_uint64_result = cmp_uint32(cmp_uint64_a[0], cmp_uint64_b[0]);
+    if (cmp_uint64_result)
+    {
+        return cmp_uint64_result;
+    }
+
+    return cmp_uint32(cmp_uint64_a[1], cmp_uint64_b[1]);
+}
+
+int add_uint64(int add_uint64_out[2], int add_uint64_a[2], int add_uint64_b[2])
+{
+    int add_uint64_low_carry[1];
+    add_uint64_out[1] = add_full_uint32(
+        add_uint64_low_carry, add_uint64_a[1], add_uint64_b[1]);
+    add_uint64_out[0] = add_uint64_a[0] + add_uint64_b[0] + add_uint64_low_carry[0];
+    return 0;
+}
+
+int neg_uint64(int neg_uint64_out[2], int neg_uint64_a[2])
+{
+    int neg_uint64_inv[2];
+    int neg_uint64_one[2];
+
+    neg_uint64_inv[0] = -1 - neg_uint64_a[0];
+    neg_uint64_inv[1] = -1 - neg_uint64_a[1];
+
+    neg_uint64_one[0] = 0;
+    neg_uint64_one[1] = 1;
+
+    add_uint64(neg_uint64_out, neg_uint64_inv, neg_uint64_one);
+
+    return 0;
+}
+
+int sub_uint64(int sub_uint64_out[2], int sub_uint64_a[2], int sub_uint64_b[2])
+{
+    int sub_uint64_neg_b[2];
+
+    neg_uint64(sub_uint64_neg_b, sub_uint64_b);
+
+    add_uint64(sub_uint64_out, sub_uint64_a, sub_uint64_neg_b);
+
+    return 0;
+}
+
+int mul_uint64(int mul_uint64_out[2], int mul_uint64_a[2], int mul_uint64_b[2])
+{
+    // a=ah al=(ah<<32)+al
+    // b=bh bl=(bh<<32)+bl
+    // a*b=((ah*bh)<<64)+((ah*bl)<<32)+((al*bh)<<32)+(al*bl)
+    //
+    // |---------------(a*b)----------------|
+    // |-----(a*b)_h-----||-----(a*b)_l-----|
+    //
+    // equals the sum of:
+    //
+    // |      64bit      |00...............00  ((ah*bh)<<64)
+    // --------------------------------------
+    //          |      64bit      |00......00  ((ah*bl)<<32)
+    //          -----------------------------
+    //          |      64bit      |00......00  ((al*bh)<<32)
+    //          -----------------------------
+    //                    |       64bit     |  (al*bl)
+    //                    -------------------
+    // Therefore:
+    // (a*b)_l=(al*bl)+((ah*bl)<<32)+((al*bh)<<32) with carry=C (note C could be 0,1,2)
+    // (a*b)_h=(ah*bh)+((ah*bl)>>32)+((al*bh)>>32)+C
+    // We only need (a*b)_l
+
+    int mul_uint64_albl[2];
+    int mul_uint64_ahbl[2];
+    int mul_uint64_albh[2];
+
+    mul_uint32(mul_uint64_albl, mul_uint64_a[1], mul_uint64_b[1]);
+
+    mul_uint32(mul_uint64_ahbl, mul_uint64_a[0], mul_uint64_b[1]);
+    lshift_uint64(mul_uint64_ahbl, mul_uint64_ahbl, 32);
+
+    mul_uint32(mul_uint64_albh, mul_uint64_a[1], mul_uint64_b[0]);
+    lshift_uint64(mul_uint64_albh, mul_uint64_albh, 32);
+
+    add_uint64(mul_uint64_out, mul_uint64_albl, mul_uint64_ahbl);
+    add_uint64(mul_uint64_out, mul_uint64_out, mul_uint64_albh);
+
+    return 0;
+}
+
+int div_mod_uint64(
+    int div_mod_uint64_out[2],
+    int div_mod_uint64_rem_out[2],
+    int div_mod_uint64_a[2],
+    int div_mod_uint64_b[2])
+{
+    int div_mod_uint64_i;
+    int div_mod_uint64_a_bits, div_mod_uint64_b_bits;
+    int div_mod_uint64_slb[2];
+    int div_mod_uint64_rem[2];
+    int div_mod_uint64_rem_lshift_count = 0;
+    int div_mod_uint64_result[2];
+    int div_mod_uint64_one[2];
+
+    div_mod_uint64_rem[0] = div_mod_uint64_a[0];
+    div_mod_uint64_rem[1] = div_mod_uint64_a[1];
+
+    div_mod_uint64_result[0] = 0;
+    div_mod_uint64_result[1] = 0;
+
+    div_mod_uint64_one[0] = 0;
+    div_mod_uint64_one[1] = 1;
+
+    if (cmp_uint64(div_mod_uint64_a, div_mod_uint64_b) < 0)
+    {
+        div_mod_uint64_rem_out[0] = div_mod_uint64_a[0];
+        div_mod_uint64_rem_out[1] = div_mod_uint64_a[1];
+
+        div_mod_uint64_out[0] = 0;
+        div_mod_uint64_out[1] = 0;
+
+        return 0;
+    }
+
+    div_mod_uint64_a_bits = get_bits_uint64(div_mod_uint64_a);
+    div_mod_uint64_b_bits = get_bits_uint64(div_mod_uint64_b);
+
+    lshift_uint64(div_mod_uint64_slb, div_mod_uint64_b, div_mod_uint64_a_bits - div_mod_uint64_b_bits);
+
+    div_mod_uint64_i = div_mod_uint64_a_bits - div_mod_uint64_b_bits;
+    while (div_mod_uint64_i >= 0)
+    {
+        lshift_uint64(div_mod_uint64_result, div_mod_uint64_result, 1);
+
+        if (cmp_uint64(div_mod_uint64_rem, div_mod_uint64_slb) >= 0)
+        {
+            add_uint64(div_mod_uint64_result, div_mod_uint64_result, div_mod_uint64_one);
+            sub_uint64(div_mod_uint64_rem, div_mod_uint64_rem, div_mod_uint64_slb);
+            lshift_uint64(div_mod_uint64_rem, div_mod_uint64_rem, 1);
+            div_mod_uint64_rem_lshift_count = div_mod_uint64_rem_lshift_count + 1;
+        }
+        else
+        {
+            rshift_uint64(div_mod_uint64_slb, div_mod_uint64_slb, 1);
+        }
+
+        div_mod_uint64_i = div_mod_uint64_i - 1;
+    }
+
+    rshift_uint64(div_mod_uint64_rem_out, div_mod_uint64_rem, div_mod_uint64_rem_lshift_count);
+
+    div_mod_uint64_out[0] = div_mod_uint64_result[0];
+    div_mod_uint64_out[1] = div_mod_uint64_result[1];
+
+    return 0;
+}
+
+int mod_uint64(int mod_uint64_out[2], int mod_uint64_a[2], int mod_uint64_b[2])
+{
+    int mod_uint64_quot[2];
+    div_mod_uint64(mod_uint64_quot, mod_uint64_out, mod_uint64_a, mod_uint64_b);
+    return 0;
+}
+
+// prime
+
+int is_bit_set(int is_bit_set_x, int is_bit_set_n)
+{
+    if (is_bit_set_n < 0 || is_bit_set_n >= 32)
+    {
+        return 0;
+    }
+
+    return mod_uint32(
+               rshift_uint32(
+                   is_bit_set_x, is_bit_set_n),
+               2) == 1;
+}
+
+int rand_bits(int rand_bits_n, int rand_bits_top, int rand_bits_bottom)
+{
+    int rand_bits_result = rand32();
+
+    if (rand_bits_n <= 0)
+    {
+        return 0;
+    }
+
+    if (rand_bits_n < 32)
+    {
+        rand_bits_result = rand_bits_result -
+                           kTwoPowers[rand_bits_n] *
+                               rshift_uint32(rand_bits_result, rand_bits_n);
+    }
+
+    if (rand_bits_top == 1 || rand_bits_top == 2)
+    {
+        if (!is_bit_set(rand_bits_result, rand_bits_n - 1))
+        {
+            rand_bits_result = rand_bits_result + kTwoPowers[rand_bits_n - 1];
+        }
+
+        if (rand_bits_top == 2 && rand_bits_n >= 2 &&
+            !is_bit_set(rand_bits_result, rand_bits_n - 2))
+        {
+            rand_bits_result = rand_bits_result + kTwoPowers[rand_bits_n - 2];
+        }
+    }
+
+    if (rand_bits_bottom == 1 && mod_uint32(rand_bits_result, 2) == 0)
+    {
+        rand_bits_result = rand_bits_result + 1;
+    }
+
+    return rand_bits_result;
+}
+
+// random number r:  0 <= r < range
+int rand_range(int rand_range_out[1], int rand_range_range)
+{
+    int rand_range_n;
+    int rand_range_count = 100;
+    int rand_range_result;
+
+    if (rand_range_range <= 0)
+    {
+        return 0;
+    }
+
+    rand_range_n = get_bits_uint32(rand_range_range);
+
+    if (rand_range_n == 1)
+    {
+        rand_range_out[0] = 0;
+        return 1;
+    }
+    else if (!is_bit_set(rand_range_range, rand_range_n - 2) &&
+             !is_bit_set(rand_range_range, rand_range_n - 3))
+    {
+        while (1)
+        {
+            rand_range_result = rand_bits(rand_range_n + 1, 0, 0);
+            if (cmp_uint32(rand_range_result, rand_range_range) >= 0)
+            {
+                rand_range_result = rand_range_result - rand_range_range;
+
+                if (cmp_uint32(rand_range_result, rand_range_range) >= 0)
+                {
+                    rand_range_result = rand_range_result - rand_range_range;
+                }
+            }
+
+            if (cmp_uint32(rand_range_result, rand_range_range) < 0)
+            {
+                rand_range_out[0] = rand_range_result;
+                return 1;
+            }
+
+            rand_range_count = rand_range_count - 1;
+            if (rand_range_count <= 0)
+            {
+                return 0;
+            }
+        }
+    }
+    else
+    {
+        while (1)
+        {
+            rand_range_result = rand_bits(rand_range_n, 0, 0);
+            if (cmp_uint32(rand_range_result, rand_range_range) < 0)
+            {
+                rand_range_out[0] = rand_range_result;
+                return 1;
+            }
+
+            rand_range_count = rand_range_count - 1;
+            if (rand_range_count <= 0)
+            {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+int mul_mod(int mul_mod_a, int mul_mod_b, int mul_mod_p)
+{
+    int mul_mod_temp64[2], mul_mod_p64[2];
+
+    mul_mod_p64[0] = 0;
+    mul_mod_p64[1] = mul_mod_p;
+
+    mul_uint32(mul_mod_temp64, mul_mod_a, mul_mod_b);
+    mod_uint64(mul_mod_temp64, mul_mod_temp64, mul_mod_p64);
+
+    return mul_mod_temp64[1];
+}
+
+int exp_mod(int exp_mod_a, int exp_mod_b, int exp_mod_p)
+{
+    int exp_mod_i;
+    int exp_mod_prod64[2], exp_mod_a64[2], exp_mod_p64[2];
+
+    exp_mod_prod64[0] = 0;
+    exp_mod_prod64[1] = 1;
+
+    exp_mod_a64[0] = 0;
+    exp_mod_a64[1] = exp_mod_a;
+
+    exp_mod_p64[0] = 0;
+    exp_mod_p64[1] = exp_mod_p;
+
+    while (exp_mod_b)
+    {
+        if (mod(exp_mod_b, 2))
+        {
+            mul_uint64(exp_mod_prod64, exp_mod_prod64, exp_mod_a64);
+            mod_uint64(exp_mod_prod64, exp_mod_prod64, exp_mod_p64);
+        }
+
+        exp_mod_b = exp_mod_b / 2;
+
+        mul_uint64(exp_mod_a64, exp_mod_a64, exp_mod_a64);
+        mod_uint64(exp_mod_a64, exp_mod_a64, exp_mod_p64);
+    }
+
+    return exp_mod_prod64[1];
+}
+
+// w must be >2 and odd
+int miller_rabin_is_prime(int mr_out[1], int mr_w, int mr_iterations)
+{
+    int mr_i, mr_j, mr_a;
+    int mr_w1, mr_w3, mr_x, mr_m, mr_z, mr_b;
+    int mr_temp[1];
+    int goto_outer_loop = 0;
+
+    // w must be >2 and odd
+    if (mr_w <= 2 || mod(mr_w, 2) == 0)
+    {
+        return 0;
+    }
+
+    // w1 := w - 1
+    mr_w1 = mr_w - 1;
+    // w3 := w - 3
+    mr_w3 = mr_w - 3;
+
+    // check w is larger than 3, otherwise the random b will be too small
+    if (mr_w3 <= 0)
+    {
+        return 0;
+    }
+
+    // (Step 1) Calculate largest integer 'a' such that 2^a divides w-1
+    // (Step 2) m = (w-1) / 2^a
+    mr_a = 1;
+    mr_m = mr_w1 / 2;
+    while (mod(mr_m, 2) == 0)
+    {
+        mr_a = mr_a + 1;
+        mr_m = mr_m / 2;
+    }
+
+    // (Step 4)
+    mr_i = 0;
+    while (mr_i < mr_iterations)
+    {
+        goto_outer_loop = 0;
+
+        // (Step 4.1) obtain a Random string of bits b where 1 < b < w-1
+        if (!rand_range(mr_temp, mr_w3))
+        {
+            return 0;
+        }
+
+        mr_b = mr_temp[0] + 2;
+
+        // (Step 4.5) z = b^m mod w
+        mr_z = exp_mod(mr_b, mr_m, mr_w);
+
+        // (Step 4.6) if (z = 1 or z = w-1)
+        if (mr_z == 1 || mr_z == mr_w1)
+        {
+            goto_outer_loop = 1;
+        }
+
+        if (!goto_outer_loop)
+        {
+            // (Step 4.7) for j = 1 to a-1
+            mr_j = 1;
+            while (!goto_outer_loop && mr_j < mr_a)
+            {
+                // (Step 4.7.1 - 4.7.2) x = z. z = x^2 mod w
+                mr_x = mr_z;
+                mr_z = mul_mod(mr_x, mr_x, mr_w);
+
+                // (Step 4.7.3)
+                if (mr_z == mr_w1)
+                {
+                    goto_outer_loop = 1;
+                }
+
+                if (!goto_outer_loop)
+                {
+                    // (Step 4.7.4)
+                    if (mr_z == 1)
+                    {
+                        mr_out[0] = 0;
+                        return 1;
+                    }
+
+                    mr_j = mr_j + 1;
+                }
+            }
+
+            if (!goto_outer_loop)
+            {
+                // At this point z = b^((w-1)/2) mod w
+                // (Steps 4.8 - 4.9) x = z, z = x^2 mod w
+                mr_x = mr_z;
+                mr_z = mul_mod(mr_x, mr_x, mr_w);
+
+                // (Step 4.10)
+                if (mr_z == 1)
+                {
+                    mr_out[0] = 0;
+                    return 1;
+                }
+
+                // (Step 4.11) x = b^(w-1) mod w
+                mr_x = mr_z;
+
+                mr_out[0] = 0;
+                return 1;
+            }
+        }
+
+        // outer_loop:
+        mr_i = mr_i + 1;
+    }
+
+    // (Step 5)
+    mr_out[0] = 1;
+
+    return 1;
+}
+
+int is_prime(int is_prime_out[1], int is_prime_checks, int is_prime_w, int is_prime_do_trial_division)
+{
+    int is_prime_i;
+
+    // w must be bigger than 1
+    if (is_prime_w <= 1)
+    {
+        return 0;
+    }
+
+    // w must be odd
+    if (mod(is_prime_w, 2) == 0)
+    {
+        // 2 is the only even prime
+        is_prime_out[0] = (is_prime_w == 2);
+        return 1;
+    }
+    else
+    {
+        // Take care of the really small prime 3
+        if (is_prime_w == 3)
+        {
+            is_prime_out[0] = 1;
+            return 1;
+        }
+    }
+
+    // first look for small factors
+    if (is_prime_do_trial_division)
+    {
+        is_prime_i = 1;
+        while (is_prime_i < 64)
+        {
+            if (mod(is_prime_w, kPrimes[is_prime_i]) == 0)
+            {
+                is_prime_out[0] = (is_prime_w == kPrimes[is_prime_i]);
+                return 1;
+            }
+
+            is_prime_i = is_prime_i + 1;
+        }
+    }
+
+    if (!miller_rabin_is_prime(is_prime_out, is_prime_w, is_prime_checks))
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
+// bits must be >0 and <=31
+int probable_prime(int pp_out[1], int pp_bits, int pp_safe, int pp_mods[64])
+{
+    int pp_i;
+
+    int pp_goto_again = 1;
+    int pp_goto_loop = 1;
+    int pp_loop_td = 1;
+
+    int pp_rnd;
+    int pp_delta[2];
+    int pp_mod_64[2];
+    int pp_prime_64[2];
+    int pp_prime_square[2];
+    int pp_rnd_64[2];
+    int pp_temp1[2];
+
+    int pp_trial_divisions = 64;
+
+    int pp_max_delta[2];
+    int pp_mask2[2];
+    int pp_const_7fffffff[2];
+    int pp_const_2[2];
+    int pp_const_4[2];
+
+    // also use as subtrahend
+    pp_max_delta[0] = 0;
+    pp_max_delta[1] = kPrimes[63];
+
+    pp_mask2[0] = -1;
+    pp_mask2[1] = -1;
+
+    pp_const_7fffffff[0] = 0;
+    pp_const_7fffffff[1] = kTwoPowers[31] - 1;
+
+    pp_const_2[0] = 0;
+    pp_const_2[1] = 2;
+
+    pp_const_4[0] = 0;
+    pp_const_4[1] = 4;
+
+    sub_uint64(pp_max_delta, pp_mask2, pp_max_delta);
+
+    // again:
+    while (pp_goto_again)
+    {
+        pp_goto_again = 0;
+
+        pp_rnd = rand_bits(pp_bits, 2, 1);
+
+        if (pp_safe && mod(pp_rnd / 2, 2) == 0)
+        {
+            pp_rnd = pp_rnd + 2;
+        }
+
+        pp_rnd_64[0] = 0;
+        pp_rnd_64[1] = pp_rnd;
+
+        pp_i = 1;
+        while (pp_i < pp_trial_divisions)
+        {
+            pp_mods[pp_i] = mod(pp_rnd, kPrimes[pp_i]);
+
+            pp_i = pp_i + 1;
+        }
+
+        pp_delta[0] = 0;
+        pp_delta[1] = 0;
+
+        // loop:
+        while (!pp_goto_again && pp_goto_loop)
+        {
+            pp_goto_loop = 0;
+
+            pp_i = 1;
+            while (!pp_goto_loop && !pp_goto_again && pp_loop_td && pp_i < pp_trial_divisions)
+            {
+                pp_loop_td = 1;
+                /*
+                 * check that rnd is a prime and also that
+                 * gcd(rnd-1,primes) == 1 (except for 2)
+                 * do the second check only if we are interested in safe primes
+                 * in the case that the candidate prime is a single word then
+                 * we check only the primes up to sqrt(rnd)
+                 */
+
+                mul_uint32(pp_prime_square, kPrimes[pp_i], kPrimes[pp_i]);
+                add_uint64(pp_temp1, pp_rnd_64, pp_delta);
+                if (pp_bits <= 31 && cmp_uint64(pp_delta, pp_const_7fffffff) <= 0 &&
+                    cmp_uint64(pp_prime_square, pp_temp1) > 0)
+                {
+                    // break;
+                    pp_loop_td = 0;
+                }
+
+                if (pp_loop_td)
+                {
+                    pp_mod_64[0] = 0;
+                    pp_mod_64[1] = pp_mods[pp_i];
+
+                    pp_prime_64[0] = 0;
+                    pp_prime_64[1] = kPrimes[pp_i];
+
+                    add_uint64(pp_temp1, pp_mod_64, pp_delta);
+
+                    mod_uint64(pp_temp1, pp_temp1, pp_prime_64);
+
+                    // kPrimes are all 32bit positive, so
+                    // is the remainder
+                    if ((pp_safe && pp_temp1[1] <= 1) || (!pp_safe && pp_temp1[1] == 0))
+                    {
+                        if (pp_safe)
+                        {
+                            add_uint64(pp_delta, pp_delta, pp_const_4);
+                        }
+                        else
+                        {
+                            add_uint64(pp_delta, pp_delta, pp_const_2);
+                        }
+
+                        if (cmp_uint64(pp_delta, pp_max_delta) > 0)
+                        {
+                            // goto again;
+                            pp_goto_again = 1;
+                        }
+
+                        if (!pp_goto_again)
+                        {
+                            // goto loop;
+                            pp_goto_loop = 1;
+                        }
+                    }
+
+                    if (!pp_goto_again && !pp_goto_loop)
+                    {
+                        pp_i = pp_i + 1;
+                    }
+                }
+            }
+
+            if (!pp_goto_again && !pp_goto_loop)
+            {
+                pp_rnd = pp_rnd + pp_delta[1];
+                if (get_bits_uint32(pp_rnd) != pp_bits)
+                {
+                    pp_goto_again = 1;
+                }
+            }
+        }
+    }
+
+    pp_out[0] = pp_rnd;
+
+    return 1;
+}
+
+// bits must be >0 and <=31; add must be >0; rem must be either >0 or -1
+int probable_prime_dh(
+    int ppdh_out[1],
+    int ppdh_bits,
+    int ppdh_safe,
+    int ppdh_mods[64],
+    int ppdh_add,
+    int ppdh_rem)
+{
+    int ppdh_i;
+
+    int ppdh_goto_again = 1;
+    int ppdh_goto_loop = 1;
+    int ppdh_loop_td = 1;
+
+    int ppdh_rnd;
+    int ppdh_delta[2];
+    int ppdh_add_64[2];
+    int ppdh_mod_64[2];
+    int ppdh_prime_64[2];
+    int ppdh_prime_square[2];
+    int ppdh_rnd_64[2];
+    int ppdh_temp1[2];
+
+    int ppdh_trial_divisions = 64;
+
+    int ppdh_max_delta[2];
+    int ppdh_mask2[2];
+    int ppdh_const_7fffffff[2];
+    int ppdh_const_2[2];
+    int ppdh_const_4[2];
+
+    ppdh_add_64[0] = 0;
+    ppdh_add_64[1] = ppdh_add;
+
+    // also use as subtrahend
+    ppdh_max_delta[0] = 0;
+    ppdh_max_delta[1] = kPrimes[63];
+
+    ppdh_mask2[0] = -1;
+    ppdh_mask2[1] = -1;
+
+    ppdh_const_7fffffff[0] = 0;
+    ppdh_const_7fffffff[1] = kTwoPowers[31] - 1;
+
+    ppdh_const_2[0] = 0;
+    ppdh_const_2[1] = 2;
+
+    ppdh_const_4[0] = 0;
+    ppdh_const_4[1] = 4;
+
+    sub_uint64(ppdh_max_delta, ppdh_mask2, ppdh_max_delta);
+
+    sub_uint64(ppdh_add_64, ppdh_mask2, ppdh_add_64);
+
+    if (cmp_uint64(ppdh_max_delta, ppdh_add_64) > 0)
+    {
+        ppdh_max_delta[0] = ppdh_add_64[0];
+        ppdh_max_delta[1] = ppdh_add_64[1];
+    }
+
+    // again:
+    while (ppdh_goto_again)
+    {
+        ppdh_goto_again = 0;
+
+        ppdh_rnd = rand_bits(ppdh_bits, 1, 1);
+
+        ppdh_rnd = ppdh_rnd - mod(ppdh_rnd, ppdh_add);
+
+        if (ppdh_rem == -1)
+        {
+            if (ppdh_safe)
+            {
+                ppdh_rnd = ppdh_rnd + 3;
+            }
+            else
+            {
+                ppdh_rnd = ppdh_rnd + 1;
+            }
+        }
+        else
+        {
+            ppdh_rnd = ppdh_rnd + ppdh_rem;
+        }
+
+        if (get_bits_uint32(ppdh_rnd) < ppdh_bits || ((ppdh_safe && ppdh_rnd < 5) || (!ppdh_safe && ppdh_rnd < 3)))
+        {
+            ppdh_rnd = ppdh_rnd + ppdh_add;
+        }
+
+        // we now have a random number 'rnd' to test.
+
+        ppdh_rnd_64[0] = 0;
+        ppdh_rnd_64[1] = ppdh_rnd;
+
+        ppdh_i = 1;
+        while (ppdh_i < ppdh_trial_divisions)
+        {
+            ppdh_mods[ppdh_i] = mod(ppdh_rnd, kPrimes[ppdh_i]);
+
+            ppdh_i = ppdh_i + 1;
+        }
+
+        ppdh_delta[0] = 0;
+        ppdh_delta[1] = 0;
+
+        // loop:
+        while (!ppdh_goto_again && ppdh_goto_loop)
+        {
+            ppdh_goto_loop = 0;
+
+            ppdh_i = 1;
+            while (!ppdh_goto_loop && !ppdh_goto_again && ppdh_loop_td && ppdh_i < ppdh_trial_divisions)
+            {
+                ppdh_loop_td = 1;
+                /*
+                 * check that rnd is a prime and also that
+                 * gcd(rnd-1,primes) == 1 (except for 2)
+                 * do the second check only if we are interested in safe primes
+                 * in the case that the candidate prime is a single word then
+                 * we check only the primes up to sqrt(rnd)
+                 */
+
+                mul_uint32(ppdh_prime_square, kPrimes[ppdh_i], kPrimes[ppdh_i]);
+                add_uint64(ppdh_temp1, ppdh_rnd_64, ppdh_delta);
+                if (ppdh_bits <= 31 && cmp_uint64(ppdh_delta, ppdh_const_7fffffff) <= 0 &&
+                    cmp_uint64(ppdh_prime_square, ppdh_temp1) > 0)
+                {
+                    // break;
+                    ppdh_loop_td = 0;
+                }
+
+                if (ppdh_loop_td)
+                {
+                    ppdh_mod_64[0] = 0;
+                    ppdh_mod_64[1] = ppdh_mods[ppdh_i];
+
+                    ppdh_prime_64[0] = 0;
+                    ppdh_prime_64[1] = kPrimes[ppdh_i];
+
+                    add_uint64(ppdh_temp1, ppdh_mod_64, ppdh_delta);
+
+                    mod_uint64(ppdh_temp1, ppdh_temp1, ppdh_prime_64);
+
+                    // kPrimes are all 32bit positive, so
+                    // is the remainder
+                    if ((ppdh_safe && ppdh_temp1[1] <= 1) || (!ppdh_safe && ppdh_temp1[1] == 0))
+                    {
+                        add_uint64(ppdh_delta, ppdh_delta, ppdh_add_64);
+
+                        if (cmp_uint64(ppdh_delta, ppdh_max_delta) > 0)
+                        {
+                            // goto again;
+                            ppdh_goto_again = 1;
+                        }
+
+                        if (!ppdh_goto_again)
+                        {
+                            // goto loop;
+                            ppdh_goto_loop = 1;
+                        }
+                    }
+
+                    if (!ppdh_goto_again && !ppdh_goto_loop)
+                    {
+                        ppdh_i = ppdh_i + 1;
+                    }
+                }
+            }
+
+            if (!ppdh_goto_again && !ppdh_goto_loop)
+            {
+                ppdh_rnd = ppdh_rnd + ppdh_delta[1];
+            }
+        }
+    }
+
+    ppdh_out[0] = ppdh_rnd;
+
+    return 1;
+}
+
+// bits must be >0 and <=31; add and rem must be either positive or -1
+int generate_prime(
+    int genprime_out[1],
+    int genprime_bits,
+    int genprime_safe,
+    int genprime_add,
+    int genprime_rem)
+{
+    int genprime_found = 0;
+    int genprime_t;
+    int genprime_i;
+    int genprime_is_prime_out[1];
+    int genprime_mods[64];
+    int genprime_checks = 1;
+    int genprime_goto_loop = 1;
+
+    if (genprime_bits < 2 || genprime_bits > 31)
+    {
+        return 0;
+    }
+    else if (genprime_add == -1 && genprime_safe && genprime_bits < 6 && genprime_bits != 3)
+    {
+        /*
+         * The smallest safe prime (7) is three bits.
+         * But the following two safe primes with less than 6 bits (11, 23)
+         * are unreachable for BN_rand with BN_RAND_TOP_TWO.
+         */
+        return 0;
+    }
+
+    // loop:
+    while (genprime_goto_loop)
+    {
+        genprime_goto_loop = 0;
+
+        if (genprime_add == -1)
+        {
+            if (!probable_prime(genprime_out, genprime_bits, genprime_safe, genprime_mods))
+            {
+                return 0;
+            }
+        }
+        else
+        {
+            if (!probable_prime_dh(genprime_out, genprime_bits, genprime_safe, genprime_mods, genprime_add, genprime_rem))
+            {
+                return 0;
+            }
+        }
+
+        if (!genprime_safe)
+        {
+            if (!is_prime(genprime_is_prime_out, genprime_checks, genprime_out[0], 0))
+            {
+                return 0;
+            }
+
+            if (genprime_is_prime_out[0] == 0)
+            {
+                genprime_goto_loop = 1;
+            }
+        }
+        else
+        {
+            genprime_t = genprime_out[0] / 2;
+
+            genprime_i = 0;
+            while (!genprime_goto_loop && genprime_i < genprime_checks)
+            {
+                if (!is_prime(genprime_is_prime_out, 1, genprime_out[0], 0))
+                {
+                    return 0;
+                }
+
+                if (genprime_is_prime_out[0] == 0)
+                {
+                    genprime_goto_loop = 1;
+                }
+
+                if (!genprime_goto_loop)
+                {
+                    if (!is_prime(genprime_is_prime_out, 1, genprime_t, 0))
+                    {
+                        return 0;
+                    }
+
+                    if (genprime_is_prime_out[0] == 0)
+                    {
+                        genprime_goto_loop = 1;
+                    }
+
+                    if (!genprime_goto_loop)
+                    {
+                        genprime_i = genprime_i + 1;
+                    }
+                }
+            }
+        }
+
+        if (!genprime_goto_loop)
+        {
+            genprime_found = 1;
+        }
+    }
+
+    return genprime_found;
+}
+
+int dh_q_from_p(int dh_q_from_p_p)
+{
+    return (dh_q_from_p_p - 1) / 2;
+}
+
+int dh_generate_paremeters(
+    struct DH dh_genparam_out[1],
+    int dh_genparam_prime_len,
+    int dh_genparam_generator)
+{
+    int dh_genparam_t1, dh_genparam_t2;
+    int dh_genparam_p[1];
+
+    if (dh_genparam_prime_len < 2 || dh_genparam_prime_len > 31)
+    {
+        return 0;
+    }
+
+    if (dh_genparam_generator <= 1)
+    {
+        return 0;
+    }
+
+    if (dh_genparam_generator == 2)
+    {
+        dh_genparam_t1 = 24;
+        dh_genparam_t2 = 23;
+        dh_genparam_out[0].params.g = 2;
+    }
+    else if (dh_genparam_generator == 5)
+    {
+        dh_genparam_t1 = 60;
+        dh_genparam_t2 = 59;
+        dh_genparam_out[0].params.g = 5;
+    }
+    else
+    {
+        dh_genparam_t1 = 12;
+        dh_genparam_t2 = 11;
+        dh_genparam_out[0].params.g = dh_genparam_generator;
+    }
+
+    if (!generate_prime(dh_genparam_p, dh_genparam_prime_len, 1, dh_genparam_t1, dh_genparam_t2))
+    {
+        return 0;
+    }
+
+    dh_genparam_out[0].params.p = dh_genparam_p[0];
+    dh_genparam_out[0].params.q = dh_q_from_p(dh_genparam_p[0]);
+
+    return 1;
+}
+
+// n must be either >=2 and <=qbits or -1
+int ffc_generate_privkey(
+    int ffc_genprivkey_privkey_out[1],
+    int ffc_genprivkey_q,
+    int ffc_genprivkey_n)
+{
+    int ffc_genprivkey_qbits = get_bits_uint32(ffc_genprivkey_q);
+    int ffc_genprivkey_two_power_n, ffc_genprivkey_m;
+
+    if (ffc_genprivkey_qbits < 2 || ffc_genprivkey_qbits > 31)
+    {
+        return 0;
+    }
+
+    if (ffc_genprivkey_n == -1)
+    {
+        ffc_genprivkey_n = ffc_genprivkey_qbits;
+    }
+
+    if (ffc_genprivkey_n < 2 || ffc_genprivkey_n > ffc_genprivkey_qbits)
+    {
+        return 0;
+    }
+
+    ffc_genprivkey_two_power_n = kTwoPowers[ffc_genprivkey_n];
+
+    if (ffc_genprivkey_q < ffc_genprivkey_two_power_n)
+    {
+        ffc_genprivkey_m = ffc_genprivkey_q;
+    }
+    else
+    {
+        ffc_genprivkey_m = ffc_genprivkey_two_power_n;
+    }
+
+    while (1)
+    {
+        if (!rand_range(ffc_genprivkey_privkey_out, ffc_genprivkey_two_power_n))
+        {
+            return 0;
+        }
+
+        ffc_genprivkey_privkey_out[0] = ffc_genprivkey_privkey_out[0] + 1;
+
+        if (ffc_genprivkey_privkey_out[0] < ffc_genprivkey_m)
+        {
+            return 1;
+        }
+    }
+}
+
+int dh_generate_key(struct DH dh_genkey_out[1])
+{
+    int dh_genkey_privkey[1];
+    if (!ffc_generate_privkey(dh_genkey_privkey, dh_genkey_out[0].params.q, -1))
+    {
+        return 0;
+    }
+
+    dh_genkey_out[0].privkey = dh_genkey_privkey[0];
+
+    dh_genkey_out[0].pubkey = exp_mod(
+        dh_genkey_out[0].params.g, dh_genkey_privkey[0], dh_genkey_out[0].params.p);
+
+    return 1;
+}
+
+int dh_compute_key(
+    int dh_compute_key_key_out[1],
+    struct DH dh_compute_key_dh[1],
+    int dh_compute_key_pubkey)
+{
+    int dh_compute_key_shared_key = exp_mod(
+        dh_compute_key_pubkey,
+        dh_compute_key_dh[0].privkey,
+        dh_compute_key_dh[0].params.p);
+
+    if (dh_compute_key_shared_key <= 1 ||
+        dh_compute_key_shared_key == dh_compute_key_dh[0].params.p - 1)
+    {
+        return 0;
+    }
+
+    dh_compute_key_key_out[0] = dh_compute_key_shared_key;
+
+    return 1;
+}
+
+int main()
+{
+    struct DH dh[1];
+    int pubkey_bob;
+    int shared_key[1];
+    // Take advantage of Virtual Machine's randomized stack to provide
+    // random seed. In C this is undefined behaviour and DON'T DO THIS.
+    int seed[1];
+    srand32(seed[0]);
+
+    init_two_powers();
+    init_primes();
+
+    if (!dh_generate_paremeters(dh, 24, 2))
+    {
+        return 1;
+    }
+
+    if (!dh_generate_key(dh))
+    {
+        return 1;
+    }
+
+    write(dh[0].params.g);
+    write(dh[0].params.p);
+    write(dh[0].pubkey);
+
+    pubkey_bob = read();
+
+    if (!dh_compute_key(shared_key, dh, pubkey_bob))
+    {
+        return 1;
+    }
+
+    write(shared_key[0]);
+
+    return 0;
+}

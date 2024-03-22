@@ -4,6 +4,13 @@
 #include "unsigned_op.h"
 #include "common.h"
 
+struct FFCParams
+{
+	int g;
+	int p;
+	int q;
+};
+
 int init_primes();
 
 int is_bit_set(int is_bit_set_x, int is_bit_set_n);
@@ -34,5 +41,10 @@ int generate_prime(
 	int genprime_safe,
 	int genprime_add,
 	int genprime_rem);
+
+int ffc_generate_privkey(
+	int ffc_genprivkey_privkey_out[1],
+	int ffc_genprivkey_q,
+	int ffc_genprivkey_n);
 
 #endif
