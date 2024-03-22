@@ -955,6 +955,7 @@ int probable_prime(int pp_out[1], int pp_bits, int pp_safe, int pp_mods[64])
     sub_uint64(pp_max_delta, pp_mask2, pp_max_delta);
 
     // again:
+    pp_goto_again = 1;
     while (pp_goto_again)
     {
         pp_goto_again = 0;
@@ -981,14 +982,16 @@ int probable_prime(int pp_out[1], int pp_bits, int pp_safe, int pp_mods[64])
         pp_delta[1] = 0;
 
         // loop:
+        pp_goto_loop = 1;
         while (!pp_goto_again && pp_goto_loop)
         {
             pp_goto_loop = 0;
 
             pp_i = 1;
+
+            pp_loop_td = 1;
             while (!pp_goto_loop && !pp_goto_again && pp_loop_td && pp_i < pp_trial_divisions)
             {
-                pp_loop_td = 1;
                 /*
                  * check that rnd is a prime and also that
                  * gcd(rnd-1,primes) == 1 (except for 2)
@@ -1129,6 +1132,7 @@ int probable_prime_dh(
     }
 
     // again:
+    ppdh_goto_again = 1;
     while (ppdh_goto_again)
     {
         ppdh_goto_again = 0;
@@ -1153,7 +1157,9 @@ int probable_prime_dh(
             ppdh_rnd = ppdh_rnd + ppdh_rem;
         }
 
-        if (get_bits_uint32(ppdh_rnd) < ppdh_bits || ((ppdh_safe && ppdh_rnd < 5) || (!ppdh_safe && ppdh_rnd < 3)))
+        if (get_bits_uint32(ppdh_rnd) < ppdh_bits ||
+            ((ppdh_safe && ppdh_rnd < 5) ||
+             (!ppdh_safe && ppdh_rnd < 3)))
         {
             ppdh_rnd = ppdh_rnd + ppdh_add;
         }
@@ -1175,14 +1181,15 @@ int probable_prime_dh(
         ppdh_delta[1] = 0;
 
         // loop:
+        ppdh_goto_loop = 1;
         while (!ppdh_goto_again && ppdh_goto_loop)
         {
             ppdh_goto_loop = 0;
 
             ppdh_i = 1;
+            ppdh_loop_td = 1;
             while (!ppdh_goto_loop && !ppdh_goto_again && ppdh_loop_td && ppdh_i < ppdh_trial_divisions)
             {
-                ppdh_loop_td = 1;
                 /*
                  * check that rnd is a prime and also that
                  * gcd(rnd-1,primes) == 1 (except for 2)
@@ -1250,7 +1257,7 @@ int probable_prime_dh(
     return 1;
 }
 
-// bits must be >0 and <=31; add and rem must be either positive or -1
+// bits must be >=2 and <=31; add and rem must be either positive or -1
 int generate_prime(
     int genprime_out[1],
     int genprime_bits,
@@ -1281,6 +1288,7 @@ int generate_prime(
     }
 
     // loop:
+    genprime_goto_loop = 1;
     while (genprime_goto_loop)
     {
         genprime_goto_loop = 0;

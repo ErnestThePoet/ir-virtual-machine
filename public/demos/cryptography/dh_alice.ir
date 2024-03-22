@@ -2063,6 +2063,7 @@ ARG &var735
 ARG &var736
 ARG &var735
 CALL sub_uint64
+var724 := #1
 LABEL label465 :
 IF var724 != #0 GOTO label466
 GOTO label467
@@ -2134,6 +2135,7 @@ var785 := &var728 + var784
 var786 := #4 * #1
 var787 := &var728 + var786
 *var787 := #0
+var725 := #1
 LABEL label462 :
 IF var724 != #0 GOTO label365
 var788 := #1
@@ -2156,6 +2158,7 @@ GOTO label464
 LABEL label463 :
 var725 := #0
 var723 := #1
+var726 := #1
 LABEL label445 :
 IF var725 != #0 GOTO label371
 var790 := #1
@@ -2208,7 +2211,6 @@ LABEL label388 :
 IF var795 != #0 GOTO label446
 GOTO label447
 LABEL label446 :
-var726 := #1
 var796 := #4 * var723
 var797 := &var2 + var796
 var798 := #4 * var723
@@ -2566,6 +2568,7 @@ var909 := #4 * #1
 var910 := &var858 + var909
 *var908 := *var910
 LABEL label471 :
+var853 := #1
 LABEL label599 :
 IF var853 != #0 GOTO label600
 GOTO label601
@@ -2703,6 +2706,7 @@ var941 := &var857 + var940
 var942 := #4 * #1
 var943 := &var857 + var942
 *var943 := #0
+var854 := #1
 LABEL label596 :
 IF var853 != #0 GOTO label505
 var944 := #1
@@ -2725,6 +2729,7 @@ GOTO label598
 LABEL label597 :
 var854 := #0
 var852 := #1
+var855 := #1
 LABEL label583 :
 IF var854 != #0 GOTO label511
 var946 := #1
@@ -2777,7 +2782,6 @@ LABEL label528 :
 IF var951 != #0 GOTO label584
 GOTO label585
 LABEL label584 :
-var855 := #1
 var952 := #4 * var852
 var953 := &var2 + var952
 var954 := #4 * var852
@@ -3106,6 +3110,7 @@ GOTO label609
 LABEL label608 :
 RETURN #0
 LABEL label609 :
+var1011 := #1
 LABEL label693 :
 IF var1011 != #0 GOTO label694
 GOTO label695
