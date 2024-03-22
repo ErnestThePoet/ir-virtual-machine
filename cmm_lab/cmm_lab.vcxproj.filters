@@ -27,6 +27,9 @@
     <ClCompile Include="crypto_core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="unsigned_op.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

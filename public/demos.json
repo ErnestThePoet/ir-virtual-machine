@@ -148,9 +148,9 @@
         "groupName": "密码学专区❤️",
         "demos": [
             {
-                "name": "栈溢出攻击",
-                "irUrl": "demos/cyber_security/stack_overflow.ir",
-                "remark": "在这个虚拟机上也能进行栈溢出攻击吗？"
+                "name": "DH密钥交换：参数生成",
+                "irUrl": "demos/cryptography/dh_genparam.ir",
+                "remark": "输入随机数种子，生成DH密钥交换参数(g,p)，其中g为生成元，p为24位安全素数。仅可用于原理演示。"
             }
         ]
     },

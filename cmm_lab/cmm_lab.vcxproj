@@ -131,11 +131,13 @@
     <ClCompile Include="crypto_core.cpp" />
     <ClCompile Include="common.cpp" />
     <ClCompile Include="unsigned_op.cpp" />
+    <ClCompile Include="dh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmm_wrappers.h" />
     <ClInclude Include="crypto_core.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="dh.h" />
     <ClInclude Include="unsigned_op.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
