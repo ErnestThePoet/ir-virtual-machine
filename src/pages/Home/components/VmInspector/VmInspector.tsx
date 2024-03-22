@@ -124,6 +124,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                         {intl.formatMessage({ id: "MAX_EXECUTION_STEP_COUNT" })}
                     </label>
                     <InputNumber
+                        className={styles.inOptionValue}
                         disabled={props.vm.state !== VmExecutionState.INITIAL}
                         min={vmOptionLimits.maxExecutionStepCount.min}
                         max={vmOptionLimits.maxExecutionStepCount.max}
@@ -142,6 +143,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                         {intl.formatMessage({ id: "MEMORY_SIZE" })}
                     </label>
                     <InputNumber
+                        className={styles.inOptionValue}
                         disabled={props.vm.state !== VmExecutionState.INITIAL}
                         min={vmOptionLimits.memorySize.min}
                         max={vmOptionLimits.memorySize.max}
@@ -160,6 +162,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                         {intl.formatMessage({ id: "STACK_SIZE" })}
                     </label>
                     <InputNumber
+                        className={styles.inOptionValue}
                         disabled={props.vm.state !== VmExecutionState.INITIAL}
                         min={vmOptionLimits.stackSize.min}
                         max={vmOptionLimits.stackSize.max}

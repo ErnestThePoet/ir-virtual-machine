@@ -108,7 +108,7 @@
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 25px;
+    gap: 20px;
     color: var(--vm-inspector-text-color);
 }
 
@@ -122,6 +122,10 @@
 .lblOption {
     font-size: 14px;
     user-select: none;
+}
+
+.inOptionValue {
+    width: 110px;
 }
 
 .divMemoryUsageCard {
