@@ -25,4 +25,4 @@ node_modules
 *.sw?
 
 public/demos/cc.exe
-public/demos/cc.bat
+public/demos/all.py
