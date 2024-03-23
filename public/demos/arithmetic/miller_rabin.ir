@@ -2003,8 +2003,8 @@ RETURN #0
 LABEL label351 :
 RETURN #1
 FUNCTION main :
-READ var720
-var719 := var720
+READ w
+var719 := w
 DEC var721 4
 CALL init_two_powers
 CALL init_primes

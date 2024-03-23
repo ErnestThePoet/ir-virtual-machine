@@ -163,10 +163,10 @@ LABEL label51 :
 var30 := var20 + var21
 RETURN var30
 FUNCTION main :
-READ var32
-var31 := var32
-READ var34
-var33 := var34
+READ a
+var31 := a
+READ b
+var33 := b
 DEC var35 4
 ARG var33
 ARG var31

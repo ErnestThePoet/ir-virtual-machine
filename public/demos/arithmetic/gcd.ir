@@ -28,10 +28,10 @@ GOTO label2
 LABEL label4 :
 RETURN var5
 FUNCTION main :
-READ var11
-var10 := var11
-READ var13
-var12 := var13
+READ a
+var10 := a
+READ b
+var12 := b
 ARG var12
 ARG var10
 var14 := CALL gcd

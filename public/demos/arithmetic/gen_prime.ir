@@ -3332,10 +3332,10 @@ GOTO label693
 LABEL label695 :
 RETURN var1005
 FUNCTION main :
-READ var1059
-var1058 := var1059
-READ var1061
-var1060 := var1061
+READ bits
+var1058 := bits
+READ safe
+var1060 := safe
 DEC var1062 4
 DEC var1063 4
 var1064 := #4 * #0

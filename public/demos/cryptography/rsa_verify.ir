@@ -946,17 +946,17 @@ DEC var380 4
 var381 := #20 * #0
 var382 := &var377 + var381
 var383 := var382 + #0
-READ var384
-*var383 := var384
+READ N
+*var383 := N
 var385 := #20 * #0
 var386 := &var377 + var385
 var387 := var386 + #4
-READ var388
-*var387 := var388
-READ var389
-var378 := var389
-READ var390
-var379 := var390
+READ e
+*var387 := e
+READ message
+var378 := message
+READ signature
+var379 := signature
 CALL init_two_powers
 ARG var379
 ARG &var377

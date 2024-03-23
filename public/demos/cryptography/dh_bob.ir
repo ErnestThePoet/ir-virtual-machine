@@ -3566,16 +3566,16 @@ var1143 := #20 * #0
 var1144 := &var1137 + var1143
 var1145 := var1144 + #0
 var1146 := var1145 + #0
-READ var1147
-*var1146 := var1147
+READ g
+*var1146 := g
 var1148 := #20 * #0
 var1149 := &var1137 + var1148
 var1150 := var1149 + #0
 var1151 := var1150 + #4
-READ var1152
-*var1151 := var1152
-READ var1153
-var1138 := var1153
+READ p
+*var1151 := p
+READ pubkey_alice
+var1138 := pubkey_alice
 var1154 := #20 * #0
 var1155 := &var1137 + var1154
 var1156 := var1155 + #0

@@ -927,15 +927,15 @@ DEC var371 4
 var372 := #20 * #0
 var373 := &var369 + var372
 var374 := var373 + #0
-READ var375
-*var374 := var375
+READ N
+*var374 := N
 var376 := #20 * #0
 var377 := &var369 + var376
 var378 := var377 + #8
-READ var379
-*var378 := var379
-READ var380
-var370 := var380
+READ d
+*var378 := d
+READ ciphertext
+var370 := ciphertext
 CALL init_two_powers
 ARG var370
 ARG &var369

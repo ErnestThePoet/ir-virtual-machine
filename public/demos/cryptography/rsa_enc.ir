@@ -946,15 +946,15 @@ DEC var379 4
 var380 := #20 * #0
 var381 := &var377 + var380
 var382 := var381 + #0
-READ var383
-*var382 := var383
+READ N
+*var382 := N
 var384 := #20 * #0
 var385 := &var377 + var384
 var386 := var385 + #4
-READ var387
-*var386 := var387
-READ var388
-var378 := var388
+READ e
+*var386 := e
+READ plaintext
+var378 := plaintext
 CALL init_two_powers
 ARG var378
 ARG &var377

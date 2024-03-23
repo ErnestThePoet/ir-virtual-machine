@@ -3719,8 +3719,8 @@ var1194 := #20 * #0
 var1195 := &var1176 + var1194
 var1196 := var1195 + #12
 WRITE *var1196
-READ var1197
-var1177 := var1197
+READ pubkey_bob
+var1177 := pubkey_bob
 ARG var1177
 ARG &var1176
 ARG &var1178

@@ -342,10 +342,10 @@ var81 := CALL rshift_uint32
 *var80 := var81
 RETURN var57
 FUNCTION main :
-READ var83
-var82 := var83
-READ var85
-var84 := var85
+READ a
+var82 := a
+READ b
+var84 := b
 DEC var87 4
 CALL init_two_powers
 ARG var84

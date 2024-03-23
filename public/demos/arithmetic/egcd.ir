@@ -60,10 +60,10 @@ var15 := var5 + var14
 LABEL label3 :
 RETURN #0
 FUNCTION main :
-READ var37
-var36 := var37
-READ var39
-var38 := var39
+READ a
+var36 := a
+READ b
+var38 := b
 DEC var40 12
 IF var36 >= var38 GOTO label4
 var41 := #0

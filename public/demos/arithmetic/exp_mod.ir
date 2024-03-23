@@ -886,12 +886,12 @@ var349 := #4 * #1
 var350 := &var332 + var349
 RETURN *var350
 FUNCTION main :
-READ var352
-var351 := var352
-READ var354
-var353 := var354
-READ var356
-var355 := var356
+READ a
+var351 := a
+READ b
+var353 := b
+READ p
+var355 := p
 IF var353 < #0 GOTO label132
 var357 := #0
 GOTO label133
