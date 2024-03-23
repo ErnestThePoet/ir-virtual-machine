@@ -2,9 +2,23 @@ FUNCTION evil :
 WRITE #444
 GOTO exit
 
+;------------------ High address
+;| Saved ecx      |
+;|----------------|
+;| Return address |
+;|----------------| &var + #8
+;| Saved ebp      |
+;|----------------| &var + #4
+;| var            |
+;------------------ Low address
 FUNCTION attacker :
 var := #0
 ret_addr_ptr := &var + #8
+
+; Address of first executable instruction 
+; in function evil is 0. eip will increase 
+; after return address is popped from stack, 
+; so we set return address to -1.
 *ret_addr_ptr := #-1
 RETURN #0
 
