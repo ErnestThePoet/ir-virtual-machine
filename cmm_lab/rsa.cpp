@@ -146,3 +146,81 @@ int rsa_keygen(struct RSA rsa_keygen_rsa[1], int rsa_keygen_bits, int rsa_keygen
 
 	return 1;
 }
+
+int rsa_pubkey_encryrpt(
+	int rsa_pubkenc_c_out[1],
+	struct RSA rsa_pubkenc_rsa[1],
+	int rsa_pubkenc_p)
+{
+	int rsa_pubkenc_c;
+
+	if (rsa_pubkenc_rsa[0].n <= rsa_pubkenc_rsa[0].e ||
+		rsa_pubkenc_p >= rsa_pubkenc_rsa[0].n)
+	{
+		return 0;
+	}
+
+	rsa_pubkenc_c = exp_mod(
+		rsa_pubkenc_p, rsa_pubkenc_rsa[0].e, rsa_pubkenc_rsa[0].n);
+	rsa_pubkenc_c_out[0] = rsa_pubkenc_c;
+
+	return 1;
+}
+
+int rsa_privkey_encryrpt(
+	int rsa_privkenc_c_out[1],
+	struct RSA rsa_privkenc_rsa[1],
+	int rsa_privkenc_p)
+{
+	int rsa_privkenc_c;
+
+	if (rsa_privkenc_p >= rsa_privkenc_rsa[0].n)
+	{
+		return 0;
+	}
+
+	rsa_privkenc_c = exp_mod(
+		rsa_privkenc_p, rsa_privkenc_rsa[0].d, rsa_privkenc_rsa[0].n);
+	rsa_privkenc_c_out[0] = rsa_privkenc_c;
+
+	return 1;
+}
+
+int rsa_privkey_decryrpt(
+	int rsa_privkdec_p_out[1],
+	struct RSA rsa_privkdec_rsa[1],
+	int rsa_privkdec_c)
+{
+	int rsa_privkdec_p;
+
+	if (rsa_privkdec_c >= rsa_privkdec_rsa[0].n)
+	{
+		return 0;
+	}
+
+	rsa_privkdec_p = exp_mod(
+		rsa_privkdec_c, rsa_privkdec_rsa[0].d, rsa_privkdec_rsa[0].n);
+	rsa_privkdec_p_out[0] = rsa_privkdec_p;
+
+	return 1;
+}
+
+int rsa_pubkey_decryrpt(
+	int rsa_pubkdec_p_out[1],
+	struct RSA rsa_pubkdec_rsa[1],
+	int rsa_pubkdec_c)
+{
+	int rsa_pubkdec_p;
+
+	if (rsa_pubkdec_rsa[0].n <= rsa_pubkdec_rsa[0].e ||
+		rsa_pubkdec_c >= rsa_pubkdec_rsa[0].n)
+	{
+		return 0;
+	}
+
+	rsa_pubkdec_p = exp_mod(
+		rsa_pubkdec_c, rsa_pubkdec_rsa[0].e, rsa_pubkdec_rsa[0].n);
+	rsa_pubkdec_p_out[0] = rsa_pubkdec_p;
+
+	return 1;
+}

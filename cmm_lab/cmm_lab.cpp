@@ -24,16 +24,28 @@ int main()
 
 	if (!rsa_keygen(&rsa, 31, 65537))
 	{
-		cout << "error" << endl;
+		cout << "keygen error" << endl;
 	}
 
-	printf("n=%d\ne=%d\nd=%d\np=%d\nq=%d\n",
-		rsa.n,
-		rsa.e,
-		rsa.d,
-		rsa.p,
-		rsa.q
-	);
+	int c[1];
+	int pt = 5211314;
+	int dec[1];
+
+	printf("Plaintext=%d\n", pt);
+
+	if (!rsa_pubkey_encryrpt(c, &rsa, pt))
+	{
+		cout << "enc error" << endl;
+	}
+
+	printf("Cipher=%d\n", c[0]);
+
+	if (!rsa_privkey_decryrpt(dec, &rsa, c[0]))
+	{
+		cout << "dec error" << endl;
+	}
+
+	printf("Decrtpted=%d\n", dec[0]);
 
 	return 0;
 }
