@@ -132,6 +132,7 @@
     <ClCompile Include="common.cpp" />
     <ClCompile Include="unsigned_op.cpp" />
     <ClCompile Include="dh.cpp" />
+    <ClCompile Include="rsa.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmm_wrappers.h" />
@@ -140,6 +141,7 @@
     <ClInclude Include="dh.h" />
     <ClInclude Include="unsigned_op.h" />
     <ClInclude Include="util.h" />
+    <ClInclude Include="rsa.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

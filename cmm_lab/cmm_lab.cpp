@@ -9,51 +9,31 @@
 #include "common.h"
 #include "util.h"
 #include "dh.h"
+#include "rsa.h"
 
 using namespace std;
 
 int main()
 {
-	srand32(time(nullptr));
-
-	DH dh1;
+	RSA rsa;
 
 	init_two_powers();
 	init_primes();
 
-	if (!dh_generate_paremeters(&dh1, 24, 2))
+	srand32(time(nullptr));
+
+	if (!rsa_keygen(&rsa, 31, 65537))
 	{
-		cout << "error 1" << endl;
+		cout << "error" << endl;
 	}
 
-	printf("g=%d, p=%d, q=%d\n", dh1.params.g, dh1.params.p, dh1.params.q);
-
-	DH dh2 = dh1;
-
-	if (!dh_generate_key(&dh1))
-	{
-		cout << "error 2" << endl;
-	}
-
-	if (!dh_generate_key(&dh2))
-	{
-		cout << "error 2.2" << endl;
-	}
-
-	printf("pkA=%d, skA=%d, pkB=%d, skB=%d\n", dh1.pubkey, dh1.privkey, dh2.pubkey, dh2.privkey);
-
-	int sk[2];
-	if (!dh_compute_key(sk, &dh1, dh2.pubkey))
-	{
-		cout << "error 3" << endl;
-	}
-
-	if (!dh_compute_key(sk + 1, &dh2, dh1.pubkey))
-	{
-		cout << "error 3.2" << endl;
-	}
-
-	printf("%d\n%d\n", sk[0], sk[1]);
+	printf("n=%d\ne=%d\nd=%d\np=%d\nq=%d\n",
+		rsa.n,
+		rsa.e,
+		rsa.d,
+		rsa.p,
+		rsa.q
+	);
 
 	return 0;
 }

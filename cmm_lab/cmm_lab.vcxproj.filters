@@ -30,6 +30,9 @@
     <ClCompile Include="dh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rsa.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="unsigned_op.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rsa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
