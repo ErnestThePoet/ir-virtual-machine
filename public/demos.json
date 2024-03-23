@@ -185,9 +185,41 @@
             {
                 "name": "RSA：密钥对生成",
                 "irUrl": "demos/cryptography/rsa_keygen.ir",
-                "remark": "程序选取e=64437，生成(N,p,q)，其中N为31位，p和q为素数，N=p*q，并有gcd(e,φ(N))=1 (φ(N)=(p-1)(q-1))。计算d=e^(-1) mod φ(N)。输出(N,e,d)，其中(N,e)为公钥，(N,d)为私钥。",
+                "remark": "程序选取e=64437，生成(N,p,q)，其中N为31位，p和q为素数，N=p*q，并有gcd(e,φ(N))=1 (φ(N)=(p-1)(q-1))。计算d=(e^(-1)) mod φ(N)。输出(N,e,d)，其中(N,e)为公钥，(N,d)为私钥。",
                 "vmOptions": {
                     "maxExecutionStepCount": 3000000
+                }
+            },
+            {
+                "name": "RSA：消息加密",
+                "irUrl": "demos/cryptography/rsa_enc.ir",
+                "remark": "输入公钥(N,e)和明文p，计算并输出密文c=(p^e) mod N。未对输入明文使用任何填充方案。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 2000000
+                }
+            },
+            {
+                "name": "RSA：消息解密",
+                "irUrl": "demos/cryptography/rsa_dec.ir",
+                "remark": "输入私钥(N,d)和密文c，计算并输出明文p=(c^d) mod N。不会检查明文的填充方案。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 2000000
+                }
+            },
+            {
+                "name": "RSA：数字签名",
+                "irUrl": "demos/cryptography/rsa_sign.ir",
+                "remark": "输入私钥(N,d)和消息m，计算并输出数字签名s=(m^d) mod N。未对输入消息使用任何填充方案。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 2000000
+                }
+            },
+            {
+                "name": "RSA：验证数字签名",
+                "irUrl": "demos/cryptography/rsa_verify.ir",
+                "remark": "输入公钥(N,e)，消息m和消息的数字签名s，计算m1=(s^e) mod N。如果m1=m，输出1，否则输出0。不会检查消息的填充方案。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 2000000
                 }
             }
         ]

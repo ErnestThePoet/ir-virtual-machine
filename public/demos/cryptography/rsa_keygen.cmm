@@ -3,7 +3,7 @@
  * (1) Read odd integer e from input where e>1
  * (2) Generate (N,p,q) where N is 31-bit; p and q are primes.
  *  (N,p,q) also satisfy N=p*q and gcd(e,φ(N))=1 where φ(N)=(p-1)(q-1).
- * (3) Compute d=e^(-1) mod φ(N).
+ * (3) Compute d=(e^(-1)) mod φ(N).
  * (4) Public key is <N,e> and private key is <N,d>.
  * (5) Output (N,e,d).
  *
