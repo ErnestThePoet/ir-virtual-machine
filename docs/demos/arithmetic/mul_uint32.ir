@@ -324,10 +324,10 @@ var90 := var57 + var89
 *var90 := var74
 RETURN #0
 FUNCTION main :
-READ var92
-var91 := var92
-READ var94
-var93 := var94
+READ a
+var91 := a
+READ b
+var93 := b
 DEC var95 8
 CALL init_two_powers
 ARG var93

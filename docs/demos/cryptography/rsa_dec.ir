@@ -885,28 +885,74 @@ LABEL label131 :
 var349 := #4 * #1
 var350 := &var332 + var349
 RETURN *var350
-FUNCTION main :
-READ a
-var351 := a
-READ b
-var353 := b
-READ p
-var355 := p
-IF var353 < #0 GOTO label132
-var357 := #0
+FUNCTION rsa_privkey_decryrpt :
+PARAM var351
+PARAM var352
+PARAM var353
+var355 := #20 * #0
+var356 := var352 + var355
+var357 := var356 + #0
+ARG *var357
+ARG var353
+var358 := CALL cmp_uint32
+IF var358 >= #0 GOTO label132
+var359 := #0
 GOTO label133
 LABEL label132 :
-var357 := #1
+var359 := #1
 LABEL label133 :
-IF var357 != #0 GOTO label134
+IF var359 != #0 GOTO label134
 GOTO label135
 LABEL label134 :
-RETURN #1
+RETURN #0
 LABEL label135 :
-CALL init_two_powers
-ARG var355
+var360 := #20 * #0
+var361 := var352 + var360
+var362 := var361 + #8
+var363 := #20 * #0
+var364 := var352 + var363
+var365 := var364 + #0
+ARG *var365
+ARG *var362
 ARG var353
-ARG var351
-var358 := CALL exp_mod
-WRITE var358
+var366 := CALL exp_mod
+var354 := var366
+var367 := #4 * #0
+var368 := var351 + var367
+*var368 := var354
+RETURN #1
+FUNCTION main :
+DEC var369 20
+DEC var371 4
+var372 := #20 * #0
+var373 := &var369 + var372
+var374 := var373 + #0
+READ N
+*var374 := N
+var376 := #20 * #0
+var377 := &var369 + var376
+var378 := var377 + #8
+READ d
+*var378 := d
+READ ciphertext
+var370 := ciphertext
+CALL init_two_powers
+ARG var370
+ARG &var369
+ARG &var371
+var381 := CALL rsa_privkey_decryrpt
+IF var381 != #0 GOTO label136
+var382 := #1
+GOTO label137
+LABEL label136 :
+var382 := #0
+LABEL label137 :
+IF var382 != #0 GOTO label138
+GOTO label139
+LABEL label138 :
+RETURN #1
+LABEL label139 :
+var383 := #4 * #0
+var384 := &var371 + var383
+WRITE *var384
 RETURN #0

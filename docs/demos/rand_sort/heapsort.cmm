@@ -1,5 +1,5 @@
 /*
- * This program reads a random number seed and generates 30 random numbers.
+ * This program generates 50 random numbers.
  * Then it sorts the numbers using heap sort and prints the sorted array.
  */
 
@@ -10,19 +10,34 @@ int mod(int mod_x, int mod_y)
     return mod_x - mod_y * (mod_x / mod_y);
 }
 
-int srand(int srand_seed)
+int srand32(int srand32_seed)
 {
-    kNext = srand_seed;
+    kNext = srand32_seed;
     return 0;
 }
 
-int rand()
+int rand32()
 {
-    kNext = kNext * 1103515245 + 12345;
-    return mod(kNext / 65536, 32768);
+    int rand32_result;
+
+    kNext = kNext * 1103515245;
+    kNext = kNext + 12345;
+    rand32_result = mod(kNext / 65536, 2048);
+
+    kNext = kNext * 1103515245;
+    kNext = kNext + 12345;
+    rand32_result = rand32_result * 1024;
+    rand32_result = rand32_result + mod(kNext / 65536, 1024);
+
+    kNext = kNext * 1103515245;
+    kNext = kNext + 12345;
+    rand32_result = rand32_result * 1024;
+    rand32_result = rand32_result + mod(kNext / 65536, 1024);
+
+    return rand32_result;
 }
 
-int buildheap(int buildheap_data[30], int buildheap_i, int buildheap_n)
+int buildheap(int buildheap_data[50], int buildheap_i, int buildheap_n)
 {
     int buildheap_temp = buildheap_data[buildheap_i];
     int buildheap_j = 2 * buildheap_i + 1;
@@ -79,23 +94,26 @@ int heapsort(int heapsort_data[1], int heapsort_n)
 
 int main()
 {
-    int seed = read();
-    int data[30];
+    int n = 50;
+    int data[50];
     int i = 0;
 
-    srand(seed);
+    // Take advantage of Virtual Machine's randomized stack to provide
+    // random seed. In C this is undefined behaviour and DON'T DO THIS.
+    int seed[1];
+    srand32(seed[0]);
 
-    while (i < 30)
+    while (i < n)
     {
-        data[i] = rand();
+        data[i] = rand32();
         i = i + 1;
     }
 
-    heapsort(data, 30);
+    heapsort(data, n);
 
     i = 0;
 
-    while (i < 30)
+    while (i < n)
     {
         write(data[i]);
         i = i + 1;

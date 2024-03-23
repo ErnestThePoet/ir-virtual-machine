@@ -885,28 +885,93 @@ LABEL label131 :
 var349 := #4 * #1
 var350 := &var332 + var349
 RETURN *var350
-FUNCTION main :
-READ a
-var351 := a
-READ b
-var353 := b
-READ p
-var355 := p
-IF var353 < #0 GOTO label132
-var357 := #0
+FUNCTION rsa_pubkey_encryrpt :
+PARAM var351
+PARAM var352
+PARAM var353
+var355 := #20 * #0
+var356 := var352 + var355
+var357 := var356 + #0
+var358 := #20 * #0
+var359 := var352 + var358
+var360 := var359 + #4
+IF *var357 <= *var360 GOTO label132
+var361 := #0
 GOTO label133
 LABEL label132 :
-var357 := #1
+var361 := #1
 LABEL label133 :
-IF var357 != #0 GOTO label134
+var362 := #20 * #0
+var363 := var352 + var362
+var364 := var363 + #0
+ARG *var364
+ARG var353
+var365 := CALL cmp_uint32
+IF var365 >= #0 GOTO label134
+var366 := #0
 GOTO label135
 LABEL label134 :
-RETURN #1
+var366 := #1
 LABEL label135 :
-CALL init_two_powers
-ARG var355
+IF var361 != #0 GOTO label136
+IF var366 != #0 GOTO label136
+var367 := #0
+GOTO label137
+LABEL label136 :
+var367 := #1
+LABEL label137 :
+IF var367 != #0 GOTO label138
+GOTO label139
+LABEL label138 :
+RETURN #0
+LABEL label139 :
+var368 := #20 * #0
+var369 := var352 + var368
+var370 := var369 + #4
+var371 := #20 * #0
+var372 := var352 + var371
+var373 := var372 + #0
+ARG *var373
+ARG *var370
 ARG var353
-ARG var351
-var358 := CALL exp_mod
-WRITE var358
+var374 := CALL exp_mod
+var354 := var374
+var375 := #4 * #0
+var376 := var351 + var375
+*var376 := var354
+RETURN #1
+FUNCTION main :
+DEC var377 20
+DEC var379 4
+var380 := #20 * #0
+var381 := &var377 + var380
+var382 := var381 + #0
+READ N
+*var382 := N
+var384 := #20 * #0
+var385 := &var377 + var384
+var386 := var385 + #4
+READ e
+*var386 := e
+READ plaintext
+var378 := plaintext
+CALL init_two_powers
+ARG var378
+ARG &var377
+ARG &var379
+var389 := CALL rsa_pubkey_encryrpt
+IF var389 != #0 GOTO label140
+var390 := #1
+GOTO label141
+LABEL label140 :
+var390 := #0
+LABEL label141 :
+IF var390 != #0 GOTO label142
+GOTO label143
+LABEL label142 :
+RETURN #1
+LABEL label143 :
+var391 := #4 * #0
+var392 := &var379 + var391
+WRITE *var392
 RETURN #0

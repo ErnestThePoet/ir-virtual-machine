@@ -102,8 +102,8 @@ GOTO label25
 LABEL label27 :
 RETURN #1
 FUNCTION main :
-READ var27
-var26 := var27
+READ w
+var26 := w
 ARG var26
 var28 := CALL is_prime
 WRITE var28

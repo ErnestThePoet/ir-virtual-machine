@@ -1,6 +1,11 @@
 /*
- * Input b and s (2≤b≤31), the program generates a b-bit prime.
- * If s it not zero, the prime is guaranteed to be a safe prime.
+ * Diffie-Hellman key-exchange Bob:
+ * (1) Read parameters (g,p) and Alice's public key h_A from Alice;
+ * (2) Choose a uniform y∈Zq as private key, compute
+ * public key h_B=(g^y) mod p, output h_B;
+ * (3) Compute shared key k_B=(h_A^y) mod p and output k_B.
+ *
+ * This implementation is for demonstration purposes only.
  * This implementation is adapted from OpenSSL v3.3.0.
  */
 
@@ -8,6 +13,21 @@ int kNext;
 
 int kTwoPowers[32]; // [31] is negative
 int kPrimes[64];
+
+struct FFCParams
+{
+    int g;
+    int p;
+    int q;
+};
+
+struct DH
+{
+    struct FFCParams params;
+
+    int pubkey;
+    int privkey;
+};
 
 int init_two_powers()
 {
@@ -1344,13 +1364,104 @@ int generate_prime(
     return genprime_found;
 }
 
+int dh_q_from_p(int dh_q_from_p_p)
+{
+    return (dh_q_from_p_p - 1) / 2;
+}
+
+// n must be either >=2 and <=qbits or -1
+int ffc_generate_privkey(
+    int ffc_genprivkey_privkey_out[1],
+    int ffc_genprivkey_q,
+    int ffc_genprivkey_n)
+{
+    int ffc_genprivkey_qbits = get_bits_uint32(ffc_genprivkey_q);
+    int ffc_genprivkey_two_power_n, ffc_genprivkey_m;
+
+    if (ffc_genprivkey_qbits < 2 || ffc_genprivkey_qbits > 31)
+    {
+        return 0;
+    }
+
+    if (ffc_genprivkey_n == -1)
+    {
+        ffc_genprivkey_n = ffc_genprivkey_qbits;
+    }
+
+    if (ffc_genprivkey_n < 2 || ffc_genprivkey_n > ffc_genprivkey_qbits)
+    {
+        return 0;
+    }
+
+    ffc_genprivkey_two_power_n = kTwoPowers[ffc_genprivkey_n];
+
+    if (ffc_genprivkey_q < ffc_genprivkey_two_power_n)
+    {
+        ffc_genprivkey_m = ffc_genprivkey_q;
+    }
+    else
+    {
+        ffc_genprivkey_m = ffc_genprivkey_two_power_n;
+    }
+
+    while (1)
+    {
+        if (!rand_range(ffc_genprivkey_privkey_out, ffc_genprivkey_two_power_n))
+        {
+            return 0;
+        }
+
+        ffc_genprivkey_privkey_out[0] = ffc_genprivkey_privkey_out[0] + 1;
+
+        if (ffc_genprivkey_privkey_out[0] < ffc_genprivkey_m)
+        {
+            return 1;
+        }
+    }
+}
+
+int dh_generate_key(struct DH dh_genkey_out[1])
+{
+    int dh_genkey_privkey[1];
+    if (!ffc_generate_privkey(dh_genkey_privkey, dh_genkey_out[0].params.q, -1))
+    {
+        return 0;
+    }
+
+    dh_genkey_out[0].privkey = dh_genkey_privkey[0];
+
+    dh_genkey_out[0].pubkey = exp_mod(
+        dh_genkey_out[0].params.g, dh_genkey_privkey[0], dh_genkey_out[0].params.p);
+
+    return 1;
+}
+
+int dh_compute_key(
+    int dh_compute_key_key_out[1],
+    struct DH dh_compute_key_dh[1],
+    int dh_compute_key_pubkey)
+{
+    int dh_compute_key_shared_key = exp_mod(
+        dh_compute_key_pubkey,
+        dh_compute_key_dh[0].privkey,
+        dh_compute_key_dh[0].params.p);
+
+    if (dh_compute_key_shared_key <= 1 ||
+        dh_compute_key_shared_key == dh_compute_key_dh[0].params.p - 1)
+    {
+        return 0;
+    }
+
+    dh_compute_key_key_out[0] = dh_compute_key_shared_key;
+
+    return 1;
+}
+
 int main()
 {
-    int bits = read();
-    int safe = read();
-
-    int result[1];
-
+    struct DH dh[1];
+    int pubkey_alice;
+    int shared_key[1];
     // Take advantage of Virtual Machine's randomized stack to provide
     // random seed. In C this is undefined behaviour and DON'T DO THIS.
     int seed[1];
@@ -1359,12 +1470,25 @@ int main()
     init_two_powers();
     init_primes();
 
-    if (!generate_prime(result, bits, safe, -1, -1))
+    dh[0].params.g = read();
+    dh[0].params.p = read();
+    pubkey_alice = read();
+
+    dh[0].params.q = dh_q_from_p(dh[0].params.p);
+
+    if (!dh_generate_key(dh))
     {
         return 1;
     }
 
-    write(result[0]);
+    write(dh[0].pubkey);
+
+    if (!dh_compute_key(shared_key, dh, pubkey_alice))
+    {
+        return 1;
+    }
+
+    write(shared_key[0]);
 
     return 0;
 }

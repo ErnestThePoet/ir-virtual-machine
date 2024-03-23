@@ -795,12 +795,12 @@ var314 := #4 * #1
 var315 := &var308 + var314
 RETURN *var315
 FUNCTION main :
-READ var317
-var316 := var317
-READ var319
-var318 := var319
-READ var321
-var320 := var321
+READ a
+var316 := a
+READ b
+var318 := b
+READ p
+var320 := p
 DEC var323 4
 CALL init_two_powers
 ARG var320

@@ -20,39 +20,40 @@ ARG var9
 var10 := CALL mod
 RETURN var10
 FUNCTION main :
-READ var12
-var11 := var12
-ARG var11
+DEC var13 4
+var14 := #4 * #0
+var15 := &var13 + var14
+ARG *var15
 CALL srand
-var15 := CALL rand
-var13 := var15
-READ var16
-var14 := var16
+var16 := CALL rand
+var11 := var16
+READ var17
+var12 := var17
 LABEL label6 :
-IF var13 != var14 GOTO label0
-var17 := #0
+IF var11 != var12 GOTO label0
+var18 := #0
 GOTO label1
 LABEL label0 :
-var17 := #1
+var18 := #1
 LABEL label1 :
-IF var17 != #0 GOTO label7
+IF var18 != #0 GOTO label7
 GOTO label8
 LABEL label7 :
-IF var14 > var13 GOTO label2
-var18 := #0
+IF var12 > var11 GOTO label2
+var19 := #0
 GOTO label3
 LABEL label2 :
-var18 := #1
+var19 := #1
 LABEL label3 :
-IF var18 != #0 GOTO label4
-var19 := #0 - #1
-WRITE var19
+IF var19 != #0 GOTO label4
+var20 := #0 - #1
+WRITE var20
 GOTO label5
 LABEL label4 :
 WRITE #1
 LABEL label5 :
-READ var20
-var14 := var20
+READ var21
+var12 := var21
 GOTO label6
 LABEL label8 :
 WRITE #666

@@ -65,27 +65,27 @@
             {
                 "name": "随机数生成器",
                 "irUrl": "demos/rand_sort/rand.ir",
-                "remark": "输入种子和正整数n，生成n个[0,32768)内的随机数。本虚拟机对全局变量的支持使得编写随机数生成器成为可能。"
+                "remark": "输入正整数n，生成n个32位随机数。本虚拟机对全局变量的支持使得编写随机数生成器成为可能。"
             },
             {
                 "name": "快速排序",
                 "irUrl": "demos/rand_sort/qsort.ir",
-                "remark": "输入一个随机数种子，然后看程序对30个随机数进行快速排序后的结果"
+                "remark": "程序生成50个随机数，然后使用快速排序对它们进行升序排序，输出排序后的数组"
             },
             {
                 "name": "堆排序",
                 "irUrl": "demos/rand_sort/heapsort.ir",
-                "remark": "输入一个随机数种子，然后看程序对30个随机数进行堆排序后的结果"
+                "remark": "程序生成50个随机数，然后使用堆排序对它们进行升序排序，输出排序后的数组"
             },
             {
                 "name": "插入排序",
                 "irUrl": "demos/rand_sort/insertsort.ir",
-                "remark": "输入一个随机数种子，然后看程序对30个随机数进行插入排序后的结果"
+                "remark": "程序生成50个随机数，然后使用插入排序对它们进行升序排序，输出排序后的数组"
             },
             {
                 "name": "归并排序",
                 "irUrl": "demos/rand_sort/mergesort.ir",
-                "remark": "输入一个随机数种子，然后看程序对30个随机数进行归并排序后的结果"
+                "remark": "程序生成50个随机数，然后使用归并排序对它们进行升序排序，输出排序后的数组"
             }
         ]
     },
@@ -108,9 +108,19 @@
                 "remark": "输入a和b(a≥b>0)，输出(d,X,Y)使得d=gcd(a,b)且Xa+Yb=d"
             },
             {
-                "name": "32位无符号整数的完整乘法结果",
+                "name": "32位无符号整数的完整加法",
+                "irUrl": "demos/arithmetic/add_uint32.ir",
+                "remark": "输入32位有符号整数a和b，以32位无符号整数的形式解释它们并计算a+b，将32位和以有符号数的形式解释，输出和与进位信号"
+            },
+            {
+                "name": "32位无符号整数的完整减法",
+                "irUrl": "demos/arithmetic/sub_uint32.ir",
+                "remark": "输入32位有符号整数a和b，以32位无符号整数的形式解释它们并计算a-b，将32位差以有符号数的形式解释，输出差与借位信号"
+            },
+            {
+                "name": "32位无符号整数的完整乘法",
                 "irUrl": "demos/arithmetic/mul_uint32.ir",
-                "remark": "输入32位有符号整数a和b，以32位无符号整数的形式解释它们并计算a*b，将64位结果的高32位和低32位以有符号数的形式解释并输出"
+                "remark": "输入32位有符号整数a和b，以32位无符号整数的形式解释它们并计算a*b，将64位乘积的高32位和低32位以有符号数的形式解释并输出"
             },
             {
                 "name": "32位无符号整数的除法结果",
@@ -130,17 +140,26 @@
             {
                 "name": "朴素算法素性检验",
                 "irUrl": "demos/arithmetic/is_prime_naive.ir",
-                "remark": "输入正整数w，使用朴素算法判断w是否是素数。如果w是素数，输出1；如果w是合数，输出0。"
+                "remark": "输入正整数w，使用朴素算法判断w是否是素数。如果w是素数，输出1；如果w是合数，输出0。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 5000000
+                }
             },
             {
                 "name": "Miller-Rabin素性检验",
                 "irUrl": "demos/arithmetic/miller_rabin.ir",
-                "remark": "输入正整数w，使用基于Miller-Rabin素性检验的算法判断w是否*可能*是素数。如果w可能是素数，输出1；如果w是合数，输出0。当w为素数且值达到5亿左右时，此算法对比朴素算法开始显示出执行步数上的优势；当w为合数时，此算法几乎总是非常快。"
+                "remark": "输入正整数w，使用基于Miller-Rabin素性检验的算法判断w是否*可能*是素数。如果w可能是素数，输出1；如果w是合数，输出0。当w为素数且值达到5亿左右时，此算法对比朴素算法开始显示出执行步数上的优势；当w为合数时，此算法几乎总是非常快。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 5000000
+                }
             },
             {
                 "name": "随机素数生成",
                 "irUrl": "demos/arithmetic/gen_prime.ir",
-                "remark": "输入随机数种子、b和s (2≤b≤31)，生成一个b位素数。如果s非零，则生成的是安全素数((p-1)/2同样是素数)。"
+                "remark": "输入b和s (2≤b≤31)，随机生成一个b位素数。如果s非零，则生成的是安全素数((p-1)/2同样是素数)。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 50000000
+                }
             }
         ]
     },
@@ -148,9 +167,60 @@
         "groupName": "密码学专区❤️",
         "demos": [
             {
-                "name": "DH密钥交换：参数生成",
-                "irUrl": "demos/cryptography/dh_genparam.ir",
-                "remark": "输入随机数种子，生成DH密钥交换参数(g,p)，其中g为生成元，p为24位安全素数。仅可用于原理演示。"
+                "name": "DH密钥交换：Alice",
+                "irUrl": "demos/cryptography/dh_alice.ir",
+                "remark": "Alice进行如下步骤：(1)生成并输出DH密钥交换参数(g,p)，其中g为生成元，p=2q+1为24位安全素数；(2)生成私钥x∈Zq，计算并输出公钥h_A=(g^x) mod p；(3)读取Bob的公钥h_B；(4)计算并输出共享密钥k_A=(h_B^x) mod p",
+                "vmOptions": {
+                    "maxExecutionStepCount": 50000000
+                }
+            },
+            {
+                "name": "DH密钥交换：Bob",
+                "irUrl": "demos/cryptography/dh_bob.ir",
+                "remark": "Bob进行如下步骤：(1)读取Alice生成的DH密钥交换参数(g,p)和公钥h_A；(2)生成私钥y∈Zq，计算并输出公钥h_B=(g^y) mod p；(3)计算并输出共享密钥k_B=(h_A^y) mod p",
+                "vmOptions": {
+                    "maxExecutionStepCount": 3000000
+                }
+            },
+            {
+                "name": "RSA：密钥对生成",
+                "irUrl": "demos/cryptography/rsa_keygen.ir",
+                "remark": "程序选取e=64437，生成(N,p,q)，其中N为31位，p和q为素数，N=p*q，并有gcd(e,φ(N))=1 (φ(N)=(p-1)(q-1))。计算d=(e^(-1)) mod φ(N)。输出(N,e,d)，其中(N,e)为公钥，(N,d)为私钥。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 3000000
+                }
+            },
+            {
+                "name": "RSA：消息加密",
+                "irUrl": "demos/cryptography/rsa_enc.ir",
+                "remark": "输入公钥(N,e)和明文p，计算并输出密文c=(p^e) mod N。未对输入明文使用任何填充方案。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 2000000
+                }
+            },
+            {
+                "name": "RSA：消息解密",
+                "irUrl": "demos/cryptography/rsa_dec.ir",
+                "remark": "输入私钥(N,d)和密文c，计算并输出明文p=(c^d) mod N。不会检查明文的填充方案。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 2000000
+                }
+            },
+            {
+                "name": "RSA：数字签名",
+                "irUrl": "demos/cryptography/rsa_sign.ir",
+                "remark": "输入私钥(N,d)和消息m，计算并输出数字签名s=(m^d) mod N。未对输入消息使用任何填充方案。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 2000000
+                }
+            },
+            {
+                "name": "RSA：验证数字签名",
+                "irUrl": "demos/cryptography/rsa_verify.ir",
+                "remark": "输入公钥(N,e)，消息m和消息的数字签名s，计算m1=(s^e) mod N。如果m1=m，输出1，否则输出0。不会检查消息的填充方案。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 2000000
+                }
             }
         ]
     },
@@ -170,7 +240,7 @@
             {
                 "name": "猜数游戏",
                 "irUrl": "demos/games/guess_game.ir",
-                "remark": "输入一个随机数种子，然后猜测在[0,32768)内生成的数字。猜小了会输出-1，猜大了会输出1。猜对了会输出什么？"
+                "remark": "程序在[0,32768)内随机生成一个数字，请你来猜！猜小了会输出-1，猜大了会输出1。猜对了会输出什么？"
             }
         ]
     },

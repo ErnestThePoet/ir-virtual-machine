@@ -1,0 +1,62 @@
+/*
+ * Input a and b, interpret them as uint32 and calculate a-b.
+ * Interpret the difference as int32, write the difference and
+ * borrow signal.
+ */
+
+int cmp_uint32(int cmp_uint32_a, int cmp_uint32_b)
+{
+    if ((cmp_uint32_a < 0 && cmp_uint32_b < 0) ||
+        (cmp_uint32_a >= 0 && cmp_uint32_b >= 0))
+    {
+        if (cmp_uint32_a > cmp_uint32_b)
+        {
+            return 1;
+        }
+        else if (cmp_uint32_a < cmp_uint32_b)
+        {
+            return -1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else if (cmp_uint32_a < 0 && cmp_uint32_b >= 0)
+    {
+        return 1;
+    }
+    else if (cmp_uint32_b < 0 && cmp_uint32_a >= 0)
+    {
+        return -1;
+    }
+}
+
+int sub_full_uint32(
+    int sub_full_uint32_borrow_out[1],
+    int sub_full_uint32_a,
+    int sub_full_uint32_b)
+{
+    if (cmp_uint32(sub_full_uint32_a, sub_full_uint32_b) < 0)
+    {
+        sub_full_uint32_borrow_out[0] = 1;
+    }
+    else
+    {
+        sub_full_uint32_borrow_out[0] = 0;
+    }
+
+    return sub_full_uint32_a - sub_full_uint32_b;
+}
+
+int main()
+{
+    int a = read();
+    int b = read();
+    int borrow[1];
+
+    write(sub_full_uint32(borrow, a, b));
+    write(borrow[0]);
+
+    return 0;
+}

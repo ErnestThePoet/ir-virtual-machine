@@ -885,28 +885,106 @@ LABEL label131 :
 var349 := #4 * #1
 var350 := &var332 + var349
 RETURN *var350
-FUNCTION main :
-READ a
-var351 := a
-READ b
-var353 := b
-READ p
-var355 := p
-IF var353 < #0 GOTO label132
-var357 := #0
+FUNCTION rsa_pubkey_decryrpt :
+PARAM var351
+PARAM var352
+PARAM var353
+var355 := #20 * #0
+var356 := var352 + var355
+var357 := var356 + #0
+var358 := #20 * #0
+var359 := var352 + var358
+var360 := var359 + #4
+IF *var357 <= *var360 GOTO label132
+var361 := #0
 GOTO label133
 LABEL label132 :
-var357 := #1
+var361 := #1
 LABEL label133 :
-IF var357 != #0 GOTO label134
+var362 := #20 * #0
+var363 := var352 + var362
+var364 := var363 + #0
+ARG *var364
+ARG var353
+var365 := CALL cmp_uint32
+IF var365 >= #0 GOTO label134
+var366 := #0
 GOTO label135
 LABEL label134 :
-RETURN #1
+var366 := #1
 LABEL label135 :
-CALL init_two_powers
-ARG var355
+IF var361 != #0 GOTO label136
+IF var366 != #0 GOTO label136
+var367 := #0
+GOTO label137
+LABEL label136 :
+var367 := #1
+LABEL label137 :
+IF var367 != #0 GOTO label138
+GOTO label139
+LABEL label138 :
+RETURN #0
+LABEL label139 :
+var368 := #20 * #0
+var369 := var352 + var368
+var370 := var369 + #4
+var371 := #20 * #0
+var372 := var352 + var371
+var373 := var372 + #0
+ARG *var373
+ARG *var370
 ARG var353
-ARG var351
-var358 := CALL exp_mod
-WRITE var358
+var374 := CALL exp_mod
+var354 := var374
+var375 := #4 * #0
+var376 := var351 + var375
+*var376 := var354
+RETURN #1
+FUNCTION main :
+DEC var377 20
+DEC var380 4
+var381 := #20 * #0
+var382 := &var377 + var381
+var383 := var382 + #0
+READ N
+*var383 := N
+var385 := #20 * #0
+var386 := &var377 + var385
+var387 := var386 + #4
+READ e
+*var387 := e
+READ message
+var378 := message
+READ signature
+var379 := signature
+CALL init_two_powers
+ARG var379
+ARG &var377
+ARG &var380
+var391 := CALL rsa_pubkey_decryrpt
+IF var391 != #0 GOTO label140
+var392 := #1
+GOTO label141
+LABEL label140 :
+var392 := #0
+LABEL label141 :
+IF var392 != #0 GOTO label142
+GOTO label143
+LABEL label142 :
+RETURN #1
+LABEL label143 :
+var393 := #4 * #0
+var394 := &var380 + var393
+IF *var394 == var378 GOTO label144
+var395 := #0
+GOTO label145
+LABEL label144 :
+var395 := #1
+LABEL label145 :
+IF var395 != #0 GOTO label146
+WRITE #0
+GOTO label147
+LABEL label146 :
+WRITE #1
+LABEL label147 :
 RETURN #0

@@ -61,10 +61,10 @@ var16 := var10 / var15
 var17 := var16 * var11
 RETURN var17
 FUNCTION main :
-READ var19
-var18 := var19
-READ var21
-var20 := var21
+READ a
+var18 := a
+READ b
+var20 := b
 ARG var20
 ARG var18
 var22 := CALL lcm
