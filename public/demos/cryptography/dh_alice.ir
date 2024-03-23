@@ -3678,7 +3678,7 @@ CALL srand32
 CALL init_two_powers
 CALL init_primes
 ARG #2
-ARG #24
+ARG #31
 ARG &var1176
 var1182 := CALL dh_generate_paremeters
 IF var1182 != #0 GOTO label767
@@ -3719,8 +3719,8 @@ var1194 := #20 * #0
 var1195 := &var1176 + var1194
 var1196 := var1195 + #12
 WRITE *var1196
-READ pubkey_bob
-var1177 := pubkey_bob
+READ public_key_bob
+var1177 := public_key_bob
 ARG var1177
 ARG &var1176
 ARG &var1178

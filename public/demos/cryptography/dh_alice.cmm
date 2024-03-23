@@ -1520,7 +1520,7 @@ int main()
     init_two_powers();
     init_primes();
 
-    if (!dh_generate_paremeters(dh, 24, 2))
+    if (!dh_generate_paremeters(dh, 31, 2))
     {
         return 1;
     }

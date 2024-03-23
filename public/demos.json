@@ -169,7 +169,7 @@
             {
                 "name": "DH密钥交换：Alice",
                 "irUrl": "demos/cryptography/dh_alice.ir",
-                "remark": "Alice进行如下步骤：(1)生成并输出DH密钥交换参数(g,p)，其中g为生成元，p=2q+1为24位安全素数；(2)生成私钥x∈Zq，计算并输出公钥h_A=(g^x) mod p；(3)读取Bob的公钥h_B；(4)计算并输出共享密钥k_A=(h_B^x) mod p",
+                "remark": "Alice进行如下步骤：(1)生成并输出DH密钥交换参数(g,p)，其中g为生成元，p=2q+1为31位的安全素数；(2)生成私钥x∈Zq，计算并输出公钥h_A=(g^x) mod p；(3)读取Bob的公钥h_B；(4)计算并输出共享密钥k_A=(h_B^x) mod p",
                 "vmOptions": {
                     "maxExecutionStepCount": 50000000
                 }
