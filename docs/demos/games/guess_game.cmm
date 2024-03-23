@@ -1,5 +1,5 @@
 /*
- * This program generates a secret random integer x in [0,32768).
+ * This program generates a secret random integer x in (-32768,32768).
  * Then you guess the number. If your entered value is less than x, you'll see -1.
  * Or if it's greater than x, you'll see 1. If you guess right, 666 will be written.
  */
