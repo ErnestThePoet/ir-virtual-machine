@@ -41,6 +41,7 @@ const zhCn = {
     STATE_EXITED_ABNORMALLY: "不正常退出（返回值非0）",
 
     MAX_EXECUTION_STEP_COUNT: "执行步数限制",
+    SET_0_MEANS_NO_STEP_LIMIT: "设为0则不限制执行步数",
     MEMORY_SIZE: "内存大小/B",
     STACK_SIZE: "栈大小/B",
 

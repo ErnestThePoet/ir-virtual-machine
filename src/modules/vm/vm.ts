@@ -202,8 +202,8 @@ export const vmOptionLimits: {
     [K in VmNumberOptionKeys]: { min: number; max: number };
 } = {
     maxExecutionStepCount: {
-        min: 100,
-        max: 500_000_000
+        min: 0,
+        max: 999_999_999
     },
     memorySize: {
         min: 1024,
@@ -1222,6 +1222,7 @@ export class Vm {
 
         // Check step limit
         if (
+            this.options.maxExecutionStepCount > 0 &&
             this.executionStatus.stepCount >= this.options.maxExecutionStepCount
         ) {
             this.executionStatus.state = VmExecutionState.MAX_STEP_REACHED;

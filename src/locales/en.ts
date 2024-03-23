@@ -43,6 +43,7 @@ const en: AppLocale = {
     STATE_EXITED_ABNORMALLY: "Exited Abnormally(Return value not 0)",
 
     MAX_EXECUTION_STEP_COUNT: "Max Steps",
+    SET_0_MEANS_NO_STEP_LIMIT: "No step limit if set to 0",
     MEMORY_SIZE: "Memory Size/B",
     STACK_SIZE: "Stack Size/B",
 

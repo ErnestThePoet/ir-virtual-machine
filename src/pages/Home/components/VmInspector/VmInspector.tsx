@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useAppDispatch } from "@/store/hooks";
-import { InputNumber, Pagination } from "antd";
+import { InputNumber, Pagination, Tooltip } from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import styles from "./VmInspector.module.scss";
 import { useIntl } from "react-intl";
 import classNames from "classnames";
@@ -122,6 +123,15 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                 <div className={styles.divOptionWrapper}>
                     <label className={styles.lblOption}>
                         {intl.formatMessage({ id: "MAX_EXECUTION_STEP_COUNT" })}
+
+                        <Tooltip
+                            title={intl.formatMessage({
+                                id: "SET_0_MEANS_NO_STEP_LIMIT"
+                            })}>
+                            <InfoCircleOutlined
+                                className={styles.iconOptionInfo}
+                            />
+                        </Tooltip>
                     </label>
                     <InputNumber
                         className={styles.inOptionValue}

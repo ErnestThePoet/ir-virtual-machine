@@ -124,6 +124,18 @@
     user-select: none;
 }
 
+.iconOptionInfo {
+    margin-left: 5px;
+    color: var(--vm-inspector-option-info-icon-color);
+    cursor: pointer;
+
+    transition-duration: 200ms;
+
+    &:hover {
+        color: var(--vm-inspector-option-info-icon-hover-color);
+    }
+}
+
 .inOptionValue {
     width: 110px;
 }
