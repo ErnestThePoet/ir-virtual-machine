@@ -155,7 +155,7 @@ int rsa_pubkey_encryrpt(
 	int rsa_pubkenc_c;
 
 	if (rsa_pubkenc_rsa[0].n <= rsa_pubkenc_rsa[0].e ||
-		rsa_pubkenc_p >= rsa_pubkenc_rsa[0].n)
+		cmp_uint32(rsa_pubkenc_p, rsa_pubkenc_rsa[0].n) >= 0)
 	{
 		return 0;
 	}
@@ -174,7 +174,7 @@ int rsa_privkey_encryrpt(
 {
 	int rsa_privkenc_c;
 
-	if (rsa_privkenc_p >= rsa_privkenc_rsa[0].n)
+	if (cmp_uint32(rsa_privkenc_p, rsa_privkenc_rsa[0].n) >= 0)
 	{
 		return 0;
 	}
@@ -193,7 +193,7 @@ int rsa_privkey_decryrpt(
 {
 	int rsa_privkdec_p;
 
-	if (rsa_privkdec_c >= rsa_privkdec_rsa[0].n)
+	if (cmp_uint32(rsa_privkdec_c, rsa_privkdec_rsa[0].n) >= 0)
 	{
 		return 0;
 	}
@@ -213,7 +213,7 @@ int rsa_pubkey_decryrpt(
 	int rsa_pubkdec_p;
 
 	if (rsa_pubkdec_rsa[0].n <= rsa_pubkdec_rsa[0].e ||
-		rsa_pubkdec_c >= rsa_pubkdec_rsa[0].n)
+		cmp_uint32(rsa_pubkdec_c, rsa_pubkdec_rsa[0].n) >= 0)
 	{
 		return 0;
 	}
