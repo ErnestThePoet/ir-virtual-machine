@@ -3574,8 +3574,8 @@ var1150 := var1149 + #0
 var1151 := var1150 + #4
 READ p
 *var1151 := p
-READ pubkey_alice
-var1138 := pubkey_alice
+READ public_key_alice
+var1138 := public_key_alice
 var1154 := #20 * #0
 var1155 := &var1137 + var1154
 var1156 := var1155 + #0
