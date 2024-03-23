@@ -141,7 +141,7 @@ const en: AppLocale = {
 
     // Console normal messages
     WRITE_OUTPUT: "{value}",
-    READ_PROMPT: "Please enter a value for {name}: ",
+    READ_PROMPT: "Please enter a value for {name}:",
     CONSOLE_ARROW: ">",
     READ_INPUT: "{value}",
     PROGRAM_EXITED: "Program exited with return value {returnValue}.",
