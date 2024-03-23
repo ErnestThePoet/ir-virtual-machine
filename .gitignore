@@ -27,3 +27,6 @@ node_modules
 
 public/demos/cc.exe
 public/demos/all.py
+
+docs/demos/cc.exe
+docs/demos/all.py
