@@ -13,6 +13,22 @@ export function registerIr(monaco: Monaco) {
         id: irLanguageId
     });
 
+    monaco.editor.defineTheme("ir-theme", {
+        base: "vs",
+        inherit: true,
+        rules: [
+            {
+                token: "function",
+                foreground: "#74531f"
+            },
+            {
+                token: "number.size",
+                foreground: "#0097ff"
+            }
+        ],
+        colors: {}
+    });
+
     const irKeywords = [
         "FUNCTION",
         "DEC",
@@ -32,11 +48,11 @@ export function registerIr(monaco: Monaco) {
         keywords: irKeywords,
         identifier: /[a-zA-Z_]\w*/,
         whitespace: /[ \t\r\n]+/,
-        defaultToken: "invalid",
+        defaultToken: "source",
         tokenizer: {
             root: [
                 [/#-?\d+/, "number"],
-                [/\d+/, "number"],
+                [/\d+/, "number.size"],
                 [
                     /(:=)|(\+)|(-)|(\*)|(\/)|(==)|(!=)|(<=)|(<)|(>=)|(>)|(&)/,
                     "operators"
@@ -44,6 +60,14 @@ export function registerIr(monaco: Monaco) {
                 [/:/, "delimiter"],
                 [/;.*/, "comment"],
                 [/@whitespace/, "white"],
+                [
+                    /(FUNCTION)(@whitespace)(@identifier)/,
+                    ["keyword", "white", "function"]
+                ],
+                [
+                    /(CALL)(@whitespace)(@identifier)/,
+                    ["keyword", "white", "function"]
+                ],
                 [
                     /@identifier/,
                     {

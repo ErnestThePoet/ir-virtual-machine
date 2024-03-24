@@ -192,6 +192,7 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
         <div className={styles.divMonacoEditorWrapper}>
             <Editor
                 language="ir"
+                theme="ir-theme"
                 beforeMount={monaco => {
                     monacoRef.current = monaco;
                     registerIr(monaco);
