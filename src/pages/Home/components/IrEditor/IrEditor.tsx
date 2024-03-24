@@ -88,9 +88,12 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
             editorRef.current !== null &&
             editorRef.current.getModel() !== null
         ) {
-            editorRef.current.revealLineInCenterIfOutsideViewport(
-                props.vm.currentLineNumber
-            );
+            // Avoid scrolling to line -1 when runtime errors are cleared
+            if (props.vm.runtimeErrors.length > 0) {
+                editorRef.current.revealLineInCenterIfOutsideViewport(
+                    props.vm.currentLineNumber
+                );
+            }
             runtimeErrorDecorations.current =
                 editorRef.current.createDecorationsCollection(
                     props.vm.runtimeErrors.map(x => ({
