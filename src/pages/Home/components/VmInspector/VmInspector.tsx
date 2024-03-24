@@ -52,6 +52,8 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
 
     const divVmInspectorWrapper = useRef<HTMLDivElement>(null);
 
+    const currentVm = vmContainer.at(props.vmIndex);
+
     return (
         <div
             ref={divVmInspectorWrapper}
@@ -127,7 +129,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                         max={vmOptionLimits.maxExecutionStepCount.max}
                         value={props.vm.options.maxExecutionStepCount}
                         onChange={e => {
-                            vmContainer.at(props.vmIndex).configure({
+                            currentVm.configure({
                                 maxExecutionStepCount: e ?? undefined
                             });
                             syncVmState(dispatch, props.vm.id);
@@ -146,7 +148,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                         max={vmOptionLimits.memorySize.max}
                         value={props.vm.options.memorySize}
                         onChange={e => {
-                            vmContainer.at(props.vmIndex).configure({
+                            currentVm.configure({
                                 memorySize: e ?? undefined
                             });
                             syncVmState(dispatch, props.vm.id);
@@ -165,7 +167,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                         max={vmOptionLimits.stackSize.max}
                         value={props.vm.options.stackSize}
                         onChange={e => {
-                            vmContainer.at(props.vmIndex).configure({
+                            currentVm.configure({
                                 stackSize: e ?? undefined
                             });
                             syncVmState(dispatch, props.vm.id);

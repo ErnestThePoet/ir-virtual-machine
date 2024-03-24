@@ -33,8 +33,10 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
 
     const isContinuousExecution = useRef<boolean>(false);
 
+    const currentVm = vmContainer.at(props.vmIndex);
+
     useEffect(() => {
-        vmContainer.at(props.vmIndex).setReadConsoleFn(prompt => {
+        currentVm.setReadConsoleFn(prompt => {
             dispatch(setConsoleInputPrompt(prompt));
 
             // When we encounter a read during continuous run or
@@ -65,11 +67,8 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
         <div className={styles.divVmConsoleWrapper}>
             <ControlPanel
                 onRunClick={async () => {
-                    if (!vmContainer.at(props.vmIndex).canContinueExecution) {
-                        if (
-                            vmContainer.at(props.vmIndex).state ===
-                            VmExecutionState.WAIT_INPUT
-                        ) {
+                    if (!currentVm.canContinueExecution) {
+                        if (currentVm.state === VmExecutionState.WAIT_INPUT) {
                             inVmInput.current?.focus();
                         }
                         return;
@@ -78,15 +77,12 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                     isContinuousExecution.current = true;
 
                     dispatch(setShouldIndicateCurrentLineNumber(false));
-                    await vmContainer.at(props.vmIndex).execute();
+                    await currentVm.execute();
                     syncVmState(dispatch, props.vm.id);
                 }}
                 onRunStepClick={async () => {
-                    if (!vmContainer.at(props.vmIndex).canContinueExecution) {
-                        if (
-                            vmContainer.at(props.vmIndex).state ===
-                            VmExecutionState.WAIT_INPUT
-                        ) {
+                    if (!currentVm.canContinueExecution) {
+                        if (currentVm.state === VmExecutionState.WAIT_INPUT) {
                             inVmInput.current?.focus();
                         }
                         return;
@@ -94,8 +90,8 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
 
                     isContinuousExecution.current = false;
 
-                    await vmContainer.at(props.vmIndex).executeSingleStep();
-                    switch (vmContainer.at(props.vmIndex).state) {
+                    await currentVm.executeSingleStep();
+                    switch (currentVm.state) {
                         case VmExecutionState.FREE:
                             dispatch(setShouldIndicateCurrentLineNumber(true));
                             break;
@@ -111,7 +107,8 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                     dispatch(setConsoleInputPrompt([]));
                     dispatch(setConsoleInput(""));
                     dispatch(setLocalVariableTablePageIndex(1));
-                    vmContainer.at(props.vmIndex).reset();
+                    currentVm.reset();
+                    currentVm.decodeInstructions(true);
                     syncVmState(dispatch, props.vm.id);
                 }}
                 onClearClick={() => {

@@ -382,7 +382,7 @@ export class Vm {
         return this.memory.text[this.registers.eip].lineNumber;
     }
 
-    get instructions(): string[]{
+    get instructions(): string[] {
         return this.memory.instructions;
     }
 
@@ -554,6 +554,16 @@ export class Vm {
     loadNewInstructions(instructions: string[]) {
         this.reset();
         this.memory.instructions = instructions;
+    }
+
+    /**
+     * Reset rest of the VM to initial state, load new instructions into memory and
+     * decode them.
+     * @param instructions - The new IR instructions.
+     * @public
+     */
+    loadAndDecodeNewInstructions(instructions: string[]) {
+        this.loadNewInstructions(instructions);
         this.decodeInstructions(true);
     }
 
@@ -569,7 +579,7 @@ export class Vm {
      *
      * Note that runtime errors are not examined here.
      * @param writeErrorItemsOnly - Write error items to `staticErrors` only,
-     * won't set VM execution state or write error messages.
+     * won't set decoded result, set VM execution state or write error messages.
      * @public
      */
     decodeInstructions(writeErrorItemsOnly?: boolean) {
@@ -619,27 +629,31 @@ export class Vm {
                 continue;
             }
 
-            switch (decoded.type) {
-                case InstructionType.LABEL:
-                    this.tables.labelTable[(<DecodedLabel>decoded.value!).id] =
-                        {
+            if (!writeErrorItemsOnly) {
+                switch (decoded.type) {
+                    case InstructionType.LABEL:
+                        this.tables.labelTable[
+                            (<DecodedLabel>decoded.value!).id
+                        ] = {
                             addressBefore: i32(this.memory.text.length - 1)
                         };
-                    break;
-                case InstructionType.FUNCTION:
-                    this.tables.functionTable[
-                        (<DecodedFunction>decoded.value!).id
-                    ] = {
-                        addressBefore: i32(this.memory.text.length - 1)
-                    };
-                    break;
-                default:
-                    this.memory.text.push({
-                        ...(decoded as unknown as DecodedExecutableInstruction),
-                        lineNumber: i + 1,
-                        instructionLength: this.memory.instructions[i].length
-                    });
-                    break;
+                        break;
+                    case InstructionType.FUNCTION:
+                        this.tables.functionTable[
+                            (<DecodedFunction>decoded.value!).id
+                        ] = {
+                            addressBefore: i32(this.memory.text.length - 1)
+                        };
+                        break;
+                    default:
+                        this.memory.text.push({
+                            ...(decoded as unknown as DecodedExecutableInstruction),
+                            lineNumber: i + 1,
+                            instructionLength:
+                                this.memory.instructions[i].length
+                        });
+                        break;
+                }
             }
         }
 

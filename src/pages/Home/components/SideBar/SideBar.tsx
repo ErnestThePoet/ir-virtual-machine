@@ -83,7 +83,7 @@ const importIr = (
     vmContainer.add(newVm);
 
     const irLines = splitLines(irString);
-    vmContainer.at(vmContainer.length - 1).loadNewInstructions(irLines);
+    vmContainer.at(vmContainer.length - 1).loadAndDecodeNewInstructions(irLines);
 
     dispatch(
         addVmPageState({

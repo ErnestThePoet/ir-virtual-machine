@@ -25,6 +25,8 @@ interface IrEditorProps {
     vm: SingleVmPageState;
 }
 
+const DECODE_INTERVAL_MS = 100;
+
 const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
     const intl = useIntl();
 
@@ -33,11 +35,18 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
         null
     );
 
-    const runtimeErrorDecorationsRef =
+    const runtimeErrorDecorations =
         useRef<monacoEditor.editor.IEditorDecorationsCollection | null>(null);
 
-    const currentLineDecorationsRef =
+    const currentLineDecorations =
         useRef<monacoEditor.editor.IEditorDecorationsCollection | null>(null);
+
+    const pendingDecode = useRef<{
+        time: number;
+        timeoutId: ReturnType<typeof setTimeout>;
+    } | null>(null);
+
+    const irLines = useRef<string[]>([]);
 
     const dispatch = useAppDispatch();
 
@@ -70,8 +79,8 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
     }, [props.vm.staticErrors, intl.messages]);
 
     useEffectDeep(() => {
-        if (runtimeErrorDecorationsRef.current !== null) {
-            runtimeErrorDecorationsRef.current.clear();
+        if (runtimeErrorDecorations.current !== null) {
+            runtimeErrorDecorations.current.clear();
         }
 
         if (
@@ -82,7 +91,7 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
             editorRef.current.revealLineInCenterIfOutsideViewport(
                 props.vm.currentLineNumber
             );
-            runtimeErrorDecorationsRef.current =
+            runtimeErrorDecorations.current =
                 editorRef.current.createDecorationsCollection(
                     props.vm.runtimeErrors.map(x => ({
                         range: new monacoRef.current!.Range(
@@ -108,8 +117,8 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
     }, [props.vm.runtimeErrors, intl.messages]);
 
     useEffect(() => {
-        if (currentLineDecorationsRef.current !== null) {
-            currentLineDecorationsRef.current.clear();
+        if (currentLineDecorations.current !== null) {
+            currentLineDecorations.current.clear();
         }
 
         if (
@@ -123,7 +132,7 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
             editorRef.current.revealLineInCenterIfOutsideViewport(
                 props.vm.currentLineNumber
             );
-            currentLineDecorationsRef.current =
+            currentLineDecorations.current =
                 editorRef.current.createDecorationsCollection([
                     {
                         range: new monacoRef.current.Range(
@@ -149,9 +158,26 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
             return;
         }
 
-        console.time("lni");
-        currentVm.loadNewInstructions(splitLines(newIr));
-        console.timeEnd("lni");
+        const nowTimeMs = new Date().getTime();
+        if (
+            pendingDecode.current === null ||
+            pendingDecode.current.time < nowTimeMs
+        ) {
+            pendingDecode.current = {
+                time: nowTimeMs + DECODE_INTERVAL_MS,
+                timeoutId: setTimeout(() => {
+                    currentVm.decodeInstructions(true);
+                    syncVmState(dispatch, props.vm.id);
+                }, DECODE_INTERVAL_MS)
+            };
+        }
+
+        const newIrLines = splitLines(newIr);
+
+        irLines.current = newIrLines;
+
+        currentVm.loadNewInstructions(newIrLines);
+
         dispatch(setShouldIndicateCurrentLineNumber(false));
         dispatch(setConsoleInputPrompt([]));
         dispatch(setConsoleInput(""));
@@ -163,9 +189,7 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
     };
 
     return (
-        <div
-            className={styles.divMonacoEditorWrapper}
-            >
+        <div className={styles.divMonacoEditorWrapper}>
             <Editor
                 language="ir"
                 beforeMount={monaco => {
