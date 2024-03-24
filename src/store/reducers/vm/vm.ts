@@ -4,7 +4,7 @@ import type {
     VmExecutionState,
     VmLocalVariableDetail,
     VmMemoryUsage,
-    VmErrorTable,
+    VmErrorItem,
     VmVariableDetail,
     VmOptions,
     VmPeakMemoryUsage
@@ -21,10 +21,6 @@ export interface SingleVmPageState {
     irPath: string;
     isIrChanged: boolean;
     irString: string;
-    irSelection: {
-        start: number;
-        end: number;
-    };
 
     state: VmExecutionState;
     globalVariableDetails: VmVariableDetail[];
@@ -38,16 +34,10 @@ export interface SingleVmPageState {
     consoleInput: string;
 
     options: VmOptions;
-    staticErrorTable: VmErrorTable;
-    runtimeErrorTable: VmErrorTable;
+    staticErrors: VmErrorItem[];
+    runtimeErrors: VmErrorItem[];
     currentLineNumber: number;
     shouldIndicateCurrentLineNumber: boolean;
-
-    scrollHeights: {
-        irEditor: number;
-        // vmConsole: number;
-        vmInspector: number;
-    };
 
     localVariableTablePageIndex: number;
 }
@@ -123,13 +113,6 @@ export const vmSlice = createSlice({
         setIrString: (state, action: PayloadAction<string>) => {
             state.vmPageStates[state.activeVmIndex].irString = action.payload;
         },
-        setIrSelection: (
-            state,
-            action: PayloadAction<{ start: number; end: number }>
-        ) => {
-            state.vmPageStates[state.activeVmIndex].irSelection =
-                action.payload;
-        },
         setState: (state, action: PayloadAction<VmExecutionState>) => {
             state.vmPageStates[state.activeVmIndex].state = action.payload;
         },
@@ -186,12 +169,12 @@ export const vmSlice = createSlice({
             state.vmPageStates[state.activeVmIndex].consoleInput =
                 action.payload;
         },
-        setStaticErrorTable: (state, action: PayloadAction<VmErrorTable>) => {
-            state.vmPageStates[state.activeVmIndex].staticErrorTable =
+        setStaticErrors: (state, action: PayloadAction<VmErrorItem[]>) => {
+            state.vmPageStates[state.activeVmIndex].staticErrors =
                 action.payload;
         },
-        setRuntimeErrorTable: (state, action: PayloadAction<VmErrorTable>) => {
-            state.vmPageStates[state.activeVmIndex].runtimeErrorTable =
+        setRuntimeErrors: (state, action: PayloadAction<VmErrorItem[]>) => {
+            state.vmPageStates[state.activeVmIndex].runtimeErrors =
                 action.payload;
         },
         setCurrentLineNumber: (state, action: PayloadAction<number>) => {
@@ -205,18 +188,6 @@ export const vmSlice = createSlice({
             state.vmPageStates[
                 state.activeVmIndex
             ].shouldIndicateCurrentLineNumber = action.payload;
-        },
-        setScrollHeights: (
-            state,
-            action: PayloadAction<{
-                irEditor?: number;
-                vmInspector?: number;
-            }>
-        ) => {
-            Object.assign(
-                state.vmPageStates[state.activeVmIndex].scrollHeights,
-                action.payload
-            );
         },
         setLocalVariableTablePageIndex: (
             state,
@@ -236,7 +207,6 @@ export const {
     deleteVmPageState,
     setIsIrChanged,
     setIrString,
-    setIrSelection,
     setState,
     setGlobalVariableDetails,
     setLocalVariableDetailsStack,
@@ -248,11 +218,10 @@ export const {
     clearConsoleOutputs,
     setConsoleInputPrompt,
     setConsoleInput,
-    setStaticErrorTable,
-    setRuntimeErrorTable,
+    setStaticErrors,
+    setRuntimeErrors,
     setCurrentLineNumber,
     setShouldIndicateCurrentLineNumber,
-    setScrollHeights,
     setLocalVariableTablePageIndex
 } = vmSlice.actions;
 
@@ -278,8 +247,8 @@ export const syncVmState = (dispatch: AppDispatch, vmId: number) => {
     dispatch(
         setPeakMemoryUsage(vmContainer.at(vmIndex).currentPeakMemoryUsage)
     );
-    dispatch(setStaticErrorTable(vmContainer.at(vmIndex).staticErrorTable));
-    dispatch(setRuntimeErrorTable(vmContainer.at(vmIndex).runtimeErrorTable));
+    dispatch(setStaticErrors(vmContainer.at(vmIndex).staticErrors));
+    dispatch(setRuntimeErrors(vmContainer.at(vmIndex).runtimeErrors));
     dispatch(setCurrentLineNumber(vmContainer.at(vmIndex).currentLineNumber));
     vmContainer
         .at(vmIndex)

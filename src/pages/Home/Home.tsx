@@ -58,36 +58,37 @@ const Home: React.FC = () => {
             />
             <div className={styles.divRight}>
                 <TabBar />
-                <div
-                    className={classNames({
-                        [styles.divVmWrapperHorizontal]: !isVerticalScreen,
-                        [styles.divVmWrapperVertical]: isVerticalScreen
-                    })}>
+                <div className={styles.divVmWrapper}>
                     {vm.vmPageStates.length === 0 ? (
                         <EmptyHolder />
                     ) : (
-                        <>
-                            <section className="sectionIrEditor">
-                                <IrEditor
-                                    vm={vm.vmPageStates[vm.activeVmIndex]}
-                                    vmIndex={vm.activeVmIndex}
-                                />
-                            </section>
+                        // V3.0 architecture: each VM has independent editor, console and inspector
+                        vm.vmPageStates.map((x, i) => (
+                            <div
+                                key={`vm-${x.name}`}
+                                className={classNames({
+                                    [styles.divVmContentHorizontal]:
+                                        !isVerticalScreen,
+                                    [styles.divVmContentVertical]:
+                                        isVerticalScreen
+                                })}
+                                style={{
+                                    display:
+                                        i === vm.activeVmIndex ? "flex" : "none"
+                                }}>
+                                <section className="sectionIrEditor">
+                                    <IrEditor vm={x} vmIndex={i} />
+                                </section>
 
-                            <section className="sectionVmConsole">
-                                <VmConsole
-                                    vm={vm.vmPageStates[vm.activeVmIndex]}
-                                    vmIndex={vm.activeVmIndex}
-                                />
-                            </section>
+                                <section className="sectionVmConsole">
+                                    <VmConsole vm={x} vmIndex={i} />
+                                </section>
 
-                            <section className="sectionVmInspector">
-                                <VmInspector
-                                    vm={vm.vmPageStates[vm.activeVmIndex]}
-                                    vmIndex={vm.activeVmIndex}
-                                />
-                            </section>
-                        </>
+                                <section className="sectionVmInspector">
+                                    <VmInspector vm={x} vmIndex={i} />
+                                </section>
+                            </div>
+                        ))
                     )}
                 </div>
             </div>

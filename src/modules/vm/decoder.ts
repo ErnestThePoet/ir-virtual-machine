@@ -190,9 +190,8 @@ type InstructionValue =
 
 export interface DecodedInstruction {
     type: InstructionType;
-    lineNumber: number; // Line number in original instruction sequence
-    messageKey?: AppLocaleKey;
     value?: InstructionValue;
+    messageKey?: AppLocaleKey;
 }
 
 export type DecodedExecutableInstruction = Omit<DecodedInstruction, "type"> & {
@@ -880,21 +879,18 @@ export class Decoder {
     /**
      * Decode the given IR instruction.
      * @param instruction - The instruction to be decoded.
-     * @param lineNumber - The line number of current instruction in original instruction sequence.
      * @returns Decode result. Will have `type===InstructionType.ERROR` if instruction is illegal.
      * @public
      */
-    decode(instruction: string, lineNumber: number): DecodedInstruction {
+    decode(instruction: string): DecodedInstruction {
         if (instruction.match(/^[ \t]*$/)) {
             return {
-                type: InstructionType.EMPTY,
-                lineNumber
+                type: InstructionType.EMPTY
             };
         }
 
         const unrecognizedInstructionError: DecodedInstruction = {
             type: InstructionType.ERROR,
-            lineNumber,
             messageKey: "UNRECOGNIZED_INSTRUCTION"
         };
 
@@ -902,8 +898,7 @@ export class Decoder {
 
         if (purified.startsWith(";")) {
             return {
-                type: InstructionType.COMMENT,
-                lineNumber
+                type: InstructionType.COMMENT
             };
         }
 
@@ -913,46 +908,43 @@ export class Decoder {
             return unrecognizedInstructionError;
         }
 
-        const addLineNumber = (decoded: DecodedInstructionNoMeta) =>
-            Object.assign(decoded, { lineNumber });
-
         switch (splitResult[0]) {
             case "FUNCTION":
-                return addLineNumber(this.decodeFunction(splitResult));
+                return this.decodeFunction(splitResult);
             case "DEC":
-                return addLineNumber(this.decodeDec(splitResult));
+                return this.decodeDec(splitResult);
             case "GLOBAL_DEC":
-                return addLineNumber(this.decodeGlobalDec(splitResult));
+                return this.decodeGlobalDec(splitResult);
             case "LABEL":
-                return addLineNumber(this.decodeLabel(splitResult));
+                return this.decodeLabel(splitResult);
             case "GOTO":
-                return addLineNumber(this.decodeGoto(splitResult));
+                return this.decodeGoto(splitResult);
             case "IF":
-                return addLineNumber(this.decodeIf(splitResult));
+                return this.decodeIf(splitResult);
             case "ARG":
-                return addLineNumber(this.decodeArg(splitResult));
+                return this.decodeArg(splitResult);
             case "CALL":
-                return addLineNumber(this.decodeCall(splitResult));
+                return this.decodeCall(splitResult);
             case "PARAM":
-                return addLineNumber(this.decodeParam(splitResult));
+                return this.decodeParam(splitResult);
             case "RETURN":
-                return addLineNumber(this.decodeReturn(splitResult));
+                return this.decodeReturn(splitResult);
             case "READ":
-                return addLineNumber(this.decodeRead(splitResult));
+                return this.decodeRead(splitResult);
             case "WRITE":
-                return addLineNumber(this.decodeWrite(splitResult));
+                return this.decodeWrite(splitResult);
             default:
                 const assign = this.decodeAssign(splitResult);
                 if (assign.type === InstructionType.ASSIGN) {
-                    return addLineNumber(assign);
+                    return assign;
                 }
 
                 const assignCall = this.decodeAssignCall(splitResult);
                 if (assignCall.type === InstructionType.ASSIGN_CALL) {
-                    return addLineNumber(assignCall);
+                    return assignCall;
                 }
 
-                return addLineNumber(assign);
+                return assign;
         }
     }
 }

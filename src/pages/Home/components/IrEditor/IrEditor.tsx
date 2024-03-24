@@ -1,21 +1,24 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useRef } from "react";
+import "./IrEditor.scss";
+import styles from "./IrEditor.module.scss";
 import { useAppDispatch } from "@/store/hooks";
 import { useIntl } from "react-intl";
-import styles from "./IrEditor.module.scss";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { splitLines } from "@/modules/utils";
 import {
     syncVmState,
     setIrString,
     setIsIrChanged,
-    setPeakMemoryUsage,
     SingleVmPageState,
-    setIrSelection,
-    setScrollHeights
+    setShouldIndicateCurrentLineNumber,
+    setConsoleInputPrompt,
+    setConsoleInput,
+    setLocalVariableTablePageIndex
 } from "@/store/reducers/vm";
-import LineHighlighter from "./LineHighlighter/LineHighlighter";
-import classNames from "classnames";
-import { VmExecutionState } from "@/modules/vm/vm";
+import { Editor, Monaco } from "@monaco-editor/react";
+import * as monacoEditor from "monaco-editor";
+import { registerIr } from "@/modules/ir/registerIr";
+import { useEffectDeep } from "@/modules/hooks/useEffectDeep";
 
 interface IrEditorProps {
     vmIndex: number;
@@ -25,152 +28,161 @@ interface IrEditorProps {
 const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
     const intl = useIntl();
 
-    const divIrEditorWrapper = useRef<HTMLDivElement>(null);
-    const taIr = useRef<HTMLTextAreaElement>(null);
+    const monacoRef = useRef<Monaco | null>(null);
+    const editorRef = useRef<monacoEditor.editor.IStandaloneCodeEditor | null>(
+        null
+    );
+
+    const runtimeErrorDecorationsRef =
+        useRef<monacoEditor.editor.IEditorDecorationsCollection | null>(null);
+
+    const currentLineDecorationsRef =
+        useRef<monacoEditor.editor.IEditorDecorationsCollection | null>(null);
 
     const dispatch = useAppDispatch();
 
-    const irLines = useMemo(
-        () => splitLines(props.vm.irString),
-        [props.vm.irString]
-    );
+    const currentVm = vmContainer.at(props.vmIndex);
 
-    useEffect(() => {
-        if (props.vm.state !== VmExecutionState.WAIT_INPUT) {
-            taIr.current?.focus({ preventScroll: true });
-            taIr.current?.setSelectionRange(
-                props.vm.irSelection.start,
-                props.vm.irSelection.end
+    useEffectDeep(() => {
+        if (
+            monacoRef.current !== null &&
+            editorRef.current !== null &&
+            editorRef.current.getModel() !== null
+        ) {
+            monacoRef.current.editor.setModelMarkers(
+                editorRef.current.getModel()!,
+                "IR Decoder",
+                props.vm.staticErrors.map(x => ({
+                    startLineNumber: x.startLineNumber,
+                    endLineNumber: x.endLineNumber,
+                    startColumn: x.startColumn,
+                    endColumn: x.endColumn + 1,
+                    message: intl.formatMessage(
+                        { id: x.message.key },
+                        x.message.values
+                    ),
+                    severity: monacoRef.current!.MarkerSeverity.Error
+                }))
             );
         }
+        // make sure changing locale when there are already markers
+        // will change marker messages
+    }, [props.vm.staticErrors, intl.messages]);
 
-        divIrEditorWrapper.current?.scrollTo(
-            0,
-            props.vm.scrollHeights.irEditor
-        );
-    }, [
-        props.vm.id,
-        props.vm.irSelection.start,
-        props.vm.irSelection.end
-    ]);
+    useEffectDeep(() => {
+        if (runtimeErrorDecorationsRef.current !== null) {
+            runtimeErrorDecorationsRef.current.clear();
+        }
 
-    const onIrChange = (newIr: string) => {
-        const currentVm = vmContainer.at(props.vmIndex);
+        if (
+            monacoRef.current !== null &&
+            editorRef.current !== null &&
+            editorRef.current.getModel() !== null
+        ) {
+            editorRef.current.revealLineInCenterIfOutsideViewport(
+                props.vm.currentLineNumber
+            );
+            runtimeErrorDecorationsRef.current =
+                editorRef.current.createDecorationsCollection(
+                    props.vm.runtimeErrors.map(x => ({
+                        range: new monacoRef.current!.Range(
+                            x.startLineNumber,
+                            x.startColumn,
+                            x.endLineNumber,
+                            x.endColumn
+                        ),
+                        options: {
+                            isWholeLine: true,
+                            className: "rangeError",
+                            marginClassName: "rangeError",
+                            hoverMessage: {
+                                value: intl.formatMessage(
+                                    { id: x.message.key },
+                                    x.message.values
+                                )
+                            }
+                        }
+                    }))
+                );
+        }
+    }, [props.vm.runtimeErrors, intl.messages]);
+
+    useEffect(() => {
+        if (currentLineDecorationsRef.current !== null) {
+            currentLineDecorationsRef.current.clear();
+        }
+
+        if (
+            !props.vm.shouldIndicateCurrentLineNumber ||
+            currentVm.instructions[props.vm.currentLineNumber - 1] === undefined
+        ) {
+            return;
+        }
+
+        if (monacoRef.current !== null && editorRef.current !== null) {
+            editorRef.current.revealLineInCenterIfOutsideViewport(
+                props.vm.currentLineNumber
+            );
+            currentLineDecorationsRef.current =
+                editorRef.current.createDecorationsCollection([
+                    {
+                        range: new monacoRef.current.Range(
+                            props.vm.currentLineNumber,
+                            1,
+                            props.vm.currentLineNumber,
+                            currentVm.instructions[
+                                props.vm.currentLineNumber - 1
+                            ].length + 1
+                        ),
+                        options: {
+                            isWholeLine: true,
+                            className: "rangeCurrentLine",
+                            marginClassName: "rangeCurrentLine"
+                        }
+                    }
+                ]);
+        }
+    }, [props.vm.currentLineNumber, props.vm.shouldIndicateCurrentLineNumber]);
+
+    const onIrChange = (newIr: string | undefined) => {
+        if (newIr === undefined) {
+            return;
+        }
+
+        console.time("lni");
         currentVm.loadNewInstructions(splitLines(newIr));
-        syncVmState(dispatch, props.vm.id);
-        // Manually force reset peak memory usage
-        dispatch(
-            setPeakMemoryUsage({
-                total: 0,
-                stack: 0,
-                globalVariable: 0
-            })
-        );
+        console.timeEnd("lni");
+        dispatch(setShouldIndicateCurrentLineNumber(false));
+        dispatch(setConsoleInputPrompt([]));
+        dispatch(setConsoleInput(""));
+        dispatch(setLocalVariableTablePageIndex(1));
         dispatch(setIrString(newIr));
         dispatch(setIsIrChanged(true));
+
+        syncVmState(dispatch, props.vm.id);
     };
 
     return (
         <div
-            ref={divIrEditorWrapper}
-            className={styles.divIrEditorWrapper}
-            onScroll={e =>
-                dispatch(
-                    setScrollHeights({
-                        irEditor: e.currentTarget.scrollTop
-                    })
-                )
-            }>
-            <div className={styles.divLineNumberWrapper}>
-                {irLines.map((_, i) => (
-                    <label
-                        key={"label" + i}
-                        className={classNames({
-                            [styles.lblLineNumberNormal]:
-                                !props.vm.shouldIndicateCurrentLineNumber ||
-                                i + 1 !== props.vm.currentLineNumber,
-                            [styles.lblLineNumberIndication]:
-                                props.vm.shouldIndicateCurrentLineNumber &&
-                                i + 1 === props.vm.currentLineNumber
-                        })}>
-                        {props.vm.state === VmExecutionState.STATIC_CHECK_FAILED &&
-                            i + 1 in props.vm.staticErrorTable && (
-                                <LineHighlighter
-                                    key={"sehighlighter" + i}
-                                    type="ERROR"
-                                    title={intl.formatMessage(
-                                        {
-                                            id: props.vm.staticErrorTable[i + 1]
-                                                .key
-                                        },
-                                        props.vm.staticErrorTable[i + 1].values
-                                    )}
-                                />
-                            )}
-                        {props.vm.state === VmExecutionState.RUNTIME_ERROR &&
-                            i + 1 in props.vm.runtimeErrorTable && (
-                                <LineHighlighter
-                                    key={"rehighlighter" + i}
-                                    type="ERROR"
-                                    title={intl.formatMessage(
-                                        {
-                                            id: props.vm.runtimeErrorTable[
-                                                i + 1
-                                            ].key
-                                        },
-                                        props.vm.runtimeErrorTable[i + 1].values
-                                    )}
-                                />
-                            )}
-                        {i + 1}
-                    </label>
-                ))}
-            </div>
-
-            <div className={styles.divIrWrapper}>
-                <textarea
-                    ref={taIr}
-                    // line-height*lineCount
-                    style={{
-                        height: `${20 * irLines.length}px`
-                    }}
-                    spellCheck={false}
-                    className={styles.taIr}
-                    value={props.vm.irString}
-                    onSelect={e => {
-                        dispatch(
-                            setIrSelection({
-                                start: e.currentTarget.selectionStart,
-                                end: e.currentTarget.selectionEnd
-                            })
-                        );
-                    }}
-                    onKeyDown={e => {
-                        if (e.key === "Tab") {
-                            e.preventDefault();
-
-                            onIrChange(
-                                e.currentTarget.value.substring(
-                                    0,
-                                    e.currentTarget.selectionStart
-                                ) +
-                                    " ".repeat(4) +
-                                    e.currentTarget.value.substring(
-                                        e.currentTarget.selectionEnd
-                                    )
-                            );
-
-                            dispatch(
-                                setIrSelection({
-                                    start: e.currentTarget.selectionStart + 4,
-                                    end: e.currentTarget.selectionStart + 4
-                                })
-                            );
-                        }
-                    }}
-                    onChange={e => onIrChange(e.currentTarget.value)}
-                />
-            </div>
+            className={styles.divMonacoEditorWrapper}
+            >
+            <Editor
+                language="ir"
+                beforeMount={monaco => {
+                    monacoRef.current = monaco;
+                    registerIr(monaco);
+                }}
+                onMount={editor => {
+                    editorRef.current = editor;
+                    editor.setValue(props.vm.irString);
+                }}
+                onChange={e => onIrChange(e)}
+                options={{
+                    minimap: {
+                        enabled: false
+                    }
+                }}
+            />
         </div>
     );
 };

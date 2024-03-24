@@ -20,11 +20,8 @@
     --vm-empty-holder-color: rgba(0, 0, 0, 0.5);
     --vm-section-border-color: #e7e7e7;
 
-    --ir-editor-bkg-color: #fff;
-    --ir-line-number-color: #237893;
-    --ir-color: #000;
-    --ir-error-border-color: rgb(255, 21, 41);
-    --ir-indication-bkg-color: #9abfff;
+    --ir-editor-error-range-bkg-color: rgb(255, 199, 199);
+    --ir-editor-current-line-range-bkg-color: rgba(173, 216, 230, 0.5);
 
     --vm-console-bkg-color: #fff;
     --vm-console-error-color: rgb(203, 36, 49);

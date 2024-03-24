@@ -55,10 +55,15 @@ interface VmVariable {
     size: number;
 }
 
+type VmText = DecodedExecutableInstruction & {
+    lineNumber: number; // instruction line nubmer in original input instructions
+    instructionLength: number; // instruction string length in original input instructions
+};
+
 // VM Component types
 interface VmMemory {
     instructions: string[];
-    text: DecodedExecutableInstruction[];
+    text: VmText[];
     memory: Uint8Array;
 }
 
@@ -128,8 +133,12 @@ export enum VmExecutionState {
     EXITED_ABNORMALLY
 }
 
-export interface VmErrorTable {
-    [lineNumber: string | number]: FormattableMessage;
+export interface VmErrorItem {
+    startLineNumber: number;
+    endLineNumber: number;
+    startColumn: number;
+    endColumn: number;
+    message: FormattableMessage;
 }
 
 interface VmExecutionStatus {
@@ -137,8 +146,8 @@ interface VmExecutionStatus {
     state: VmExecutionState;
     callStack: string[];
     // Used to index which line contains static/runtime error and should be marked
-    staticErrorTable: VmErrorTable;
-    runtimeErrorTable: VmErrorTable;
+    staticErrors: VmErrorItem[];
+    runtimeErrors: VmErrorItem[];
 }
 
 const initialMemory: VmMemory = {
@@ -165,8 +174,8 @@ const initialExecutionStatus: VmExecutionStatus = {
     stepCount: 0,
     state: VmExecutionState.INITIAL,
     callStack: [],
-    staticErrorTable: {},
-    runtimeErrorTable: {}
+    staticErrors: [],
+    runtimeErrors: []
 };
 
 // Console message type
@@ -373,6 +382,10 @@ export class Vm {
         return this.memory.text[this.registers.eip].lineNumber;
     }
 
+    get instructions(): string[]{
+        return this.memory.instructions;
+    }
+
     get globalVariableDetails(): VmVariableDetail[] {
         return this.getSingleTableVariableDetails(
             this.tables.globalVariableTable
@@ -397,12 +410,12 @@ export class Vm {
         return this.executionStatus.state;
     }
 
-    get staticErrorTable(): VmErrorTable {
-        return cloneDeep(this.executionStatus.staticErrorTable);
+    get staticErrors(): VmErrorItem[] {
+        return cloneDeep(this.executionStatus.staticErrors);
     }
 
-    get runtimeErrorTable(): VmErrorTable {
-        return cloneDeep(this.executionStatus.runtimeErrorTable);
+    get runtimeErrors(): VmErrorItem[] {
+        return cloneDeep(this.executionStatus.runtimeErrors);
     }
 
     get currentOptions(): VmOptions {
@@ -541,6 +554,7 @@ export class Vm {
     loadNewInstructions(instructions: string[]) {
         this.reset();
         this.memory.instructions = instructions;
+        this.decodeInstructions(true);
     }
 
     /**
@@ -554,15 +568,14 @@ export class Vm {
      * `"STATIC_CHECK_FAILED"` with error message(s) written to buffer.
      *
      * Note that runtime errors are not examined here.
+     * @param writeErrorItemsOnly - Write error items to `staticErrors` only,
+     * won't set VM execution state or write error messages.
      * @public
      */
-    decodeInstructions() {
+    decodeInstructions(writeErrorItemsOnly?: boolean) {
         // Go through each line of IR code
         for (let i = 0; i < this.memory.instructions.length; i++) {
-            const decoded = this.decoder.decode(
-                this.memory.instructions[i],
-                i + 1
-            );
+            const decoded = this.decoder.decode(this.memory.instructions[i]);
 
             if (
                 decoded.type === InstructionType.EMPTY ||
@@ -572,30 +585,36 @@ export class Vm {
             }
 
             if (decoded.type === InstructionType.ERROR) {
-                this.executionStatus.state =
-                    VmExecutionState.STATIC_CHECK_FAILED;
+                if (!writeErrorItemsOnly) {
+                    this.executionStatus.state =
+                        VmExecutionState.STATIC_CHECK_FAILED;
 
-                this.writeBuffer.push([
-                    // {
-                    //     key: "STATIC_ERROR_PREFIX",
-                    //     type: ConsoleMessageType.ERROR
-                    // },
-                    {
-                        key: "DECODE_ERROR_PREFIX",
-                        values: {
-                            lineNumber: i + 1
+                    this.writeBuffer.push([
+                        // {
+                        //     key: "STATIC_ERROR_PREFIX",
+                        //     type: ConsoleMessageType.ERROR
+                        // },
+                        {
+                            key: "DECODE_ERROR_PREFIX",
+                            values: {
+                                lineNumber: i + 1
+                            },
+                            type: ConsoleMessageType.ERROR
                         },
-                        type: ConsoleMessageType.ERROR
-                    },
-                    {
-                        key: decoded.messageKey!,
-                        type: ConsoleMessageType.ERROR
-                    }
-                ]);
+                        {
+                            key: decoded.messageKey!,
+                            type: ConsoleMessageType.ERROR
+                        }
+                    ]);
+                }
 
-                this.executionStatus.staticErrorTable[i + 1] = {
-                    key: decoded.messageKey!
-                };
+                this.executionStatus.staticErrors.push({
+                    startLineNumber: i + 1,
+                    endLineNumber: i + 1,
+                    startColumn: 1, // starts from 1
+                    endColumn: this.memory.instructions[i].length,
+                    message: { key: decoded.messageKey! }
+                });
 
                 continue;
             }
@@ -615,14 +634,19 @@ export class Vm {
                     };
                     break;
                 default:
-                    this.memory.text.push(
-                        decoded as unknown as DecodedExecutableInstruction
-                    );
+                    this.memory.text.push({
+                        ...(decoded as unknown as DecodedExecutableInstruction),
+                        lineNumber: i + 1,
+                        instructionLength: this.memory.instructions[i].length
+                    });
                     break;
             }
         }
 
-        if (!(this.entryFunctionName in this.tables.functionTable)) {
+        if (
+            !(this.entryFunctionName in this.tables.functionTable) &&
+            !writeErrorItemsOnly
+        ) {
             this.executionStatus.state = VmExecutionState.STATIC_CHECK_FAILED;
 
             this.writeBuffer.push([
@@ -635,8 +659,6 @@ export class Vm {
                     type: ConsoleMessageType.ERROR
                 }
             ]);
-
-            return;
         }
     }
 
@@ -819,9 +841,15 @@ export class Vm {
     ) {
         this.executionStatus.state = VmExecutionState.RUNTIME_ERROR;
 
-        this.executionStatus.runtimeErrorTable[
-            lineNumber ?? this.memory.text[this.registers.eip].lineNumber
-        ] = message;
+        this.executionStatus.runtimeErrors.push({
+            startLineNumber:
+                lineNumber ?? this.memory.text[this.registers.eip].lineNumber,
+            endLineNumber:
+                lineNumber ?? this.memory.text[this.registers.eip].lineNumber,
+            startColumn: 1,
+            endColumn: this.memory.text[this.registers.eip].instructionLength,
+            message
+        });
 
         this.writeBuffer.push([
             {
@@ -1211,6 +1239,8 @@ export class Vm {
         }
 
         if (this.executionStatus.state === VmExecutionState.INITIAL) {
+            // Clear error items generated during editor static check
+            this.reset();
             this.prepareExcution();
         }
 

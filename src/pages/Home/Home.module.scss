@@ -16,9 +16,15 @@
     flex-direction: column;
 }
 
-.divVmWrapperBase {
+.divVmWrapper {
     width: 100%;
     height: calc(100% - $tabbar-height);
+}
+
+.divVmContentBase {
+    width: 100%;
+    height: 100%;
+
     display: flex;
 
     background-color: var(--vm-wrapper-bkg-color);
@@ -28,8 +34,8 @@
     }
 }
 
-.divVmWrapperHorizontal {
-    @extend .divVmWrapperBase;
+.divVmContentHorizontal {
+    @extend .divVmContentBase;
 
     > section[class="sectionIrEditor"] {
         width: 34%;
@@ -49,8 +55,8 @@
     }
 }
 
-.divVmWrapperVertical {
-    @extend .divVmWrapperBase;
+.divVmContentVertical {
+    @extend .divVmContentBase;
     flex-direction: column;
 
     > section[class="sectionIrEditor"] {

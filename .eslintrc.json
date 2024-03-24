@@ -1,6 +1,7 @@
 {
     "rules": {
-        "eqeqeq":"error",
+        "eqeqeq": "error",
+        "no-console": "warn",
         "react-hooks/exhaustive-deps": "off"
     }
 }

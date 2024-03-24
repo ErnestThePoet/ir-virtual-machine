@@ -91,10 +91,6 @@ const importIr = (
             irPath: "",
             isIrChanged: false,
             irString: irString,
-            irSelection: {
-                start: 0,
-                end: 0
-            },
 
             state: newVm.state,
             globalVariableDetails: newVm.globalVariableDetails,
@@ -108,13 +104,12 @@ const importIr = (
             consoleInputPrompt: [],
             consoleInput: "",
 
-            staticErrorTable: newVm.staticErrorTable,
-            runtimeErrorTable: newVm.runtimeErrorTable,
+            staticErrors: newVm.staticErrors,
+            runtimeErrors: newVm.runtimeErrors,
             currentLineNumber: newVm.currentLineNumber,
             shouldIndicateCurrentLineNumber: false,
 
             scrollHeights: {
-                irEditor: 0,
                 vmInspector: 0
             },
 
@@ -299,10 +294,6 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                                 irPath: "",
                                 isIrChanged: false,
                                 irString: "",
-                                irSelection: {
-                                    start: 0,
-                                    end: 0
-                                },
 
                                 state: newVm.state,
                                 globalVariableDetails:
@@ -318,13 +309,12 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                                 consoleInputPrompt: [],
                                 consoleInput: "",
 
-                                staticErrorTable: newVm.staticErrorTable,
-                                runtimeErrorTable: newVm.runtimeErrorTable,
+                                staticErrors: newVm.staticErrors,
+                                runtimeErrors: newVm.runtimeErrors,
                                 currentLineNumber: newVm.currentLineNumber,
                                 shouldIndicateCurrentLineNumber: false,
 
                                 scrollHeights: {
-                                    irEditor: 0,
                                     vmInspector: 0
                                 },
 

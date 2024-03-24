@@ -16,6 +16,7 @@ import {
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { ConsoleMessageType, VmExecutionState } from "@/modules/vm/vm";
 import ControlPanel from "./ControlPanel/ControlPanel";
+import { useEffectDeep } from "@/modules/hooks/useEffectDeep";
 
 interface VmConsoleProps {
     vmIndex: number;
@@ -28,33 +29,31 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
     const inputResolve = useRef<((_: string) => void) | null>(null);
 
     const divVmConsole = useRef<HTMLDivElement>(null);
+    const inVmInput = useRef<HTMLInputElement>(null);
+
+    const isContinuousExecution = useRef<boolean>(false);
 
     useEffect(() => {
-        if (props.vm.state === VmExecutionState.WAIT_INPUT) {
-            // Restore the resolve that current VM is awaiting
-            inputResolve.current = vmContainer.resolvesAt(props.vmIndex);
+        vmContainer.at(props.vmIndex).setReadConsoleFn(prompt => {
+            dispatch(setConsoleInputPrompt(prompt));
 
-            document.getElementById("inConsole")?.focus();
-        } else {
-            vmContainer.at(props.vmIndex).setReadConsoleFn(prompt => {
-                dispatch(setConsoleInputPrompt(prompt));
+            // When we encounter a read during continuous run or
+            // single step run, this will get the page display updated.
+            if (!isContinuousExecution.current) {
+                dispatch(setShouldIndicateCurrentLineNumber(true));
+            }
+            syncVmState(dispatch, props.vm.id);
 
-                // When we click continously run and encounter a read,
-                // this will get the page display updated.
-                syncVmState(dispatch, props.vm.id);
+            // Auto focus input
+            inVmInput.current?.focus();
 
-                // Auto focus input
-                document.getElementById("inConsole")?.focus();
-
-                return new Promise(resolve => {
-                    inputResolve.current = resolve;
-                    vmContainer.setResolveAt(props.vmIndex, resolve);
-                });
+            return new Promise(resolve => {
+                inputResolve.current = resolve;
             });
-        }
-    }, [props.vm.id]);
+        });
+    }, []);
 
-    useEffect(() => {
+    useEffectDeep(() => {
         divVmConsole.current?.scrollTo(0, divVmConsole.current.scrollHeight);
     }, [
         props.vm.consoleInput,
@@ -71,10 +70,13 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                             vmContainer.at(props.vmIndex).state ===
                             VmExecutionState.WAIT_INPUT
                         ) {
-                            document.getElementById("inConsole")?.focus();
+                            inVmInput.current?.focus();
                         }
                         return;
                     }
+
+                    isContinuousExecution.current = true;
+
                     dispatch(setShouldIndicateCurrentLineNumber(false));
                     await vmContainer.at(props.vmIndex).execute();
                     syncVmState(dispatch, props.vm.id);
@@ -85,12 +87,23 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                             vmContainer.at(props.vmIndex).state ===
                             VmExecutionState.WAIT_INPUT
                         ) {
-                            document.getElementById("inConsole")?.focus();
+                            inVmInput.current?.focus();
                         }
                         return;
                     }
-                    dispatch(setShouldIndicateCurrentLineNumber(true));
+
+                    isContinuousExecution.current = false;
+
                     await vmContainer.at(props.vmIndex).executeSingleStep();
+                    switch (vmContainer.at(props.vmIndex).state) {
+                        case VmExecutionState.FREE:
+                            dispatch(setShouldIndicateCurrentLineNumber(true));
+                            break;
+                        case VmExecutionState.EXITED_NORMALLY:
+                        case VmExecutionState.EXITED_ABNORMALLY:
+                            dispatch(setShouldIndicateCurrentLineNumber(false));
+                            break;
+                    }
                     syncVmState(dispatch, props.vm.id);
                 }}
                 onResetClick={() => {
@@ -105,19 +118,17 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                     dispatch(clearConsoleOutputs());
                     dispatch(setConsoleInput(""));
                     if (props.vm.state === VmExecutionState.WAIT_INPUT) {
-                        document.getElementById("inConsole")?.focus();
+                        inVmInput.current?.focus();
                     }
                 }}
             />
 
-            <div
-                ref={divVmConsole}
-                id="divVmConsole"
-                className={styles.divVmConsole}>
+            <div ref={divVmConsole} className={styles.divVmConsole}>
                 {props.vm.consoleOutputs.map((x, i) => (
                     <OutputBlock key={i} message={x} />
                 ))}
                 <InputBlock
+                    inputRef={inVmInput}
                     prompt={props.vm.consoleInputPrompt}
                     value={props.vm.consoleInput}
                     onChange={e => dispatch(setConsoleInput(e))}

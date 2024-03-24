@@ -9,7 +9,6 @@ import { VmExecutionState, vmOptionLimits } from "@/modules/vm/vm";
 import {
     SingleVmPageState,
     setLocalVariableTablePageIndex,
-    setScrollHeights,
     syncVmState
 } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
@@ -53,22 +52,10 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
 
     const divVmInspectorWrapper = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        divVmInspectorWrapper.current?.scrollTo(
-            0,
-            props.vm.scrollHeights.vmInspector
-        );
-    }, [props.vm.id]);
-
     return (
         <div
             ref={divVmInspectorWrapper}
-            className={styles.divVmInspectorWrapper}
-            onScroll={e =>
-                dispatch(
-                    setScrollHeights({ vmInspector: e.currentTarget.scrollTop })
-                )
-            }>
+            className={styles.divVmInspectorWrapper}>
             <div className={styles.divStepStateCard}>
                 <div className={styles.divStepStateWrapper}>
                     <label className={styles.lblStepStateLabel}>
