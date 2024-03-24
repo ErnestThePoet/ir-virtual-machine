@@ -83,7 +83,9 @@ const importIr = (
     vmContainer.add(newVm);
 
     const irLines = splitLines(irString);
-    vmContainer.at(vmContainer.length - 1).loadAndDecodeNewInstructions(irLines);
+    vmContainer
+        .at(vmContainer.length - 1)
+        .loadAndDecodeNewInstructions(irLines);
 
     dispatch(
         addVmPageState({
@@ -108,10 +110,6 @@ const importIr = (
             runtimeErrors: newVm.runtimeErrors,
             currentLineNumber: newVm.currentLineNumber,
             shouldIndicateCurrentLineNumber: false,
-
-            scrollHeights: {
-                vmInspector: 0
-            },
 
             localVariableTablePageIndex: 1
         })
@@ -313,10 +311,6 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                                 runtimeErrors: newVm.runtimeErrors,
                                 currentLineNumber: newVm.currentLineNumber,
                                 shouldIndicateCurrentLineNumber: false,
-
-                                scrollHeights: {
-                                    vmInspector: 0
-                                },
 
                                 localVariableTablePageIndex: 1
                             })
