@@ -1,8 +1,14 @@
 import type { Monaco } from "@monaco-editor/react";
 
+let isIrRegistered: boolean = false;
+
 export const irLanguageId = "ir";
 
 export function registerIr(monaco: Monaco) {
+    if (isIrRegistered) {
+        return;
+    }
+
     monaco.languages.register({
         id: irLanguageId
     });
@@ -69,4 +75,6 @@ export function registerIr(monaco: Monaco) {
             };
         }
     });
+
+    isIrRegistered = true;
 }
