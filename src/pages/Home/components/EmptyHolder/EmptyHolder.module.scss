@@ -1,9 +1,11 @@
-@keyframes scale-in {
+@keyframes empty-holder-in {
     from {
-        transform: scale(0.1);
+        filter: blur(5px);
+        transform: scale(1.02);
     }
 
     to {
+        filter: blur(0);
         transform: scale(1);
     }
 }
@@ -15,11 +17,21 @@
     padding: 20px;
 
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 
-    font-size: 27px;
-    color: var(--vm-empty-holder-color);
+    gap: 50px;
+
+    user-select: none;
+
+    animation-duration: 1000ms;
+    animation-name: empty-holder-in;
+}
+
+.imgLogo {
+    width: min(95%, 900px);
+    -webkit-user-drag: none;
 }
 
 .divEmptyHolderText {
@@ -27,8 +39,32 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 15px;
+    gap: 35px;
 
-    animation-duration: 0.5s;
-    animation-name: scale-in;
+    margin-bottom: 50px;
+}
+
+.spanDesc {
+    font-weight: bold;
+    font-size: 24px;
+    color: var(--vm-empty-holder-desc-color);
+}
+
+.divEmptyHolderHintsWrapper {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    font-size: 15px;
+
+    color: var(--vm-empty-holder-hint-color);
+
+    > span {
+        width: 100%;
+    }
+
+    > span[class="hint-title"] {
+        text-align: center;
+    }
 }

@@ -444,7 +444,10 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                         <div>Ernest Cui, Harbin Institute of Technology</div>
                     </p>
 
-                    <p>April 🌼 2023</p>
+                    <p>
+                        <div>April 🌼 2023</div>
+                        <div>V3.0 March 🌸 2024</div>
+                    </p>
 
                     <p>
                         <div>🎉 感谢陈鄞、单丽莉老师的大力支持</div>

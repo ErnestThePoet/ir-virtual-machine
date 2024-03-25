@@ -8,20 +8,39 @@ const EmptyHolder: React.FC = () => {
 
     return (
         <div className={styles.divEmptyHolder}>
+            <img className={styles.imgLogo} src="logo.svg" />
+
             <div className={styles.divEmptyHolderText}>
-                <span>
+                <span className={styles.spanDesc}>
                     {intl.formatMessage({
-                        id: "EMPTY_PLACEHOLDER"
+                        id: "EMPTY_PLACEHOLDER_DESC"
                     })}
                 </span>
 
-                {!isMobileBrowser() && (
-                    <span>
+                <div className={styles.divEmptyHolderHintsWrapper}>
+                    <span className="hint-title">
                         {intl.formatMessage({
-                            id: "EMPTY_PLACEHOLDER_SUPPORT_DRAG"
+                            id: "EMPTY_PLACEHOLDER_HINT_TITLE"
                         })}
                     </span>
-                )}
+                    <span>
+                        {intl.formatMessage({
+                            id: "EMPTY_PLACEHOLDER_HINT_1"
+                        })}
+                    </span>
+                    <span>
+                        {intl.formatMessage({
+                            id: "EMPTY_PLACEHOLDER_HINT_2"
+                        })}
+                    </span>
+                    {!isMobileBrowser() && (
+                        <span>
+                            {intl.formatMessage({
+                                id: "EMPTY_PLACEHOLDER_HINT_3"
+                            })}
+                        </span>
+                    )}
+                </div>
             </div>
         </div>
     );

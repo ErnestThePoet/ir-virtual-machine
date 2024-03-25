@@ -19,6 +19,7 @@
 .divVmWrapper {
     width: 100%;
     height: calc(100% - $tabbar-height);
+    overflow: hidden;
 }
 
 .divVmContentBase {
