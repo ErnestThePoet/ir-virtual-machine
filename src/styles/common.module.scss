@@ -1,7 +1,7 @@
 @mixin slim-scroll-bar {
     &::-webkit-scrollbar {
-        width: 5px;
-        height: 5px;
+        width: 8px;
+        height: 8px;
     }
 
     &::-webkit-scrollbar-thumb {
@@ -25,7 +25,7 @@
     @include slim-scroll-bar;
 
     &::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
+        width: 13px;
+        height: 13px;
     }
 }

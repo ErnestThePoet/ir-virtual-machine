@@ -206,6 +206,10 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
                 }}
                 onChange={e => onIrChange(e)}
                 options={{
+                    scrollbar: {
+                        verticalScrollbarSize: 13,
+                        horizontalScrollbarSize: 13
+                    },
                     minimap: {
                         enabled: false
                     }
