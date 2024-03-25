@@ -1,6 +1,6 @@
 @import "../../../../../styles/layout.module.scss";
 
-.divControlPanelWrapper{
+.divControlPanelWrapper {
     width: 100%;
     height: $control-panel-height;
     display: flex;
@@ -11,24 +11,24 @@
     font-family: sans-serif;
 }
 
-.divSide{
+.divSide {
     height: $control-panel-height;
     display: flex;
     align-items: center;
 }
 
-.iconRun{
+.iconRun {
     color: var(--control-panel-run-icon-color);
 }
 
-.iconStep{
+.iconStep {
     color: var(--control-panel-step-icon-color);
 }
 
-.iconReset{
+.iconReset {
     color: var(--control-panel-reset-icon-color);
 }
 
-.iconClear{
+.iconClear {
     color: var(--control-panel-clear-icon-color);
 }
