@@ -12,7 +12,7 @@
     flex-direction: column;
 }
 
-.divVmConsole{
+.divVmConsole {
     width: 100%;
     height: calc(100% - $control-panel-height);
     max-height: calc(100% - $control-panel-height);
@@ -24,5 +24,10 @@
     flex-direction: column;
 
     overflow-y: auto;
+
     @include thick-scroll-bar;
+}
+
+.divVmConsoleBoxShadow {
+    box-shadow: var(--vm-console-inspector-box-shadow-color) 0 6px 6px -6px inset;
 }

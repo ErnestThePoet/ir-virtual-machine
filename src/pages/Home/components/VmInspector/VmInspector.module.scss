@@ -19,6 +19,10 @@
     font-family: sans-serif;
 }
 
+.divVmInspectorWrapperBoxShadow {
+    box-shadow: var(--vm-console-inspector-box-shadow-color) 0 6px 6px -6px inset;
+}
+
 @mixin inspector-card {
     padding: 15px 20px;
     border: 1px solid var(--vm-inspector-card-border-color);

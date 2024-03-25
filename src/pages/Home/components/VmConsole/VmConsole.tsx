@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./VmConsole.module.scss";
 import { useAppDispatch } from "@/store/hooks";
 import OutputBlock from "./OutputBlock/OutputBlock";
@@ -17,6 +17,7 @@ import vmContainer from "@/modules/vmContainer/vmContainer";
 import { ConsoleMessageType, VmExecutionState } from "@/modules/vm/vm";
 import ControlPanel from "./ControlPanel/ControlPanel";
 import { useEffectDeep } from "@/modules/hooks/useEffectDeep";
+import classNames from "classnames";
 
 interface VmConsoleProps {
     vmIndex: number;
@@ -25,6 +26,8 @@ interface VmConsoleProps {
 
 const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
     const dispatch = useAppDispatch();
+
+    const [showBoxShadow, setShowBoxShadow] = useState(false);
 
     const inputResolve = useRef<((_: string) => void) | null>(null);
 
@@ -120,7 +123,22 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                 }}
             />
 
-            <div ref={divVmConsole} className={styles.divVmConsole}>
+            <div
+                ref={divVmConsole}
+                className={classNames(
+                    styles.divVmConsole,
+                    showBoxShadow && styles.divVmConsoleBoxShadow
+                )}
+                onScroll={e => {
+                    if (e.currentTarget.scrollTop > 0 && !showBoxShadow) {
+                        setShowBoxShadow(true);
+                    } else if (
+                        e.currentTarget.scrollTop <= 0 &&
+                        showBoxShadow
+                    ) {
+                        setShowBoxShadow(false);
+                    }
+                }}>
                 {props.vm.consoleOutputs.map((x, i) => (
                     <OutputBlock key={i} message={x} />
                 ))}

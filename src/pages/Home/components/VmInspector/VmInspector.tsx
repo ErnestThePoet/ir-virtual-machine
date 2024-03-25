@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { InputNumber, Pagination, Tooltip } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
@@ -50,6 +50,8 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
     const intl = useIntl();
     const dispatch = useAppDispatch();
 
+    const [showBoxShadow, setShowBoxShadow] = useState(false);
+
     const divVmInspectorWrapper = useRef<HTMLDivElement>(null);
 
     const currentVm = vmContainer.at(props.vmIndex);
@@ -57,7 +59,17 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
     return (
         <div
             ref={divVmInspectorWrapper}
-            className={styles.divVmInspectorWrapper}>
+            className={classNames(
+                styles.divVmInspectorWrapper,
+                showBoxShadow && styles.divVmInspectorWrapperBoxShadow
+            )}
+            onScroll={e => {
+                if (e.currentTarget.scrollTop > 0 && !showBoxShadow) {
+                    setShowBoxShadow(true);
+                } else if (e.currentTarget.scrollTop <= 0 && showBoxShadow) {
+                    setShowBoxShadow(false);
+                }
+            }}>
             <div className={styles.divStepStateCard}>
                 <div className={styles.divStepStateWrapper}>
                     <label className={styles.lblStepStateLabel}>

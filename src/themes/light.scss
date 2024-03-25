@@ -32,6 +32,8 @@
     --vm-console-prompt-color: rgb(148, 154, 161);
     --vm-console-arrow-color: rgb(0, 120, 212);
 
+    --vm-console-inspector-box-shadow-color: #dddddd;
+
     --control-panel-label-color: rgb(71, 75, 80);
     --control-panel-run-icon-color: rgb(123, 195, 121);
     --control-panel-step-icon-color: rgb(123, 195, 121);
@@ -53,7 +55,7 @@
     --vm-inspector-state-exited-normally-color: #24a600;
     --vm-inspector-state-exited-abnormally-color: #ff8000;
     --vm-inspector-card-border-color: #f0f0f0;
-    --vm-inspector-card-bkg-color: #fff;
+    --vm-inspector-card-bkg-color: transparent;
     --vm-inspector-text-color: #000000;
     --vm-inspector-option-info-icon-color: #666;
     --vm-inspector-option-info-icon-hover-color: #333;
