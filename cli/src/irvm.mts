@@ -136,14 +136,18 @@ vm.configure({
     maxExecutionStepCount: 0
 });
 
+const inputBuffer: string[] = [];
+
 let vmInputResolve: ((_: string) => void) | null = null;
 
 readlineInterface.on("line", line => {
-    vmInputResolve?.(line.trim());
-    if (vmInputResolve && args.prompt) {
-        process.stdout.write("\n");
+    // VM not waiting for input
+    if (vmInputResolve === null) {
+        inputBuffer.push(line.trim());
+    } else {
+        vmInputResolve(line.trim());
+        vmInputResolve = null;
     }
-    vmInputResolve = null;
 });
 
 vm.setReadConsoleFn(prompt => {
@@ -157,14 +161,24 @@ vm.setReadConsoleFn(prompt => {
             )
         );
         readlineInterface.prompt();
+
+        // Only write LF if stdin/stdout is piped to file
+        if (!process.stdin.isTTY || !process.stdout.isTTY) {
+            process.stdout.write("\n");
+        }
     }
 
-    return new Promise(resolve => {
-        vmInputResolve = resolve;
-    });
+    if (inputBuffer.length > 0) {
+        return Promise.resolve(inputBuffer.shift()!);
+    } else {
+        return new Promise(resolve => {
+            vmInputResolve = resolve;
+        });
+    }
 });
 
 vm.loadNewInstructions(splitLines(irString));
+
 await vm.execute();
 
 writeVmOutputs();
