@@ -1,11 +1,12 @@
 {
     "name": "ir-virtual-machine",
     "private": true,
-    "version": "3.0.2",
+    "version": "3.1.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build && touch docs/.nojekyll",
+        "build-cli": "tsc --project cli && cd cli && rollup -c rollup.config.bundle.mjs && python transform_cjs_import.py build/irvm.js && rollup -c rollup.config.minify.mjs && rmdir /S /Q tsc_out && cd ..",
         "preview": "vite preview",
         "test": "jest"
     },
@@ -27,11 +28,14 @@
         "@babel/core": "^7.21.4",
         "@babel/preset-env": "^7.21.4",
         "@babel/preset-typescript": "^7.21.4",
+        "@rollup/plugin-terser": "^0.4.4",
+        "@types/node": "^20.11.30",
         "@types/react": "^18.0.28",
         "@types/react-dom": "^18.0.11",
         "@vitejs/plugin-react": "^3.1.0",
         "babel-jest": "^29.5.0",
         "jest": "^29.5.0",
+        "rollup": "^4.13.0",
         "sass": "^1.62.0",
         "typescript": "^4.9.3",
         "vite": "^4.2.0",

@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "baseUrl": "../",
+        "outDir": "tsc_out",
+        "paths": {
+            "@/*": ["src/*"]
+        },
+        "target": "ESNext",
+        "useDefineForClassFields": true,
+        "lib": ["ESNext"],
+        "allowJs": false,
+        "skipLibCheck": true,
+        "esModuleInterop": false,
+        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "resolveJsonModule": true,
+        "isolatedModules": true
+    },
+    "include": ["src/irvm.mts"]
+}
