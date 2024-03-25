@@ -452,6 +452,7 @@ const SideBar: React.FC<SideBarProps> = (props: SideBarProps) => {
                     <p>
                         <div>🎉 感谢陈鄞、单丽莉老师的大力支持</div>
                         <div>㊙️ 虚拟机的说明请见仓库首页的文档</div>
+                        <div>⚙️ 仓库中的CLI版本可用于自动化测试</div>
                     </p>
 
                     <p className="info">
