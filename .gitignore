@@ -25,6 +25,8 @@ node_modules
 *.sln
 *.sw?
 
+cli/tsc_out
+
 public/demos/cc.exe
 public/demos/all.py
 
