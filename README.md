@@ -112,7 +112,7 @@ node irvm.mjs rand.ir
 ```
 node irvm.mjs rand.ir > rand.out
 ```
-- 运行IR程序，从文件读取输入，将`stdout`上输出写入文件（PowerShell环境）：
+- 运行IR程序，从文件读取输入，将`stdout`上的输出写入文件（PowerShell环境）：
 ```
 type rand.in | node irvm.mjs rand.ir > rand.out
 ```
