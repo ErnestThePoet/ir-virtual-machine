@@ -25,8 +25,10 @@ const OutputBlock: React.FC<OutputBlockProps> = (props: OutputBlockProps) => {
                                 x.type === ConsoleMessageType.WARNING,
                             [styles.spanSuccess]:
                                 x.type === ConsoleMessageType.SUCCESS,
-                            [styles.spanNormal]:
-                                x.type === ConsoleMessageType.NORMAL,
+                            [styles.spanInput]:
+                                x.type === ConsoleMessageType.INPUT,
+                            [styles.spanOutput]:
+                                x.type === ConsoleMessageType.OUTPUT,
                             [styles.spanPrompt]:
                                 x.type === ConsoleMessageType.PROMPT,
                             [styles.spanArrow]:

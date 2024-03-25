@@ -168,7 +168,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                                         values: {
                                             value: props.vm.consoleInput
                                         },
-                                        type: ConsoleMessageType.NORMAL
+                                        type: ConsoleMessageType.INPUT
                                     }
                                 ]
                             ])

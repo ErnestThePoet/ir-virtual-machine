@@ -183,7 +183,8 @@ export enum ConsoleMessageType {
     SUCCESS,
     ERROR,
     WARNING,
-    NORMAL,
+    INPUT,
+    OUTPUT,
     PROMPT,
     ARROW
 }
@@ -445,6 +446,10 @@ export class Vm {
 
     get currentPeakMemoryUsage(): VmPeakMemoryUsage {
         return this.peakMemoryUsage;
+    }
+
+    get returnValue(): number {
+        return this.registers.eax;
     }
 
     updatePeakMemoryUsage() {
@@ -1648,7 +1653,7 @@ export class Vm {
                         values: {
                             value: value
                         },
-                        type: ConsoleMessageType.NORMAL
+                        type: ConsoleMessageType.OUTPUT
                     }
                 ]);
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { useIntl } from "react-intl";
 import styles from "./EmptyHolder.module.scss";
-import { isMobileBrowser } from "@/modules/utils";
+import { isMobileBrowser } from "@/modules/dom-utils";
 
 const EmptyHolder: React.FC = () => {
     const intl = useIntl();

@@ -20,8 +20,12 @@
     color: var(--vm-console-success-color);
 }
 
-.spanNormal {
-    color: var(--vm-console-normal-color);
+.spanInput {
+    color: var(--vm-console-input-color);
+}
+
+.spanOutput {
+    color: var(--vm-console-output-color);
 }
 
 .spanPrompt {
