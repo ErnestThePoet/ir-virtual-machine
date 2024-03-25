@@ -150,6 +150,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                     onEnter={() => {
                         if (inputResolve.current !== null) {
                             inputResolve.current(props.vm.consoleInput);
+                            inputResolve.current = null;
                         }
 
                         dispatch(
