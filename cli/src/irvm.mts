@@ -16,26 +16,27 @@ const argParser = new ArgumentParser({
 
 argParser.add_argument("irFile", {
     nargs: 1,
-    help: "IR file to run"
+    help: "path to IR file that will be run"
 });
 
-argParser.add_argument("--prompt", {
+argParser.add_argument("-p", "--prompt", {
     action: "store_true",
     dest: "prompt",
-    help: "Print input prompt to stdout"
+    help: "print input prompt to stdout"
 });
 
-argParser.add_argument("--summary", {
+argParser.add_argument("-s", "--summary", {
     action: "store_true",
     dest: "summary",
-    help: "Print execution summary to stdout after execution finishes"
+    help: "print execution summary to stdout after execution finishes"
 });
 
-argParser.add_argument("--locale", {
+argParser.add_argument("-l", "--locale", {
     action: "store",
     dest: "locale",
     choices: ["en", "zh-cn"],
-    default: "zh-cn"
+    default: "zh-cn",
+    help: "CLI message locale, defaults to 'zh-cn'"
 });
 
 const args = argParser.parse_args();
