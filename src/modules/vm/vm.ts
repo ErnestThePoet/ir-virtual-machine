@@ -143,6 +143,8 @@ export interface VmErrorItem {
 
 interface VmExecutionStatus {
     stepCount: number;
+    // Only updated after execution is finished
+    timeElapsed: number;
     state: VmExecutionState;
     callStack: string[];
     // Used to index which line contains static/runtime error and should be marked
@@ -172,6 +174,7 @@ const initialTables: VmTables = {
 
 const initialExecutionStatus: VmExecutionStatus = {
     stepCount: 0,
+    timeElapsed: 0,
     state: VmExecutionState.INITIAL,
     callStack: [],
     staticErrors: [],
@@ -425,6 +428,10 @@ export class Vm {
 
     get stepCount(): number {
         return this.executionStatus.stepCount;
+    }
+
+    get timeElapsed(): number {
+        return this.executionStatus.timeElapsed;
     }
 
     get memoryUsage(): VmMemoryUsage {
@@ -807,7 +814,8 @@ export class Vm {
      * Finalize the VM when main function returns.
      */
     private finalizeExcution() {
-        const executionEndTime = new Date();
+        this.executionStatus.timeElapsed =
+            new Date().getTime() - this.executionStartTime.getTime();
 
         // Cleanup global variable
         this.registers.edx = 0;
@@ -835,9 +843,7 @@ export class Vm {
                 key: "EXECUTION_STEP_COUNT_TIME",
                 values: {
                     stepCount: this.executionStatus.stepCount,
-                    time:
-                        executionEndTime.getTime() -
-                        this.executionStartTime.getTime()
+                    time: this.executionStatus.timeElapsed
                 },
                 type:
                     this.registers.eax === 0
