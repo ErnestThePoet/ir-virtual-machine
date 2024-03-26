@@ -1,4 +1,5 @@
 import type { Monaco } from "@monaco-editor/react";
+import * as monacoEditor from "monaco-editor";
 
 let isIrRegistered: boolean = false;
 
@@ -29,6 +30,9 @@ export function registerIr(monaco: Monaco) {
         colors: {}
     });
 
+    const irIdentifierPattern = "[a-zA-Z_]\\w*";
+    const irWhiteSpacePattern = "[ \\t\\r\\n]+";
+
     const irKeywords = [
         "FUNCTION",
         "DEC",
@@ -46,8 +50,8 @@ export function registerIr(monaco: Monaco) {
 
     monaco.languages.setMonarchTokensProvider(irLanguageId, {
         keywords: irKeywords,
-        identifier: /[a-zA-Z_]\w*/,
-        whitespace: /[ \t\r\n]+/,
+        identifier: irIdentifierPattern,
+        whitespace: irWhiteSpacePattern,
         defaultToken: "source",
         tokenizer: {
             root: [
@@ -124,6 +128,57 @@ export function registerIr(monaco: Monaco) {
                     }))
                 ]
             };
+        }
+    });
+
+    monaco.languages.registerFoldingRangeProvider(irLanguageId, {
+        provideFoldingRanges: model => {
+            const lines = model.getLinesContent();
+            const ranges: monacoEditor.languages.FoldingRange[] = [];
+            let functionLineNumber = -1;
+            let returnLineNumber = -1;
+            let nonEmptyLineNumber = -1;
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+
+                if (line !== "") {
+                    nonEmptyLineNumber = i + 1;
+                }
+
+                if (
+                    line.match(
+                        `^FUNCTION${irWhiteSpacePattern}` +
+                            `${irIdentifierPattern}${irWhiteSpacePattern}:$`
+                    )
+                ) {
+                    if (functionLineNumber !== -1 && returnLineNumber !== -1) {
+                        ranges.push({
+                            start: functionLineNumber,
+                            end: returnLineNumber,
+                            kind: monaco.languages.FoldingRangeKind.Region
+                        });
+
+                        returnLineNumber = -1;
+                    }
+                    functionLineNumber = i + 1;
+                } else if (
+                    line.match(
+                        `^RETURN${irWhiteSpacePattern}` +
+                            // Singular pattern defined in VM decoder
+                            `((#-?\\d+)|([a-zA-Z_]\\w*)|(\\*[a-zA-Z_]\\w*)|(&[a-zA-Z_]\\w*))$`
+                    )
+                ) {
+                    returnLineNumber = i + 1;
+                }
+            }
+
+            ranges.push({
+                start: functionLineNumber,
+                end: nonEmptyLineNumber,
+                kind: monaco.languages.FoldingRangeKind.Region
+            });
+
+            return ranges;
         }
     });
 
