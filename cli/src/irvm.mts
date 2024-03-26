@@ -43,7 +43,7 @@ argParser.add_argument("-r", {
     help: "print human-readable execution summary to stdout after execution finishes"
 });
 
-argParser.add_argument("-l", "--locale", {
+argParser.add_argument("-l", {
     action: "store",
     dest: "locale",
     choices: ["en", "zh-cn"],
