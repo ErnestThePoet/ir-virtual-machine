@@ -8,7 +8,7 @@ import {
     Vm,
     VmExecutionState
 } from "../../src/modules/vm/vm";
-import { splitLines } from "../../src/modules/utils";
+import { splitLines, splitStreamInputs } from "../../src/modules/utils";
 
 const argParser = new ArgumentParser({
     description: "IR Virtual Machine CLI"
@@ -67,8 +67,7 @@ switch (args.locale) {
 }
 
 const readlineInterface = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
+    input: process.stdin
 });
 
 let irString: string;
@@ -137,15 +136,16 @@ vm.configure({
 });
 
 const inputBuffer: string[] = [];
+let nextInputIndex: number = 0;
 
 let vmInputResolve: ((_: string) => void) | null = null;
 
 readlineInterface.on("line", line => {
-    // VM not waiting for input
-    if (vmInputResolve === null) {
-        inputBuffer.push(line.trim());
-    } else {
-        vmInputResolve(line.trim());
+    const inputParts = splitStreamInputs(line);
+    inputBuffer.push(...inputParts);
+    // VM is waiting for input
+    if (vmInputResolve !== null && nextInputIndex < inputBuffer.length) {
+        vmInputResolve(inputBuffer[nextInputIndex++]);
         vmInputResolve = null;
     }
 });
@@ -154,22 +154,16 @@ vm.setReadConsoleFn(prompt => {
     writeVmOutputs();
 
     if (args.prompt) {
-        readlineInterface.setPrompt(
+        console.log(
             prompt.reduce(
                 (p, c) => p + intl.formatMessage({ id: c.key }, c.values),
                 ""
             )
         );
-        readlineInterface.prompt();
-
-        // Only write LF if stdin/stdout is piped to file
-        if (!process.stdin.isTTY || !process.stdout.isTTY) {
-            process.stdout.write("\n");
-        }
     }
 
-    if (inputBuffer.length > 0) {
-        return Promise.resolve(inputBuffer.shift()!);
+    if (nextInputIndex < inputBuffer.length) {
+        return Promise.resolve(inputBuffer[nextInputIndex++]);
     } else {
         return new Promise(resolve => {
             vmInputResolve = resolve;
