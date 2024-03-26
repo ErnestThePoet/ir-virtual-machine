@@ -1,5 +1,6 @@
 import type { Monaco } from "@monaco-editor/react";
 import * as monacoEditor from "monaco-editor";
+import { IR_KEYWORDS } from "../vm/decoder";
 
 let isIrRegistered: boolean = false;
 
@@ -33,23 +34,8 @@ export function registerIr(monaco: Monaco) {
     const irIdentifierPattern = "[a-zA-Z_]\\w*";
     const irWhiteSpacePattern = "[ \\t\\r\\n]+";
 
-    const irKeywords = [
-        "FUNCTION",
-        "DEC",
-        "GLOBAL_DEC",
-        "LABEL",
-        "GOTO",
-        "IF",
-        "ARG",
-        "PARAM",
-        "CALL",
-        "RETURN",
-        "READ",
-        "WRITE"
-    ];
-
     monaco.languages.setMonarchTokensProvider(irLanguageId, {
-        keywords: irKeywords,
+        keywords: IR_KEYWORDS,
         identifier: irIdentifierPattern,
         whitespace: irWhiteSpacePattern,
         defaultToken: "source",
@@ -111,13 +97,13 @@ export function registerIr(monaco: Monaco) {
             };
             return {
                 suggestions: [
-                    ...irKeywords.map(x => ({
+                    ...IR_KEYWORDS.map(x => ({
                         label: x,
                         kind: monaco.languages.CompletionItemKind.Keyword,
                         insertText: x,
                         range
                     })),
-                    ...irKeywords.map((x, i) => ({
+                    ...IR_KEYWORDS.map((x, i) => ({
                         label: `${x} Snippet`,
                         kind: monaco.languages.CompletionItemKind.Snippet,
                         insertText: irKeywordSnippetParts[i],

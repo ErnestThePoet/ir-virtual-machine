@@ -200,6 +200,23 @@ export type DecodedExecutableInstruction = Omit<DecodedInstruction, "type"> & {
 
 type DecodedInstructionNoMeta = Omit<DecodedInstruction, "lineNumber">;
 
+export const IR_KEYWORDS = [
+    "FUNCTION",
+    "DEC",
+    "GLOBAL_DEC",
+    "LABEL",
+    "GOTO",
+    "IF",
+    "ARG",
+    "PARAM",
+    "CALL",
+    "RETURN",
+    "READ",
+    "WRITE"
+];
+
+const IR_KEYWORD_SET = new Set<string>(IR_KEYWORDS);
+
 /**
  * Decoder breaks down an IR instruction
  */
@@ -238,7 +255,7 @@ export class Decoder {
     private decodeComponentId(id: string): string | null {
         const match = id.match(this.patternId);
 
-        if (match === null) {
+        if (match === null || IR_KEYWORD_SET.has(id)) {
             return null;
         }
 
