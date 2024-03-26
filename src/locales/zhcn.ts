@@ -19,9 +19,9 @@ const zhCn = {
     EMPTY_PLACEHOLDER_DESC:
         "用于哈尔滨工业大学/南京大学《编译原理》课程实验的中间代码虚拟机",
     EMPTY_PLACEHOLDER_HINT_TITLE: "您可以：",
-    EMPTY_PLACEHOLDER_HINT_1: "尝试一下左侧菜单中的各种示例程序",
-    EMPTY_PLACEHOLDER_HINT_2: "在左侧菜单中新建或导入.ir文件",
-    EMPTY_PLACEHOLDER_HINT_3: "直接将一个或多个.ir文件拖入页面",
+    EMPTY_PLACEHOLDER_HINT_1: "在左侧菜单中新建或导入.ir文件",
+    EMPTY_PLACEHOLDER_HINT_2: "直接将一个或多个.ir文件拖入页面",
+    EMPTY_PLACEHOLDER_HINT_3: "尝试一下左侧菜单中的各种示例程序",
     FETCH_FAILED: "fetch() {url} 失败",
     NOT_AN_IR_FILE: "{fileName}不是一个ir文件",
     IR_IMPORT_FAILED: "{fileName}导入失败",

@@ -20,9 +20,9 @@ const en: AppLocale = {
     EMPTY_PLACEHOLDER_DESC:
         "An IR virtual machine for HIT/NJU Compilation Principle labs",
     EMPTY_PLACEHOLDER_HINT_TITLE: "You may:",
-    EMPTY_PLACEHOLDER_HINT_1: "Try out Demos in left sidebar",
-    EMPTY_PLACEHOLDER_HINT_2: "Add or import .ir files in left sidebar",
-    EMPTY_PLACEHOLDER_HINT_3: "Drag one or more .ir files inside",
+    EMPTY_PLACEHOLDER_HINT_1: "Add or import .ir files in left sidebar",
+    EMPTY_PLACEHOLDER_HINT_2: "Drag one or more .ir files inside",
+    EMPTY_PLACEHOLDER_HINT_3: "Try out Demos in left sidebar",
     FETCH_FAILED: "fetch() for {url} failed",
     NOT_AN_IR_FILE: "{fileName} is not an ir file",
     IR_IMPORT_FAILED: "Failed to import {fileName}",
