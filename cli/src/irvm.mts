@@ -19,16 +19,28 @@ argParser.add_argument("irFile", {
     help: "path to IR file that will be run"
 });
 
-argParser.add_argument("-p", "--prompt", {
+argParser.add_argument("-p", {
     action: "store_true",
     dest: "prompt",
     help: "print input prompt to stdout"
 });
 
-argParser.add_argument("-s", "--summary", {
+argParser.add_argument("-s", {
+    action: "store_true",
+    dest: "stepCount",
+    help: "print machine-readable execution step count to stdout after execution finishes"
+});
+
+argParser.add_argument("-t", {
+    action: "store_true",
+    dest: "timeElapsed",
+    help: "print machine-readable execution time in milliseconds to stdout after execution finishes"
+});
+
+argParser.add_argument("-r", {
     action: "store_true",
     dest: "summary",
-    help: "print execution summary to stdout after execution finishes"
+    help: "print human-readable execution summary to stdout after execution finishes"
 });
 
 argParser.add_argument("-l", "--locale", {
@@ -176,6 +188,14 @@ vm.loadNewInstructions(splitLines(irString));
 await vm.execute();
 
 writeVmOutputs();
+
+if (args.stepCount) {
+    console.log(vm.stepCount);
+}
+
+if (args.timeElapsed) {
+    console.log(vm.timeElapsed);
+}
 
 switch (vm.state) {
     case VmExecutionState.EXITED_NORMALLY:
