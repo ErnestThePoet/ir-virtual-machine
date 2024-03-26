@@ -1258,13 +1258,11 @@ export class Vm {
         // Allow immediate rerun after exit
         if (
             this.executionStatus.state === VmExecutionState.EXITED_NORMALLY ||
-            this.executionStatus.state === VmExecutionState.EXITED_ABNORMALLY
+            this.executionStatus.state === VmExecutionState.EXITED_ABNORMALLY ||
+            this.executionStatus.state === VmExecutionState.INITIAL
         ) {
-            this.reset();
-        }
-
-        if (this.executionStatus.state === VmExecutionState.INITIAL) {
-            // Clear error items generated during editor static check
+            // reset() for INITIAL state will clear error items generated during
+            // editor static check
             this.reset();
             this.prepareExcution();
         }
