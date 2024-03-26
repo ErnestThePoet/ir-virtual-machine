@@ -36,6 +36,11 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
         nextInputIndex: 0
     });
 
+    const clearInputBuffer = () => {
+        inputBuffer.current.buffer = [];
+        inputBuffer.current.nextInputIndex = 0;
+    };
+
     const divVmConsole = useRef<HTMLDivElement>(null);
     const inVmInput = useRef<HTMLInputElement>(null);
 
@@ -119,6 +124,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
 
                     dispatch(setShouldIndicateCurrentLineNumber(false));
                     await currentVm.execute();
+                    clearInputBuffer();
                     syncVmState(dispatch, props.vm.id);
                 }}
                 onRunStepClick={async () => {
@@ -138,6 +144,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                             break;
                         case VmExecutionState.EXITED_NORMALLY:
                         case VmExecutionState.EXITED_ABNORMALLY:
+                            clearInputBuffer();
                             dispatch(setShouldIndicateCurrentLineNumber(false));
                             break;
                     }
@@ -150,6 +157,15 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                     dispatch(setLocalVariableTablePageIndex(1));
                     currentVm.reset();
                     currentVm.decodeInstructions(true);
+
+                    // release the hung context
+                    if (inputResolve.current !== null) {
+                        inputResolve.current("");
+                        inputResolve.current = null;
+                    }
+
+                    clearInputBuffer();
+
                     syncVmState(dispatch, props.vm.id);
                 }}
                 onClearClick={() => {

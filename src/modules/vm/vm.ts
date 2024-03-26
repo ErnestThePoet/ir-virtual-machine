@@ -1613,6 +1613,11 @@ export class Vm {
                     }
                 ]);
 
+                // VM has been reset while waiting for input
+                if (this.state !== VmExecutionState.WAIT_INPUT) {
+                    return;
+                }
+
                 this.executionStatus.state = VmExecutionState.BUSY;
 
                 const value = parseInt(valueString);
