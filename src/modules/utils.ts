@@ -33,6 +33,13 @@ export function splitLines(x: string): string[] {
     return x.replace(/\r/g, "").split("\n");
 }
 
+export function splitStreamInputs(x: string): string[] {
+    return x
+        .trim()
+        .split(/\s/)
+        .filter(x => x.length > 0);
+}
+
 export function toKiB(b: number): number {
     return b / 1024;
 }

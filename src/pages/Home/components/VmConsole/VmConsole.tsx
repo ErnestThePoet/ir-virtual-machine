@@ -18,6 +18,7 @@ import { ConsoleMessageType, VmExecutionState } from "@/modules/vm/vm";
 import ControlPanel from "./ControlPanel/ControlPanel";
 import { useEffectDeep } from "@/modules/hooks/useEffectDeep";
 import classNames from "classnames";
+import { splitStreamInputs } from "@/modules/utils";
 
 interface VmConsoleProps {
     vmIndex: number;
@@ -30,6 +31,10 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
     const [showBoxShadow, setShowBoxShadow] = useState(false);
 
     const inputResolve = useRef<((_: string) => void) | null>(null);
+    const inputBuffer = useRef<{ buffer: string[]; nextInputIndex: number }>({
+        buffer: [],
+        nextInputIndex: 0
+    });
 
     const divVmConsole = useRef<HTMLDivElement>(null);
     const inVmInput = useRef<HTMLInputElement>(null);
@@ -40,8 +45,6 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
 
     useEffect(() => {
         currentVm.setReadConsoleFn(prompt => {
-            dispatch(setConsoleInputPrompt(prompt));
-
             // When we encounter a read during continuous run or
             // single step run, this will get the page display updated.
             if (!isContinuousExecution.current) {
@@ -52,9 +55,44 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
             // Auto focus input
             inVmInput.current?.focus();
 
-            return new Promise(resolve => {
-                inputResolve.current = resolve;
-            });
+            if (
+                inputBuffer.current.nextInputIndex <
+                inputBuffer.current.buffer.length
+            ) {
+                dispatch(
+                    addConsoleOutputs([
+                        [
+                            {
+                                key: "CONSOLE_ARROW",
+                                type: ConsoleMessageType.ARROW
+                            },
+                            ...prompt.map(x => ({
+                                ...x,
+                                type: ConsoleMessageType.PROMPT
+                            })),
+                            {
+                                key: "READ_INPUT",
+                                values: {
+                                    value: props.vm.consoleInput
+                                },
+                                type: ConsoleMessageType.INPUT
+                            }
+                        ]
+                    ])
+                );
+
+                return Promise.resolve(
+                    inputBuffer.current.buffer[
+                        inputBuffer.current.nextInputIndex++
+                    ]
+                );
+            } else {
+                dispatch(setConsoleInputPrompt(prompt));
+
+                return new Promise(resolve => {
+                    inputResolve.current = resolve;
+                });
+            }
         });
     }, []);
 
@@ -148,8 +186,21 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                     value={props.vm.consoleInput}
                     onChange={e => dispatch(setConsoleInput(e))}
                     onEnter={() => {
-                        if (inputResolve.current !== null) {
-                            inputResolve.current(props.vm.consoleInput);
+                        const inputParts = splitStreamInputs(
+                            props.vm.consoleInput
+                        );
+                        inputBuffer.current.buffer.push(...inputParts);
+                        // VM is waiting for input
+                        if (
+                            inputResolve.current !== null &&
+                            inputBuffer.current.nextInputIndex <
+                                inputBuffer.current.buffer.length
+                        ) {
+                            inputResolve.current(
+                                inputBuffer.current.buffer[
+                                    inputBuffer.current.nextInputIndex++
+                                ]
+                            );
                             inputResolve.current = null;
                         }
 
