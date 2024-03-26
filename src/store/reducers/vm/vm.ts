@@ -14,6 +14,8 @@ import { AppDispatch } from "@/store/store";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
+const MAX_CONSOLE_OUTPUT_COUNT = 1500;
+
 export interface SingleVmPageState {
     // ID is used to definitely identify a VM
     id: number;
@@ -151,8 +153,26 @@ export const vmSlice = createSlice({
             state,
             action: PayloadAction<Array<ConsoleMessagePart[]>>
         ) => {
-            for (const i of action.payload) {
-                state.vmPageStates[state.activeVmIndex].consoleOutputs.push(i);
+            const currentCount =
+                state.vmPageStates[state.activeVmIndex].consoleOutputs.length;
+            const addCount = action.payload.length;
+
+            if (addCount >= MAX_CONSOLE_OUTPUT_COUNT) {
+                state.vmPageStates[state.activeVmIndex].consoleOutputs =
+                    action.payload.slice(addCount - MAX_CONSOLE_OUTPUT_COUNT);
+            } else {
+                if (currentCount + addCount > MAX_CONSOLE_OUTPUT_COUNT) {
+                    state.vmPageStates[state.activeVmIndex].consoleOutputs =
+                        state.vmPageStates[
+                            state.activeVmIndex
+                        ].consoleOutputs.slice(
+                            currentCount + addCount - MAX_CONSOLE_OUTPUT_COUNT
+                        );
+                }
+
+                state.vmPageStates[state.activeVmIndex].consoleOutputs.push(
+                    ...action.payload
+                );
             }
         },
         clearConsoleOutputs: state => {
