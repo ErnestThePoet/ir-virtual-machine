@@ -42,7 +42,7 @@
 对于每个导入的`.ir`文件，系统都会创建一个新的虚拟机实例，您可以在页面中以标签页的形式切换这些实例。
 
 ### 编辑IR代码
-虚拟机实例界面的左侧是IR代码编辑器，它使用的是与VSCode同款的[Monaco Editor](https://github.com/microsoft/monaco-editor)，支持IR代码的语法高亮、智能补全、搜索替换与可视化错误提示等多种功能。您可以在其中编辑IR代码，并且方便地发现和修正IR代码的静态检查错误。
+虚拟机实例界面的左侧是IR代码编辑器，它使用的是与VSCode同款的[Monaco Editor](https://github.com/microsoft/monaco-editor)，支持IR代码的语法高亮、智能补全、搜索（`Ctrl+F`）、替换（`Ctrl+H`）、切换注释（`Ctrl+/`）与可视化错误提示等多种功能。您可以在其中编辑IR代码，并且方便地发现和修正IR代码的静态检查错误。
 
 ### 运行IR代码
 虚拟机实例界面的中间是虚拟机控制台。点击控制台顶部的`运行`按钮，虚拟机将运行IR程序；点击`单步`按钮，虚拟机则将一步一步执行IR程序。在单步执行过程中，点击`运行`按钮可以切换到连续运行模式。当执行到`READ`指令时，控制台中会显示输入提示消息，您完成输入后按下`Enter`键即可。虚拟机采用流式输入，您可以在一行中用任意空白符号分隔多组数据。程序执行结束时，控制台会输出程序`main`函数的返回值和运行统计信息。  
@@ -110,20 +110,24 @@ IR虽然简单，其实无所不能。难道你不想试试左侧菜单中`示�
 首先需要安装[最新版Node.js](https://nodejs.org/en/download)。  
 进入`irvm.mjs`所在目录，使用以下命令运行虚拟机CLI：
 ```
-node irvm.mjs [-h] [-p] [-s] [-l {en,zh-cn}] irFile
+node irvm.mjs [-h] [-p] [-s] [-t] [-r] [-l {en,zh-cn}] irFile
 ```
 - 必须参数
   - `irFile`：要执行的IR文件路径
 - 可选参数
   - `-h, --help`：展示帮助
-  - `-p, --prompt`：将输入时的提示文字打印到`stdout`，不提供此参数则不打印
-  - `-s, --summary`：将执行结束时的执行统计打印到`stdout`，不提供此参数则不打印
+  - `-p`：将输入时的提示文字打印到`stdout`，不提供此参数则不打印
+  - `-s`：执行结束后，将执行步数打印到`stdout`，便于机器解析。不提供此参数则不打印
+  - `-t`：执行结束后，将执行耗时（以毫秒为单位）打印到`stdout`，便于机器解析。不提供此参数则不打印
+  - `-r`：执行结束后，将`main`函数返回结果和统计信息以自然语言打印到`stdout`，便于人类阅读。不提供此参数则不打印
   - `-l {en,zh-cn}, --locale {en,zh-cn}`：CLI程序的界面语言，默认为`zh-cn`
 
+当IR程序正常退出（`main`函数返回值为`0`）时，`node`进程的返回值同样是`0`；否则，`node`进程的返回值就是`main`函数的返回值。如果CLI程序在执行时发生了错误，则进程不会返回`0`。
+
 ### 使用示例
-- 运行IR程序，打印输入提示和执行统计：
+- 运行IR程序，打印输入提示和人类可读的执行统计：
 ```
-node irvm.mjs rand.ir -p -s
+node irvm.mjs rand.ir -p -r
 ```
 - 运行IR程序，不打印输入提示和执行统计：
 ```
@@ -133,15 +137,15 @@ node irvm.mjs rand.ir
 ```
 node irvm.mjs rand.ir > out.txt
 ```
-- 运行IR程序，从文件读取输入，将`stdout`上的输出写入文件（Windows CMD/PowerShell环境）：
+- 运行IR程序，从文件读取输入，将`stdout`上的输出写入文件，并输出机器可读的执行步数（Windows CMD/PowerShell环境）：
 ```
-type in.txt | node irvm.mjs rand.ir > out.txt
+type in.txt | node irvm.mjs rand.ir -s > out.txt
 ```
-- 运行IR程序，从文件读取输入，将`stdout`上的输出写入文件（Linux环境）：
+- 上一个示例的Linux环境命令：
 ```
-cat in.txt | node irvm.mjs rand.ir > out.txt
+cat in.txt | node irvm.mjs rand.ir -s > out.txt
 ```
-CLI版虚拟机同样以流的方式读取输入，控制台或者输入文件中的各个数据之间可用任意空白符号分隔。
+CLI版虚拟机同样以流的方式读取输入，控制台或者输入文件中的各个数据之间可用任意空白符号分隔。**注意输入文件中的数据数量不能少于程序将要读取的数据数量。**
 
 ## 一些设计理念与讨论
 - **全局变量相互不能重名，同一函数内的变量、形参相互不能重名，函数内的变量、形参可以但不建议和全局变量重名，不同函数内的变量、形参可以但不建议重名**  
