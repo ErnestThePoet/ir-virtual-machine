@@ -81,22 +81,55 @@ export function registerIr(monaco: Monaco) {
         }
     });
 
+    const irKeywordSnippetParts = [
+        "FUNCTION ${1:id} :\n",
+        "DEC ${1:id} ${2:size}",
+        "GLOBAL_DEC ${1:id} ${2:size}",
+        "LABEL ${1:id} :\n",
+        "GOTO ${1:label}",
+        "IF ${1:condition} GOTO ${2:label}",
+        "ARG ${1:value}",
+        "PARAM ${1:id}",
+        "CALL ${1:id}",
+        "RETURN ${1:value}",
+        "READ ${1:id}",
+        "WRITE ${1:value}"
+    ];
+
     monaco.languages.registerCompletionItemProvider(irLanguageId, {
         provideCompletionItems: (model, position) => {
             const word = model.getWordUntilPosition(position);
-            return {
-                suggestions: irKeywords.map(x => ({
-                    label: x,
-                    kind: monaco.languages.CompletionItemKind.Keyword,
-                    insertText: x,
-                    range: {
-                        startLineNumber: position.lineNumber,
-                        endLineNumber: position.lineNumber,
-                        startColumn: word.startColumn,
-                        endColumn: word.endColumn
-                    }
-                }))
+            const range = {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: word.startColumn,
+                endColumn: word.endColumn
             };
+            return {
+                suggestions: [
+                    ...irKeywords.map(x => ({
+                        label: x,
+                        kind: monaco.languages.CompletionItemKind.Keyword,
+                        insertText: x,
+                        range
+                    })),
+                    ...irKeywords.map((x, i) => ({
+                        label: `${x} Snippet`,
+                        kind: monaco.languages.CompletionItemKind.Snippet,
+                        insertText: irKeywordSnippetParts[i],
+                        insertTextRules:
+                            monaco.languages.CompletionItemInsertTextRule
+                                .InsertAsSnippet,
+                        range
+                    }))
+                ]
+            };
+        }
+    });
+
+    monaco.languages.setLanguageConfiguration(irLanguageId, {
+        comments: {
+            lineComment: ";"
         }
     });
 
