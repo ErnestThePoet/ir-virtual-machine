@@ -171,7 +171,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                 onClearClick={() => {
                     dispatch(clearConsoleOutputs());
                     dispatch(setConsoleInput(""));
-                    if (props.vm.state === VmExecutionState.WAIT_INPUT) {
+                    if (currentVm.state === VmExecutionState.WAIT_INPUT) {
                         inVmInput.current?.focus();
                     }
                 }}
@@ -202,22 +202,30 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                     value={props.vm.consoleInput}
                     onChange={e => dispatch(setConsoleInput(e))}
                     onEnter={() => {
-                        const inputParts = splitStreamInputs(
-                            props.vm.consoleInput
-                        );
-                        inputBuffer.current.buffer.push(...inputParts);
-                        // VM is waiting for input
                         if (
-                            inputResolve.current !== null &&
-                            inputBuffer.current.nextInputIndex <
-                                inputBuffer.current.buffer.length
+                            currentVm.state === VmExecutionState.WAIT_INPUT ||
+                            // Actually onEnter won't happen when VM is busy
+                            currentVm.state === VmExecutionState.BUSY ||
+                            // Also write input buffer when pausing in single step run
+                            currentVm.state === VmExecutionState.FREE
                         ) {
-                            inputResolve.current(
-                                inputBuffer.current.buffer[
-                                    inputBuffer.current.nextInputIndex++
-                                ]
+                            const inputParts = splitStreamInputs(
+                                props.vm.consoleInput
                             );
-                            inputResolve.current = null;
+                            inputBuffer.current.buffer.push(...inputParts);
+                            // VM is waiting for input
+                            if (
+                                inputResolve.current !== null &&
+                                inputBuffer.current.nextInputIndex <
+                                    inputBuffer.current.buffer.length
+                            ) {
+                                inputResolve.current(
+                                    inputBuffer.current.buffer[
+                                        inputBuffer.current.nextInputIndex++
+                                    ]
+                                );
+                                inputResolve.current = null;
+                            }
                         }
 
                         dispatch(
