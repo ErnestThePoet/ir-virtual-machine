@@ -50,7 +50,7 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
 
     const currentVm = vmContainer.at(props.vmIndex);
 
-    useEffectDeep(() => {
+    const syncStaticErrors = () => {
         if (
             monacoRef.current !== null &&
             editorRef.current !== null &&
@@ -74,7 +74,9 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
         }
         // make sure changing locale when there are already markers
         // will change marker messages
-    }, [props.vm.staticErrors, intl.messages]);
+    };
+
+    useEffectDeep(syncStaticErrors, [props.vm.staticErrors, intl.messages]);
 
     useEffectDeep(() => {
         if (runtimeErrorDecorations.current !== null) {
@@ -197,11 +199,11 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
                 onMount={editor => {
                     editorRef.current = editor;
                     editor.setValue(props.vm.irString);
-                    // We initially load IR into VM and decode IR here.
-                    currentVm.loadAndDecodeNewInstructions(
-                        splitLines(props.vm.irString)
-                    );
-                    syncVmState(dispatch, props.vm.id);
+                    // Show initial static errors because initial
+                    // static errors won't trigger useEffectDeep.
+                    // synvVmState isn't necessary because initial 
+                    // VM states are already synced in addVmPageState
+                    syncStaticErrors();
                 }}
                 onChange={e => onIrChange(e)}
                 options={{

@@ -30,7 +30,7 @@ import {
     setIsIrChanged
 } from "@/store/reducers/vm";
 import { Vm, VmOptionsPartial } from "@/modules/vm/vm";
-import { getNextUntitledVmName } from "@/modules/utils";
+import { getNextUntitledVmName, splitLines } from "@/modules/utils";
 import { IntlShape, useIntl } from "react-intl";
 import locales from "@/locales";
 import { setLocale } from "@/store/reducers/locale";
@@ -80,10 +80,9 @@ const importIr = (
         newVm.configure(options);
     }
 
-    vmContainer.add(newVm);
+    newVm.loadAndDecodeNewInstructions(splitLines(irString));
 
-    // We defer loading IR into VM and IR decoding until new 
-    // VM components are rendered. See IrEditor
+    vmContainer.add(newVm);
 
     dispatch(
         addVmPageState({
