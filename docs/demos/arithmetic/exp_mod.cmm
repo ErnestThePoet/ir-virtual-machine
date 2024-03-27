@@ -1,5 +1,5 @@
 /*
- * Input a, b and p (b>=0), interpret a and p as uint32 and calculate (a^b) mod p.
+ * Input a, b and p (b>=0, p!=0), interpret a and p as uint32 and calculate (a^b) mod p.
  * Interpret the result as int32 and write it.
  */
 
@@ -422,7 +422,7 @@ int main()
     int b = read();
     int p = read();
 
-    if (b < 0)
+    if (b < 0 || p == 0)
     {
         return 1;
     }

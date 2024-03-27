@@ -802,10 +802,21 @@ var318 := b
 READ p
 var320 := p
 DEC var323 4
+IF var320 == #0 GOTO label127
+var324 := #0
+GOTO label128
+LABEL label127 :
+var324 := #1
+LABEL label128 :
+IF var324 != #0 GOTO label129
+GOTO label130
+LABEL label129 :
+RETURN #1
+LABEL label130 :
 CALL init_two_powers
 ARG var320
 ARG var318
 ARG var316
-var324 := CALL mul_mod
-WRITE var324
+var325 := CALL mul_mod
+WRITE var325
 RETURN #0

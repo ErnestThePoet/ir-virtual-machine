@@ -889,7 +889,7 @@ FUNCTION main :
 READ a
 var351 := a
 READ b
-var353 := b
+var353 := var354
 READ p
 var355 := p
 IF var353 < #0 GOTO label132
@@ -898,15 +898,28 @@ GOTO label133
 LABEL label132 :
 var357 := #1
 LABEL label133 :
-IF var357 != #0 GOTO label134
+IF var355 == #0 GOTO label134
+var358 := #0
 GOTO label135
 LABEL label134 :
-RETURN #1
+var358 := #1
 LABEL label135 :
+IF var357 != #0 GOTO label136
+IF var358 != #0 GOTO label136
+var359 := #0
+GOTO label137
+LABEL label136 :
+var359 := #1
+LABEL label137 :
+IF var359 != #0 GOTO label138
+GOTO label139
+LABEL label138 :
+RETURN #1
+LABEL label139 :
 CALL init_two_powers
 ARG var355
 ARG var353
 ARG var351
-var358 := CALL exp_mod
-WRITE var358
+var360 := CALL exp_mod
+WRITE var360
 RETURN #0

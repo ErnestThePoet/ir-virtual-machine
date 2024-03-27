@@ -347,14 +347,25 @@ var82 := a
 READ b
 var84 := b
 DEC var87 4
+IF var84 == #0 GOTO label93
+var88 := #0
+GOTO label94
+LABEL label93 :
+var88 := #1
+LABEL label94 :
+IF var88 != #0 GOTO label95
+GOTO label96
+LABEL label95 :
+RETURN #1
+LABEL label96 :
 CALL init_two_powers
 ARG var84
 ARG var82
 ARG &var87
-var88 := CALL div_mod_uint32
-var86 := var88
+var89 := CALL div_mod_uint32
+var86 := var89
 WRITE var86
-var89 := #4 * #0
-var90 := &var87 + var89
-WRITE *var90
+var90 := #4 * #0
+var91 := &var87 + var90
+WRITE *var91
 RETURN #0
