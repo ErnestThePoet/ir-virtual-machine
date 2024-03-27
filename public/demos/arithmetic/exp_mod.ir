@@ -889,7 +889,7 @@ FUNCTION main :
 READ a
 var351 := a
 READ b
-var353 := var354
+var353 := b
 READ p
 var355 := p
 IF var353 < #0 GOTO label132

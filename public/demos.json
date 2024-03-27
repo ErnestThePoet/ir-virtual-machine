@@ -135,7 +135,10 @@
             {
                 "name": "32位无符号整数的模指数运算",
                 "irUrl": "demos/arithmetic/exp_mod.ir",
-                "remark": "输入32位有符号整数a,b和p (b≥0, p≠0)，以32位无符号整数的形式解释a和p并计算(a^b) mod p，将结果以有符号数的形式解释并输出。使用快速幂算法。"
+                "remark": "输入32位有符号整数a,b和p (b≥0, p≠0)，以32位无符号整数的形式解释a和p并计算(a^b) mod p，将结果以有符号数的形式解释并输出。使用快速幂算法。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 3000000
+                }
             },
             {
                 "name": "朴素算法素性检验",
