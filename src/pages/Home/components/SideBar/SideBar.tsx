@@ -57,7 +57,7 @@ const exampleListUrl = "demos.json";
 
 export const saveIr = (name: string, irString: string) => {
     const stringUrl = URL.createObjectURL(
-        new Blob([irString], { type: "text/plain" })
+        new Blob([irString], { type: "data:attachment/plain" })
     );
 
     const anchor = document.createElement("a");
