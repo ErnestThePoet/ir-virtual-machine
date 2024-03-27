@@ -1,5 +1,5 @@
 /*
- * Input a, b and p, interpret them as uint32 and calculate (a*b) mod p.
+ * Input a, b and p (p!=0), interpret them as uint32 and calculate (a*b) mod p.
  * Interpret the result as int32 and write it.
  */
 
@@ -358,6 +358,11 @@ int main()
     int p = read();
 
     int quot, rem[1];
+
+    if (p == 0)
+    {
+        return 1;
+    }
 
     init_two_powers();
 

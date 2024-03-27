@@ -1,5 +1,5 @@
 /*
- * Input a and b, interpret them as uint32 and do unsigned division.
+ * Input a and b (b!=0), interpret them as uint32 and do unsigned division.
  * Interpret the quotient and remainder as int32 and write them.
  */
 
@@ -138,6 +138,11 @@ int main()
     int b = read();
 
     int quot, rem[1];
+
+    if (b == 0)
+    {
+        return 1;
+    }
 
     init_two_powers();
 
