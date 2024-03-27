@@ -46,8 +46,6 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
         timeoutId: ReturnType<typeof setTimeout>;
     } | null>(null);
 
-    const irLines = useRef<string[]>([]);
-
     const dispatch = useAppDispatch();
 
     const currentVm = vmContainer.at(props.vmIndex);
@@ -175,11 +173,7 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
             };
         }
 
-        const newIrLines = splitLines(newIr);
-
-        irLines.current = newIrLines;
-
-        currentVm.loadNewInstructions(newIrLines);
+        currentVm.loadNewInstructions(splitLines(newIr));
 
         dispatch(setShouldIndicateCurrentLineNumber(false));
         dispatch(setConsoleInputPrompt([]));
@@ -203,6 +197,11 @@ const IrEditor: React.FC<IrEditorProps> = (props: IrEditorProps) => {
                 onMount={editor => {
                     editorRef.current = editor;
                     editor.setValue(props.vm.irString);
+                    // We initially load IR into VM and decode IR here.
+                    currentVm.loadAndDecodeNewInstructions(
+                        splitLines(props.vm.irString)
+                    );
+                    syncVmState(dispatch, props.vm.id);
                 }}
                 onChange={e => onIrChange(e)}
                 options={{
