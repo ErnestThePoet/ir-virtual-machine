@@ -92,8 +92,6 @@ try {
     process.exit(1);
 }
 
-const vm = new Vm();
-
 function writeVmOutputs() {
     vm.flushWriteBuffer(messageParts => {
         for (const line of messageParts) {
@@ -143,8 +141,12 @@ function writeVmOutputs() {
     });
 }
 
+const vm = new Vm();
+
 vm.configure({
-    maxExecutionStepCount: 0
+    maxExecutionStepCount: 0,
+    memorySize: 16 * 1024 * 1024,
+    stackSize: 15 * 1024 * 1024
 });
 
 const inputBuffer: string[] = [];
