@@ -1,11 +1,13 @@
 import React from "react";
 import styles from "./ControlPanelIcon.module.scss";
 import classNames from "classnames";
+import { Tooltip } from "antd";
 
 interface ControlPanelIconProps {
     className?: string;
     icon: React.ReactNode;
     label?: string;
+    keyTooltip?: string;
     onClick: () => void;
 }
 
@@ -15,6 +17,11 @@ const ControlPanelIcon: React.FC<ControlPanelIconProps> = (
     return (
         <div
             className={classNames(styles.divIconWrapper, props.className)}
+            title={
+                props.keyTooltip !== undefined
+                    ? `${props.label} (${props.keyTooltip})`
+                    : props.label
+            }
             onClick={e => {
                 e.stopPropagation();
                 props.onClick();

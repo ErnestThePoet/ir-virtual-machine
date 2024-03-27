@@ -109,72 +109,109 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
         props.vm.consoleOutputs
     ]);
 
+    const runVm = async () => {
+        if (!currentVm.canContinueExecution) {
+            if (currentVm.state === VmExecutionState.WAIT_INPUT) {
+                inVmInput.current?.focus();
+            }
+            return;
+        }
+
+        isContinuousExecution.current = true;
+
+        dispatch(setShouldIndicateCurrentLineNumber(false));
+        await currentVm.execute();
+        clearInputBuffer();
+        syncVmState(dispatch, props.vm.id);
+    };
+
+    const runVmSingleStep = async () => {
+        if (!currentVm.canContinueExecution) {
+            if (currentVm.state === VmExecutionState.WAIT_INPUT) {
+                inVmInput.current?.focus();
+            }
+            return;
+        }
+
+        isContinuousExecution.current = false;
+
+        await currentVm.executeSingleStep();
+        switch (currentVm.state) {
+            case VmExecutionState.FREE:
+                dispatch(setShouldIndicateCurrentLineNumber(true));
+                break;
+            case VmExecutionState.EXITED_NORMALLY:
+            case VmExecutionState.EXITED_ABNORMALLY:
+                clearInputBuffer();
+                dispatch(setShouldIndicateCurrentLineNumber(false));
+                break;
+        }
+        syncVmState(dispatch, props.vm.id);
+    };
+
+    const resetVm = () => {
+        dispatch(setShouldIndicateCurrentLineNumber(false));
+        dispatch(setConsoleInputPrompt([]));
+        dispatch(setConsoleInput(""));
+        dispatch(setLocalVariableTablePageIndex(1));
+        currentVm.reset();
+        currentVm.decodeInstructions(true);
+
+        // release the hung context
+        if (inputResolve.current !== null) {
+            inputResolve.current("");
+            inputResolve.current = null;
+        }
+
+        clearInputBuffer();
+
+        syncVmState(dispatch, props.vm.id);
+    };
+
+    const clearConsole = () => {
+        dispatch(clearConsoleOutputs());
+        dispatch(setConsoleInput(""));
+        if (currentVm.state === VmExecutionState.WAIT_INPUT) {
+            inVmInput.current?.focus();
+        }
+    };
+
     return (
-        <div className={styles.divVmConsoleWrapper}>
+        <div
+            className={styles.divVmConsoleWrapper}
+            tabIndex={0}
+            onKeyDown={e => {
+                if (
+                    e.key !== "F2" &&
+                    e.key !== "F8" &&
+                    e.key !== "F9" &&
+                    e.key !== "F10"
+                ) {
+                    return;
+                }
+
+                e.preventDefault();
+
+                switch (e.key) {
+                    case "F2":
+                        runVm();
+                        break;
+                    case "F8":
+                        runVmSingleStep();
+                        break;
+                    case "F9":
+                        resetVm();
+                        break;
+                    case "F10":
+                        clearConsole();
+                        break;
+                }
+            }}>
             <ControlPanel
-                onRunClick={async () => {
-                    if (!currentVm.canContinueExecution) {
-                        if (currentVm.state === VmExecutionState.WAIT_INPUT) {
-                            inVmInput.current?.focus();
-                        }
-                        return;
-                    }
-
-                    isContinuousExecution.current = true;
-
-                    dispatch(setShouldIndicateCurrentLineNumber(false));
-                    await currentVm.execute();
-                    clearInputBuffer();
-                    syncVmState(dispatch, props.vm.id);
-                }}
-                onRunStepClick={async () => {
-                    if (!currentVm.canContinueExecution) {
-                        if (currentVm.state === VmExecutionState.WAIT_INPUT) {
-                            inVmInput.current?.focus();
-                        }
-                        return;
-                    }
-
-                    isContinuousExecution.current = false;
-
-                    await currentVm.executeSingleStep();
-                    switch (currentVm.state) {
-                        case VmExecutionState.FREE:
-                            dispatch(setShouldIndicateCurrentLineNumber(true));
-                            break;
-                        case VmExecutionState.EXITED_NORMALLY:
-                        case VmExecutionState.EXITED_ABNORMALLY:
-                            clearInputBuffer();
-                            dispatch(setShouldIndicateCurrentLineNumber(false));
-                            break;
-                    }
-                    syncVmState(dispatch, props.vm.id);
-                }}
-                onResetClick={() => {
-                    dispatch(setShouldIndicateCurrentLineNumber(false));
-                    dispatch(setConsoleInputPrompt([]));
-                    dispatch(setConsoleInput(""));
-                    dispatch(setLocalVariableTablePageIndex(1));
-                    currentVm.reset();
-                    currentVm.decodeInstructions(true);
-
-                    // release the hung context
-                    if (inputResolve.current !== null) {
-                        inputResolve.current("");
-                        inputResolve.current = null;
-                    }
-
-                    clearInputBuffer();
-
-                    syncVmState(dispatch, props.vm.id);
-                }}
-                onClearClick={() => {
-                    dispatch(clearConsoleOutputs());
-                    dispatch(setConsoleInput(""));
-                    if (currentVm.state === VmExecutionState.WAIT_INPUT) {
-                        inVmInput.current?.focus();
-                    }
-                }}
+                onRunClick={runVm}
+                onRunStepClick={runVmSingleStep}
+                onResetClick={resetVm}
+                onClearClick={clearConsole}
             />
 
             <div

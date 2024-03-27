@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { InputNumber, Pagination, Tooltip } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
