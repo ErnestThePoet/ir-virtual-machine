@@ -63,6 +63,7 @@ const VariableTable: React.FC<VariableTableProps> = (
                 </div>
             ) : (
                 <Table
+                    rowKey="id"
                     columns={columns}
                     dataSource={props.variables}
                     size="small"
