@@ -32,7 +32,7 @@ const TabBar: React.FC = () => {
         <nav className={styles.navTabBarWrapper}>
             {vm.vmPageStates.map((x, i) => (
                 <TabBarItem
-                    key={i}
+                    key={x.id}
                     title={x.name}
                     isActive={i === vm.activeVmIndex}
                     isChanged={x.isIrChanged}

@@ -40,7 +40,7 @@ const VariableTable: React.FC<VariableTableProps> = (
             render: (x: number[]) => (
                 <div className={styles.divValues}>
                     {x.map((y, i) => (
-                        <div key={i}>
+                        <div key={`${i}${y}`}>
                             {x.length === 1 ? (
                                 y
                             ) : (

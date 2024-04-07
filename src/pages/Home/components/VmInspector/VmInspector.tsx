@@ -238,9 +238,9 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                                 LOCAL_VARIABLE_TABLE_PAGE_SIZE *
                                     props.vm.localVariableTablePageIndex
                             )
-                            .map((x, i) => (
+                            .map(x => (
                                 <div
-                                    key={i}
+                                    key={`${x.functionName}${x.stackDepth}`}
                                     className={styles.divLocalVariableTable}>
                                     <div className="titleWrapper">
                                         <label className="functionName">
@@ -256,10 +256,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                                         </label>
                                     </div>
 
-                                    <VariableTable
-                                        key={i}
-                                        variables={x.details}
-                                    />
+                                    <VariableTable variables={x.details} />
                                 </div>
                             ))}
                         <Pagination
