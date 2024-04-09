@@ -7,6 +7,7 @@ interface InputBlockProps {
     inputRef?: LegacyRef<HTMLInputElement> | undefined;
     prompt: FormattableMessage[];
     value: string;
+    // eslint-disable-next-line no-unused-vars
     onChange: (_: string) => void;
     onEnter: () => void;
 }

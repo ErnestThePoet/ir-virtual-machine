@@ -1,7 +1,0 @@
-{
-    "rules": {
-        "eqeqeq": "error",
-        "no-console": "warn",
-        "react-hooks/exhaustive-deps": "off"
-    }
-}

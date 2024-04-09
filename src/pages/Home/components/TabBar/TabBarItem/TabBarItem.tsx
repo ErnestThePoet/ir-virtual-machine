@@ -13,6 +13,7 @@ interface TabBarItemProps {
     isChanged: boolean;
     onClick: () => void;
     onCloseClick: () => void;
+    // eslint-disable-next-line no-unused-vars
     onRename: (e: string) => void;
 }
 

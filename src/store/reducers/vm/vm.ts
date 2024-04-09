@@ -10,12 +10,11 @@ import type {
     VmPeakMemoryUsage
 } from "@/modules/vm/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
-import { AppDispatch } from "@/store/store";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
 
-const MAX_CONSOLE_OUTPUT_COUNT = 1500;
+const MAX_CONSOLE_OUTPUT_COUNT = 5000;
 
 export interface SingleVmPageState {
     // ID is used to definitely identify a VM
@@ -55,7 +54,31 @@ const initialState: VmState = {
     activeVmIndex: -1 // This enables auto-focus of IR editor when user creates/imports first VM
 };
 
-const vmIdIndexTable: { [id: string]: number | undefined } = {};
+const addVmConsoleOutputs = (
+    state: VmState,
+    messages: ConsoleMessagePart[][]
+) => {
+    const currentCount =
+        state.vmPageStates[state.activeVmIndex].consoleOutputs.length;
+    const addCount = messages.length;
+
+    if (addCount >= MAX_CONSOLE_OUTPUT_COUNT) {
+        state.vmPageStates[state.activeVmIndex].consoleOutputs = messages.slice(
+            addCount - MAX_CONSOLE_OUTPUT_COUNT
+        );
+    } else {
+        if (currentCount + addCount > MAX_CONSOLE_OUTPUT_COUNT) {
+            state.vmPageStates[state.activeVmIndex].consoleOutputs =
+                state.vmPageStates[state.activeVmIndex].consoleOutputs.slice(
+                    currentCount + addCount - MAX_CONSOLE_OUTPUT_COUNT
+                );
+        }
+
+        state.vmPageStates[state.activeVmIndex].consoleOutputs.push(
+            ...messages
+        );
+    }
+};
 
 export const vmSlice = createSlice({
     name: "vm",
@@ -78,7 +101,6 @@ export const vmSlice = createSlice({
             const id = uuidv4();
             state.vmPageStates.push({ ...action.payload, id });
             state.activeVmIndex = state.vmPageStates.length - 1;
-            vmIdIndexTable[id] = state.vmPageStates.length - 1;
         },
         deleteVmPageState: (state, action: PayloadAction<number>) => {
             // If active VM is left to the closed one, do nothing.
@@ -93,15 +115,6 @@ export const vmSlice = createSlice({
                 if (state.activeVmIndex === state.vmPageStates.length - 1) {
                     state.activeVmIndex--;
                 }
-            }
-
-            vmIdIndexTable[state.vmPageStates[action.payload].id] = undefined;
-            for (
-                let i = action.payload + 1;
-                i < state.vmPageStates.length;
-                i++
-            ) {
-                vmIdIndexTable[state.vmPageStates[i].id]!--;
             }
 
             state.vmPageStates.splice(action.payload, 1);
@@ -151,27 +164,7 @@ export const vmSlice = createSlice({
             state,
             action: PayloadAction<Array<ConsoleMessagePart[]>>
         ) => {
-            const currentCount =
-                state.vmPageStates[state.activeVmIndex].consoleOutputs.length;
-            const addCount = action.payload.length;
-
-            if (addCount >= MAX_CONSOLE_OUTPUT_COUNT) {
-                state.vmPageStates[state.activeVmIndex].consoleOutputs =
-                    action.payload.slice(addCount - MAX_CONSOLE_OUTPUT_COUNT);
-            } else {
-                if (currentCount + addCount > MAX_CONSOLE_OUTPUT_COUNT) {
-                    state.vmPageStates[state.activeVmIndex].consoleOutputs =
-                        state.vmPageStates[
-                            state.activeVmIndex
-                        ].consoleOutputs.slice(
-                            currentCount + addCount - MAX_CONSOLE_OUTPUT_COUNT
-                        );
-                }
-
-                state.vmPageStates[state.activeVmIndex].consoleOutputs.push(
-                    ...action.payload
-                );
-            }
+            addVmConsoleOutputs(state, action.payload);
         },
         clearConsoleOutputs: state => {
             state.vmPageStates[state.activeVmIndex].consoleOutputs = [];
@@ -214,6 +207,33 @@ export const vmSlice = createSlice({
             state.vmPageStates[
                 state.activeVmIndex
             ].localVariableTablePageIndex = action.payload;
+        },
+        syncVmState: state => {
+            const currentVm = vmContainer.at(state.activeVmIndex);
+
+            state.vmPageStates[state.activeVmIndex].state = currentVm.state;
+            state.vmPageStates[state.activeVmIndex].globalVariableDetails =
+                currentVm.globalVariableDetails;
+            state.vmPageStates[state.activeVmIndex].localVariableDetailsStack =
+                currentVm.localVariableDetailsStack;
+            state.vmPageStates[state.activeVmIndex].options =
+                currentVm.currentOptions;
+            state.vmPageStates[state.activeVmIndex].stepCount =
+                currentVm.stepCount;
+            state.vmPageStates[state.activeVmIndex].memoryUsage =
+                currentVm.memoryUsage;
+            state.vmPageStates[state.activeVmIndex].peakMemoryUsage =
+                currentVm.currentPeakMemoryUsage;
+            state.vmPageStates[state.activeVmIndex].staticErrors =
+                currentVm.staticErrors;
+            state.vmPageStates[state.activeVmIndex].runtimeErrors =
+                currentVm.runtimeErrors;
+            state.vmPageStates[state.activeVmIndex].currentLineNumber =
+                currentVm.currentLineNumber;
+
+            currentVm.flushWriteBuffer(writeBuffer =>
+                addVmConsoleOutputs(state, writeBuffer)
+            );
         }
     }
 });
@@ -240,39 +260,8 @@ export const {
     setRuntimeErrors,
     setCurrentLineNumber,
     setShouldIndicateCurrentLineNumber,
-    setLocalVariableTablePageIndex
+    setLocalVariableTablePageIndex,
+    syncVmState
 } = vmSlice.actions;
-
-export const syncVmState = (dispatch: AppDispatch, vmId: string) => {
-    const vmIndex = vmIdIndexTable[vmId];
-
-    if (vmIndex === undefined) {
-        return;
-    }
-
-    dispatch(setState(vmContainer.at(vmIndex).state));
-    dispatch(
-        setGlobalVariableDetails(vmContainer.at(vmIndex).globalVariableDetails)
-    );
-    dispatch(
-        setLocalVariableDetailsStack(
-            vmContainer.at(vmIndex).localVariableDetailsStack
-        )
-    );
-    dispatch(setOptions(vmContainer.at(vmIndex).currentOptions));
-    dispatch(setStepCount(vmContainer.at(vmIndex).stepCount));
-    dispatch(setMemoryUsage(vmContainer.at(vmIndex).memoryUsage));
-    dispatch(
-        setPeakMemoryUsage(vmContainer.at(vmIndex).currentPeakMemoryUsage)
-    );
-    dispatch(setStaticErrors(vmContainer.at(vmIndex).staticErrors));
-    dispatch(setRuntimeErrors(vmContainer.at(vmIndex).runtimeErrors));
-    dispatch(setCurrentLineNumber(vmContainer.at(vmIndex).currentLineNumber));
-    vmContainer
-        .at(vmIndex)
-        .flushWriteBuffer(writeBuffer =>
-            dispatch(addConsoleOutputs(writeBuffer))
-        );
-};
 
 export default vmSlice.reducer;

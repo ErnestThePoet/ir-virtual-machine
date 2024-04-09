@@ -121,6 +121,8 @@ interface VmTables {
     assignCallLValueStack: (LValue | null)[];
 }
 
+/* eslint-disable no-unused-vars */
+
 export enum VmExecutionState {
     INITIAL,
     BUSY,
@@ -228,6 +230,8 @@ export const vmOptionLimits: {
     }
 };
 
+/* eslint-enable no-unused-vars */
+
 const defaultOptions: VmOptions = {
     maxExecutionStepCount: 1_000_000,
     memorySize: 16 * 1024,
@@ -322,7 +326,11 @@ export class Vm {
     private executionStartTime: Date = new Date();
 
     private writeBuffer: Array<ConsoleMessagePart[]> = [];
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    /* eslint-disable no-unused-vars */
     private readConsole: ReadConsoleFn = _ => Promise.resolve("");
+    /* eslint-enable no-unused-vars */
+    /* eslint-enable @typescript-eslint/no-unused-vars */
 
     private entryFunctionName = "main";
 
@@ -478,6 +486,8 @@ export class Vm {
      * @param action Action that accepts the current write buffer content.
      * @public
      */
+
+    // eslint-disable-next-line no-unused-vars
     flushWriteBuffer(action?: (_: Array<ConsoleMessagePart[]>) => void) {
         if (action !== undefined) {
             action(this.writeBuffer);
@@ -1697,6 +1707,7 @@ export class Vm {
      * @public
      */
     async execute() {
+        // eslint-disable-next-line no-constant-condition
         while (true) {
             await this.executeSingleStep();
             if (this.executionStatus.state !== VmExecutionState.FREE) {

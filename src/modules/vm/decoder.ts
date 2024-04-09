@@ -3,6 +3,8 @@ import { i32 } from "./alu";
 
 // Component types
 
+/* eslint-disable no-unused-vars */
+
 export enum SingularType {
     IMM,
     ID,
@@ -171,6 +173,8 @@ export enum ExecutableInstructionType {
     // COMMENT,
     // ERROR
 }
+
+/* eslint-enable no-unused-vars */
 
 type InstructionValue =
     | DecodedFunction
@@ -950,7 +954,7 @@ export class Decoder {
                 return this.decodeRead(splitResult);
             case "WRITE":
                 return this.decodeWrite(splitResult);
-            default:
+            default: {
                 const assign = this.decodeAssign(splitResult);
                 if (assign.type === InstructionType.ASSIGN) {
                     return assign;
@@ -962,6 +966,7 @@ export class Decoder {
                 }
 
                 return assign;
+            }
         }
     }
 }

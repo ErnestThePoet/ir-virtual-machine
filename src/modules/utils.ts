@@ -2,6 +2,7 @@ export function truncateString(title: string, length: number = 18) {
     let stringLengthAtDisplayLength = 0;
     let displayLength = 0;
     for (let i = 0; i < title.length; i++) {
+        // eslint-disable-next-line no-control-regex
         if (title[i].match(/^[\x00-\x7F]*$/) !== null) {
             displayLength++;
         } else {

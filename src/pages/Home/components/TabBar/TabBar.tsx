@@ -10,7 +10,7 @@ import {
 import { Button, Modal } from "antd";
 import { useIntl } from "react-intl";
 import vmContainer from "@/modules/vmContainer/vmContainer";
-import { saveIr } from "../SideBar/SideBar";
+import { saveIr } from "@/modules/operations/import-export";
 
 const TabBar: React.FC = () => {
     const intl = useIntl();

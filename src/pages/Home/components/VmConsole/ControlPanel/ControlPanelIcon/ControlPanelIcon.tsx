@@ -1,7 +1,6 @@
 import React from "react";
 import styles from "./ControlPanelIcon.module.scss";
 import classNames from "classnames";
-import { Tooltip } from "antd";
 
 interface ControlPanelIconProps {
     className?: string;

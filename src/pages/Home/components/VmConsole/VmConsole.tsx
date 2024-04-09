@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./VmConsole.module.scss";
-import { useAppDispatch } from "@/store/hooks";
-import OutputBlock from "./OutputBlock/OutputBlock";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import InputBlock from "./InputBlock/InputBlock";
 import {
     setConsoleInput,
@@ -10,26 +9,35 @@ import {
     setShouldIndicateCurrentLineNumber,
     syncVmState,
     addConsoleOutputs,
-    SingleVmPageState,
     setLocalVariableTablePageIndex
 } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { ConsoleMessageType, VmExecutionState } from "@/modules/vm/vm";
 import ControlPanel from "./ControlPanel/ControlPanel";
-import { useEffectDeep } from "@/modules/hooks/useEffectDeep";
 import classNames from "classnames";
 import { splitStreamInputs } from "@/modules/utils";
+import OutputBlocks from "./OutputBlocks/OutputBlocks";
 
 interface VmConsoleProps {
     vmIndex: number;
-    vm: SingleVmPageState;
 }
 
-const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
+const VmConsole: React.FC<VmConsoleProps> = ({ vmIndex }: VmConsoleProps) => {
     const dispatch = useAppDispatch();
 
     const [showBoxShadow, setShowBoxShadow] = useState(false);
 
+    const vmConsoleInput = useAppSelector(
+        state => state.vm.vmPageStates[vmIndex].consoleInput
+    );
+    const vmConsoleInputPrompt = useAppSelector(
+        state => state.vm.vmPageStates[vmIndex].consoleInputPrompt
+    );
+    const vmConsoleOutputs = useAppSelector(
+        state => state.vm.vmPageStates[vmIndex].consoleOutputs
+    );
+
+    // eslint-disable-next-line no-unused-vars
     const inputResolve = useRef<((_: string) => void) | null>(null);
     const inputBuffer = useRef<{ buffer: string[]; nextInputIndex: number }>({
         buffer: [],
@@ -46,7 +54,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
 
     const isContinuousExecution = useRef<boolean>(false);
 
-    const currentVm = vmContainer.at(props.vmIndex);
+    const currentVm = vmContainer.at(vmIndex);
 
     useEffect(() => {
         currentVm.setReadConsoleFn(prompt => {
@@ -55,7 +63,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
             if (!isContinuousExecution.current) {
                 dispatch(setShouldIndicateCurrentLineNumber(true));
             }
-            syncVmState(dispatch, props.vm.id);
+            dispatch(syncVmState());
 
             // Auto focus input
             inVmInput.current?.focus();
@@ -78,7 +86,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                             {
                                 key: "READ_INPUT",
                                 values: {
-                                    value: props.vm.consoleInput
+                                    value: vmConsoleInput
                                 },
                                 type: ConsoleMessageType.INPUT
                             }
@@ -101,13 +109,9 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
         });
     }, []);
 
-    useEffectDeep(() => {
+    useEffect(() => {
         divVmConsole.current?.scrollTo(0, divVmConsole.current.scrollHeight);
-    }, [
-        props.vm.consoleInput,
-        props.vm.consoleInputPrompt,
-        props.vm.consoleOutputs
-    ]);
+    }, [vmConsoleInput, vmConsoleInputPrompt, vmConsoleOutputs]);
 
     const runVm = async () => {
         if (!currentVm.canContinueExecution) {
@@ -122,7 +126,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
         dispatch(setShouldIndicateCurrentLineNumber(false));
         await currentVm.execute();
         clearInputBuffer();
-        syncVmState(dispatch, props.vm.id);
+        dispatch(syncVmState());
     };
 
     const runVmSingleStep = async () => {
@@ -146,7 +150,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                 dispatch(setShouldIndicateCurrentLineNumber(false));
                 break;
         }
-        syncVmState(dispatch, props.vm.id);
+        dispatch(syncVmState());
     };
 
     const resetVm = () => {
@@ -165,7 +169,7 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
 
         clearInputBuffer();
 
-        syncVmState(dispatch, props.vm.id);
+        dispatch(syncVmState());
     };
 
     const clearConsole = () => {
@@ -230,13 +234,12 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                         setShowBoxShadow(false);
                     }
                 }}>
-                {props.vm.consoleOutputs.map((x, i) => (
-                    <OutputBlock key={i} message={x} />
-                ))}
+                <OutputBlocks messages={vmConsoleOutputs} />
+
                 <InputBlock
                     inputRef={inVmInput}
-                    prompt={props.vm.consoleInputPrompt}
-                    value={props.vm.consoleInput}
+                    prompt={vmConsoleInputPrompt}
+                    value={vmConsoleInput}
                     onChange={e => dispatch(setConsoleInput(e))}
                     onEnter={() => {
                         if (
@@ -246,9 +249,8 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                             // Also write input buffer when pausing in single step run
                             currentVm.state === VmExecutionState.FREE
                         ) {
-                            const inputParts = splitStreamInputs(
-                                props.vm.consoleInput
-                            );
+                            const inputParts =
+                                splitStreamInputs(vmConsoleInput);
                             inputBuffer.current.buffer.push(...inputParts);
                             // VM is waiting for input
                             if (
@@ -272,14 +274,14 @@ const VmConsole: React.FC<VmConsoleProps> = (props: VmConsoleProps) => {
                                         key: "CONSOLE_ARROW",
                                         type: ConsoleMessageType.ARROW
                                     },
-                                    ...props.vm.consoleInputPrompt.map(x => ({
+                                    ...vmConsoleInputPrompt.map(x => ({
                                         ...x,
                                         type: ConsoleMessageType.PROMPT
                                     })),
                                     {
                                         key: "READ_INPUT",
                                         values: {
-                                            value: props.vm.consoleInput
+                                            value: vmConsoleInput
                                         },
                                         type: ConsoleMessageType.INPUT
                                     }

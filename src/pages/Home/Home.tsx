@@ -9,12 +9,21 @@ import classNames from "classnames";
 import VmConsole from "./components/VmConsole";
 import VmInspector from "./components/VmInspector";
 import { useIntl } from "react-intl";
-import { importIrFile } from "./components/SideBar/SideBar";
+import { importIrFile } from "@/modules/operations/import-export";
 
 const Home: React.FC = () => {
     const intl = useIntl();
     const dispatch = useAppDispatch();
-    const vm = useAppSelector(state => state.vm);
+
+    const vmCount = useAppSelector(state => state.vm.vmPageStates.length);
+
+    const activeVmIndex = useAppSelector(state => state.vm.activeVmIndex);
+
+    const vmIds = useAppSelector(
+        state => state.vm.vmPageStates.map(x => x.id),
+        (a, b) => a.length === b.length && a.every((x, i) => x === b[i])
+    );
+
     const isAllIrSaved = useAppSelector(state =>
         state.vm.vmPageStates.every(x => !x.isIrChanged)
     );
@@ -33,7 +42,8 @@ const Home: React.FC = () => {
             ? null
             : (e: BeforeUnloadEvent) => {
                   e.preventDefault();
-                  return (e.returnValue = "");
+                  return (e.returnValue =
+                      "Your unsaved changes will be lost. Sure to leave?");
               };
     }, [isAllIrSaved]);
 
@@ -48,24 +58,17 @@ const Home: React.FC = () => {
                 }
                 e.preventDefault();
             }}>
-            <SideBar
-                vm={
-                    vm.vmPageStates.length === 0
-                        ? null
-                        : vm.vmPageStates[vm.activeVmIndex]
-                }
-                vmIndex={vm.activeVmIndex}
-            />
+            <SideBar vmIndex={activeVmIndex} />
             <div className={styles.divRight}>
                 <TabBar />
                 <div className={styles.divVmWrapper}>
-                    {vm.vmPageStates.length === 0 ? (
+                    {vmCount === 0 ? (
                         <EmptyHolder />
                     ) : (
                         // V3.0 architecture: each VM has independent editor, console and inspector
-                        vm.vmPageStates.map((x, i) => (
+                        new Array(vmCount).fill(null).map((_, i) => (
                             <div
-                                key={`vm-${x.name}`}
+                                key={vmIds[i]}
                                 className={classNames({
                                     [styles.divVmContentHorizontal]:
                                         !isVerticalScreen,
@@ -74,18 +77,18 @@ const Home: React.FC = () => {
                                 })}
                                 style={{
                                     display:
-                                        i === vm.activeVmIndex ? "flex" : "none"
+                                        i === activeVmIndex ? "flex" : "none"
                                 }}>
                                 <section className="sectionIrEditor">
-                                    <IrEditor vm={x} vmIndex={i} />
+                                    <IrEditor vmIndex={i} />
                                 </section>
 
                                 <section className="sectionVmConsole">
-                                    <VmConsole vm={x} vmIndex={i} />
+                                    <VmConsole vmIndex={i} />
                                 </section>
 
                                 <section className="sectionVmInspector">
-                                    <VmInspector vm={x} vmIndex={i} />
+                                    <VmInspector vmIndex={i} />
                                 </section>
                             </div>
                         ))

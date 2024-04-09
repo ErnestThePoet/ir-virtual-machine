@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { InputNumber, Pagination, Tooltip } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import styles from "./VmInspector.module.scss";
@@ -7,7 +7,6 @@ import { useIntl } from "react-intl";
 import classNames from "classnames";
 import { VmExecutionState, vmOptionLimits } from "@/modules/vm/vm";
 import {
-    SingleVmPageState,
     setLocalVariableTablePageIndex,
     syncVmState
 } from "@/store/reducers/vm";
@@ -18,7 +17,6 @@ import type { AppLocaleKey } from "@/locales";
 
 interface VmInspectorProps {
     vmIndex: number;
-    vm: SingleVmPageState;
 }
 
 function getVmStateLocaleKey(state: VmExecutionState): AppLocaleKey {
@@ -46,15 +44,42 @@ function getVmStateLocaleKey(state: VmExecutionState): AppLocaleKey {
 
 const LOCAL_VARIABLE_TABLE_PAGE_SIZE = 10;
 
-const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
+const VmInspector: React.FC<VmInspectorProps> = ({
+    vmIndex
+}: VmInspectorProps) => {
     const intl = useIntl();
     const dispatch = useAppDispatch();
+
+    const vmState = useAppSelector(
+        state => state.vm.vmPageStates[vmIndex].state
+    );
+    const vmStateCount = useAppSelector(
+        state => state.vm.vmPageStates[vmIndex].stepCount
+    );
+    const vmOptions = useAppSelector(
+        state => state.vm.vmPageStates[vmIndex].options
+    );
+    const vmMemoryUsage = useAppSelector(
+        state => state.vm.vmPageStates[vmIndex].memoryUsage
+    );
+    const vmPeakMemoryUsage = useAppSelector(
+        state => state.vm.vmPageStates[vmIndex].peakMemoryUsage
+    );
+    const vmGlobalVariableDetails = useAppSelector(
+        state => state.vm.vmPageStates[vmIndex].globalVariableDetails
+    );
+    const vmLocalVariableDetailsStack = useAppSelector(
+        state => state.vm.vmPageStates[vmIndex].localVariableDetailsStack
+    );
+    const vmLocalVariableTablePageIndex = useAppSelector(
+        state => state.vm.vmPageStates[vmIndex].localVariableTablePageIndex
+    );
 
     const [showBoxShadow, setShowBoxShadow] = useState(false);
 
     const divVmInspectorWrapper = useRef<HTMLDivElement>(null);
 
-    const currentVm = vmContainer.at(props.vmIndex);
+    const currentVm = vmContainer.at(vmIndex);
 
     return (
         <div
@@ -78,7 +103,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                     <div className={styles.divStepCount}>
                         {intl.formatMessage(
                             { id: "STEP_COUNT_NUMBER" },
-                            { stepCount: props.vm.stepCount }
+                            { stepCount: vmStateCount }
                         )}
                     </div>
                 </div>
@@ -90,31 +115,27 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                     <div
                         className={classNames({
                             [styles.divStateInitial]:
-                                props.vm.state === VmExecutionState.INITIAL,
+                                vmState === VmExecutionState.INITIAL,
                             [styles.divStateBusy]:
-                                props.vm.state === VmExecutionState.BUSY,
+                                vmState === VmExecutionState.BUSY,
                             [styles.divStateWaitInput]:
-                                props.vm.state === VmExecutionState.WAIT_INPUT,
+                                vmState === VmExecutionState.WAIT_INPUT,
                             [styles.divStateFree]:
-                                props.vm.state === VmExecutionState.FREE,
+                                vmState === VmExecutionState.FREE,
                             [styles.divStateStaticCheckFailed]:
-                                props.vm.state ===
+                                vmState ===
                                 VmExecutionState.STATIC_CHECK_FAILED,
                             [styles.divStateRuntimeError]:
-                                props.vm.state ===
-                                VmExecutionState.RUNTIME_ERROR,
+                                vmState === VmExecutionState.RUNTIME_ERROR,
                             [styles.divStateMaxStepReached]:
-                                props.vm.state ===
-                                VmExecutionState.MAX_STEP_REACHED,
+                                vmState === VmExecutionState.MAX_STEP_REACHED,
                             [styles.divStateExitedNormally]:
-                                props.vm.state ===
-                                VmExecutionState.EXITED_NORMALLY,
+                                vmState === VmExecutionState.EXITED_NORMALLY,
                             [styles.divStateExitedAbnormally]:
-                                props.vm.state ===
-                                VmExecutionState.EXITED_ABNORMALLY
+                                vmState === VmExecutionState.EXITED_ABNORMALLY
                         })}>
                         {intl.formatMessage({
-                            id: getVmStateLocaleKey(props.vm.state)
+                            id: getVmStateLocaleKey(vmState)
                         })}
                     </div>
                 </div>
@@ -136,15 +157,15 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                     </label>
                     <InputNumber
                         className={styles.inOptionValue}
-                        disabled={props.vm.state !== VmExecutionState.INITIAL}
+                        disabled={vmState !== VmExecutionState.INITIAL}
                         min={vmOptionLimits.maxExecutionStepCount.min}
                         max={vmOptionLimits.maxExecutionStepCount.max}
-                        value={props.vm.options.maxExecutionStepCount}
+                        value={vmOptions.maxExecutionStepCount}
                         onChange={e => {
                             currentVm.configure({
                                 maxExecutionStepCount: e ?? undefined
                             });
-                            syncVmState(dispatch, props.vm.id);
+                            dispatch(syncVmState());
                         }}
                     />
                 </div>
@@ -155,15 +176,15 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                     </label>
                     <InputNumber
                         className={styles.inOptionValue}
-                        disabled={props.vm.state !== VmExecutionState.INITIAL}
+                        disabled={vmState !== VmExecutionState.INITIAL}
                         min={vmOptionLimits.memorySize.min}
                         max={vmOptionLimits.memorySize.max}
-                        value={props.vm.options.memorySize}
+                        value={vmOptions.memorySize}
                         onChange={e => {
                             currentVm.configure({
                                 memorySize: e ?? undefined
                             });
-                            syncVmState(dispatch, props.vm.id);
+                            dispatch(syncVmState());
                         }}
                     />
                 </div>
@@ -174,15 +195,15 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                     </label>
                     <InputNumber
                         className={styles.inOptionValue}
-                        disabled={props.vm.state !== VmExecutionState.INITIAL}
+                        disabled={vmState !== VmExecutionState.INITIAL}
                         min={vmOptionLimits.stackSize.min}
                         max={vmOptionLimits.stackSize.max}
-                        value={props.vm.options.stackSize}
+                        value={vmOptions.stackSize}
                         onChange={e => {
                             currentVm.configure({
                                 stackSize: e ?? undefined
                             });
-                            syncVmState(dispatch, props.vm.id);
+                            dispatch(syncVmState());
                         }}
                     />
                 </div>
@@ -191,25 +212,25 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
             <div className={styles.divMemoryUsageCard}>
                 <MemoryUsage
                     title={intl.formatMessage({ id: "TOTAL_MEMORY_USAGE" })}
-                    usedBytes={props.vm.memoryUsage.used}
-                    totalBytes={props.vm.memoryUsage.total}
-                    peakBytes={props.vm.peakMemoryUsage.total}
+                    usedBytes={vmMemoryUsage.used}
+                    totalBytes={vmMemoryUsage.total}
+                    peakBytes={vmPeakMemoryUsage.total}
                 />
 
                 <MemoryUsage
                     title={intl.formatMessage({ id: "STACK_MEMORY_USAGE" })}
-                    usedBytes={props.vm.memoryUsage.stackUsed}
-                    totalBytes={props.vm.memoryUsage.stackTotal}
-                    peakBytes={props.vm.peakMemoryUsage.stack}
+                    usedBytes={vmMemoryUsage.stackUsed}
+                    totalBytes={vmMemoryUsage.stackTotal}
+                    peakBytes={vmPeakMemoryUsage.stack}
                 />
 
                 <MemoryUsage
                     title={intl.formatMessage({
                         id: "GLOBAL_VARIABLE_MEMORY_USAGE"
                     })}
-                    usedBytes={props.vm.memoryUsage.globalVariableUsed}
-                    totalBytes={props.vm.memoryUsage.globalVariableTotal}
-                    peakBytes={props.vm.peakMemoryUsage.globalVariable}
+                    usedBytes={vmMemoryUsage.globalVariableUsed}
+                    totalBytes={vmMemoryUsage.globalVariableTotal}
+                    peakBytes={vmPeakMemoryUsage.globalVariable}
                 />
             </div>
 
@@ -217,7 +238,7 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                 <label className="title">
                     {intl.formatMessage({ id: "GLOBAL_VARIABLE_TABLE" })}
                 </label>
-                <VariableTable variables={props.vm.globalVariableDetails} />
+                <VariableTable variables={vmGlobalVariableDetails} />
             </div>
 
             <div className={styles.divLocalVariableTableCard}>
@@ -225,18 +246,18 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                     {intl.formatMessage({ id: "LOCAL_VARIABLE_TABLE" })}
                 </label>
 
-                {props.vm.localVariableDetailsStack.length === 0 ? (
+                {vmLocalVariableDetailsStack.length === 0 ? (
                     <div className="emptyHolder">
                         {intl.formatMessage({ id: "EMPTY_VATIABLE_TABLE" })}
                     </div>
                 ) : (
                     <div className={styles.divLocalVariableTableWrapper}>
-                        {props.vm.localVariableDetailsStack
+                        {vmLocalVariableDetailsStack
                             .slice(
                                 LOCAL_VARIABLE_TABLE_PAGE_SIZE *
-                                    (props.vm.localVariableTablePageIndex - 1),
+                                    (vmLocalVariableTablePageIndex - 1),
                                 LOCAL_VARIABLE_TABLE_PAGE_SIZE *
-                                    props.vm.localVariableTablePageIndex
+                                    vmLocalVariableTablePageIndex
                             )
                             .map(x => (
                                 <div
@@ -261,13 +282,13 @@ const VmInspector: React.FC<VmInspectorProps> = (props: VmInspectorProps) => {
                             ))}
                         <Pagination
                             className={styles.paginationLocalVariableTable}
-                            current={props.vm.localVariableTablePageIndex}
+                            current={vmLocalVariableTablePageIndex}
                             onChange={e =>
                                 dispatch(setLocalVariableTablePageIndex(e))
                             }
                             pageSize={LOCAL_VARIABLE_TABLE_PAGE_SIZE}
                             showSizeChanger={false}
-                            total={props.vm.localVariableDetailsStack.length}
+                            total={vmLocalVariableDetailsStack.length}
                             size="small"
                         />
                     </div>
