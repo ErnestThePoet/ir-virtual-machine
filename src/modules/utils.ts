@@ -30,7 +30,7 @@ export function getNextUntitledVmName(names: string[]): string {
 }
 
 export function splitLines(x: string): string[] {
-    return x.replace(/\r/g, "").split("\n");
+    return x.split(/\r\n|[\r\n]/);
 }
 
 export function splitStreamInputs(x: string): string[] {

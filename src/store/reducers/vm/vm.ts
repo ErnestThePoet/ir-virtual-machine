@@ -13,12 +13,13 @@ import vmContainer from "@/modules/vmContainer/vmContainer";
 import { AppDispatch } from "@/store/store";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import { v4 as uuidv4 } from "uuid";
 
 const MAX_CONSOLE_OUTPUT_COUNT = 1500;
 
 export interface SingleVmPageState {
     // ID is used to definitely identify a VM
-    id: number;
+    id: string;
     name: string;
     irPath: string;
     isIrChanged: boolean;
@@ -54,7 +55,7 @@ const initialState: VmState = {
     activeVmIndex: -1 // This enables auto-focus of IR editor when user creates/imports first VM
 };
 
-const vmIdIndexTable: { [id: number]: number | undefined } = {};
+const vmIdIndexTable: { [id: string]: number | undefined } = {};
 
 export const vmSlice = createSlice({
     name: "vm",
@@ -74,10 +75,7 @@ export const vmSlice = createSlice({
             state,
             action: PayloadAction<Omit<SingleVmPageState, "id">>
         ) => {
-            const id =
-                state.vmPageStates.length === 0
-                    ? 0
-                    : state.vmPageStates[state.vmPageStates.length - 1].id + 1;
+            const id = uuidv4();
             state.vmPageStates.push({ ...action.payload, id });
             state.activeVmIndex = state.vmPageStates.length - 1;
             vmIdIndexTable[id] = state.vmPageStates.length - 1;
@@ -245,7 +243,7 @@ export const {
     setLocalVariableTablePageIndex
 } = vmSlice.actions;
 
-export const syncVmState = (dispatch: AppDispatch, vmId: number) => {
+export const syncVmState = (dispatch: AppDispatch, vmId: string) => {
     const vmIndex = vmIdIndexTable[vmId];
 
     if (vmIndex === undefined) {
