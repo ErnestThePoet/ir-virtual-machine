@@ -88,6 +88,7 @@ try {
         encoding: "utf-8"
     });
 } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e);
     process.exit(1);
 }
@@ -101,7 +102,12 @@ function writeVmOutputs() {
                 switch (part.type) {
                     case ConsoleMessageType.OUTPUT:
                         process.stdout.write(
-                            intl.formatMessage({ id: part.key }, part.values)
+                            intl.formatMessage(
+                                { id: part.key },
+                                part.values as Parameters<
+                                    IntlShape["formatMessage"]
+                                >[1]
+                            ) as string
                         );
 
                         hasWritten = true;
@@ -109,7 +115,12 @@ function writeVmOutputs() {
                         break;
                     case ConsoleMessageType.ERROR:
                         process.stderr.write(
-                            intl.formatMessage({ id: part.key }, part.values)
+                            intl.formatMessage(
+                                { id: part.key },
+                                part.values as Parameters<
+                                    IntlShape["formatMessage"]
+                                >[1]
+                            ) as string
                         );
 
                         hasWritten = true;
@@ -123,8 +134,10 @@ function writeVmOutputs() {
                             process.stdout.write(
                                 intl.formatMessage(
                                     { id: part.key },
-                                    part.values
-                                )
+                                    part.values as Parameters<
+                                        IntlShape["formatMessage"]
+                                    >[1]
+                                ) as string
                             );
 
                             hasWritten = true;
@@ -152,6 +165,7 @@ vm.configure({
 const inputBuffer: string[] = [];
 let nextInputIndex: number = 0;
 
+// eslint-disable-next-line no-unused-vars
 let vmInputResolve: ((_: string) => void) | null = null;
 
 readlineInterface.on("line", line => {
@@ -168,9 +182,17 @@ vm.setReadConsoleFn(prompt => {
     writeVmOutputs();
 
     if (args.prompt) {
+        // eslint-disable-next-line no-console
         console.log(
             prompt.reduce(
-                (p, c) => p + intl.formatMessage({ id: c.key }, c.values),
+                (p, c) =>
+                    (p +
+                        intl.formatMessage(
+                            { id: c.key },
+                            c.values as Parameters<
+                                IntlShape["formatMessage"]
+                            >[1]
+                        )) as string,
                 ""
             )
         );
@@ -192,13 +214,16 @@ await vm.execute();
 writeVmOutputs();
 
 if (args.stepCount) {
+    // eslint-disable-next-line no-console
     console.log(vm.stepCount);
 }
 
 if (args.timeElapsed) {
+    // eslint-disable-next-line no-console
     console.log(vm.timeElapsed);
 }
 
+/* eslint-disable no-fallthrough */
 switch (vm.state) {
     case VmExecutionState.EXITED_NORMALLY:
         process.exit(0);
@@ -208,3 +233,4 @@ switch (vm.state) {
     case VmExecutionState.RUNTIME_ERROR:
         process.exit(1);
 }
+/* eslint-enable no-fallthrough */
