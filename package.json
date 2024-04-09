@@ -1,7 +1,7 @@
 {
     "name": "ir-virtual-machine",
     "private": true,
-    "version": "3.3.3",
+    "version": "3.4.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -9,8 +9,7 @@
         "build-cli": "tsc --project cli && cd cli && rollup -c",
         "build-all": "yarn build && yarn build-cli",
         "preview": "vite preview",
-        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-        "lint1": "eslint --help",
+        "lint": "eslint . --ext ts,mts,tsx --report-unused-disable-directives --max-warnings 0",
         "test": "jest"
     },
     "dependencies": {
