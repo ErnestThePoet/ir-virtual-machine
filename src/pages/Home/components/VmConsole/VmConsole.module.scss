@@ -33,3 +33,8 @@
 .divVmConsoleBoxShadow {
     box-shadow: var(--vm-console-inspector-box-shadow-color) 0 6px 6px -6px inset;
 }
+
+.divConsoleBlankArea {
+    flex: 1;
+    cursor: text;
+}

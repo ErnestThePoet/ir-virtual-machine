@@ -293,6 +293,11 @@ const VmConsole: React.FC<VmConsoleProps> = ({ vmIndex }: VmConsoleProps) => {
                         dispatch(setConsoleInput(""));
                     }}
                 />
+
+                <div
+                    className={styles.divConsoleBlankArea}
+                    onClick={() => inVmInput.current?.focus()}
+                />
             </div>
         </div>
     );
