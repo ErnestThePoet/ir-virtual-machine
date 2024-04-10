@@ -2,7 +2,7 @@
  * El Gamal decryption algorithm
  * (1) Read (g,p,x) from input
  * (2) Read ciphertext (c1,c2) from input
- * (3) Compute plaintext m=(c2/c1)=c2*c1^(-1) mod p
+ * (3) Compute plaintext m=c2/(c1^x)=c2*(c1^x)^(-1) mod p
  * (4) Output m
  *
  * This implementation is for demonstration purposes only.
