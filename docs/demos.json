@@ -209,7 +209,7 @@
             {
                 "name": "El Gamal：消息解密",
                 "irUrl": "demos/cryptography/elgamal_dec.ir",
-                "remark": "输入私钥(g,p,x)和密文(c1,c2)，计算并输出明文m=(c2/c1)=c2*c1^(-1) mod p",
+                "remark": "输入私钥(g,p,x)和密文(c1,c2)，计算并输出明文m=(c2/(c1^x))=c2*(c1^x)^(-1) mod p",
                 "vmOptions": {
                     "maxExecutionStepCount": 3000000
                 }
