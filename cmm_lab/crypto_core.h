@@ -1,6 +1,7 @@
 #ifndef CRYPTO_CORE_H_
 #define CRYPTO_CORE_H_
 
+#include <stdio.h>
 #include "unsigned_op.h"
 #include "common.h"
 
@@ -18,7 +19,6 @@ int is_bit_set(int is_bit_set_x, int is_bit_set_n);
 int mul_mod(int mul_mod_a, int mul_mod_b, int mul_mod_p);
 int exp_mod(int exp_mod_a, int exp_mod_b, int exp_mod_p);
 
-int ucmp(int ucmp_a, int ucmp_b);
 int nnmod(int nnmod_a, int nnmod_b);
 
 int inverse_mod(int invmod_inv[1], int invmod_a, int invmod_n);

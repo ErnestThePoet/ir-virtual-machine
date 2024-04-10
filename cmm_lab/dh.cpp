@@ -89,3 +89,62 @@ int dh_compute_key(
 
 	return 1;
 }
+
+int elgamal_pubkey_encryrpt(
+	int elgamal_pubkenc_c_out[2],
+	struct DH elgamal_pubkenc_dh[1],
+	int elgamal_pubkenc_p)
+{
+	int elgamal_pubkenc_y[1];
+
+	if (cmp_uint32(elgamal_pubkenc_p, elgamal_pubkenc_dh[0].params.p) >= 0)
+	{
+		return 0;
+	}
+
+	if (!ffc_generate_privkey(elgamal_pubkenc_y, elgamal_pubkenc_dh[0].params.q, -1))
+	{
+		return 0;
+	}
+
+	elgamal_pubkenc_c_out[0] = exp_mod(
+		elgamal_pubkenc_dh[0].params.g,
+		elgamal_pubkenc_y[0],
+		elgamal_pubkenc_dh[0].params.p);
+
+	elgamal_pubkenc_c_out[1] = mul_mod(
+		exp_mod(
+			elgamal_pubkenc_dh[0].pubkey,
+			elgamal_pubkenc_y[0],
+			elgamal_pubkenc_dh[0].params.p),
+		elgamal_pubkenc_p,
+		elgamal_pubkenc_dh[0].params.p);
+
+	return 1;
+}
+
+int elgamal_privkey_decryrpt(
+	int elgamal_privkdec_p_out[1],
+	struct DH elgamal_privkdec_dh[1],
+	int elgamal_privkdec_c[2])
+{
+	int elgamal_privkdec_inv[1];
+
+	if (!inverse_mod(
+			elgamal_privkdec_inv,
+			exp_mod(
+				elgamal_privkdec_c[0],
+				elgamal_privkdec_dh[0].privkey,
+				elgamal_privkdec_dh[0].params.p),
+			elgamal_privkdec_dh[0].params.p))
+	{
+		return 0;
+	}
+
+	elgamal_privkdec_p_out[0] = mul_mod(
+		elgamal_privkdec_c[1],
+		elgamal_privkdec_inv[0],
+		elgamal_privkdec_dh[0].params.p);
+
+	return 1;
+}

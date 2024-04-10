@@ -1,0 +1,267 @@
+/*
+ * Modular multiplicative inverse computing algorithm
+ * Input a and n, compute multiplicative inverse of a modulo n
+ * (denoted as x), such that (a*x mod n)=1.
+ *
+ * Part of this implementation is adapted from OpenSSL v3.3.0.
+ */
+
+int kTwoPowers[32]; // [31] is negative
+
+int init_two_powers()
+{
+    int init_two_powers_i = 0;
+    int init_two_powers_power = 1;
+
+    while (init_two_powers_i < 32)
+    {
+        kTwoPowers[init_two_powers_i] = init_two_powers_power;
+        init_two_powers_power = init_two_powers_power * 2;
+        init_two_powers_i = init_two_powers_i + 1;
+    }
+
+    return 0;
+}
+
+int mod(int mod_x, int mod_y)
+{
+    return mod_x - mod_y * (mod_x / mod_y);
+}
+
+// uint32 operations
+
+int rshift_uint32(int rshift_uint32_x, int rshift_uint32_usr_a)
+{
+    if (rshift_uint32_usr_a >= 32 ||
+        (rshift_uint32_x >= 0 && rshift_uint32_usr_a == 31))
+    {
+        return 0;
+    }
+
+    if (rshift_uint32_x < 0 && rshift_uint32_usr_a > 0)
+    {
+        // clear msb
+        rshift_uint32_x = rshift_uint32_x + (-2147483648);
+        // perform normal right shift
+        rshift_uint32_x = rshift_uint32_x / 2;
+        // reset msb
+        rshift_uint32_x = rshift_uint32_x + 1073741824;
+        rshift_uint32_usr_a = rshift_uint32_usr_a - 1;
+    }
+
+    // Now a<31
+    return rshift_uint32_x / kTwoPowers[rshift_uint32_usr_a];
+}
+
+int get_bits_uint32(int get_bits_uint32_a)
+{
+    int get_bits_uint32_bits = 0;
+    while (rshift_uint32(get_bits_uint32_a, get_bits_uint32_bits))
+    {
+        get_bits_uint32_bits = get_bits_uint32_bits + 1;
+    }
+
+    return get_bits_uint32_bits;
+}
+
+int cmp_uint32(int cmp_uint32_a, int cmp_uint32_b)
+{
+    if ((cmp_uint32_a < 0 && cmp_uint32_b < 0) ||
+        (cmp_uint32_a >= 0 && cmp_uint32_b >= 0))
+    {
+        if (cmp_uint32_a > cmp_uint32_b)
+        {
+            return 1;
+        }
+        else if (cmp_uint32_a < cmp_uint32_b)
+        {
+            return -1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else if (cmp_uint32_a < 0 && cmp_uint32_b >= 0)
+    {
+        return 1;
+    }
+    else if (cmp_uint32_b < 0 && cmp_uint32_a >= 0)
+    {
+        return -1;
+    }
+}
+
+int nnmod(int nnmod_a, int nnmod_b)
+{
+    int nnmod_m = mod(nnmod_a, nnmod_b);
+    if (nnmod_m < 0)
+    {
+        if (nnmod_b < 0)
+        {
+            nnmod_m = nnmod_m - nnmod_b;
+        }
+        else
+        {
+            nnmod_m = nnmod_m + nnmod_b;
+        }
+    }
+
+    return nnmod_m;
+}
+
+// GCD-Related
+
+// Return 0 if no inv
+int inverse_mod(int invmod_inv[1], int invmod_a, int invmod_n)
+{
+    int invmod_A,
+        invmod_B,
+        invmod_X,
+        invmod_Y,
+        invmod_M,
+        invmod_D,
+        invmod_T,
+        invmod_R,
+        invmod_abits,
+        invmod_bbits,
+        invmod_tmp;
+
+    int invmod_sign;
+
+    if (invmod_n == 1 || invmod_n == 0)
+    {
+        return 0;
+    }
+
+    invmod_X = 1;
+    invmod_Y = 0;
+    invmod_B = invmod_a;
+    invmod_A = invmod_n;
+
+    if (invmod_A < 0)
+    {
+        invmod_A = -invmod_A;
+    }
+
+    if (invmod_B < 0 || cmp_uint32(invmod_B, invmod_A) >= 0)
+    {
+        invmod_B = nnmod(invmod_B, invmod_A);
+    }
+
+    invmod_sign = -1;
+
+    while (invmod_B)
+    {
+        invmod_abits = get_bits_uint32(invmod_A);
+        invmod_bbits = get_bits_uint32(invmod_B);
+
+        if (invmod_abits == invmod_bbits)
+        {
+            invmod_D = 1;
+            invmod_M = invmod_A - invmod_B;
+        }
+        else if (invmod_abits == invmod_bbits + 1)
+        {
+            invmod_T = invmod_B * 2;
+            if (cmp_uint32(invmod_A, invmod_T) < 0)
+            {
+                invmod_D = 1;
+                invmod_M = invmod_A - invmod_B;
+            }
+            else
+            {
+                invmod_M = invmod_A - invmod_T;
+                invmod_D = invmod_T + invmod_B;
+                if (cmp_uint32(invmod_A, invmod_D) < 0)
+                {
+                    invmod_D = 2;
+                }
+                else
+                {
+                    invmod_D = 3;
+                    invmod_M = invmod_M - invmod_B;
+                }
+            }
+        }
+        else
+        {
+            invmod_D = invmod_A / invmod_B;
+            invmod_M = mod(invmod_A, invmod_B);
+        }
+
+        invmod_tmp = invmod_A;
+        invmod_A = invmod_B;
+        invmod_B = invmod_M;
+
+        if (invmod_D == 1)
+        {
+            invmod_tmp = invmod_X + invmod_Y;
+        }
+        else
+        {
+            if (invmod_D == 2)
+            {
+                invmod_tmp = invmod_X * 2;
+            }
+            else if (invmod_D == 4)
+            {
+                invmod_tmp = invmod_X * 4;
+            }
+            else
+            {
+                invmod_tmp = invmod_D * invmod_X;
+            }
+
+            invmod_tmp = invmod_tmp + invmod_Y;
+        }
+
+        invmod_M = invmod_Y;
+        invmod_Y = invmod_X;
+        invmod_X = invmod_tmp;
+        invmod_sign = -invmod_sign;
+    }
+
+    if (invmod_sign < 0)
+    {
+        invmod_Y = invmod_n - invmod_Y;
+    }
+
+    if (invmod_A == 1)
+    {
+        if (invmod_Y >= 0 && cmp_uint32(invmod_Y, invmod_n) < 0)
+        {
+            invmod_R = invmod_Y;
+        }
+        else
+        {
+            invmod_R = nnmod(invmod_Y, invmod_n);
+        }
+    }
+    else
+    {
+        return 0;
+    }
+
+    invmod_inv[0] = invmod_R;
+
+    return 1;
+}
+
+int main()
+{
+    int a = read();
+    int n = read();
+    int inv[1];
+
+    init_two_powers();
+
+    if (!inverse_mod(inv, a, n))
+    {
+        return 1;
+    }
+
+    write(inv[0]);
+
+    return 0;
+}

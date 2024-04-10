@@ -15,37 +15,46 @@ using namespace std;
 
 int main()
 {
-	RSA rsa;
+	DH dh;
 
 	init_two_powers();
 	init_primes();
 
 	srand32(time(nullptr));
 
-	if (!rsa_keygen(&rsa, 31, 65537))
+	if (!dh_generate_paremeters(&dh, 31, 2))
 	{
-		cout << "keygen error" << endl;
+		cout << "paramgen error" << endl;
+		return 1;
 	}
 
-	int c[1];
-	int pt = 5211314;
+	if (!dh_generate_key(&dh))
+	{
+		cout << "keygen error" << endl;
+		return 1;
+	}
+
+	int c[2];
+	int pt = dh.params.p - 4;
 	int dec[1];
 
 	printf("Plaintext=%d\n", pt);
 
-	if (!rsa_pubkey_encryrpt(c, &rsa, pt))
+	if (!elgamal_pubkey_encryrpt(c, &dh, pt))
 	{
 		cout << "enc error" << endl;
+		return 1;
 	}
 
-	printf("Cipher=%d\n", c[0]);
+	printf("Cipher=%d %d\n", c[0], c[1]);
 
-	if (!rsa_privkey_decryrpt(dec, &rsa, c[0]))
+	if (!elgamal_privkey_decryrpt(dec, &dh, c))
 	{
 		cout << "dec error" << endl;
+		return 1;
 	}
 
-	printf("Decrtpted=%d\n", dec[0]);
+	printf("Decrypted=%d\n", dec[0]);
 
 	return 0;
 }

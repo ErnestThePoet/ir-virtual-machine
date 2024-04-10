@@ -128,32 +128,6 @@ int exp_mod(int exp_mod_a, int exp_mod_b, int exp_mod_p)
 	return exp_mod_prod64[1];
 }
 
-int ucmp(int ucmp_a, int ucmp_b)
-{
-	if (ucmp_a < 0)
-	{
-		ucmp_a = -ucmp_a;
-	}
-
-	if (ucmp_b < 0)
-	{
-		ucmp_b = -ucmp_b;
-	}
-
-	if (ucmp_a > ucmp_b)
-	{
-		return 1;
-	}
-	else if (ucmp_a < ucmp_b)
-	{
-		return -1;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
 int nnmod(int nnmod_a, int nnmod_b)
 {
 	int nnmod_m = mod(nnmod_a, nnmod_b);
@@ -185,7 +159,6 @@ int inverse_mod(int invmod_inv[1], int invmod_a, int invmod_n)
 		invmod_D,
 		invmod_T,
 		invmod_R,
-		invmod_shift,
 		invmod_abits,
 		invmod_bbits,
 		invmod_tmp;
@@ -207,138 +180,83 @@ int inverse_mod(int invmod_inv[1], int invmod_a, int invmod_n)
 		invmod_A = -invmod_A;
 	}
 
-	if (invmod_B < 0 || ucmp(invmod_B, invmod_A) >= 0)
+	if (invmod_B < 0 || cmp_uint32(invmod_B, invmod_A) >= 0)
 	{
 		invmod_B = nnmod(invmod_B, invmod_A);
 	}
 
 	invmod_sign = -1;
 
-	if (mod(invmod_n, 2))
+	while (invmod_B)
 	{
-		while (invmod_B)
+		invmod_abits = get_bits_uint32(invmod_A);
+		invmod_bbits = get_bits_uint32(invmod_B);
+
+		if (invmod_abits == invmod_bbits)
 		{
-			invmod_shift = 0;
-
-			while (!is_bit_set(invmod_B, invmod_shift))
-			{
-				invmod_shift = invmod_shift + 1;
-				if (mod(invmod_X, 2))
-				{
-					invmod_X = invmod_X + invmod_n;
-				}
-
-				invmod_X = rshift_uint32(invmod_X, 1);
-			}
-
-			if (invmod_shift > 0)
-			{
-				invmod_B = rshift_uint32(invmod_B, invmod_shift);
-			}
-
-			invmod_shift = 0;
-			while (!is_bit_set(invmod_A, invmod_shift))
-			{
-				invmod_shift = invmod_shift + 1;
-				if (mod(invmod_Y, 2))
-				{
-					invmod_Y = invmod_Y + invmod_n;
-				}
-
-				invmod_Y = rshift_uint32(invmod_Y, 1);
-			}
-
-			if (invmod_shift > 0)
-			{
-				invmod_A = rshift_uint32(invmod_A, invmod_shift);
-			}
-
-			if (cmp_uint32(invmod_B, invmod_A) >= 0)
-			{
-				invmod_X = invmod_X + invmod_Y;
-				invmod_B = invmod_B - invmod_A;
-			}
-			else
-			{
-				invmod_Y = invmod_Y + invmod_X;
-				invmod_A = invmod_A - invmod_B;
-			}
+			invmod_D = 1;
+			invmod_M = invmod_A - invmod_B;
 		}
-	}
-	else
-	{
-		while (invmod_B)
+		else if (invmod_abits == invmod_bbits + 1)
 		{
-			invmod_abits = get_bits_uint32(invmod_A);
-			invmod_bbits = get_bits_uint32(invmod_B);
-
-			if (invmod_abits == invmod_bbits)
+			invmod_T = invmod_B * 2;
+			if (cmp_uint32(invmod_A, invmod_T) < 0)
 			{
 				invmod_D = 1;
 				invmod_M = invmod_A - invmod_B;
 			}
-			else if (invmod_abits == invmod_bbits + 1)
+			else
 			{
-				invmod_T = invmod_B * 2;
-				if (ucmp(invmod_A, invmod_T) < 0)
+				invmod_M = invmod_A - invmod_T;
+				invmod_D = invmod_T + invmod_B;
+				if (cmp_uint32(invmod_A, invmod_D) < 0)
 				{
-					invmod_D = 1;
-					invmod_M = invmod_A - invmod_B;
+					invmod_D = 2;
 				}
 				else
 				{
-					invmod_M = invmod_A - invmod_T;
-					invmod_D = invmod_T + invmod_B;
-					if (ucmp(invmod_A, invmod_D) < 0)
-					{
-						invmod_D = 2;
-					}
-					else
-					{
-						invmod_D = 3;
-						invmod_M = invmod_M - invmod_B;
-					}
+					invmod_D = 3;
+					invmod_M = invmod_M - invmod_B;
 				}
 			}
-			else
-			{
-				invmod_D = invmod_A / invmod_B;
-				invmod_M = mod(invmod_A, invmod_B);
-			}
-
-			invmod_tmp = invmod_A;
-			invmod_A = invmod_B;
-			invmod_B = invmod_M;
-
-			if (invmod_D == 1)
-			{
-				invmod_tmp = invmod_X + invmod_Y;
-			}
-			else
-			{
-				if (invmod_D == 2)
-				{
-					invmod_tmp = invmod_X * 2;
-				}
-				else if (invmod_D == 4)
-				{
-					invmod_tmp = invmod_X * 4;
-				}
-				else
-				{
-					invmod_tmp = invmod_D * invmod_X;
-				}
-
-				invmod_tmp = invmod_tmp + invmod_Y;
-			}
-
-			invmod_M = invmod_Y;
-			invmod_Y = invmod_X;
-			invmod_X = invmod_tmp;
-			invmod_sign = -invmod_sign;
 		}
-	}
+		else
+		{
+			invmod_D = invmod_A / invmod_B;
+			invmod_M = mod(invmod_A, invmod_B);
+		}
 
+		invmod_tmp = invmod_A;
+		invmod_A = invmod_B;
+		invmod_B = invmod_M;
+
+		if (invmod_D == 1)
+		{
+			invmod_tmp = invmod_X + invmod_Y;
+		}
+		else
+		{
+			if (invmod_D == 2)
+			{
+				invmod_tmp = invmod_X * 2;
+			}
+			else if (invmod_D == 4)
+			{
+				invmod_tmp = invmod_X * 4;
+			}
+			else
+			{
+				invmod_tmp = invmod_D * invmod_X;
+			}
+
+			invmod_tmp = invmod_tmp + invmod_Y;
+		}
+
+		invmod_M = invmod_Y;
+		invmod_Y = invmod_X;
+		invmod_X = invmod_tmp;
+		invmod_sign = -invmod_sign;
+	}
 
 	if (invmod_sign < 0)
 	{
@@ -347,7 +265,7 @@ int inverse_mod(int invmod_inv[1], int invmod_a, int invmod_n)
 
 	if (invmod_A == 1)
 	{
-		if (invmod_Y >= 0 && ucmp(invmod_Y, invmod_n) < 0)
+		if (invmod_Y >= 0 && cmp_uint32(invmod_Y, invmod_n) < 0)
 		{
 			invmod_R = invmod_Y;
 		}
