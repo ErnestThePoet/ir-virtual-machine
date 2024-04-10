@@ -287,7 +287,10 @@
             {
                 "name": "Benchmark",
                 "irUrl": "demos/boring/benchmark.ir",
-                "remark": "性能测试，让虚拟机忙起来！"
+                "remark": "性能测试，让虚拟机忙起来！",
+                "vmOptions": {
+                    "maxExecutionStepCount": 5000000
+                }
             }
         ]
     }

@@ -1,7 +1,7 @@
 FUNCTION main :
 i := #0
 LABEL test :
-IF i < #330000 GOTO body
+IF i < #1000000 GOTO body
 GOTO exit
 LABEL body :
 i := i + #1
