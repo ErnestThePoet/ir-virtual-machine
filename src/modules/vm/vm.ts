@@ -1258,6 +1258,460 @@ export class Vm {
     }
 
     /**
+     * Execute single step or continuously.
+     * If a runtime error is detected, `this.executionStatus.state` will be set to
+     * `"RUNTIME_ERROR"` with error message written to buffer.
+     * @param continuous - If `true`, execute continuously; otherwise execute single step.
+     * @async
+     */
+    private async execute(continuous: boolean) {
+        do {
+            // Allow immediate rerun after exit
+            if (
+                this.executionStatus.state ===
+                    VmExecutionState.EXITED_NORMALLY ||
+                this.executionStatus.state ===
+                    VmExecutionState.EXITED_ABNORMALLY ||
+                this.executionStatus.state === VmExecutionState.INITIAL
+            ) {
+                // reset() for INITIAL state will clear error items generated during
+                // editor static check
+                this.reset();
+                this.prepareExcution();
+            }
+
+            if (this.executionStatus.state !== VmExecutionState.FREE) {
+                return;
+            }
+
+            this.executionStatus.state = VmExecutionState.BUSY;
+
+            // Check step limit
+            if (
+                this.options.maxExecutionStepCount > 0 &&
+                this.executionStatus.stepCount >=
+                    this.options.maxExecutionStepCount
+            ) {
+                this.executionStatus.state = VmExecutionState.MAX_STEP_REACHED;
+                this.writeBuffer.push([
+                    {
+                        key: "MAX_STEP_REACHED",
+                        values: {
+                            maxExecutionStepCount:
+                                this.options.maxExecutionStepCount
+                        },
+                        type: ConsoleMessageType.ERROR
+                    }
+                ]);
+                return;
+            }
+
+            // Check text index
+            if (
+                this.registers.eip >= this.memory.text.length ||
+                this.registers.eip < 0
+            ) {
+                // Here we don't call writeRuntimeError because we can't get line number.
+                this.executionStatus.state = VmExecutionState.RUNTIME_ERROR;
+
+                this.writeBuffer.push([
+                    {
+                        key: "RUNTIME_ERROR_PREFIX_NO_LN",
+                        type: ConsoleMessageType.ERROR
+                    },
+                    {
+                        key: "INSTRUCTION_READ_OUT_OF_BOUND",
+                        values: {
+                            address: this.registers.eip
+                        },
+                        type: ConsoleMessageType.ERROR
+                    }
+                ]);
+
+                return;
+            }
+
+            // Step count increase
+            // We do not increase after the switch because main's RETURN will
+            // exit this function directly
+            this.executionStatus.stepCount++;
+
+            const ir = this.memory.text[this.registers.eip];
+            switch (ir.type) {
+                case ExecutableInstructionType.ARG: {
+                    const value = this.getSingularValue(
+                        (<DecodedArg>ir.value).value
+                    );
+                    if (value === null || !this.pushl(value)) {
+                        return;
+                    }
+
+                    this.registers.ecx = i32Add(this.registers.ecx, 4);
+
+                    break;
+                }
+                case ExecutableInstructionType.ASSIGN: {
+                    const rValue = this.getRValue(
+                        (<DecodedAssign>ir.value).rValue
+                    );
+                    if (rValue === null) {
+                        return;
+                    }
+
+                    const lValueAddress = this.getLValueAddress(
+                        (<DecodedAssign>ir.value).lValue
+                    );
+                    if (lValueAddress === null) {
+                        return;
+                    }
+
+                    if (!this.storeMemory32(rValue, lValueAddress)) {
+                        return;
+                    }
+
+                    break;
+                }
+                case ExecutableInstructionType.ASSIGN_CALL:
+                case ExecutableInstructionType.CALL: {
+                    const functionId =
+                        ir.type === ExecutableInstructionType.CALL
+                            ? (<DecodedCall>ir.value).id
+                            : (<DecodedAssignCall>ir.value).functionId;
+                    if (!(functionId in this.tables.functionTable)) {
+                        this.writeRuntimeError({
+                            key: "FUNCTION_NOT_FOUND",
+                            values: {
+                                id: functionId
+                            }
+                        });
+
+                        return;
+                    }
+
+                    // Set first arg address
+                    this.registers.ebx = this.registers.esp;
+
+                    // Push ecx
+                    if (!this.pushl(this.registers.ecx)) {
+                        return;
+                    }
+
+                    this.registers.ecx = 0;
+
+                    // Push return address
+                    if (!this.pushl(this.registers.eip)) {
+                        return;
+                    }
+
+                    // As if callee does the following
+                    // pushl ebp
+                    if (!this.pushl(this.registers.ebp)) {
+                        return;
+                    }
+
+                    // movl esp ebp
+                    this.registers.ebp = this.registers.esp;
+
+                    if (ir.type === ExecutableInstructionType.ASSIGN_CALL) {
+                        this.tables.assignCallLValueStack.push(
+                            (<DecodedAssignCall>ir.value).lValue
+                        );
+                    } else {
+                        this.tables.assignCallLValueStack.push(null);
+                    }
+
+                    // Push new variable table
+                    this.tables.variableTableStack.push({});
+                    // Push call stack
+                    this.executionStatus.callStack.push(functionId);
+
+                    this.registers.eip =
+                        this.tables.functionTable[functionId].addressBefore;
+
+                    break;
+                }
+
+                case ExecutableInstructionType.DEC: {
+                    const variable = this.createStackVariable(
+                        (<DecodedDec>ir.value).id,
+                        (<DecodedDec>ir.value).size
+                    );
+                    if (variable === null) {
+                        return;
+                    }
+
+                    break;
+                }
+
+                case ExecutableInstructionType.GOTO: {
+                    const labelId = (<DecodedGoto>ir.value).id;
+                    if (!(labelId in this.tables.labelTable)) {
+                        this.writeRuntimeError({
+                            key: "LABEL_NOT_FOUND",
+                            values: {
+                                id: labelId
+                            }
+                        });
+
+                        return;
+                    }
+
+                    this.registers.eip =
+                        this.tables.labelTable[labelId].addressBefore;
+
+                    break;
+                }
+                case ExecutableInstructionType.IF: {
+                    const condValue = this.getCondValue(
+                        (<DecodedIf>ir.value).condition
+                    );
+                    if (condValue === null) {
+                        return;
+                    }
+
+                    const gotoLabelId = (<DecodedIf>ir.value).gotoId;
+                    if (!(gotoLabelId in this.tables.labelTable)) {
+                        this.writeRuntimeError({
+                            key: "LABEL_NOT_FOUND",
+                            values: {
+                                id: gotoLabelId
+                            }
+                        });
+
+                        return;
+                    }
+
+                    if (condValue) {
+                        this.registers.eip =
+                            this.tables.labelTable[gotoLabelId].addressBefore;
+                    }
+
+                    break;
+                }
+
+                case ExecutableInstructionType.PARAM: {
+                    const paramId = (<DecodedParam>ir.value).id;
+                    if (
+                        paramId in
+                        this.tables.variableTableStack[
+                            this.tables.variableTableStack.length - 1
+                        ]
+                    ) {
+                        this.writeRuntimeError({
+                            key: "DUPLICATE_PARAM_ID",
+                            values: {
+                                id: paramId
+                            }
+                        });
+
+                        return;
+                    }
+
+                    // Try load memory to detect out of bound error
+                    if (this.loadMemory32(this.registers.ebx) === null) {
+                        return;
+                    }
+
+                    this.tables.variableTableStack[
+                        this.tables.variableTableStack.length - 1
+                    ][paramId] = {
+                        address: this.registers.ebx,
+                        size: 4
+                    };
+
+                    this.registers.ebx = i32Add(this.registers.ebx, 4);
+
+                    break;
+                }
+
+                case ExecutableInstructionType.RETURN: {
+                    const returnValue = this.getSingularValue(
+                        (<DecodedReturn>ir.value).value
+                    );
+                    if (returnValue === null) {
+                        return;
+                    }
+
+                    this.registers.eax = returnValue;
+
+                    // movl ebp,esp
+                    this.registers.esp = this.registers.ebp;
+                    this.updatePeakMemoryUsage();
+
+                    // popl ebp
+                    const savedEbp = this.popl();
+                    if (savedEbp === null) {
+                        return;
+                    }
+
+                    this.registers.ebp = savedEbp;
+
+                    // ret
+                    const returnAddress = this.popl();
+                    if (returnAddress === null) {
+                        return;
+                    }
+
+                    this.registers.eip = returnAddress;
+
+                    // popl ecx
+                    const savedEcx = this.popl();
+                    if (savedEcx === null) {
+                        return;
+                    }
+
+                    // addl esp, ecx
+                    this.registers.esp = i32Add(this.registers.esp, savedEcx);
+                    this.updatePeakMemoryUsage();
+
+                    // If s sub function uses ARG without CALL, this will avoid
+                    // incorrect ecx value when next ARGs are executed after
+                    // control returns to parent function.
+                    this.registers.ecx = 0;
+
+                    // Pop local variable table
+                    if (this.tables.variableTableStack.length === 0) {
+                        this.writeRuntimeError({
+                            key: "EMPTY_VARIABLE_TABLE_STACK"
+                        });
+
+                        return;
+                    }
+
+                    // Pop call stack
+                    this.executionStatus.callStack.pop();
+
+                    this.tables.variableTableStack.pop();
+
+                    // Whether main function returns
+                    if (this.registers.eip === this.memory.text.length) {
+                        this.finalizeExcution();
+                        return;
+                    }
+
+                    // Store return value
+                    const assignCallLValue =
+                        this.tables.assignCallLValueStack.pop();
+                    if (assignCallLValue !== null) {
+                        const lValueAddress = this.getLValueAddress(
+                            assignCallLValue!
+                        );
+                        if (lValueAddress === null) {
+                            return;
+                        }
+                        if (
+                            !this.storeMemory32(
+                                this.registers.eax,
+                                lValueAddress
+                            )
+                        ) {
+                            return;
+                        }
+                    }
+
+                    break;
+                }
+
+                case ExecutableInstructionType.READ: {
+                    const decodedRead = <DecodedRead>ir.value;
+
+                    const lValueAddress = this.getLValueAddress(
+                        decodedRead.lValue
+                    );
+                    if (lValueAddress === null) {
+                        return;
+                    }
+
+                    const lValueName =
+                        decodedRead.lValue.type === LValueType.ID
+                            ? decodedRead.lValue.id
+                            : "*" + decodedRead.lValue.id;
+
+                    this.executionStatus.state = VmExecutionState.WAIT_INPUT;
+
+                    const valueString = await this.readConsole([
+                        {
+                            key: "READ_PROMPT",
+                            values: {
+                                name: lValueName
+                            }
+                        }
+                    ]);
+
+                    // VM has been reset while waiting for input
+                    if (this.state !== VmExecutionState.WAIT_INPUT) {
+                        return;
+                    }
+
+                    this.executionStatus.state = VmExecutionState.BUSY;
+
+                    const value = parseInt(valueString);
+                    if (isNaN(value)) {
+                        this.writeRuntimeError({
+                            key: "INPUT_INT_ILLEGAL"
+                        });
+
+                        return;
+                    }
+
+                    if (!Number.isSafeInteger(value)) {
+                        this.writeRuntimeError({
+                            key: "INPUT_INT_ABS_TOO_LARGE"
+                        });
+
+                        return;
+                    }
+
+                    if (!this.storeMemory32(i32(value), lValueAddress)) {
+                        return;
+                    }
+
+                    break;
+                }
+
+                case ExecutableInstructionType.WRITE: {
+                    const value = this.getSingularValue(
+                        (<DecodedWrite>ir.value).value
+                    );
+                    if (value === null) {
+                        return;
+                    }
+
+                    this.writeBuffer.push([
+                        {
+                            key: "WRITE_OUTPUT",
+                            values: {
+                                value: value
+                            },
+                            type: ConsoleMessageType.OUTPUT
+                        }
+                    ]);
+
+                    break;
+                }
+
+                default:
+                    break;
+            }
+
+            // inc eip
+            this.registers.eip = i32Add(this.registers.eip, 1);
+
+            // Skip GLOBAL_DEC
+            while (
+                this.registers.eip < this.memory.text.length &&
+                this.registers.eip >= 0 &&
+                this.memory.text[this.registers.eip].type ===
+                    ExecutableInstructionType.GLOBAL_DEC
+            ) {
+                this.registers.eip = i32Add(this.registers.eip, 1);
+            }
+
+            this.executionStatus.state = VmExecutionState.FREE;
+        } while (continuous);
+    }
+
+    /**
      * Execute single step.
      * If a runtime error is detected, `this.executionStatus.state` will be set to
      * `"RUNTIME_ERROR"` with error message written to buffer.
@@ -1265,438 +1719,7 @@ export class Vm {
      * @public
      */
     async executeSingleStep() {
-        // Allow immediate rerun after exit
-        if (
-            this.executionStatus.state === VmExecutionState.EXITED_NORMALLY ||
-            this.executionStatus.state === VmExecutionState.EXITED_ABNORMALLY ||
-            this.executionStatus.state === VmExecutionState.INITIAL
-        ) {
-            // reset() for INITIAL state will clear error items generated during
-            // editor static check
-            this.reset();
-            this.prepareExcution();
-        }
-
-        if (this.executionStatus.state !== VmExecutionState.FREE) {
-            return;
-        }
-
-        this.executionStatus.state = VmExecutionState.BUSY;
-
-        // Check step limit
-        if (
-            this.options.maxExecutionStepCount > 0 &&
-            this.executionStatus.stepCount >= this.options.maxExecutionStepCount
-        ) {
-            this.executionStatus.state = VmExecutionState.MAX_STEP_REACHED;
-            this.writeBuffer.push([
-                {
-                    key: "MAX_STEP_REACHED",
-                    values: {
-                        maxExecutionStepCount:
-                            this.options.maxExecutionStepCount
-                    },
-                    type: ConsoleMessageType.ERROR
-                }
-            ]);
-            return;
-        }
-
-        // Check text index
-        if (
-            this.registers.eip >= this.memory.text.length ||
-            this.registers.eip < 0
-        ) {
-            // Here we don't call writeRuntimeError because we can't get line number.
-            this.executionStatus.state = VmExecutionState.RUNTIME_ERROR;
-
-            this.writeBuffer.push([
-                {
-                    key: "RUNTIME_ERROR_PREFIX_NO_LN",
-                    type: ConsoleMessageType.ERROR
-                },
-                {
-                    key: "INSTRUCTION_READ_OUT_OF_BOUND",
-                    values: {
-                        address: this.registers.eip
-                    },
-                    type: ConsoleMessageType.ERROR
-                }
-            ]);
-
-            return;
-        }
-
-        // Step count increase
-        // We do not increase after the switch because main's RETURN will
-        // exit this function directly
-        this.executionStatus.stepCount++;
-
-        const ir = this.memory.text[this.registers.eip];
-        switch (ir.type) {
-            case ExecutableInstructionType.ARG: {
-                const value = this.getSingularValue(
-                    (<DecodedArg>ir.value).value
-                );
-                if (value === null || !this.pushl(value)) {
-                    return;
-                }
-
-                this.registers.ecx = i32Add(this.registers.ecx, 4);
-
-                break;
-            }
-            case ExecutableInstructionType.ASSIGN: {
-                const rValue = this.getRValue((<DecodedAssign>ir.value).rValue);
-                if (rValue === null) {
-                    return;
-                }
-
-                const lValueAddress = this.getLValueAddress(
-                    (<DecodedAssign>ir.value).lValue
-                );
-                if (lValueAddress === null) {
-                    return;
-                }
-
-                if (!this.storeMemory32(rValue, lValueAddress)) {
-                    return;
-                }
-
-                break;
-            }
-            case ExecutableInstructionType.ASSIGN_CALL:
-            case ExecutableInstructionType.CALL: {
-                const functionId =
-                    ir.type === ExecutableInstructionType.CALL
-                        ? (<DecodedCall>ir.value).id
-                        : (<DecodedAssignCall>ir.value).functionId;
-                if (!(functionId in this.tables.functionTable)) {
-                    this.writeRuntimeError({
-                        key: "FUNCTION_NOT_FOUND",
-                        values: {
-                            id: functionId
-                        }
-                    });
-
-                    return;
-                }
-
-                // Set first arg address
-                this.registers.ebx = this.registers.esp;
-
-                // Push ecx
-                if (!this.pushl(this.registers.ecx)) {
-                    return;
-                }
-
-                this.registers.ecx = 0;
-
-                // Push return address
-                if (!this.pushl(this.registers.eip)) {
-                    return;
-                }
-
-                // As if callee does the following
-                // pushl ebp
-                if (!this.pushl(this.registers.ebp)) {
-                    return;
-                }
-
-                // movl esp ebp
-                this.registers.ebp = this.registers.esp;
-
-                if (ir.type === ExecutableInstructionType.ASSIGN_CALL) {
-                    this.tables.assignCallLValueStack.push(
-                        (<DecodedAssignCall>ir.value).lValue
-                    );
-                } else {
-                    this.tables.assignCallLValueStack.push(null);
-                }
-
-                // Push new variable table
-                this.tables.variableTableStack.push({});
-                // Push call stack
-                this.executionStatus.callStack.push(functionId);
-
-                this.registers.eip =
-                    this.tables.functionTable[functionId].addressBefore;
-
-                break;
-            }
-
-            case ExecutableInstructionType.DEC: {
-                const variable = this.createStackVariable(
-                    (<DecodedDec>ir.value).id,
-                    (<DecodedDec>ir.value).size
-                );
-                if (variable === null) {
-                    return;
-                }
-
-                break;
-            }
-
-            case ExecutableInstructionType.GOTO: {
-                const labelId = (<DecodedGoto>ir.value).id;
-                if (!(labelId in this.tables.labelTable)) {
-                    this.writeRuntimeError({
-                        key: "LABEL_NOT_FOUND",
-                        values: {
-                            id: labelId
-                        }
-                    });
-
-                    return;
-                }
-
-                this.registers.eip =
-                    this.tables.labelTable[labelId].addressBefore;
-
-                break;
-            }
-            case ExecutableInstructionType.IF: {
-                const condValue = this.getCondValue(
-                    (<DecodedIf>ir.value).condition
-                );
-                if (condValue === null) {
-                    return;
-                }
-
-                const gotoLabelId = (<DecodedIf>ir.value).gotoId;
-                if (!(gotoLabelId in this.tables.labelTable)) {
-                    this.writeRuntimeError({
-                        key: "LABEL_NOT_FOUND",
-                        values: {
-                            id: gotoLabelId
-                        }
-                    });
-
-                    return;
-                }
-
-                if (condValue) {
-                    this.registers.eip =
-                        this.tables.labelTable[gotoLabelId].addressBefore;
-                }
-
-                break;
-            }
-
-            case ExecutableInstructionType.PARAM: {
-                const paramId = (<DecodedParam>ir.value).id;
-                if (
-                    paramId in
-                    this.tables.variableTableStack[
-                        this.tables.variableTableStack.length - 1
-                    ]
-                ) {
-                    this.writeRuntimeError({
-                        key: "DUPLICATE_PARAM_ID",
-                        values: {
-                            id: paramId
-                        }
-                    });
-
-                    return;
-                }
-
-                // Try load memory to detect out of bound error
-                if (this.loadMemory32(this.registers.ebx) === null) {
-                    return;
-                }
-
-                this.tables.variableTableStack[
-                    this.tables.variableTableStack.length - 1
-                ][paramId] = {
-                    address: this.registers.ebx,
-                    size: 4
-                };
-
-                this.registers.ebx = i32Add(this.registers.ebx, 4);
-
-                break;
-            }
-
-            case ExecutableInstructionType.RETURN: {
-                const returnValue = this.getSingularValue(
-                    (<DecodedReturn>ir.value).value
-                );
-                if (returnValue === null) {
-                    return;
-                }
-
-                this.registers.eax = returnValue;
-
-                // movl ebp,esp
-                this.registers.esp = this.registers.ebp;
-                this.updatePeakMemoryUsage();
-
-                // popl ebp
-                const savedEbp = this.popl();
-                if (savedEbp === null) {
-                    return;
-                }
-
-                this.registers.ebp = savedEbp;
-
-                // ret
-                const returnAddress = this.popl();
-                if (returnAddress === null) {
-                    return;
-                }
-
-                this.registers.eip = returnAddress;
-
-                // popl ecx
-                const savedEcx = this.popl();
-                if (savedEcx === null) {
-                    return;
-                }
-
-                // addl esp, ecx
-                this.registers.esp = i32Add(this.registers.esp, savedEcx);
-                this.updatePeakMemoryUsage();
-
-                // If s sub function uses ARG without CALL, this will avoid
-                // incorrect ecx value when next ARGs are executed after
-                // control returns to parent function.
-                this.registers.ecx = 0;
-
-                // Pop local variable table
-                if (this.tables.variableTableStack.length === 0) {
-                    this.writeRuntimeError({
-                        key: "EMPTY_VARIABLE_TABLE_STACK"
-                    });
-
-                    return;
-                }
-
-                // Pop call stack
-                this.executionStatus.callStack.pop();
-
-                this.tables.variableTableStack.pop();
-
-                // Whether main function returns
-                if (this.registers.eip === this.memory.text.length) {
-                    this.finalizeExcution();
-                    return;
-                }
-
-                // Store return value
-                const assignCallLValue =
-                    this.tables.assignCallLValueStack.pop();
-                if (assignCallLValue !== null) {
-                    const lValueAddress = this.getLValueAddress(
-                        assignCallLValue!
-                    );
-                    if (lValueAddress === null) {
-                        return;
-                    }
-                    if (
-                        !this.storeMemory32(this.registers.eax, lValueAddress)
-                    ) {
-                        return;
-                    }
-                }
-
-                break;
-            }
-
-            case ExecutableInstructionType.READ: {
-                const decodedRead = <DecodedRead>ir.value;
-
-                const lValueAddress = this.getLValueAddress(decodedRead.lValue);
-                if (lValueAddress === null) {
-                    return;
-                }
-
-                const lValueName =
-                    decodedRead.lValue.type === LValueType.ID
-                        ? decodedRead.lValue.id
-                        : "*" + decodedRead.lValue.id;
-
-                this.executionStatus.state = VmExecutionState.WAIT_INPUT;
-
-                const valueString = await this.readConsole([
-                    {
-                        key: "READ_PROMPT",
-                        values: {
-                            name: lValueName
-                        }
-                    }
-                ]);
-
-                // VM has been reset while waiting for input
-                if (this.state !== VmExecutionState.WAIT_INPUT) {
-                    return;
-                }
-
-                this.executionStatus.state = VmExecutionState.BUSY;
-
-                const value = parseInt(valueString);
-                if (isNaN(value)) {
-                    this.writeRuntimeError({
-                        key: "INPUT_INT_ILLEGAL"
-                    });
-
-                    return;
-                }
-
-                if (!Number.isSafeInteger(value)) {
-                    this.writeRuntimeError({
-                        key: "INPUT_INT_ABS_TOO_LARGE"
-                    });
-
-                    return;
-                }
-
-                if (!this.storeMemory32(i32(value), lValueAddress)) {
-                    return;
-                }
-
-                break;
-            }
-
-            case ExecutableInstructionType.WRITE: {
-                const value = this.getSingularValue(
-                    (<DecodedWrite>ir.value).value
-                );
-                if (value === null) {
-                    return;
-                }
-
-                this.writeBuffer.push([
-                    {
-                        key: "WRITE_OUTPUT",
-                        values: {
-                            value: value
-                        },
-                        type: ConsoleMessageType.OUTPUT
-                    }
-                ]);
-
-                break;
-            }
-
-            default:
-                break;
-        }
-
-        // inc eip
-        this.registers.eip = i32Add(this.registers.eip, 1);
-
-        // Skip GLOBAL_DEC
-        while (
-            this.registers.eip < this.memory.text.length &&
-            this.registers.eip >= 0 &&
-            this.memory.text[this.registers.eip].type ===
-                ExecutableInstructionType.GLOBAL_DEC
-        ) {
-            this.registers.eip = i32Add(this.registers.eip, 1);
-        }
-
-        this.executionStatus.state = VmExecutionState.FREE;
+        await this.execute(false);
     }
 
     /**
@@ -1706,13 +1729,7 @@ export class Vm {
      * @async
      * @public
      */
-    async execute() {
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-            await this.executeSingleStep();
-            if (this.executionStatus.state !== VmExecutionState.FREE) {
-                break;
-            }
-        }
+    async executeContinuously() {
+        await this.execute(true);
     }
 }

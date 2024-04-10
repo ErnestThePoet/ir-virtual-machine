@@ -209,7 +209,7 @@ vm.setReadConsoleFn(prompt => {
 
 vm.loadNewInstructions(splitLines(irString));
 
-await vm.execute();
+await vm.executeContinuously();
 
 writeVmOutputs();
 

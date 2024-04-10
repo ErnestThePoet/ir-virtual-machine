@@ -124,7 +124,7 @@ const VmConsole: React.FC<VmConsoleProps> = ({ vmIndex }: VmConsoleProps) => {
         isContinuousExecution.current = true;
 
         dispatch(setShouldIndicateCurrentLineNumber(false));
-        await currentVm.execute();
+        await currentVm.executeContinuously();
         clearInputBuffer();
         dispatch(syncVmState());
     };
