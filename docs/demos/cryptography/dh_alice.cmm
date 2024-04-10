@@ -1,7 +1,7 @@
 /*
  * Diffie-Hellman key-exchange Alice:
  * (1) Generate parameters (g,p) where g is generator
- * and p is a 24-bit safe prime (=2q+1), output g and p;
+ * and p is a 31-bit safe prime (=2q+1), output g and p;
  * (2) Choose a uniform x∈Zq as private key, compute
  * public key h_A=(g^x) mod p, output h_A;
  * (3) Receive Bob's public key h_B from Bob;

@@ -1633,2572 +1633,2397 @@ LABEL label251 :
 var633 := #4 * #1
 var634 := &var616 + var633
 RETURN *var634
-FUNCTION ucmp :
+FUNCTION nnmod :
 PARAM var635
 PARAM var636
-IF var635 < #0 GOTO label252
-var637 := #0
+ARG var636
+ARG var635
+var637 := CALL mod
+IF var637 < #0 GOTO label252
+var638 := #0
 GOTO label253
 LABEL label252 :
-var637 := #1
+var638 := #1
 LABEL label253 :
-IF var637 != #0 GOTO label254
-GOTO label255
-LABEL label254 :
-var638 := #0 - var635
-var635 := var638
-LABEL label255 :
-IF var636 < #0 GOTO label256
-var639 := #0
-GOTO label257
-LABEL label256 :
-var639 := #1
-LABEL label257 :
-IF var639 != #0 GOTO label258
+IF var638 != #0 GOTO label258
 GOTO label259
 LABEL label258 :
-var640 := #0 - var636
-var636 := var640
+IF var636 < #0 GOTO label254
+var639 := #0
+GOTO label255
+LABEL label254 :
+var639 := #1
+LABEL label255 :
+IF var639 != #0 GOTO label256
+var641 := var637 + var636
+var637 := var641
+GOTO label257
+LABEL label256 :
+var640 := var637 - var636
+var637 := var640
+LABEL label257 :
 LABEL label259 :
-IF var635 > var636 GOTO label260
-var641 := #0
+RETURN var637
+FUNCTION inverse_mod :
+PARAM var642
+PARAM var643
+PARAM var644
+IF var644 == #1 GOTO label260
+var657 := #0
 GOTO label261
 LABEL label260 :
-var641 := #1
+var657 := #1
 LABEL label261 :
-IF var641 != #0 GOTO label262
-IF var635 < var636 GOTO label264
-var642 := #0
-GOTO label265
-LABEL label264 :
-var642 := #1
-LABEL label265 :
-IF var642 != #0 GOTO label266
-RETURN #0
-GOTO label267
-LABEL label266 :
-var643 := #0 - #1
-RETURN var643
-LABEL label267 :
+IF var644 == #0 GOTO label262
+var658 := #0
 GOTO label263
 LABEL label262 :
-RETURN #1
+var658 := #1
 LABEL label263 :
-FUNCTION nnmod :
-PARAM var644
-PARAM var645
-ARG var645
-ARG var644
-var646 := CALL mod
-IF var646 < #0 GOTO label268
-var647 := #0
+IF var657 != #0 GOTO label264
+IF var658 != #0 GOTO label264
+var659 := #0
+GOTO label265
+LABEL label264 :
+var659 := #1
+LABEL label265 :
+IF var659 != #0 GOTO label266
+GOTO label267
+LABEL label266 :
+RETURN #0
+LABEL label267 :
+var647 := #1
+var648 := #0
+var646 := var643
+var645 := var644
+IF var645 < #0 GOTO label268
+var660 := #0
 GOTO label269
 LABEL label268 :
-var647 := #1
+var660 := #1
 LABEL label269 :
-IF var647 != #0 GOTO label274
-GOTO label275
-LABEL label274 :
-IF var645 < #0 GOTO label270
-var648 := #0
+IF var660 != #0 GOTO label270
 GOTO label271
 LABEL label270 :
-var648 := #1
+var661 := #0 - var645
+var645 := var661
 LABEL label271 :
-IF var648 != #0 GOTO label272
-var650 := var646 + var645
-var646 := var650
+IF var646 < #0 GOTO label272
+var662 := #0
 GOTO label273
 LABEL label272 :
-var649 := var646 - var645
-var646 := var649
+var662 := #1
 LABEL label273 :
+ARG var645
+ARG var646
+var663 := CALL cmp_uint32
+IF var663 >= #0 GOTO label274
+var664 := #0
+GOTO label275
+LABEL label274 :
+var664 := #1
 LABEL label275 :
-RETURN var646
-FUNCTION inverse_mod :
-PARAM var651
-PARAM var652
-PARAM var653
-IF var653 == #1 GOTO label276
-var667 := #0
+IF var662 != #0 GOTO label276
+IF var664 != #0 GOTO label276
+var665 := #0
 GOTO label277
 LABEL label276 :
-var667 := #1
+var665 := #1
 LABEL label277 :
-IF var653 == #0 GOTO label278
-var668 := #0
+IF var665 != #0 GOTO label278
 GOTO label279
 LABEL label278 :
-var668 := #1
+ARG var645
+ARG var646
+var666 := CALL nnmod
+var646 := var666
 LABEL label279 :
-IF var667 != #0 GOTO label280
-IF var668 != #0 GOTO label280
-var669 := #0
-GOTO label281
-LABEL label280 :
-var669 := #1
-LABEL label281 :
-IF var669 != #0 GOTO label282
-GOTO label283
-LABEL label282 :
-RETURN #0
-LABEL label283 :
-var656 := #1
-var657 := #0
-var655 := var652
-var654 := var653
-IF var654 < #0 GOTO label284
-var670 := #0
-GOTO label285
-LABEL label284 :
-var670 := #1
-LABEL label285 :
-IF var670 != #0 GOTO label286
-GOTO label287
-LABEL label286 :
-var671 := #0 - var654
-var654 := var671
-LABEL label287 :
-IF var655 < #0 GOTO label288
-var672 := #0
-GOTO label289
-LABEL label288 :
-var672 := #1
-LABEL label289 :
-ARG var654
-ARG var655
-var673 := CALL ucmp
-IF var673 >= #0 GOTO label290
-var674 := #0
-GOTO label291
-LABEL label290 :
-var674 := #1
-LABEL label291 :
-IF var672 != #0 GOTO label292
-IF var674 != #0 GOTO label292
-var675 := #0
-GOTO label293
-LABEL label292 :
-var675 := #1
-LABEL label293 :
-IF var675 != #0 GOTO label294
-GOTO label295
-LABEL label294 :
-ARG var654
-ARG var655
-var676 := CALL nnmod
-var655 := var676
-LABEL label295 :
-var677 := #0 - #1
-var666 := var677
-ARG #2
-ARG var653
-var678 := CALL mod
-IF var678 != #0 GOTO label325
-LABEL label355 :
-IF var655 != #0 GOTO label356
-GOTO label357
-LABEL label356 :
-ARG var654
-var701 := CALL get_bits_uint32
-var663 := var701
-ARG var655
-var702 := CALL get_bits_uint32
-var664 := var702
-IF var663 == var664 GOTO label327
-var703 := #0
-GOTO label328
-LABEL label327 :
-var703 := #1
-LABEL label328 :
-IF var703 != #0 GOTO label329
-var705 := var664 + #1
-IF var663 == var705 GOTO label331
-var706 := #0
-GOTO label332
-LABEL label331 :
-var706 := #1
-LABEL label332 :
-IF var706 != #0 GOTO label341
-var716 := var654 / var655
-var659 := var716
-ARG var655
-ARG var654
-var717 := CALL mod
-var658 := var717
-GOTO label342
-LABEL label341 :
-var707 := var655 * #2
-var660 := var707
-ARG var660
-ARG var654
-var708 := CALL ucmp
-IF var708 < #0 GOTO label333
-var709 := #0
-GOTO label334
-LABEL label333 :
-var709 := #1
-LABEL label334 :
-IF var709 != #0 GOTO label335
-var711 := var654 - var660
-var658 := var711
-var712 := var660 + var655
-var659 := var712
-ARG var659
-ARG var654
-var713 := CALL ucmp
-IF var713 < #0 GOTO label337
-var714 := #0
-GOTO label338
-LABEL label337 :
-var714 := #1
-LABEL label338 :
-IF var714 != #0 GOTO label339
-var659 := #3
-var715 := var658 - var655
-var658 := var715
-GOTO label340
-LABEL label339 :
-var659 := #2
-LABEL label340 :
-GOTO label336
-LABEL label335 :
-var659 := #1
-var710 := var654 - var655
-var658 := var710
-LABEL label336 :
-LABEL label342 :
-GOTO label330
-LABEL label329 :
-var659 := #1
-var704 := var654 - var655
-var658 := var704
-LABEL label330 :
-var665 := var654
-var654 := var655
-var655 := var658
-IF var659 == #1 GOTO label343
-var718 := #0
-GOTO label344
-LABEL label343 :
-var718 := #1
-LABEL label344 :
-IF var718 != #0 GOTO label345
-IF var659 == #2 GOTO label347
-var720 := #0
-GOTO label348
-LABEL label347 :
-var720 := #1
-LABEL label348 :
-IF var720 != #0 GOTO label349
-IF var659 == #4 GOTO label351
-var722 := #0
-GOTO label352
-LABEL label351 :
-var722 := #1
-LABEL label352 :
-IF var722 != #0 GOTO label353
-var724 := var659 * var656
-var665 := var724
-GOTO label354
-LABEL label353 :
-var723 := var656 * #4
-var665 := var723
-LABEL label354 :
-GOTO label350
-LABEL label349 :
-var721 := var656 * #2
-var665 := var721
-LABEL label350 :
-var725 := var665 + var657
-var665 := var725
-GOTO label346
-LABEL label345 :
-var719 := var656 + var657
-var665 := var719
-LABEL label346 :
-var658 := var657
-var657 := var656
-var656 := var665
-var726 := #0 - var666
-var666 := var726
-GOTO label355
-LABEL label357 :
-GOTO label326
-LABEL label325 :
-LABEL label322 :
-IF var655 != #0 GOTO label323
-GOTO label324
-LABEL label323 :
-var662 := #0
-LABEL label300 :
-ARG var662
-ARG var655
-var679 := CALL is_bit_set
-IF var679 != #0 GOTO label296
-var680 := #1
-GOTO label297
-LABEL label296 :
-var680 := #0
-LABEL label297 :
-IF var680 != #0 GOTO label301
-GOTO label302
-LABEL label301 :
-var681 := var662 + #1
-var662 := var681
-ARG #2
-ARG var656
-var682 := CALL mod
-IF var682 != #0 GOTO label298
-GOTO label299
-LABEL label298 :
-var683 := var656 + var653
-var656 := var683
-LABEL label299 :
-ARG #1
-ARG var656
-var684 := CALL rshift_uint32
-var656 := var684
-GOTO label300
-LABEL label302 :
-IF var662 > #0 GOTO label303
-var685 := #0
-GOTO label304
-LABEL label303 :
-var685 := #1
-LABEL label304 :
-IF var685 != #0 GOTO label305
-GOTO label306
-LABEL label305 :
-ARG var662
-ARG var655
-var686 := CALL rshift_uint32
-var655 := var686
-LABEL label306 :
-var662 := #0
-LABEL label311 :
-ARG var662
-ARG var654
-var687 := CALL is_bit_set
-IF var687 != #0 GOTO label307
-var688 := #1
-GOTO label308
-LABEL label307 :
-var688 := #0
+var667 := #0 - #1
+var656 := var667
 LABEL label308 :
-IF var688 != #0 GOTO label312
-GOTO label313
-LABEL label312 :
-var689 := var662 + #1
-var662 := var689
-ARG #2
-ARG var657
-var690 := CALL mod
-IF var690 != #0 GOTO label309
+IF var646 != #0 GOTO label309
 GOTO label310
 LABEL label309 :
-var691 := var657 + var653
-var657 := var691
+ARG var645
+var668 := CALL get_bits_uint32
+var653 := var668
+ARG var646
+var669 := CALL get_bits_uint32
+var654 := var669
+IF var653 == var654 GOTO label280
+var670 := #0
+GOTO label281
+LABEL label280 :
+var670 := #1
+LABEL label281 :
+IF var670 != #0 GOTO label282
+var672 := var654 + #1
+IF var653 == var672 GOTO label284
+var673 := #0
+GOTO label285
+LABEL label284 :
+var673 := #1
+LABEL label285 :
+IF var673 != #0 GOTO label294
+var683 := var645 / var646
+var650 := var683
+ARG var646
+ARG var645
+var684 := CALL mod
+var649 := var684
+GOTO label295
+LABEL label294 :
+var674 := var646 * #2
+var651 := var674
+ARG var651
+ARG var645
+var675 := CALL cmp_uint32
+IF var675 < #0 GOTO label286
+var676 := #0
+GOTO label287
+LABEL label286 :
+var676 := #1
+LABEL label287 :
+IF var676 != #0 GOTO label288
+var678 := var645 - var651
+var649 := var678
+var679 := var651 + var646
+var650 := var679
+ARG var650
+ARG var645
+var680 := CALL cmp_uint32
+IF var680 < #0 GOTO label290
+var681 := #0
+GOTO label291
+LABEL label290 :
+var681 := #1
+LABEL label291 :
+IF var681 != #0 GOTO label292
+var650 := #3
+var682 := var649 - var646
+var649 := var682
+GOTO label293
+LABEL label292 :
+var650 := #2
+LABEL label293 :
+GOTO label289
+LABEL label288 :
+var650 := #1
+var677 := var645 - var646
+var649 := var677
+LABEL label289 :
+LABEL label295 :
+GOTO label283
+LABEL label282 :
+var650 := #1
+var671 := var645 - var646
+var649 := var671
+LABEL label283 :
+var655 := var645
+var645 := var646
+var646 := var649
+IF var650 == #1 GOTO label296
+var685 := #0
+GOTO label297
+LABEL label296 :
+var685 := #1
+LABEL label297 :
+IF var685 != #0 GOTO label298
+IF var650 == #2 GOTO label300
+var687 := #0
+GOTO label301
+LABEL label300 :
+var687 := #1
+LABEL label301 :
+IF var687 != #0 GOTO label302
+IF var650 == #4 GOTO label304
+var689 := #0
+GOTO label305
+LABEL label304 :
+var689 := #1
+LABEL label305 :
+IF var689 != #0 GOTO label306
+var691 := var650 * var647
+var655 := var691
+GOTO label307
+LABEL label306 :
+var690 := var647 * #4
+var655 := var690
+LABEL label307 :
+GOTO label303
+LABEL label302 :
+var688 := var647 * #2
+var655 := var688
+LABEL label303 :
+var692 := var655 + var648
+var655 := var692
+GOTO label299
+LABEL label298 :
+var686 := var647 + var648
+var655 := var686
+LABEL label299 :
+var649 := var648
+var648 := var647
+var647 := var655
+var693 := #0 - var656
+var656 := var693
+GOTO label308
 LABEL label310 :
-ARG #1
-ARG var657
-var692 := CALL rshift_uint32
-var657 := var692
-GOTO label311
+IF var656 < #0 GOTO label311
+var694 := #0
+GOTO label312
+LABEL label311 :
+var694 := #1
+LABEL label312 :
+IF var694 != #0 GOTO label313
+GOTO label314
 LABEL label313 :
-IF var662 > #0 GOTO label314
-var693 := #0
-GOTO label315
+var695 := var644 - var648
+var648 := var695
 LABEL label314 :
-var693 := #1
-LABEL label315 :
-IF var693 != #0 GOTO label316
-GOTO label317
-LABEL label316 :
-ARG var662
-ARG var654
-var694 := CALL rshift_uint32
-var654 := var694
-LABEL label317 :
-ARG var654
-ARG var655
-var695 := CALL cmp_uint32
-IF var695 >= #0 GOTO label318
+IF var645 == #1 GOTO label315
 var696 := #0
-GOTO label319
-LABEL label318 :
+GOTO label316
+LABEL label315 :
 var696 := #1
-LABEL label319 :
-IF var696 != #0 GOTO label320
-var699 := var657 + var656
-var657 := var699
-var700 := var654 - var655
-var654 := var700
-GOTO label321
-LABEL label320 :
-var697 := var656 + var657
-var656 := var697
-var698 := var655 - var654
-var655 := var698
-LABEL label321 :
-GOTO label322
-LABEL label324 :
-LABEL label326 :
-IF var666 < #0 GOTO label358
-var727 := #0
-GOTO label359
-LABEL label358 :
-var727 := #1
-LABEL label359 :
-IF var727 != #0 GOTO label360
-GOTO label361
-LABEL label360 :
-var728 := var653 - var657
-var657 := var728
-LABEL label361 :
-IF var654 == #1 GOTO label362
-var729 := #0
-GOTO label363
-LABEL label362 :
-var729 := #1
-LABEL label363 :
-IF var729 != #0 GOTO label374
+LABEL label316 :
+IF var696 != #0 GOTO label327
 RETURN #0
-GOTO label375
-LABEL label374 :
-IF var657 >= #0 GOTO label364
-var730 := #0
-GOTO label365
-LABEL label364 :
-var730 := #1
-LABEL label365 :
-ARG var653
-ARG var657
-var731 := CALL ucmp
-IF var731 < #0 GOTO label366
-var732 := #0
-GOTO label367
-LABEL label366 :
-var732 := #1
-LABEL label367 :
-IF var730 != #0 GOTO label369
-LABEL label370 :
-var733 := #0
-GOTO label371
-LABEL label369 :
-IF var732 != #0 GOTO label368
-GOTO label370
-LABEL label368 :
-var733 := #1
-LABEL label371 :
-IF var733 != #0 GOTO label372
-ARG var653
-ARG var657
-var734 := CALL nnmod
-var661 := var734
-GOTO label373
-LABEL label372 :
-var661 := var657
-LABEL label373 :
-LABEL label375 :
-var735 := #4 * #0
-var736 := var651 + var735
-*var736 := var661
+GOTO label328
+LABEL label327 :
+IF var648 >= #0 GOTO label317
+var697 := #0
+GOTO label318
+LABEL label317 :
+var697 := #1
+LABEL label318 :
+ARG var644
+ARG var648
+var698 := CALL cmp_uint32
+IF var698 < #0 GOTO label319
+var699 := #0
+GOTO label320
+LABEL label319 :
+var699 := #1
+LABEL label320 :
+IF var697 != #0 GOTO label322
+LABEL label323 :
+var700 := #0
+GOTO label324
+LABEL label322 :
+IF var699 != #0 GOTO label321
+GOTO label323
+LABEL label321 :
+var700 := #1
+LABEL label324 :
+IF var700 != #0 GOTO label325
+ARG var644
+ARG var648
+var701 := CALL nnmod
+var652 := var701
+GOTO label326
+LABEL label325 :
+var652 := var648
+LABEL label326 :
+LABEL label328 :
+var702 := #4 * #0
+var703 := var642 + var702
+*var703 := var652
 RETURN #1
 FUNCTION miller_rabin_is_prime :
-PARAM var737
-PARAM var738
-PARAM var739
-DEC var749 4
-var750 := #0
-IF var738 <= #2 GOTO label376
-var751 := #0
-GOTO label377
-LABEL label376 :
-var751 := #1
-LABEL label377 :
+PARAM var704
+PARAM var705
+PARAM var706
+DEC var716 4
+var717 := #0
+IF var705 <= #2 GOTO label329
+var718 := #0
+GOTO label330
+LABEL label329 :
+var718 := #1
+LABEL label330 :
 ARG #2
-ARG var738
-var752 := CALL mod
-IF var752 == #0 GOTO label378
-var753 := #0
-GOTO label379
-LABEL label378 :
-var753 := #1
-LABEL label379 :
-IF var751 != #0 GOTO label380
-IF var753 != #0 GOTO label380
-var754 := #0
-GOTO label381
-LABEL label380 :
-var754 := #1
-LABEL label381 :
-IF var754 != #0 GOTO label382
-GOTO label383
-LABEL label382 :
+ARG var705
+var719 := CALL mod
+IF var719 == #0 GOTO label331
+var720 := #0
+GOTO label332
+LABEL label331 :
+var720 := #1
+LABEL label332 :
+IF var718 != #0 GOTO label333
+IF var720 != #0 GOTO label333
+var721 := #0
+GOTO label334
+LABEL label333 :
+var721 := #1
+LABEL label334 :
+IF var721 != #0 GOTO label335
+GOTO label336
+LABEL label335 :
 RETURN #0
-LABEL label383 :
-var755 := var738 - #1
-var743 := var755
-var756 := var738 - #3
-var744 := var756
-IF var744 <= #0 GOTO label384
-var757 := #0
-GOTO label385
-LABEL label384 :
-var757 := #1
-LABEL label385 :
-IF var757 != #0 GOTO label386
-GOTO label387
-LABEL label386 :
+LABEL label336 :
+var722 := var705 - #1
+var710 := var722
+var723 := var705 - #3
+var711 := var723
+IF var711 <= #0 GOTO label337
+var724 := #0
+GOTO label338
+LABEL label337 :
+var724 := #1
+LABEL label338 :
+IF var724 != #0 GOTO label339
+GOTO label340
+LABEL label339 :
 RETURN #0
-LABEL label387 :
-var742 := #1
-var758 := var743 / #2
-var746 := var758
-LABEL label390 :
+LABEL label340 :
+var709 := #1
+var725 := var710 / #2
+var713 := var725
+LABEL label343 :
 ARG #2
-ARG var746
-var759 := CALL mod
-IF var759 == #0 GOTO label388
-var760 := #0
-GOTO label389
-LABEL label388 :
-var760 := #1
-LABEL label389 :
-IF var760 != #0 GOTO label391
-GOTO label392
-LABEL label391 :
-var761 := var742 + #1
-var742 := var761
-var762 := var746 / #2
-var746 := var762
-GOTO label390
-LABEL label392 :
+ARG var713
+var726 := CALL mod
+IF var726 == #0 GOTO label341
+var727 := #0
+GOTO label342
+LABEL label341 :
+var727 := #1
+LABEL label342 :
+IF var727 != #0 GOTO label344
+GOTO label345
+LABEL label344 :
+var728 := var709 + #1
+var709 := var728
+var729 := var713 / #2
+var713 := var729
+GOTO label343
+LABEL label345 :
+var707 := #0
+LABEL label395 :
+IF var707 < var706 GOTO label346
+var730 := #0
+GOTO label347
+LABEL label346 :
+var730 := #1
+LABEL label347 :
+IF var730 != #0 GOTO label396
+GOTO label397
+LABEL label396 :
+var717 := #0
+ARG var711
+ARG &var716
+var731 := CALL rand_range
+IF var731 != #0 GOTO label348
+var732 := #1
+GOTO label349
+LABEL label348 :
+var732 := #0
+LABEL label349 :
+IF var732 != #0 GOTO label350
+GOTO label351
+LABEL label350 :
+RETURN #0
+LABEL label351 :
+var733 := #4 * #0
+var734 := &var716 + var733
+var735 := *var734 + #2
+var715 := var735
+ARG var705
+ARG var713
+ARG var715
+var736 := CALL exp_mod
+var714 := var736
+IF var714 == #1 GOTO label352
+var737 := #0
+GOTO label353
+LABEL label352 :
+var737 := #1
+LABEL label353 :
+IF var714 == var710 GOTO label354
+var738 := #0
+GOTO label355
+LABEL label354 :
+var738 := #1
+LABEL label355 :
+IF var737 != #0 GOTO label356
+IF var738 != #0 GOTO label356
+var739 := #0
+GOTO label357
+LABEL label356 :
+var739 := #1
+LABEL label357 :
+IF var739 != #0 GOTO label358
+GOTO label359
+LABEL label358 :
+var717 := #1
+LABEL label359 :
+IF var717 != #0 GOTO label360
+var740 := #1
+GOTO label361
+LABEL label360 :
 var740 := #0
-LABEL label442 :
-IF var740 < var739 GOTO label393
-var763 := #0
+LABEL label361 :
+IF var740 != #0 GOTO label393
 GOTO label394
 LABEL label393 :
-var763 := #1
-LABEL label394 :
-IF var763 != #0 GOTO label443
-GOTO label444
-LABEL label443 :
-var750 := #0
-ARG var744
-ARG &var749
-var764 := CALL rand_range
-IF var764 != #0 GOTO label395
-var765 := #1
-GOTO label396
-LABEL label395 :
-var765 := #0
-LABEL label396 :
-IF var765 != #0 GOTO label397
-GOTO label398
-LABEL label397 :
-RETURN #0
-LABEL label398 :
-var766 := #4 * #0
-var767 := &var749 + var766
-var768 := *var767 + #2
-var748 := var768
-ARG var738
-ARG var746
-ARG var748
-var769 := CALL exp_mod
-var747 := var769
-IF var747 == #1 GOTO label399
-var770 := #0
-GOTO label400
-LABEL label399 :
-var770 := #1
-LABEL label400 :
-IF var747 == var743 GOTO label401
-var771 := #0
-GOTO label402
-LABEL label401 :
-var771 := #1
-LABEL label402 :
-IF var770 != #0 GOTO label403
-IF var771 != #0 GOTO label403
-var772 := #0
-GOTO label404
-LABEL label403 :
-var772 := #1
-LABEL label404 :
-IF var772 != #0 GOTO label405
-GOTO label406
-LABEL label405 :
-var750 := #1
-LABEL label406 :
-IF var750 != #0 GOTO label407
-var773 := #1
-GOTO label408
-LABEL label407 :
-var773 := #0
-LABEL label408 :
-IF var773 != #0 GOTO label440
-GOTO label441
-LABEL label440 :
+var708 := #1
+LABEL label382 :
+IF var717 != #0 GOTO label362
 var741 := #1
-LABEL label429 :
-IF var750 != #0 GOTO label409
-var774 := #1
-GOTO label410
-LABEL label409 :
-var774 := #0
-LABEL label410 :
-IF var741 < var742 GOTO label411
-var775 := #0
-GOTO label412
-LABEL label411 :
-var775 := #1
-LABEL label412 :
-IF var774 != #0 GOTO label414
-LABEL label415 :
-var776 := #0
-GOTO label416
-LABEL label414 :
-IF var775 != #0 GOTO label413
-GOTO label415
-LABEL label413 :
-var776 := #1
-LABEL label416 :
-IF var776 != #0 GOTO label430
-GOTO label431
-LABEL label430 :
-var745 := var747
-ARG var738
-ARG var745
-ARG var745
-var777 := CALL mul_mod
-var747 := var777
-IF var747 == var743 GOTO label417
-var778 := #0
-GOTO label418
-LABEL label417 :
-var778 := #1
-LABEL label418 :
-IF var778 != #0 GOTO label419
-GOTO label420
-LABEL label419 :
-var750 := #1
-LABEL label420 :
-IF var750 != #0 GOTO label421
-var779 := #1
-GOTO label422
-LABEL label421 :
-var779 := #0
-LABEL label422 :
-IF var779 != #0 GOTO label427
-GOTO label428
-LABEL label427 :
-IF var747 == #1 GOTO label423
-var780 := #0
-GOTO label424
-LABEL label423 :
-var780 := #1
-LABEL label424 :
-IF var780 != #0 GOTO label425
-GOTO label426
-LABEL label425 :
-var781 := #4 * #0
-var782 := var737 + var781
-*var782 := #0
+GOTO label363
+LABEL label362 :
+var741 := #0
+LABEL label363 :
+IF var708 < var709 GOTO label364
+var742 := #0
+GOTO label365
+LABEL label364 :
+var742 := #1
+LABEL label365 :
+IF var741 != #0 GOTO label367
+LABEL label368 :
+var743 := #0
+GOTO label369
+LABEL label367 :
+IF var742 != #0 GOTO label366
+GOTO label368
+LABEL label366 :
+var743 := #1
+LABEL label369 :
+IF var743 != #0 GOTO label383
+GOTO label384
+LABEL label383 :
+var712 := var714
+ARG var705
+ARG var712
+ARG var712
+var744 := CALL mul_mod
+var714 := var744
+IF var714 == var710 GOTO label370
+var745 := #0
+GOTO label371
+LABEL label370 :
+var745 := #1
+LABEL label371 :
+IF var745 != #0 GOTO label372
+GOTO label373
+LABEL label372 :
+var717 := #1
+LABEL label373 :
+IF var717 != #0 GOTO label374
+var746 := #1
+GOTO label375
+LABEL label374 :
+var746 := #0
+LABEL label375 :
+IF var746 != #0 GOTO label380
+GOTO label381
+LABEL label380 :
+IF var714 == #1 GOTO label376
+var747 := #0
+GOTO label377
+LABEL label376 :
+var747 := #1
+LABEL label377 :
+IF var747 != #0 GOTO label378
+GOTO label379
+LABEL label378 :
+var748 := #4 * #0
+var749 := var704 + var748
+*var749 := #0
 RETURN #1
-LABEL label426 :
-var783 := var741 + #1
-var741 := var783
-LABEL label428 :
-GOTO label429
-LABEL label431 :
-IF var750 != #0 GOTO label432
-var784 := #1
-GOTO label433
-LABEL label432 :
-var784 := #0
-LABEL label433 :
-IF var784 != #0 GOTO label438
-GOTO label439
-LABEL label438 :
-var745 := var747
-ARG var738
-ARG var745
-ARG var745
-var785 := CALL mul_mod
-var747 := var785
-IF var747 == #1 GOTO label434
-var786 := #0
-GOTO label435
-LABEL label434 :
-var786 := #1
-LABEL label435 :
-IF var786 != #0 GOTO label436
-GOTO label437
-LABEL label436 :
-var787 := #4 * #0
-var788 := var737 + var787
-*var788 := #0
+LABEL label379 :
+var750 := var708 + #1
+var708 := var750
+LABEL label381 :
+GOTO label382
+LABEL label384 :
+IF var717 != #0 GOTO label385
+var751 := #1
+GOTO label386
+LABEL label385 :
+var751 := #0
+LABEL label386 :
+IF var751 != #0 GOTO label391
+GOTO label392
+LABEL label391 :
+var712 := var714
+ARG var705
+ARG var712
+ARG var712
+var752 := CALL mul_mod
+var714 := var752
+IF var714 == #1 GOTO label387
+var753 := #0
+GOTO label388
+LABEL label387 :
+var753 := #1
+LABEL label388 :
+IF var753 != #0 GOTO label389
+GOTO label390
+LABEL label389 :
+var754 := #4 * #0
+var755 := var704 + var754
+*var755 := #0
 RETURN #1
-LABEL label437 :
-var745 := var747
-var789 := #4 * #0
-var790 := var737 + var789
-*var790 := #0
+LABEL label390 :
+var712 := var714
+var756 := #4 * #0
+var757 := var704 + var756
+*var757 := #0
 RETURN #1
-LABEL label439 :
-LABEL label441 :
-var791 := var740 + #1
-var740 := var791
-GOTO label442
-LABEL label444 :
-var792 := #4 * #0
-var793 := var737 + var792
-*var793 := #1
+LABEL label392 :
+LABEL label394 :
+var758 := var707 + #1
+var707 := var758
+GOTO label395
+LABEL label397 :
+var759 := #4 * #0
+var760 := var704 + var759
+*var760 := #1
 RETURN #1
 FUNCTION is_prime :
-PARAM var794
-PARAM var795
-PARAM var796
-PARAM var797
-IF var796 <= #1 GOTO label445
-var799 := #0
-GOTO label446
-LABEL label445 :
-var799 := #1
-LABEL label446 :
-IF var799 != #0 GOTO label447
-GOTO label448
-LABEL label447 :
+PARAM var761
+PARAM var762
+PARAM var763
+PARAM var764
+IF var763 <= #1 GOTO label398
+var766 := #0
+GOTO label399
+LABEL label398 :
+var766 := #1
+LABEL label399 :
+IF var766 != #0 GOTO label400
+GOTO label401
+LABEL label400 :
 RETURN #0
-LABEL label448 :
+LABEL label401 :
 ARG #2
-ARG var796
-var800 := CALL mod
-IF var800 == #0 GOTO label449
-var801 := #0
-GOTO label450
-LABEL label449 :
-var801 := #1
-LABEL label450 :
-IF var801 != #0 GOTO label453
-IF var796 == #3 GOTO label455
-var805 := #0
-GOTO label456
-LABEL label455 :
-var805 := #1
-LABEL label456 :
-IF var805 != #0 GOTO label457
-GOTO label458
-LABEL label457 :
-var806 := #4 * #0
-var807 := var794 + var806
-*var807 := #1
+ARG var763
+var767 := CALL mod
+IF var767 == #0 GOTO label402
+var768 := #0
+GOTO label403
+LABEL label402 :
+var768 := #1
+LABEL label403 :
+IF var768 != #0 GOTO label406
+IF var763 == #3 GOTO label408
+var772 := #0
+GOTO label409
+LABEL label408 :
+var772 := #1
+LABEL label409 :
+IF var772 != #0 GOTO label410
+GOTO label411
+LABEL label410 :
+var773 := #4 * #0
+var774 := var761 + var773
+*var774 := #1
 RETURN #1
-LABEL label458 :
-GOTO label454
-LABEL label453 :
-var802 := #4 * #0
-var803 := var794 + var802
-IF var796 == #2 GOTO label451
-var804 := #0
-GOTO label452
-LABEL label451 :
-var804 := #1
-LABEL label452 :
-*var803 := var804
+LABEL label411 :
+GOTO label407
+LABEL label406 :
+var769 := #4 * #0
+var770 := var761 + var769
+IF var763 == #2 GOTO label404
+var771 := #0
+GOTO label405
+LABEL label404 :
+var771 := #1
+LABEL label405 :
+*var770 := var771
 RETURN #1
-LABEL label454 :
-IF var797 != #0 GOTO label470
-GOTO label471
-LABEL label470 :
-var798 := #1
-LABEL label467 :
-IF var798 < #64 GOTO label459
-var808 := #0
-GOTO label460
-LABEL label459 :
-var808 := #1
-LABEL label460 :
-IF var808 != #0 GOTO label468
-GOTO label469
-LABEL label468 :
-var809 := #4 * var798
-var810 := &var2 + var809
-ARG *var810
-ARG var796
-var811 := CALL mod
-IF var811 == #0 GOTO label461
-var812 := #0
-GOTO label462
-LABEL label461 :
-var812 := #1
-LABEL label462 :
-IF var812 != #0 GOTO label465
-GOTO label466
-LABEL label465 :
-var813 := #4 * #0
-var814 := var794 + var813
-var815 := #4 * var798
-var816 := &var2 + var815
-IF var796 == *var816 GOTO label463
-var817 := #0
-GOTO label464
-LABEL label463 :
-var817 := #1
-LABEL label464 :
-*var814 := var817
+LABEL label407 :
+IF var764 != #0 GOTO label423
+GOTO label424
+LABEL label423 :
+var765 := #1
+LABEL label420 :
+IF var765 < #64 GOTO label412
+var775 := #0
+GOTO label413
+LABEL label412 :
+var775 := #1
+LABEL label413 :
+IF var775 != #0 GOTO label421
+GOTO label422
+LABEL label421 :
+var776 := #4 * var765
+var777 := &var2 + var776
+ARG *var777
+ARG var763
+var778 := CALL mod
+IF var778 == #0 GOTO label414
+var779 := #0
+GOTO label415
+LABEL label414 :
+var779 := #1
+LABEL label415 :
+IF var779 != #0 GOTO label418
+GOTO label419
+LABEL label418 :
+var780 := #4 * #0
+var781 := var761 + var780
+var782 := #4 * var765
+var783 := &var2 + var782
+IF var763 == *var783 GOTO label416
+var784 := #0
+GOTO label417
+LABEL label416 :
+var784 := #1
+LABEL label417 :
+*var781 := var784
 RETURN #1
-LABEL label466 :
-var818 := var798 + #1
-var798 := var818
-GOTO label467
-LABEL label469 :
-LABEL label471 :
-ARG var795
-ARG var796
-ARG var794
-var819 := CALL miller_rabin_is_prime
-IF var819 != #0 GOTO label472
-var820 := #1
-GOTO label473
-LABEL label472 :
-var820 := #0
-LABEL label473 :
-IF var820 != #0 GOTO label474
-GOTO label475
-LABEL label474 :
+LABEL label419 :
+var785 := var765 + #1
+var765 := var785
+GOTO label420
+LABEL label422 :
+LABEL label424 :
+ARG var762
+ARG var763
+ARG var761
+var786 := CALL miller_rabin_is_prime
+IF var786 != #0 GOTO label425
+var787 := #1
+GOTO label426
+LABEL label425 :
+var787 := #0
+LABEL label426 :
+IF var787 != #0 GOTO label427
+GOTO label428
+LABEL label427 :
 RETURN #0
-LABEL label475 :
+LABEL label428 :
 RETURN #1
 FUNCTION probable_prime :
-PARAM var821
-PARAM var822
-PARAM var823
-PARAM var824
-var826 := #1
-var827 := #1
-var828 := #1
-DEC var830 8
-DEC var831 8
-DEC var832 8
-DEC var833 8
-DEC var834 8
-DEC var835 8
-var836 := #64
-DEC var837 8
-DEC var838 8
-DEC var839 8
-DEC var840 8
-DEC var841 8
-var842 := #4 * #0
-var843 := &var837 + var842
-*var843 := #0
-var844 := #4 * #1
-var845 := &var837 + var844
-var846 := #4 * #63
-var847 := &var2 + var846
-*var845 := *var847
-var848 := #4 * #0
-var849 := &var838 + var848
-var850 := #0 - #1
-*var849 := var850
-var851 := #4 * #1
-var852 := &var838 + var851
-var853 := #0 - #1
-*var852 := var853
-var854 := #4 * #0
-var855 := &var839 + var854
-*var855 := #0
-var856 := #4 * #1
-var857 := &var839 + var856
-var858 := #4 * #31
-var859 := &var1 + var858
-var860 := *var859 - #1
-*var857 := var860
-var861 := #4 * #0
-var862 := &var840 + var861
-*var862 := #0
-var863 := #4 * #1
-var864 := &var840 + var863
-*var864 := #2
-var865 := #4 * #0
-var866 := &var841 + var865
-*var866 := #0
-var867 := #4 * #1
-var868 := &var841 + var867
-*var868 := #4
-ARG &var837
-ARG &var838
-ARG &var837
+PARAM var788
+PARAM var789
+PARAM var790
+PARAM var791
+var793 := #1
+var794 := #1
+var795 := #1
+DEC var797 8
+DEC var798 8
+DEC var799 8
+DEC var800 8
+DEC var801 8
+DEC var802 8
+var803 := #64
+DEC var804 8
+DEC var805 8
+DEC var806 8
+DEC var807 8
+DEC var808 8
+var809 := #4 * #0
+var810 := &var804 + var809
+*var810 := #0
+var811 := #4 * #1
+var812 := &var804 + var811
+var813 := #4 * #63
+var814 := &var2 + var813
+*var812 := *var814
+var815 := #4 * #0
+var816 := &var805 + var815
+var817 := #0 - #1
+*var816 := var817
+var818 := #4 * #1
+var819 := &var805 + var818
+var820 := #0 - #1
+*var819 := var820
+var821 := #4 * #0
+var822 := &var806 + var821
+*var822 := #0
+var823 := #4 * #1
+var824 := &var806 + var823
+var825 := #4 * #31
+var826 := &var1 + var825
+var827 := *var826 - #1
+*var824 := var827
+var828 := #4 * #0
+var829 := &var807 + var828
+*var829 := #0
+var830 := #4 * #1
+var831 := &var807 + var830
+*var831 := #2
+var832 := #4 * #0
+var833 := &var808 + var832
+*var833 := #0
+var834 := #4 * #1
+var835 := &var808 + var834
+*var835 := #4
+ARG &var804
+ARG &var805
+ARG &var804
 CALL sub_uint64
-var826 := #1
-LABEL label589 :
-IF var826 != #0 GOTO label590
-GOTO label591
-LABEL label590 :
-var826 := #0
-ARG #1
-ARG #2
-ARG var822
-var869 := CALL rand_bits
-var829 := var869
-var870 := var829 / #2
-ARG #2
-ARG var870
-var871 := CALL mod
-IF var871 == #0 GOTO label476
-var872 := #0
-GOTO label477
-LABEL label476 :
-var872 := #1
-LABEL label477 :
-IF var823 != #0 GOTO label479
-LABEL label480 :
-var873 := #0
-GOTO label481
-LABEL label479 :
-IF var872 != #0 GOTO label478
-GOTO label480
-LABEL label478 :
-var873 := #1
-LABEL label481 :
-IF var873 != #0 GOTO label482
-GOTO label483
-LABEL label482 :
-var874 := var829 + #2
-var829 := var874
-LABEL label483 :
-var875 := #4 * #0
-var876 := &var834 + var875
-*var876 := #0
-var877 := #4 * #1
-var878 := &var834 + var877
-*var878 := var829
-var825 := #1
-LABEL label486 :
-IF var825 < var836 GOTO label484
-var879 := #0
-GOTO label485
-LABEL label484 :
-var879 := #1
-LABEL label485 :
-IF var879 != #0 GOTO label487
-GOTO label488
-LABEL label487 :
-var880 := #4 * var825
-var881 := var824 + var880
-var882 := #4 * var825
-var883 := &var2 + var882
-ARG *var883
-ARG var829
-var884 := CALL mod
-*var881 := var884
-var885 := var825 + #1
-var825 := var885
-GOTO label486
-LABEL label488 :
-var886 := #4 * #0
-var887 := &var830 + var886
-*var887 := #0
-var888 := #4 * #1
-var889 := &var830 + var888
-*var889 := #0
-var827 := #1
-LABEL label586 :
-IF var826 != #0 GOTO label489
-var890 := #1
-GOTO label490
-LABEL label489 :
-var890 := #0
-LABEL label490 :
-IF var890 != #0 GOTO label492
-LABEL label493 :
-var891 := #0
-GOTO label494
-LABEL label492 :
-IF var827 != #0 GOTO label491
-GOTO label493
-LABEL label491 :
-var891 := #1
-LABEL label494 :
-IF var891 != #0 GOTO label587
-GOTO label588
-LABEL label587 :
-var827 := #0
-var825 := #1
-var828 := #1
-LABEL label569 :
-IF var827 != #0 GOTO label495
-var892 := #1
-GOTO label496
-LABEL label495 :
-var892 := #0
-LABEL label496 :
-IF var826 != #0 GOTO label497
-var893 := #1
-GOTO label498
-LABEL label497 :
-var893 := #0
-LABEL label498 :
-IF var892 != #0 GOTO label500
-LABEL label501 :
-var894 := #0
-GOTO label502
-LABEL label500 :
-IF var893 != #0 GOTO label499
-GOTO label501
-LABEL label499 :
-var894 := #1
-LABEL label502 :
-IF var894 != #0 GOTO label504
-LABEL label505 :
-var895 := #0
-GOTO label506
-LABEL label504 :
-IF var828 != #0 GOTO label503
-GOTO label505
-LABEL label503 :
-var895 := #1
-LABEL label506 :
-IF var825 < var836 GOTO label507
-var896 := #0
-GOTO label508
-LABEL label507 :
-var896 := #1
-LABEL label508 :
-IF var895 != #0 GOTO label510
-LABEL label511 :
-var897 := #0
-GOTO label512
-LABEL label510 :
-IF var896 != #0 GOTO label509
-GOTO label511
-LABEL label509 :
-var897 := #1
-LABEL label512 :
-IF var897 != #0 GOTO label570
-GOTO label571
-LABEL label570 :
-var898 := #4 * var825
-var899 := &var2 + var898
-var900 := #4 * var825
-var901 := &var2 + var900
-ARG *var901
-ARG *var899
-ARG &var833
-CALL mul_uint32
-ARG &var830
-ARG &var834
-ARG &var835
-CALL add_uint64
-IF var822 <= #31 GOTO label513
-var902 := #0
-GOTO label514
-LABEL label513 :
-var902 := #1
-LABEL label514 :
-ARG &var839
-ARG &var830
-var903 := CALL cmp_uint64
-IF var903 <= #0 GOTO label515
-var904 := #0
-GOTO label516
-LABEL label515 :
-var904 := #1
-LABEL label516 :
-IF var902 != #0 GOTO label518
-LABEL label519 :
-var905 := #0
-GOTO label520
-LABEL label518 :
-IF var904 != #0 GOTO label517
-GOTO label519
-LABEL label517 :
-var905 := #1
-LABEL label520 :
-ARG &var835
-ARG &var833
-var906 := CALL cmp_uint64
-IF var906 > #0 GOTO label521
-var907 := #0
-GOTO label522
-LABEL label521 :
-var907 := #1
-LABEL label522 :
-IF var905 != #0 GOTO label524
-LABEL label525 :
-var908 := #0
-GOTO label526
-LABEL label524 :
-IF var907 != #0 GOTO label523
-GOTO label525
-LABEL label523 :
-var908 := #1
-LABEL label526 :
-IF var908 != #0 GOTO label527
-GOTO label528
-LABEL label527 :
-var828 := #0
-LABEL label528 :
-IF var828 != #0 GOTO label567
-GOTO label568
-LABEL label567 :
-var909 := #4 * #0
-var910 := &var831 + var909
-*var910 := #0
-var911 := #4 * #1
-var912 := &var831 + var911
-var913 := #4 * var825
-var914 := var824 + var913
-*var912 := *var914
-var915 := #4 * #0
-var916 := &var832 + var915
-*var916 := #0
-var917 := #4 * #1
-var918 := &var832 + var917
-var919 := #4 * var825
-var920 := &var2 + var919
-*var918 := *var920
-ARG &var830
-ARG &var831
-ARG &var835
-CALL add_uint64
-ARG &var832
-ARG &var835
-ARG &var835
-CALL mod_uint64
-var921 := #4 * #1
-var922 := &var835 + var921
-IF *var922 <= #1 GOTO label529
-var923 := #0
-GOTO label530
-LABEL label529 :
-var923 := #1
-LABEL label530 :
-IF var823 != #0 GOTO label532
-LABEL label533 :
-var924 := #0
-GOTO label534
-LABEL label532 :
-IF var923 != #0 GOTO label531
-GOTO label533
-LABEL label531 :
-var924 := #1
-LABEL label534 :
-IF var823 != #0 GOTO label535
-var925 := #1
-GOTO label536
-LABEL label535 :
-var925 := #0
-LABEL label536 :
-var926 := #4 * #1
-var927 := &var835 + var926
-IF *var927 == #0 GOTO label537
-var928 := #0
-GOTO label538
-LABEL label537 :
-var928 := #1
-LABEL label538 :
-IF var925 != #0 GOTO label540
-LABEL label541 :
-var929 := #0
-GOTO label542
-LABEL label540 :
-IF var928 != #0 GOTO label539
-GOTO label541
-LABEL label539 :
-var929 := #1
+var793 := #1
 LABEL label542 :
-IF var924 != #0 GOTO label543
-IF var929 != #0 GOTO label543
-var930 := #0
+IF var793 != #0 GOTO label543
 GOTO label544
 LABEL label543 :
-var930 := #1
+var793 := #0
+ARG #1
+ARG #2
+ARG var789
+var836 := CALL rand_bits
+var796 := var836
+var837 := var796 / #2
+ARG #2
+ARG var837
+var838 := CALL mod
+IF var838 == #0 GOTO label429
+var839 := #0
+GOTO label430
+LABEL label429 :
+var839 := #1
+LABEL label430 :
+IF var790 != #0 GOTO label432
+LABEL label433 :
+var840 := #0
+GOTO label434
+LABEL label432 :
+IF var839 != #0 GOTO label431
+GOTO label433
+LABEL label431 :
+var840 := #1
+LABEL label434 :
+IF var840 != #0 GOTO label435
+GOTO label436
+LABEL label435 :
+var841 := var796 + #2
+var796 := var841
+LABEL label436 :
+var842 := #4 * #0
+var843 := &var801 + var842
+*var843 := #0
+var844 := #4 * #1
+var845 := &var801 + var844
+*var845 := var796
+var792 := #1
+LABEL label439 :
+IF var792 < var803 GOTO label437
+var846 := #0
+GOTO label438
+LABEL label437 :
+var846 := #1
+LABEL label438 :
+IF var846 != #0 GOTO label440
+GOTO label441
+LABEL label440 :
+var847 := #4 * var792
+var848 := var791 + var847
+var849 := #4 * var792
+var850 := &var2 + var849
+ARG *var850
+ARG var796
+var851 := CALL mod
+*var848 := var851
+var852 := var792 + #1
+var792 := var852
+GOTO label439
+LABEL label441 :
+var853 := #4 * #0
+var854 := &var797 + var853
+*var854 := #0
+var855 := #4 * #1
+var856 := &var797 + var855
+*var856 := #0
+var794 := #1
+LABEL label539 :
+IF var793 != #0 GOTO label442
+var857 := #1
+GOTO label443
+LABEL label442 :
+var857 := #0
+LABEL label443 :
+IF var857 != #0 GOTO label445
+LABEL label446 :
+var858 := #0
+GOTO label447
+LABEL label445 :
+IF var794 != #0 GOTO label444
+GOTO label446
+LABEL label444 :
+var858 := #1
+LABEL label447 :
+IF var858 != #0 GOTO label540
+GOTO label541
+LABEL label540 :
+var794 := #0
+var792 := #1
+var795 := #1
+LABEL label522 :
+IF var794 != #0 GOTO label448
+var859 := #1
+GOTO label449
+LABEL label448 :
+var859 := #0
+LABEL label449 :
+IF var793 != #0 GOTO label450
+var860 := #1
+GOTO label451
+LABEL label450 :
+var860 := #0
+LABEL label451 :
+IF var859 != #0 GOTO label453
+LABEL label454 :
+var861 := #0
+GOTO label455
+LABEL label453 :
+IF var860 != #0 GOTO label452
+GOTO label454
+LABEL label452 :
+var861 := #1
+LABEL label455 :
+IF var861 != #0 GOTO label457
+LABEL label458 :
+var862 := #0
+GOTO label459
+LABEL label457 :
+IF var795 != #0 GOTO label456
+GOTO label458
+LABEL label456 :
+var862 := #1
+LABEL label459 :
+IF var792 < var803 GOTO label460
+var863 := #0
+GOTO label461
+LABEL label460 :
+var863 := #1
+LABEL label461 :
+IF var862 != #0 GOTO label463
+LABEL label464 :
+var864 := #0
+GOTO label465
+LABEL label463 :
+IF var863 != #0 GOTO label462
+GOTO label464
+LABEL label462 :
+var864 := #1
+LABEL label465 :
+IF var864 != #0 GOTO label523
+GOTO label524
+LABEL label523 :
+var865 := #4 * var792
+var866 := &var2 + var865
+var867 := #4 * var792
+var868 := &var2 + var867
+ARG *var868
+ARG *var866
+ARG &var800
+CALL mul_uint32
+ARG &var797
+ARG &var801
+ARG &var802
+CALL add_uint64
+IF var789 <= #31 GOTO label466
+var869 := #0
+GOTO label467
+LABEL label466 :
+var869 := #1
+LABEL label467 :
+ARG &var806
+ARG &var797
+var870 := CALL cmp_uint64
+IF var870 <= #0 GOTO label468
+var871 := #0
+GOTO label469
+LABEL label468 :
+var871 := #1
+LABEL label469 :
+IF var869 != #0 GOTO label471
+LABEL label472 :
+var872 := #0
+GOTO label473
+LABEL label471 :
+IF var871 != #0 GOTO label470
+GOTO label472
+LABEL label470 :
+var872 := #1
+LABEL label473 :
+ARG &var802
+ARG &var800
+var873 := CALL cmp_uint64
+IF var873 > #0 GOTO label474
+var874 := #0
+GOTO label475
+LABEL label474 :
+var874 := #1
+LABEL label475 :
+IF var872 != #0 GOTO label477
+LABEL label478 :
+var875 := #0
+GOTO label479
+LABEL label477 :
+IF var874 != #0 GOTO label476
+GOTO label478
+LABEL label476 :
+var875 := #1
+LABEL label479 :
+IF var875 != #0 GOTO label480
+GOTO label481
+LABEL label480 :
+var795 := #0
+LABEL label481 :
+IF var795 != #0 GOTO label520
+GOTO label521
+LABEL label520 :
+var876 := #4 * #0
+var877 := &var798 + var876
+*var877 := #0
+var878 := #4 * #1
+var879 := &var798 + var878
+var880 := #4 * var792
+var881 := var791 + var880
+*var879 := *var881
+var882 := #4 * #0
+var883 := &var799 + var882
+*var883 := #0
+var884 := #4 * #1
+var885 := &var799 + var884
+var886 := #4 * var792
+var887 := &var2 + var886
+*var885 := *var887
+ARG &var797
+ARG &var798
+ARG &var802
+CALL add_uint64
+ARG &var799
+ARG &var802
+ARG &var802
+CALL mod_uint64
+var888 := #4 * #1
+var889 := &var802 + var888
+IF *var889 <= #1 GOTO label482
+var890 := #0
+GOTO label483
+LABEL label482 :
+var890 := #1
+LABEL label483 :
+IF var790 != #0 GOTO label485
+LABEL label486 :
+var891 := #0
+GOTO label487
+LABEL label485 :
+IF var890 != #0 GOTO label484
+GOTO label486
+LABEL label484 :
+var891 := #1
+LABEL label487 :
+IF var790 != #0 GOTO label488
+var892 := #1
+GOTO label489
+LABEL label488 :
+var892 := #0
+LABEL label489 :
+var893 := #4 * #1
+var894 := &var802 + var893
+IF *var894 == #0 GOTO label490
+var895 := #0
+GOTO label491
+LABEL label490 :
+var895 := #1
+LABEL label491 :
+IF var892 != #0 GOTO label493
+LABEL label494 :
+var896 := #0
+GOTO label495
+LABEL label493 :
+IF var895 != #0 GOTO label492
+GOTO label494
+LABEL label492 :
+var896 := #1
+LABEL label495 :
+IF var891 != #0 GOTO label496
+IF var896 != #0 GOTO label496
+var897 := #0
+GOTO label497
+LABEL label496 :
+var897 := #1
+LABEL label497 :
+IF var897 != #0 GOTO label508
+GOTO label509
+LABEL label508 :
+IF var790 != #0 GOTO label498
+ARG &var807
+ARG &var797
+ARG &var797
+CALL add_uint64
+GOTO label499
+LABEL label498 :
+ARG &var808
+ARG &var797
+ARG &var797
+CALL add_uint64
+LABEL label499 :
+ARG &var804
+ARG &var797
+var898 := CALL cmp_uint64
+IF var898 > #0 GOTO label500
+var899 := #0
+GOTO label501
+LABEL label500 :
+var899 := #1
+LABEL label501 :
+IF var899 != #0 GOTO label502
+GOTO label503
+LABEL label502 :
+var793 := #1
+LABEL label503 :
+IF var793 != #0 GOTO label504
+var900 := #1
+GOTO label505
+LABEL label504 :
+var900 := #0
+LABEL label505 :
+IF var900 != #0 GOTO label506
+GOTO label507
+LABEL label506 :
+var794 := #1
+LABEL label507 :
+LABEL label509 :
+IF var793 != #0 GOTO label510
+var901 := #1
+GOTO label511
+LABEL label510 :
+var901 := #0
+LABEL label511 :
+IF var794 != #0 GOTO label512
+var902 := #1
+GOTO label513
+LABEL label512 :
+var902 := #0
+LABEL label513 :
+IF var901 != #0 GOTO label515
+LABEL label516 :
+var903 := #0
+GOTO label517
+LABEL label515 :
+IF var902 != #0 GOTO label514
+GOTO label516
+LABEL label514 :
+var903 := #1
+LABEL label517 :
+IF var903 != #0 GOTO label518
+GOTO label519
+LABEL label518 :
+var904 := var792 + #1
+var792 := var904
+LABEL label519 :
+LABEL label521 :
+GOTO label522
+LABEL label524 :
+IF var793 != #0 GOTO label525
+var905 := #1
+GOTO label526
+LABEL label525 :
+var905 := #0
+LABEL label526 :
+IF var794 != #0 GOTO label527
+var906 := #1
+GOTO label528
+LABEL label527 :
+var906 := #0
+LABEL label528 :
+IF var905 != #0 GOTO label530
+LABEL label531 :
+var907 := #0
+GOTO label532
+LABEL label530 :
+IF var906 != #0 GOTO label529
+GOTO label531
+LABEL label529 :
+var907 := #1
+LABEL label532 :
+IF var907 != #0 GOTO label537
+GOTO label538
+LABEL label537 :
+var908 := #4 * #1
+var909 := &var797 + var908
+var910 := var796 + *var909
+var796 := var910
+ARG var796
+var911 := CALL get_bits_uint32
+IF var911 != var789 GOTO label533
+var912 := #0
+GOTO label534
+LABEL label533 :
+var912 := #1
+LABEL label534 :
+IF var912 != #0 GOTO label535
+GOTO label536
+LABEL label535 :
+var793 := #1
+LABEL label536 :
+LABEL label538 :
+GOTO label539
+LABEL label541 :
+GOTO label542
 LABEL label544 :
-IF var930 != #0 GOTO label555
-GOTO label556
-LABEL label555 :
-IF var823 != #0 GOTO label545
-ARG &var840
-ARG &var830
-ARG &var830
-CALL add_uint64
-GOTO label546
-LABEL label545 :
-ARG &var841
-ARG &var830
-ARG &var830
-CALL add_uint64
-LABEL label546 :
-ARG &var837
-ARG &var830
-var931 := CALL cmp_uint64
-IF var931 > #0 GOTO label547
-var932 := #0
-GOTO label548
-LABEL label547 :
-var932 := #1
-LABEL label548 :
-IF var932 != #0 GOTO label549
-GOTO label550
-LABEL label549 :
-var826 := #1
-LABEL label550 :
-IF var826 != #0 GOTO label551
-var933 := #1
-GOTO label552
-LABEL label551 :
-var933 := #0
-LABEL label552 :
-IF var933 != #0 GOTO label553
-GOTO label554
-LABEL label553 :
-var827 := #1
-LABEL label554 :
-LABEL label556 :
-IF var826 != #0 GOTO label557
-var934 := #1
-GOTO label558
-LABEL label557 :
-var934 := #0
-LABEL label558 :
-IF var827 != #0 GOTO label559
-var935 := #1
-GOTO label560
-LABEL label559 :
-var935 := #0
-LABEL label560 :
-IF var934 != #0 GOTO label562
-LABEL label563 :
-var936 := #0
-GOTO label564
-LABEL label562 :
-IF var935 != #0 GOTO label561
-GOTO label563
-LABEL label561 :
-var936 := #1
-LABEL label564 :
-IF var936 != #0 GOTO label565
-GOTO label566
-LABEL label565 :
-var937 := var825 + #1
-var825 := var937
-LABEL label566 :
-LABEL label568 :
-GOTO label569
-LABEL label571 :
-IF var826 != #0 GOTO label572
-var938 := #1
-GOTO label573
-LABEL label572 :
-var938 := #0
-LABEL label573 :
-IF var827 != #0 GOTO label574
-var939 := #1
-GOTO label575
-LABEL label574 :
-var939 := #0
-LABEL label575 :
-IF var938 != #0 GOTO label577
-LABEL label578 :
-var940 := #0
-GOTO label579
-LABEL label577 :
-IF var939 != #0 GOTO label576
-GOTO label578
-LABEL label576 :
-var940 := #1
-LABEL label579 :
-IF var940 != #0 GOTO label584
-GOTO label585
-LABEL label584 :
-var941 := #4 * #1
-var942 := &var830 + var941
-var943 := var829 + *var942
-var829 := var943
-ARG var829
-var944 := CALL get_bits_uint32
-IF var944 != var822 GOTO label580
-var945 := #0
-GOTO label581
-LABEL label580 :
-var945 := #1
-LABEL label581 :
-IF var945 != #0 GOTO label582
-GOTO label583
-LABEL label582 :
-var826 := #1
-LABEL label583 :
-LABEL label585 :
-GOTO label586
-LABEL label588 :
-GOTO label589
-LABEL label591 :
-var946 := #4 * #0
-var947 := var821 + var946
-*var947 := var829
+var913 := #4 * #0
+var914 := var788 + var913
+*var914 := var796
 RETURN #1
 FUNCTION probable_prime_dh :
-PARAM var948
-PARAM var949
-PARAM var950
-PARAM var951
-PARAM var952
-PARAM var953
-var955 := #1
-var956 := #1
-var957 := #1
-DEC var959 8
-DEC var960 8
-DEC var961 8
-DEC var962 8
-DEC var963 8
-DEC var964 8
-DEC var965 8
-var966 := #64
-DEC var967 8
-DEC var968 8
-DEC var969 8
-DEC var970 8
-DEC var971 8
+PARAM var915
+PARAM var916
+PARAM var917
+PARAM var918
+PARAM var919
+PARAM var920
+var922 := #1
+var923 := #1
+var924 := #1
+DEC var926 8
+DEC var927 8
+DEC var928 8
+DEC var929 8
+DEC var930 8
+DEC var931 8
+DEC var932 8
+var933 := #64
+DEC var934 8
+DEC var935 8
+DEC var936 8
+DEC var937 8
+DEC var938 8
+var939 := #4 * #0
+var940 := &var927 + var939
+*var940 := #0
+var941 := #4 * #1
+var942 := &var927 + var941
+*var942 := var919
+var943 := #4 * #0
+var944 := &var934 + var943
+*var944 := #0
+var945 := #4 * #1
+var946 := &var934 + var945
+var947 := #4 * #63
+var948 := &var2 + var947
+*var946 := *var948
+var949 := #4 * #0
+var950 := &var935 + var949
+var951 := #0 - #1
+*var950 := var951
+var952 := #4 * #1
+var953 := &var935 + var952
+var954 := #0 - #1
+*var953 := var954
+var955 := #4 * #0
+var956 := &var936 + var955
+*var956 := #0
+var957 := #4 * #1
+var958 := &var936 + var957
+var959 := #4 * #31
+var960 := &var1 + var959
+var961 := *var960 - #1
+*var958 := var961
+var962 := #4 * #0
+var963 := &var937 + var962
+*var963 := #0
+var964 := #4 * #1
+var965 := &var937 + var964
+*var965 := #2
+var966 := #4 * #0
+var967 := &var938 + var966
+*var967 := #0
+var968 := #4 * #1
+var969 := &var938 + var968
+*var969 := #4
+ARG &var934
+ARG &var935
+ARG &var934
+CALL sub_uint64
+ARG &var927
+ARG &var935
+ARG &var927
+CALL sub_uint64
+ARG &var927
+ARG &var934
+var970 := CALL cmp_uint64
+IF var970 > #0 GOTO label545
+var971 := #0
+GOTO label546
+LABEL label545 :
+var971 := #1
+LABEL label546 :
+IF var971 != #0 GOTO label547
+GOTO label548
+LABEL label547 :
 var972 := #4 * #0
-var973 := &var960 + var972
-*var973 := #0
-var974 := #4 * #1
-var975 := &var960 + var974
-*var975 := var952
-var976 := #4 * #0
-var977 := &var967 + var976
-*var977 := #0
+var973 := &var934 + var972
+var974 := #4 * #0
+var975 := &var927 + var974
+*var973 := *var975
+var976 := #4 * #1
+var977 := &var934 + var976
 var978 := #4 * #1
-var979 := &var967 + var978
-var980 := #4 * #63
-var981 := &var2 + var980
-*var979 := *var981
-var982 := #4 * #0
-var983 := &var968 + var982
-var984 := #0 - #1
-*var983 := var984
-var985 := #4 * #1
-var986 := &var968 + var985
-var987 := #0 - #1
-*var986 := var987
-var988 := #4 * #0
-var989 := &var969 + var988
-*var989 := #0
-var990 := #4 * #1
-var991 := &var969 + var990
-var992 := #4 * #31
-var993 := &var1 + var992
-var994 := *var993 - #1
-*var991 := var994
-var995 := #4 * #0
-var996 := &var970 + var995
-*var996 := #0
-var997 := #4 * #1
-var998 := &var970 + var997
-*var998 := #2
-var999 := #4 * #0
-var1000 := &var971 + var999
-*var1000 := #0
-var1001 := #4 * #1
-var1002 := &var971 + var1001
-*var1002 := #4
-ARG &var967
-ARG &var968
-ARG &var967
-CALL sub_uint64
-ARG &var960
-ARG &var968
-ARG &var960
-CALL sub_uint64
-ARG &var960
-ARG &var967
-var1003 := CALL cmp_uint64
-IF var1003 > #0 GOTO label592
-var1004 := #0
-GOTO label593
-LABEL label592 :
-var1004 := #1
-LABEL label593 :
-IF var1004 != #0 GOTO label594
-GOTO label595
-LABEL label594 :
-var1005 := #4 * #0
-var1006 := &var967 + var1005
-var1007 := #4 * #0
-var1008 := &var960 + var1007
-*var1006 := *var1008
-var1009 := #4 * #1
-var1010 := &var967 + var1009
-var1011 := #4 * #1
-var1012 := &var960 + var1011
-*var1010 := *var1012
-LABEL label595 :
-var955 := #1
-LABEL label723 :
-IF var955 != #0 GOTO label724
-GOTO label725
-LABEL label724 :
-var955 := #0
-ARG #1
-ARG #1
-ARG var949
-var1013 := CALL rand_bits
-var958 := var1013
-ARG var952
-ARG var958
-var1014 := CALL mod
-var1015 := var958 - var1014
-var958 := var1015
-var1016 := #0 - #1
-IF var953 == var1016 GOTO label596
-var1017 := #0
-GOTO label597
-LABEL label596 :
-var1017 := #1
-LABEL label597 :
-IF var1017 != #0 GOTO label600
-var1020 := var958 + var953
-var958 := var1020
-GOTO label601
-LABEL label600 :
-IF var950 != #0 GOTO label598
-var1019 := var958 + #1
-var958 := var1019
-GOTO label599
-LABEL label598 :
-var1018 := var958 + #3
-var958 := var1018
-LABEL label599 :
-LABEL label601 :
-ARG var958
-var1021 := CALL get_bits_uint32
-IF var1021 < var949 GOTO label602
-var1022 := #0
-GOTO label603
-LABEL label602 :
-var1022 := #1
-LABEL label603 :
-IF var958 < #5 GOTO label604
-var1023 := #0
-GOTO label605
-LABEL label604 :
-var1023 := #1
-LABEL label605 :
-IF var950 != #0 GOTO label607
-LABEL label608 :
-var1024 := #0
-GOTO label609
-LABEL label607 :
-IF var1023 != #0 GOTO label606
-GOTO label608
-LABEL label606 :
-var1024 := #1
-LABEL label609 :
-IF var950 != #0 GOTO label610
-var1025 := #1
-GOTO label611
-LABEL label610 :
-var1025 := #0
-LABEL label611 :
-IF var958 < #3 GOTO label612
-var1026 := #0
-GOTO label613
-LABEL label612 :
-var1026 := #1
-LABEL label613 :
-IF var1025 != #0 GOTO label615
-LABEL label616 :
-var1027 := #0
-GOTO label617
-LABEL label615 :
-IF var1026 != #0 GOTO label614
-GOTO label616
-LABEL label614 :
-var1027 := #1
-LABEL label617 :
-IF var1024 != #0 GOTO label618
-IF var1027 != #0 GOTO label618
-var1028 := #0
-GOTO label619
-LABEL label618 :
-var1028 := #1
-LABEL label619 :
-IF var1022 != #0 GOTO label620
-IF var1028 != #0 GOTO label620
-var1029 := #0
-GOTO label621
-LABEL label620 :
-var1029 := #1
-LABEL label621 :
-IF var1029 != #0 GOTO label622
-GOTO label623
-LABEL label622 :
-var1030 := var958 + var952
-var958 := var1030
-LABEL label623 :
-var1031 := #4 * #0
-var1032 := &var964 + var1031
-*var1032 := #0
-var1033 := #4 * #1
-var1034 := &var964 + var1033
-*var1034 := var958
-var954 := #1
-LABEL label626 :
-IF var954 < var966 GOTO label624
-var1035 := #0
-GOTO label625
-LABEL label624 :
-var1035 := #1
-LABEL label625 :
-IF var1035 != #0 GOTO label627
-GOTO label628
-LABEL label627 :
-var1036 := #4 * var954
-var1037 := var951 + var1036
-var1038 := #4 * var954
-var1039 := &var2 + var1038
-ARG *var1039
-ARG var958
-var1040 := CALL mod
-*var1037 := var1040
-var1041 := var954 + #1
-var954 := var1041
-GOTO label626
-LABEL label628 :
-var1042 := #4 * #0
-var1043 := &var959 + var1042
-*var1043 := #0
-var1044 := #4 * #1
-var1045 := &var959 + var1044
-*var1045 := #0
-var956 := #1
-LABEL label720 :
-IF var955 != #0 GOTO label629
-var1046 := #1
-GOTO label630
-LABEL label629 :
-var1046 := #0
-LABEL label630 :
-IF var1046 != #0 GOTO label632
-LABEL label633 :
-var1047 := #0
-GOTO label634
-LABEL label632 :
-IF var956 != #0 GOTO label631
-GOTO label633
-LABEL label631 :
-var1047 := #1
-LABEL label634 :
-IF var1047 != #0 GOTO label721
-GOTO label722
-LABEL label721 :
-var956 := #0
-var954 := #1
-var957 := #1
-LABEL label707 :
-IF var956 != #0 GOTO label635
-var1048 := #1
-GOTO label636
-LABEL label635 :
-var1048 := #0
-LABEL label636 :
-IF var955 != #0 GOTO label637
-var1049 := #1
-GOTO label638
-LABEL label637 :
-var1049 := #0
-LABEL label638 :
-IF var1048 != #0 GOTO label640
-LABEL label641 :
-var1050 := #0
-GOTO label642
-LABEL label640 :
-IF var1049 != #0 GOTO label639
-GOTO label641
-LABEL label639 :
-var1050 := #1
-LABEL label642 :
-IF var1050 != #0 GOTO label644
-LABEL label645 :
-var1051 := #0
-GOTO label646
-LABEL label644 :
-IF var957 != #0 GOTO label643
-GOTO label645
-LABEL label643 :
-var1051 := #1
-LABEL label646 :
-IF var954 < var966 GOTO label647
-var1052 := #0
-GOTO label648
-LABEL label647 :
-var1052 := #1
-LABEL label648 :
-IF var1051 != #0 GOTO label650
-LABEL label651 :
-var1053 := #0
-GOTO label652
-LABEL label650 :
-IF var1052 != #0 GOTO label649
-GOTO label651
-LABEL label649 :
-var1053 := #1
-LABEL label652 :
-IF var1053 != #0 GOTO label708
-GOTO label709
-LABEL label708 :
-var1054 := #4 * var954
-var1055 := &var2 + var1054
-var1056 := #4 * var954
-var1057 := &var2 + var1056
-ARG *var1057
-ARG *var1055
-ARG &var963
-CALL mul_uint32
-ARG &var959
-ARG &var964
-ARG &var965
-CALL add_uint64
-IF var949 <= #31 GOTO label653
-var1058 := #0
-GOTO label654
-LABEL label653 :
-var1058 := #1
-LABEL label654 :
-ARG &var969
-ARG &var959
-var1059 := CALL cmp_uint64
-IF var1059 <= #0 GOTO label655
-var1060 := #0
-GOTO label656
-LABEL label655 :
-var1060 := #1
-LABEL label656 :
-IF var1058 != #0 GOTO label658
-LABEL label659 :
-var1061 := #0
-GOTO label660
-LABEL label658 :
-IF var1060 != #0 GOTO label657
-GOTO label659
-LABEL label657 :
-var1061 := #1
-LABEL label660 :
-ARG &var965
-ARG &var963
-var1062 := CALL cmp_uint64
-IF var1062 > #0 GOTO label661
-var1063 := #0
-GOTO label662
-LABEL label661 :
-var1063 := #1
-LABEL label662 :
-IF var1061 != #0 GOTO label664
-LABEL label665 :
-var1064 := #0
-GOTO label666
-LABEL label664 :
-IF var1063 != #0 GOTO label663
-GOTO label665
-LABEL label663 :
-var1064 := #1
-LABEL label666 :
-IF var1064 != #0 GOTO label667
-GOTO label668
-LABEL label667 :
-var957 := #0
-LABEL label668 :
-IF var957 != #0 GOTO label705
-GOTO label706
-LABEL label705 :
-var1065 := #4 * #0
-var1066 := &var961 + var1065
-*var1066 := #0
-var1067 := #4 * #1
-var1068 := &var961 + var1067
-var1069 := #4 * var954
-var1070 := var951 + var1069
-*var1068 := *var1070
-var1071 := #4 * #0
-var1072 := &var962 + var1071
-*var1072 := #0
-var1073 := #4 * #1
-var1074 := &var962 + var1073
-var1075 := #4 * var954
-var1076 := &var2 + var1075
-*var1074 := *var1076
-ARG &var959
-ARG &var961
-ARG &var965
-CALL add_uint64
-ARG &var962
-ARG &var965
-ARG &var965
-CALL mod_uint64
-var1077 := #4 * #1
-var1078 := &var965 + var1077
-IF *var1078 <= #1 GOTO label669
-var1079 := #0
-GOTO label670
-LABEL label669 :
-var1079 := #1
-LABEL label670 :
-IF var950 != #0 GOTO label672
-LABEL label673 :
-var1080 := #0
-GOTO label674
-LABEL label672 :
-IF var1079 != #0 GOTO label671
-GOTO label673
-LABEL label671 :
-var1080 := #1
-LABEL label674 :
-IF var950 != #0 GOTO label675
-var1081 := #1
-GOTO label676
-LABEL label675 :
-var1081 := #0
+var979 := &var927 + var978
+*var977 := *var979
+LABEL label548 :
+var922 := #1
 LABEL label676 :
-var1082 := #4 * #1
-var1083 := &var965 + var1082
-IF *var1083 == #0 GOTO label677
-var1084 := #0
+IF var922 != #0 GOTO label677
 GOTO label678
 LABEL label677 :
-var1084 := #1
-LABEL label678 :
-IF var1081 != #0 GOTO label680
-LABEL label681 :
-var1085 := #0
-GOTO label682
-LABEL label680 :
-IF var1084 != #0 GOTO label679
-GOTO label681
-LABEL label679 :
-var1085 := #1
-LABEL label682 :
-IF var1080 != #0 GOTO label683
-IF var1085 != #0 GOTO label683
-var1086 := #0
-GOTO label684
-LABEL label683 :
-var1086 := #1
-LABEL label684 :
-IF var1086 != #0 GOTO label693
-GOTO label694
-LABEL label693 :
-ARG &var960
-ARG &var959
-ARG &var959
+var922 := #0
+ARG #1
+ARG #1
+ARG var916
+var980 := CALL rand_bits
+var925 := var980
+ARG var919
+ARG var925
+var981 := CALL mod
+var982 := var925 - var981
+var925 := var982
+var983 := #0 - #1
+IF var920 == var983 GOTO label549
+var984 := #0
+GOTO label550
+LABEL label549 :
+var984 := #1
+LABEL label550 :
+IF var984 != #0 GOTO label553
+var987 := var925 + var920
+var925 := var987
+GOTO label554
+LABEL label553 :
+IF var917 != #0 GOTO label551
+var986 := var925 + #1
+var925 := var986
+GOTO label552
+LABEL label551 :
+var985 := var925 + #3
+var925 := var985
+LABEL label552 :
+LABEL label554 :
+ARG var925
+var988 := CALL get_bits_uint32
+IF var988 < var916 GOTO label555
+var989 := #0
+GOTO label556
+LABEL label555 :
+var989 := #1
+LABEL label556 :
+IF var925 < #5 GOTO label557
+var990 := #0
+GOTO label558
+LABEL label557 :
+var990 := #1
+LABEL label558 :
+IF var917 != #0 GOTO label560
+LABEL label561 :
+var991 := #0
+GOTO label562
+LABEL label560 :
+IF var990 != #0 GOTO label559
+GOTO label561
+LABEL label559 :
+var991 := #1
+LABEL label562 :
+IF var917 != #0 GOTO label563
+var992 := #1
+GOTO label564
+LABEL label563 :
+var992 := #0
+LABEL label564 :
+IF var925 < #3 GOTO label565
+var993 := #0
+GOTO label566
+LABEL label565 :
+var993 := #1
+LABEL label566 :
+IF var992 != #0 GOTO label568
+LABEL label569 :
+var994 := #0
+GOTO label570
+LABEL label568 :
+IF var993 != #0 GOTO label567
+GOTO label569
+LABEL label567 :
+var994 := #1
+LABEL label570 :
+IF var991 != #0 GOTO label571
+IF var994 != #0 GOTO label571
+var995 := #0
+GOTO label572
+LABEL label571 :
+var995 := #1
+LABEL label572 :
+IF var989 != #0 GOTO label573
+IF var995 != #0 GOTO label573
+var996 := #0
+GOTO label574
+LABEL label573 :
+var996 := #1
+LABEL label574 :
+IF var996 != #0 GOTO label575
+GOTO label576
+LABEL label575 :
+var997 := var925 + var919
+var925 := var997
+LABEL label576 :
+var998 := #4 * #0
+var999 := &var931 + var998
+*var999 := #0
+var1000 := #4 * #1
+var1001 := &var931 + var1000
+*var1001 := var925
+var921 := #1
+LABEL label579 :
+IF var921 < var933 GOTO label577
+var1002 := #0
+GOTO label578
+LABEL label577 :
+var1002 := #1
+LABEL label578 :
+IF var1002 != #0 GOTO label580
+GOTO label581
+LABEL label580 :
+var1003 := #4 * var921
+var1004 := var918 + var1003
+var1005 := #4 * var921
+var1006 := &var2 + var1005
+ARG *var1006
+ARG var925
+var1007 := CALL mod
+*var1004 := var1007
+var1008 := var921 + #1
+var921 := var1008
+GOTO label579
+LABEL label581 :
+var1009 := #4 * #0
+var1010 := &var926 + var1009
+*var1010 := #0
+var1011 := #4 * #1
+var1012 := &var926 + var1011
+*var1012 := #0
+var923 := #1
+LABEL label673 :
+IF var922 != #0 GOTO label582
+var1013 := #1
+GOTO label583
+LABEL label582 :
+var1013 := #0
+LABEL label583 :
+IF var1013 != #0 GOTO label585
+LABEL label586 :
+var1014 := #0
+GOTO label587
+LABEL label585 :
+IF var923 != #0 GOTO label584
+GOTO label586
+LABEL label584 :
+var1014 := #1
+LABEL label587 :
+IF var1014 != #0 GOTO label674
+GOTO label675
+LABEL label674 :
+var923 := #0
+var921 := #1
+var924 := #1
+LABEL label660 :
+IF var923 != #0 GOTO label588
+var1015 := #1
+GOTO label589
+LABEL label588 :
+var1015 := #0
+LABEL label589 :
+IF var922 != #0 GOTO label590
+var1016 := #1
+GOTO label591
+LABEL label590 :
+var1016 := #0
+LABEL label591 :
+IF var1015 != #0 GOTO label593
+LABEL label594 :
+var1017 := #0
+GOTO label595
+LABEL label593 :
+IF var1016 != #0 GOTO label592
+GOTO label594
+LABEL label592 :
+var1017 := #1
+LABEL label595 :
+IF var1017 != #0 GOTO label597
+LABEL label598 :
+var1018 := #0
+GOTO label599
+LABEL label597 :
+IF var924 != #0 GOTO label596
+GOTO label598
+LABEL label596 :
+var1018 := #1
+LABEL label599 :
+IF var921 < var933 GOTO label600
+var1019 := #0
+GOTO label601
+LABEL label600 :
+var1019 := #1
+LABEL label601 :
+IF var1018 != #0 GOTO label603
+LABEL label604 :
+var1020 := #0
+GOTO label605
+LABEL label603 :
+IF var1019 != #0 GOTO label602
+GOTO label604
+LABEL label602 :
+var1020 := #1
+LABEL label605 :
+IF var1020 != #0 GOTO label661
+GOTO label662
+LABEL label661 :
+var1021 := #4 * var921
+var1022 := &var2 + var1021
+var1023 := #4 * var921
+var1024 := &var2 + var1023
+ARG *var1024
+ARG *var1022
+ARG &var930
+CALL mul_uint32
+ARG &var926
+ARG &var931
+ARG &var932
 CALL add_uint64
-ARG &var967
-ARG &var959
-var1087 := CALL cmp_uint64
-IF var1087 > #0 GOTO label685
-var1088 := #0
-GOTO label686
-LABEL label685 :
-var1088 := #1
-LABEL label686 :
-IF var1088 != #0 GOTO label687
-GOTO label688
-LABEL label687 :
-var955 := #1
-LABEL label688 :
-IF var955 != #0 GOTO label689
-var1089 := #1
-GOTO label690
-LABEL label689 :
-var1089 := #0
-LABEL label690 :
-IF var1089 != #0 GOTO label691
-GOTO label692
-LABEL label691 :
-var956 := #1
-LABEL label692 :
-LABEL label694 :
-IF var955 != #0 GOTO label695
-var1090 := #1
-GOTO label696
-LABEL label695 :
-var1090 := #0
-LABEL label696 :
-IF var956 != #0 GOTO label697
-var1091 := #1
-GOTO label698
-LABEL label697 :
-var1091 := #0
-LABEL label698 :
-IF var1090 != #0 GOTO label700
-LABEL label701 :
-var1092 := #0
-GOTO label702
-LABEL label700 :
-IF var1091 != #0 GOTO label699
-GOTO label701
-LABEL label699 :
-var1092 := #1
-LABEL label702 :
-IF var1092 != #0 GOTO label703
-GOTO label704
-LABEL label703 :
-var1093 := var954 + #1
-var954 := var1093
-LABEL label704 :
-LABEL label706 :
-GOTO label707
-LABEL label709 :
-IF var955 != #0 GOTO label710
-var1094 := #1
-GOTO label711
-LABEL label710 :
-var1094 := #0
-LABEL label711 :
-IF var956 != #0 GOTO label712
-var1095 := #1
-GOTO label713
-LABEL label712 :
-var1095 := #0
-LABEL label713 :
-IF var1094 != #0 GOTO label715
-LABEL label716 :
-var1096 := #0
-GOTO label717
-LABEL label715 :
-IF var1095 != #0 GOTO label714
-GOTO label716
-LABEL label714 :
-var1096 := #1
-LABEL label717 :
-IF var1096 != #0 GOTO label718
-GOTO label719
-LABEL label718 :
-var1097 := #4 * #1
-var1098 := &var959 + var1097
-var1099 := var958 + *var1098
-var958 := var1099
-LABEL label719 :
-GOTO label720
-LABEL label722 :
-GOTO label723
-LABEL label725 :
-var1100 := #4 * #0
-var1101 := var948 + var1100
-*var1101 := var958
+IF var916 <= #31 GOTO label606
+var1025 := #0
+GOTO label607
+LABEL label606 :
+var1025 := #1
+LABEL label607 :
+ARG &var936
+ARG &var926
+var1026 := CALL cmp_uint64
+IF var1026 <= #0 GOTO label608
+var1027 := #0
+GOTO label609
+LABEL label608 :
+var1027 := #1
+LABEL label609 :
+IF var1025 != #0 GOTO label611
+LABEL label612 :
+var1028 := #0
+GOTO label613
+LABEL label611 :
+IF var1027 != #0 GOTO label610
+GOTO label612
+LABEL label610 :
+var1028 := #1
+LABEL label613 :
+ARG &var932
+ARG &var930
+var1029 := CALL cmp_uint64
+IF var1029 > #0 GOTO label614
+var1030 := #0
+GOTO label615
+LABEL label614 :
+var1030 := #1
+LABEL label615 :
+IF var1028 != #0 GOTO label617
+LABEL label618 :
+var1031 := #0
+GOTO label619
+LABEL label617 :
+IF var1030 != #0 GOTO label616
+GOTO label618
+LABEL label616 :
+var1031 := #1
+LABEL label619 :
+IF var1031 != #0 GOTO label620
+GOTO label621
+LABEL label620 :
+var924 := #0
+LABEL label621 :
+IF var924 != #0 GOTO label658
+GOTO label659
+LABEL label658 :
+var1032 := #4 * #0
+var1033 := &var928 + var1032
+*var1033 := #0
+var1034 := #4 * #1
+var1035 := &var928 + var1034
+var1036 := #4 * var921
+var1037 := var918 + var1036
+*var1035 := *var1037
+var1038 := #4 * #0
+var1039 := &var929 + var1038
+*var1039 := #0
+var1040 := #4 * #1
+var1041 := &var929 + var1040
+var1042 := #4 * var921
+var1043 := &var2 + var1042
+*var1041 := *var1043
+ARG &var926
+ARG &var928
+ARG &var932
+CALL add_uint64
+ARG &var929
+ARG &var932
+ARG &var932
+CALL mod_uint64
+var1044 := #4 * #1
+var1045 := &var932 + var1044
+IF *var1045 <= #1 GOTO label622
+var1046 := #0
+GOTO label623
+LABEL label622 :
+var1046 := #1
+LABEL label623 :
+IF var917 != #0 GOTO label625
+LABEL label626 :
+var1047 := #0
+GOTO label627
+LABEL label625 :
+IF var1046 != #0 GOTO label624
+GOTO label626
+LABEL label624 :
+var1047 := #1
+LABEL label627 :
+IF var917 != #0 GOTO label628
+var1048 := #1
+GOTO label629
+LABEL label628 :
+var1048 := #0
+LABEL label629 :
+var1049 := #4 * #1
+var1050 := &var932 + var1049
+IF *var1050 == #0 GOTO label630
+var1051 := #0
+GOTO label631
+LABEL label630 :
+var1051 := #1
+LABEL label631 :
+IF var1048 != #0 GOTO label633
+LABEL label634 :
+var1052 := #0
+GOTO label635
+LABEL label633 :
+IF var1051 != #0 GOTO label632
+GOTO label634
+LABEL label632 :
+var1052 := #1
+LABEL label635 :
+IF var1047 != #0 GOTO label636
+IF var1052 != #0 GOTO label636
+var1053 := #0
+GOTO label637
+LABEL label636 :
+var1053 := #1
+LABEL label637 :
+IF var1053 != #0 GOTO label646
+GOTO label647
+LABEL label646 :
+ARG &var927
+ARG &var926
+ARG &var926
+CALL add_uint64
+ARG &var934
+ARG &var926
+var1054 := CALL cmp_uint64
+IF var1054 > #0 GOTO label638
+var1055 := #0
+GOTO label639
+LABEL label638 :
+var1055 := #1
+LABEL label639 :
+IF var1055 != #0 GOTO label640
+GOTO label641
+LABEL label640 :
+var922 := #1
+LABEL label641 :
+IF var922 != #0 GOTO label642
+var1056 := #1
+GOTO label643
+LABEL label642 :
+var1056 := #0
+LABEL label643 :
+IF var1056 != #0 GOTO label644
+GOTO label645
+LABEL label644 :
+var923 := #1
+LABEL label645 :
+LABEL label647 :
+IF var922 != #0 GOTO label648
+var1057 := #1
+GOTO label649
+LABEL label648 :
+var1057 := #0
+LABEL label649 :
+IF var923 != #0 GOTO label650
+var1058 := #1
+GOTO label651
+LABEL label650 :
+var1058 := #0
+LABEL label651 :
+IF var1057 != #0 GOTO label653
+LABEL label654 :
+var1059 := #0
+GOTO label655
+LABEL label653 :
+IF var1058 != #0 GOTO label652
+GOTO label654
+LABEL label652 :
+var1059 := #1
+LABEL label655 :
+IF var1059 != #0 GOTO label656
+GOTO label657
+LABEL label656 :
+var1060 := var921 + #1
+var921 := var1060
+LABEL label657 :
+LABEL label659 :
+GOTO label660
+LABEL label662 :
+IF var922 != #0 GOTO label663
+var1061 := #1
+GOTO label664
+LABEL label663 :
+var1061 := #0
+LABEL label664 :
+IF var923 != #0 GOTO label665
+var1062 := #1
+GOTO label666
+LABEL label665 :
+var1062 := #0
+LABEL label666 :
+IF var1061 != #0 GOTO label668
+LABEL label669 :
+var1063 := #0
+GOTO label670
+LABEL label668 :
+IF var1062 != #0 GOTO label667
+GOTO label669
+LABEL label667 :
+var1063 := #1
+LABEL label670 :
+IF var1063 != #0 GOTO label671
+GOTO label672
+LABEL label671 :
+var1064 := #4 * #1
+var1065 := &var926 + var1064
+var1066 := var925 + *var1065
+var925 := var1066
+LABEL label672 :
+GOTO label673
+LABEL label675 :
+GOTO label676
+LABEL label678 :
+var1067 := #4 * #0
+var1068 := var915 + var1067
+*var1068 := var925
 RETURN #1
 FUNCTION generate_prime :
-PARAM var1102
-PARAM var1103
-PARAM var1104
-PARAM var1105
-PARAM var1106
-var1107 := #0
-DEC var1110 4
-DEC var1111 256
-var1112 := #1
-var1113 := #1
-IF var1103 < #2 GOTO label726
-var1114 := #0
-GOTO label727
-LABEL label726 :
-var1114 := #1
-LABEL label727 :
-IF var1103 > #31 GOTO label728
-var1115 := #0
-GOTO label729
-LABEL label728 :
-var1115 := #1
-LABEL label729 :
-IF var1114 != #0 GOTO label730
-IF var1115 != #0 GOTO label730
-var1116 := #0
-GOTO label731
-LABEL label730 :
-var1116 := #1
+PARAM var1069
+PARAM var1070
+PARAM var1071
+PARAM var1072
+PARAM var1073
+var1074 := #0
+DEC var1077 4
+DEC var1078 256
+var1079 := #1
+var1080 := #1
+IF var1070 < #2 GOTO label679
+var1081 := #0
+GOTO label680
+LABEL label679 :
+var1081 := #1
+LABEL label680 :
+IF var1070 > #31 GOTO label681
+var1082 := #0
+GOTO label682
+LABEL label681 :
+var1082 := #1
+LABEL label682 :
+IF var1081 != #0 GOTO label683
+IF var1082 != #0 GOTO label683
+var1083 := #0
+GOTO label684
+LABEL label683 :
+var1083 := #1
+LABEL label684 :
+IF var1083 != #0 GOTO label685
+var1084 := #0 - #1
+IF var1072 == var1084 GOTO label687
+var1085 := #0
+GOTO label688
+LABEL label687 :
+var1085 := #1
+LABEL label688 :
+IF var1085 != #0 GOTO label690
+LABEL label691 :
+var1086 := #0
+GOTO label692
+LABEL label690 :
+IF var1071 != #0 GOTO label689
+GOTO label691
+LABEL label689 :
+var1086 := #1
+LABEL label692 :
+IF var1070 < #6 GOTO label693
+var1087 := #0
+GOTO label694
+LABEL label693 :
+var1087 := #1
+LABEL label694 :
+IF var1086 != #0 GOTO label696
+LABEL label697 :
+var1088 := #0
+GOTO label698
+LABEL label696 :
+IF var1087 != #0 GOTO label695
+GOTO label697
+LABEL label695 :
+var1088 := #1
+LABEL label698 :
+IF var1070 != #3 GOTO label699
+var1089 := #0
+GOTO label700
+LABEL label699 :
+var1089 := #1
+LABEL label700 :
+IF var1088 != #0 GOTO label702
+LABEL label703 :
+var1090 := #0
+GOTO label704
+LABEL label702 :
+IF var1089 != #0 GOTO label701
+GOTO label703
+LABEL label701 :
+var1090 := #1
+LABEL label704 :
+IF var1090 != #0 GOTO label705
+GOTO label706
+LABEL label705 :
+RETURN #0
+LABEL label706 :
+GOTO label686
+LABEL label685 :
+RETURN #0
+LABEL label686 :
+var1080 := #1
+LABEL label770 :
+IF var1080 != #0 GOTO label771
+GOTO label772
+LABEL label771 :
+var1080 := #0
+var1091 := #0 - #1
+IF var1072 == var1091 GOTO label707
+var1092 := #0
+GOTO label708
+LABEL label707 :
+var1092 := #1
+LABEL label708 :
+IF var1092 != #0 GOTO label713
+ARG var1073
+ARG var1072
+ARG &var1078
+ARG var1071
+ARG var1070
+ARG var1069
+var1095 := CALL probable_prime_dh
+IF var1095 != #0 GOTO label715
+var1096 := #1
+GOTO label716
+LABEL label715 :
+var1096 := #0
+LABEL label716 :
+IF var1096 != #0 GOTO label717
+GOTO label718
+LABEL label717 :
+RETURN #0
+LABEL label718 :
+GOTO label714
+LABEL label713 :
+ARG &var1078
+ARG var1071
+ARG var1070
+ARG var1069
+var1093 := CALL probable_prime
+IF var1093 != #0 GOTO label709
+var1094 := #1
+GOTO label710
+LABEL label709 :
+var1094 := #0
+LABEL label710 :
+IF var1094 != #0 GOTO label711
+GOTO label712
+LABEL label711 :
+RETURN #0
+LABEL label712 :
+LABEL label714 :
+IF var1071 != #0 GOTO label719
+var1097 := #1
+GOTO label720
+LABEL label719 :
+var1097 := #0
+LABEL label720 :
+IF var1097 != #0 GOTO label729
+var1105 := #4 * #0
+var1106 := var1069 + var1105
+var1107 := *var1106 / #2
+var1075 := var1107
+var1076 := #0
+LABEL label763 :
+IF var1080 != #0 GOTO label731
+var1108 := #1
+GOTO label732
 LABEL label731 :
-IF var1116 != #0 GOTO label732
-var1117 := #0 - #1
-IF var1105 == var1117 GOTO label734
-var1118 := #0
-GOTO label735
+var1108 := #0
+LABEL label732 :
+IF var1076 < var1079 GOTO label733
+var1109 := #0
+GOTO label734
+LABEL label733 :
+var1109 := #1
 LABEL label734 :
-var1118 := #1
-LABEL label735 :
-IF var1118 != #0 GOTO label737
-LABEL label738 :
-var1119 := #0
-GOTO label739
+IF var1108 != #0 GOTO label736
 LABEL label737 :
-IF var1104 != #0 GOTO label736
+var1110 := #0
 GOTO label738
 LABEL label736 :
-var1119 := #1
-LABEL label739 :
-IF var1103 < #6 GOTO label740
-var1120 := #0
-GOTO label741
-LABEL label740 :
-var1120 := #1
-LABEL label741 :
-IF var1119 != #0 GOTO label743
-LABEL label744 :
-var1121 := #0
-GOTO label745
-LABEL label743 :
-IF var1120 != #0 GOTO label742
-GOTO label744
-LABEL label742 :
-var1121 := #1
-LABEL label745 :
-IF var1103 != #3 GOTO label746
-var1122 := #0
-GOTO label747
-LABEL label746 :
-var1122 := #1
-LABEL label747 :
-IF var1121 != #0 GOTO label749
-LABEL label750 :
-var1123 := #0
-GOTO label751
-LABEL label749 :
-IF var1122 != #0 GOTO label748
-GOTO label750
-LABEL label748 :
-var1123 := #1
-LABEL label751 :
-IF var1123 != #0 GOTO label752
-GOTO label753
-LABEL label752 :
-RETURN #0
-LABEL label753 :
-GOTO label733
-LABEL label732 :
-RETURN #0
-LABEL label733 :
-var1113 := #1
-LABEL label817 :
-IF var1113 != #0 GOTO label818
-GOTO label819
-LABEL label818 :
-var1113 := #0
-var1124 := #0 - #1
-IF var1105 == var1124 GOTO label754
-var1125 := #0
-GOTO label755
-LABEL label754 :
-var1125 := #1
-LABEL label755 :
-IF var1125 != #0 GOTO label760
-ARG var1106
-ARG var1105
-ARG &var1111
-ARG var1104
-ARG var1103
-ARG var1102
-var1128 := CALL probable_prime_dh
-IF var1128 != #0 GOTO label762
-var1129 := #1
-GOTO label763
-LABEL label762 :
-var1129 := #0
-LABEL label763 :
-IF var1129 != #0 GOTO label764
+IF var1109 != #0 GOTO label735
+GOTO label737
+LABEL label735 :
+var1110 := #1
+LABEL label738 :
+IF var1110 != #0 GOTO label764
 GOTO label765
 LABEL label764 :
+var1111 := #4 * #0
+var1112 := var1069 + var1111
+ARG #0
+ARG *var1112
+ARG #1
+ARG &var1077
+var1113 := CALL is_prime
+IF var1113 != #0 GOTO label739
+var1114 := #1
+GOTO label740
+LABEL label739 :
+var1114 := #0
+LABEL label740 :
+IF var1114 != #0 GOTO label741
+GOTO label742
+LABEL label741 :
 RETURN #0
-LABEL label765 :
-GOTO label761
-LABEL label760 :
-ARG &var1111
-ARG var1104
-ARG var1103
-ARG var1102
-var1126 := CALL probable_prime
-IF var1126 != #0 GOTO label756
-var1127 := #1
-GOTO label757
-LABEL label756 :
-var1127 := #0
-LABEL label757 :
-IF var1127 != #0 GOTO label758
-GOTO label759
-LABEL label758 :
-RETURN #0
-LABEL label759 :
+LABEL label742 :
+var1115 := #4 * #0
+var1116 := &var1077 + var1115
+IF *var1116 == #0 GOTO label743
+var1117 := #0
+GOTO label744
+LABEL label743 :
+var1117 := #1
+LABEL label744 :
+IF var1117 != #0 GOTO label745
+GOTO label746
+LABEL label745 :
+var1080 := #1
+LABEL label746 :
+IF var1080 != #0 GOTO label747
+var1118 := #1
+GOTO label748
+LABEL label747 :
+var1118 := #0
+LABEL label748 :
+IF var1118 != #0 GOTO label761
+GOTO label762
 LABEL label761 :
-IF var1104 != #0 GOTO label766
-var1130 := #1
+ARG #0
+ARG var1075
+ARG #1
+ARG &var1077
+var1119 := CALL is_prime
+IF var1119 != #0 GOTO label749
+var1120 := #1
+GOTO label750
+LABEL label749 :
+var1120 := #0
+LABEL label750 :
+IF var1120 != #0 GOTO label751
+GOTO label752
+LABEL label751 :
+RETURN #0
+LABEL label752 :
+var1121 := #4 * #0
+var1122 := &var1077 + var1121
+IF *var1122 == #0 GOTO label753
+var1123 := #0
+GOTO label754
+LABEL label753 :
+var1123 := #1
+LABEL label754 :
+IF var1123 != #0 GOTO label755
+GOTO label756
+LABEL label755 :
+var1080 := #1
+LABEL label756 :
+IF var1080 != #0 GOTO label757
+var1124 := #1
+GOTO label758
+LABEL label757 :
+var1124 := #0
+LABEL label758 :
+IF var1124 != #0 GOTO label759
+GOTO label760
+LABEL label759 :
+var1125 := var1076 + #1
+var1076 := var1125
+LABEL label760 :
+LABEL label762 :
+GOTO label763
+LABEL label765 :
+GOTO label730
+LABEL label729 :
+var1098 := #4 * #0
+var1099 := var1069 + var1098
+ARG #0
+ARG *var1099
+ARG var1079
+ARG &var1077
+var1100 := CALL is_prime
+IF var1100 != #0 GOTO label721
+var1101 := #1
+GOTO label722
+LABEL label721 :
+var1101 := #0
+LABEL label722 :
+IF var1101 != #0 GOTO label723
+GOTO label724
+LABEL label723 :
+RETURN #0
+LABEL label724 :
+var1102 := #4 * #0
+var1103 := &var1077 + var1102
+IF *var1103 == #0 GOTO label725
+var1104 := #0
+GOTO label726
+LABEL label725 :
+var1104 := #1
+LABEL label726 :
+IF var1104 != #0 GOTO label727
+GOTO label728
+LABEL label727 :
+var1080 := #1
+LABEL label728 :
+LABEL label730 :
+IF var1080 != #0 GOTO label766
+var1126 := #1
 GOTO label767
 LABEL label766 :
-var1130 := #0
+var1126 := #0
 LABEL label767 :
-IF var1130 != #0 GOTO label776
-var1138 := #4 * #0
-var1139 := var1102 + var1138
-var1140 := *var1139 / #2
-var1108 := var1140
-var1109 := #0
-LABEL label810 :
-IF var1113 != #0 GOTO label778
-var1141 := #1
-GOTO label779
-LABEL label778 :
+IF var1126 != #0 GOTO label768
+GOTO label769
+LABEL label768 :
+var1074 := #1
+LABEL label769 :
+GOTO label770
+LABEL label772 :
+RETURN var1074
+FUNCTION rsa_keygen :
+PARAM var1127
+PARAM var1128
+PARAM var1129
+var1130 := #2
+DEC var1136 4
+DEC var1138 4
+var1139 := #0
+DEC var1140 8
 var1141 := #0
-LABEL label779 :
-IF var1109 < var1112 GOTO label780
-var1142 := #0
-GOTO label781
-LABEL label780 :
-var1142 := #1
-LABEL label781 :
-IF var1141 != #0 GOTO label783
-LABEL label784 :
 var1143 := #0
-GOTO label785
-LABEL label783 :
-IF var1142 != #0 GOTO label782
-GOTO label784
-LABEL label782 :
-var1143 := #1
-LABEL label785 :
-IF var1143 != #0 GOTO label811
-GOTO label812
-LABEL label811 :
-var1144 := #4 * #0
-var1145 := var1102 + var1144
-ARG #0
-ARG *var1145
-ARG #1
-ARG &var1110
-var1146 := CALL is_prime
-IF var1146 != #0 GOTO label786
+var1144 := #0
+var1145 := #1
+var1146 := #1
 var1147 := #1
-GOTO label787
-LABEL label786 :
-var1147 := #0
+ARG #2
+ARG var1129
+var1148 := CALL mod
+IF var1148 == #0 GOTO label773
+var1149 := #0
+GOTO label774
+LABEL label773 :
+var1149 := #1
+LABEL label774 :
+IF var1129 <= #1 GOTO label775
+var1150 := #0
+GOTO label776
+LABEL label775 :
+var1150 := #1
+LABEL label776 :
+IF var1149 != #0 GOTO label777
+IF var1150 != #0 GOTO label777
+var1151 := #0
+GOTO label778
+LABEL label777 :
+var1151 := #1
+LABEL label778 :
+IF var1151 != #0 GOTO label779
+GOTO label780
+LABEL label779 :
+RETURN #0
+LABEL label780 :
+var1152 := var1128 / var1130
+var1143 := var1152
+ARG var1130
+ARG var1128
+var1153 := CALL mod
+var1144 := var1153
+var1141 := #0
 LABEL label787 :
-IF var1147 != #0 GOTO label788
+IF var1141 < var1130 GOTO label781
+var1154 := #0
+GOTO label782
+LABEL label781 :
+var1154 := #1
+LABEL label782 :
+IF var1154 != #0 GOTO label788
 GOTO label789
 LABEL label788 :
-RETURN #0
+IF var1141 < var1144 GOTO label783
+var1155 := #0
+GOTO label784
+LABEL label783 :
+var1155 := #1
+LABEL label784 :
+IF var1155 != #0 GOTO label785
+var1159 := #4 * var1141
+var1160 := &var1140 + var1159
+*var1160 := var1143
+GOTO label786
+LABEL label785 :
+var1156 := #4 * var1141
+var1157 := &var1140 + var1156
+var1158 := var1143 + #1
+*var1157 := var1158
+LABEL label786 :
+var1161 := var1141 + #1
+var1141 := var1161
+GOTO label787
 LABEL label789 :
-var1148 := #4 * #0
-var1149 := &var1110 + var1148
-IF *var1149 == #0 GOTO label790
-var1150 := #0
+var1162 := #20 * #0
+var1163 := var1127 + var1162
+var1164 := var1163 + #4
+*var1164 := var1129
+var1141 := #0
+LABEL label847 :
+IF var1141 < var1130 GOTO label790
+var1165 := #0
 GOTO label791
 LABEL label790 :
-var1150 := #1
+var1165 := #1
 LABEL label791 :
-IF var1150 != #0 GOTO label792
-GOTO label793
-LABEL label792 :
-var1113 := #1
-LABEL label793 :
-IF var1113 != #0 GOTO label794
-var1151 := #1
-GOTO label795
+IF var1165 != #0 GOTO label848
+GOTO label849
+LABEL label848 :
+var1145 := #0
+var1147 := #1
+LABEL label832 :
+IF var1147 != #0 GOTO label833
+GOTO label834
+LABEL label833 :
+var1146 := #1
+LABEL label829 :
+IF var1147 != #0 GOTO label793
 LABEL label794 :
-var1151 := #0
+var1166 := #0
+GOTO label795
+LABEL label793 :
+IF var1146 != #0 GOTO label792
+GOTO label794
+LABEL label792 :
+var1166 := #1
 LABEL label795 :
-IF var1151 != #0 GOTO label808
-GOTO label809
-LABEL label808 :
+IF var1166 != #0 GOTO label830
+GOTO label831
+LABEL label830 :
+var1146 := #0
+var1167 := #4 * var1141
+var1168 := &var1140 + var1167
+var1169 := #0 - #1
+var1170 := #0 - #1
+ARG var1170
+ARG var1169
 ARG #0
-ARG var1108
-ARG #1
-ARG &var1110
-var1152 := CALL is_prime
-IF var1152 != #0 GOTO label796
-var1153 := #1
+ARG *var1168
+ARG &var1136
+var1171 := CALL generate_prime
+IF var1171 != #0 GOTO label796
+var1172 := #1
 GOTO label797
 LABEL label796 :
-var1153 := #0
+var1172 := #0
 LABEL label797 :
-IF var1153 != #0 GOTO label798
+IF var1172 != #0 GOTO label798
 GOTO label799
 LABEL label798 :
 RETURN #0
 LABEL label799 :
-var1154 := #4 * #0
-var1155 := &var1110 + var1154
-IF *var1155 == #0 GOTO label800
-var1156 := #0
+var1173 := #4 * #0
+var1174 := &var1136 + var1173
+var1135 := *var1174
+var1142 := #0
+LABEL label820 :
+IF var1146 != #0 GOTO label800
+var1175 := #1
 GOTO label801
 LABEL label800 :
-var1156 := #1
+var1175 := #0
 LABEL label801 :
-IF var1156 != #0 GOTO label802
+IF var1142 < var1141 GOTO label802
+var1176 := #0
 GOTO label803
 LABEL label802 :
-var1113 := #1
+var1176 := #1
 LABEL label803 :
-IF var1113 != #0 GOTO label804
-var1157 := #1
-GOTO label805
-LABEL label804 :
-var1157 := #0
-LABEL label805 :
-IF var1157 != #0 GOTO label806
-GOTO label807
+IF var1175 != #0 GOTO label805
 LABEL label806 :
-var1158 := var1109 + #1
-var1109 := var1158
-LABEL label807 :
-LABEL label809 :
-GOTO label810
-LABEL label812 :
-GOTO label777
-LABEL label776 :
-var1131 := #4 * #0
-var1132 := var1102 + var1131
-ARG #0
-ARG *var1132
-ARG var1112
-ARG &var1110
-var1133 := CALL is_prime
-IF var1133 != #0 GOTO label768
-var1134 := #1
-GOTO label769
-LABEL label768 :
-var1134 := #0
-LABEL label769 :
-IF var1134 != #0 GOTO label770
-GOTO label771
-LABEL label770 :
-RETURN #0
-LABEL label771 :
-var1135 := #4 * #0
-var1136 := &var1110 + var1135
-IF *var1136 == #0 GOTO label772
-var1137 := #0
-GOTO label773
-LABEL label772 :
-var1137 := #1
-LABEL label773 :
-IF var1137 != #0 GOTO label774
-GOTO label775
-LABEL label774 :
-var1113 := #1
-LABEL label775 :
-LABEL label777 :
-IF var1113 != #0 GOTO label813
-var1159 := #1
-GOTO label814
-LABEL label813 :
-var1159 := #0
-LABEL label814 :
-IF var1159 != #0 GOTO label815
-GOTO label816
-LABEL label815 :
-var1107 := #1
-LABEL label816 :
-GOTO label817
-LABEL label819 :
-RETURN var1107
-FUNCTION rsa_keygen :
-PARAM var1160
-PARAM var1161
-PARAM var1162
-var1163 := #2
-DEC var1169 4
-DEC var1171 4
-var1172 := #0
-DEC var1173 8
-var1174 := #0
-var1176 := #0
 var1177 := #0
-var1178 := #1
-var1179 := #1
-var1180 := #1
-ARG #2
-ARG var1162
-var1181 := CALL mod
-IF var1181 == #0 GOTO label820
-var1182 := #0
-GOTO label821
-LABEL label820 :
-var1182 := #1
+GOTO label807
+LABEL label805 :
+IF var1176 != #0 GOTO label804
+GOTO label806
+LABEL label804 :
+var1177 := #1
+LABEL label807 :
+IF var1177 != #0 GOTO label821
+GOTO label822
 LABEL label821 :
-IF var1162 <= #1 GOTO label822
-var1183 := #0
-GOTO label823
+IF var1142 == #0 GOTO label808
+var1178 := #0
+GOTO label809
+LABEL label808 :
+var1178 := #1
+LABEL label809 :
+IF var1178 != #0 GOTO label810
+var1182 := #20 * #0
+var1183 := var1127 + var1182
+var1184 := var1183 + #16
+var1137 := *var1184
+GOTO label811
+LABEL label810 :
+var1179 := #20 * #0
+var1180 := var1127 + var1179
+var1181 := var1180 + #12
+var1137 := *var1181
+LABEL label811 :
+IF var1135 == var1137 GOTO label812
+var1185 := #0
+GOTO label813
+LABEL label812 :
+var1185 := #1
+LABEL label813 :
+IF var1185 != #0 GOTO label814
+GOTO label815
+LABEL label814 :
+var1146 := #1
+LABEL label815 :
+IF var1146 != #0 GOTO label816
+var1186 := #1
+GOTO label817
+LABEL label816 :
+var1186 := #0
+LABEL label817 :
+IF var1186 != #0 GOTO label818
+GOTO label819
+LABEL label818 :
+var1187 := var1142 + #1
+var1142 := var1187
+LABEL label819 :
+GOTO label820
 LABEL label822 :
-var1183 := #1
+IF var1146 != #0 GOTO label823
+var1188 := #1
+GOTO label824
 LABEL label823 :
-IF var1182 != #0 GOTO label824
-IF var1183 != #0 GOTO label824
-var1184 := #0
-GOTO label825
+var1188 := #0
 LABEL label824 :
-var1184 := #1
-LABEL label825 :
-IF var1184 != #0 GOTO label826
-GOTO label827
-LABEL label826 :
-RETURN #0
+IF var1188 != #0 GOTO label827
+GOTO label828
 LABEL label827 :
-var1185 := var1161 / var1163
-var1176 := var1185
-ARG var1163
-ARG var1161
-var1186 := CALL mod
-var1177 := var1186
-var1174 := #0
-LABEL label834 :
-IF var1174 < var1163 GOTO label828
-var1187 := #0
-GOTO label829
+var1189 := var1135 - #1
+var1133 := var1189
+var1190 := #20 * #0
+var1191 := var1127 + var1190
+var1192 := var1191 + #4
+ARG *var1192
+ARG var1133
+ARG &var1138
+var1193 := CALL inverse_mod
+IF var1193 != #0 GOTO label825
+GOTO label826
+LABEL label825 :
+var1147 := #0
+LABEL label826 :
 LABEL label828 :
-var1187 := #1
-LABEL label829 :
-IF var1187 != #0 GOTO label835
+GOTO label829
+LABEL label831 :
+GOTO label832
+LABEL label834 :
+IF var1141 == #0 GOTO label835
+var1194 := #0
 GOTO label836
 LABEL label835 :
-IF var1174 < var1177 GOTO label830
-var1188 := #0
-GOTO label831
-LABEL label830 :
-var1188 := #1
-LABEL label831 :
-IF var1188 != #0 GOTO label832
-var1192 := #4 * var1174
-var1193 := &var1173 + var1192
-*var1193 := var1176
-GOTO label833
-LABEL label832 :
-var1189 := #4 * var1174
-var1190 := &var1173 + var1189
-var1191 := var1176 + #1
-*var1190 := var1191
-LABEL label833 :
-var1194 := var1174 + #1
-var1174 := var1194
-GOTO label834
+var1194 := #1
 LABEL label836 :
-var1195 := #20 * #0
-var1196 := var1160 + var1195
-var1197 := var1196 + #4
-*var1197 := var1162
-var1174 := #0
-LABEL label894 :
-IF var1174 < var1163 GOTO label837
-var1198 := #0
+IF var1194 != #0 GOTO label837
+var1198 := #20 * #0
+var1199 := var1127 + var1198
+var1200 := var1199 + #16
+*var1200 := var1135
 GOTO label838
 LABEL label837 :
-var1198 := #1
+var1195 := #20 * #0
+var1196 := var1127 + var1195
+var1197 := var1196 + #12
+*var1197 := var1135
 LABEL label838 :
-IF var1198 != #0 GOTO label895
-GOTO label896
-LABEL label895 :
-var1178 := #0
-var1180 := #1
-LABEL label879 :
-IF var1180 != #0 GOTO label880
-GOTO label881
-LABEL label880 :
-var1179 := #1
-LABEL label876 :
-IF var1180 != #0 GOTO label840
-LABEL label841 :
-var1199 := #0
-GOTO label842
-LABEL label840 :
-IF var1179 != #0 GOTO label839
-GOTO label841
+IF var1141 == #1 GOTO label839
+var1201 := #0
+GOTO label840
 LABEL label839 :
-var1199 := #1
+var1201 := #1
+LABEL label840 :
+IF var1201 != #0 GOTO label841
+var1145 := #1
+GOTO label842
+LABEL label841 :
+var1202 := #20 * #0
+var1203 := var1127 + var1202
+var1204 := var1203 + #12
+var1205 := #20 * #0
+var1206 := var1127 + var1205
+var1207 := var1206 + #16
+var1208 := *var1204 * *var1207
+var1132 := var1208
 LABEL label842 :
-IF var1199 != #0 GOTO label877
-GOTO label878
-LABEL label877 :
-var1179 := #0
-var1200 := #4 * var1174
-var1201 := &var1173 + var1200
-var1202 := #0 - #1
-var1203 := #0 - #1
-ARG var1203
-ARG var1202
-ARG #0
-ARG *var1201
-ARG &var1169
-var1204 := CALL generate_prime
-IF var1204 != #0 GOTO label843
-var1205 := #1
+IF var1145 != #0 GOTO label843
+var1209 := #1
 GOTO label844
 LABEL label843 :
-var1205 := #0
+var1209 := #0
 LABEL label844 :
-IF var1205 != #0 GOTO label845
+IF var1209 != #0 GOTO label845
 GOTO label846
 LABEL label845 :
-RETURN #0
+var1210 := #20 * #0
+var1211 := var1127 + var1210
+var1212 := var1211 + #0
+*var1212 := var1132
 LABEL label846 :
-var1206 := #4 * #0
-var1207 := &var1169 + var1206
-var1168 := *var1207
-var1175 := #0
-LABEL label867 :
-IF var1179 != #0 GOTO label847
-var1208 := #1
-GOTO label848
-LABEL label847 :
-var1208 := #0
-LABEL label848 :
-IF var1175 < var1174 GOTO label849
-var1209 := #0
-GOTO label850
+var1213 := var1141 + #1
+var1141 := var1213
+GOTO label847
 LABEL label849 :
-var1209 := #1
+var1214 := #20 * #0
+var1215 := var1127 + var1214
+var1216 := var1215 + #12
+var1217 := #20 * #0
+var1218 := var1127 + var1217
+var1219 := var1218 + #16
+IF *var1216 < *var1219 GOTO label850
+var1220 := #0
+GOTO label851
 LABEL label850 :
-IF var1208 != #0 GOTO label852
-LABEL label853 :
-var1210 := #0
-GOTO label854
-LABEL label852 :
-IF var1209 != #0 GOTO label851
-GOTO label853
+var1220 := #1
 LABEL label851 :
-var1210 := #1
+IF var1220 != #0 GOTO label852
+GOTO label853
+LABEL label852 :
+var1221 := #20 * #0
+var1222 := var1127 + var1221
+var1223 := var1222 + #12
+var1134 := *var1223
+var1224 := #20 * #0
+var1225 := var1127 + var1224
+var1226 := var1225 + #12
+var1227 := #20 * #0
+var1228 := var1127 + var1227
+var1229 := var1228 + #16
+*var1226 := *var1229
+var1230 := #20 * #0
+var1231 := var1127 + var1230
+var1232 := var1231 + #16
+*var1232 := var1134
+LABEL label853 :
+var1233 := #20 * #0
+var1234 := var1127 + var1233
+var1235 := var1234 + #12
+var1236 := *var1235 - #1
+var1132 := var1236
+var1237 := #20 * #0
+var1238 := var1127 + var1237
+var1239 := var1238 + #16
+var1240 := *var1239 - #1
+var1133 := var1240
+var1241 := var1132 * var1133
+var1131 := var1241
+var1242 := #20 * #0
+var1243 := var1127 + var1242
+var1244 := var1243 + #4
+ARG var1131
+ARG *var1244
+ARG &var1138
+var1245 := CALL inverse_mod
+IF var1245 != #0 GOTO label854
+var1246 := #1
+GOTO label855
 LABEL label854 :
-IF var1210 != #0 GOTO label868
-GOTO label869
-LABEL label868 :
-IF var1175 == #0 GOTO label855
-var1211 := #0
-GOTO label856
+var1246 := #0
 LABEL label855 :
-var1211 := #1
+IF var1246 != #0 GOTO label856
+GOTO label857
 LABEL label856 :
-IF var1211 != #0 GOTO label857
-var1215 := #20 * #0
-var1216 := var1160 + var1215
-var1217 := var1216 + #16
-var1170 := *var1217
-GOTO label858
-LABEL label857 :
-var1212 := #20 * #0
-var1213 := var1160 + var1212
-var1214 := var1213 + #12
-var1170 := *var1214
-LABEL label858 :
-IF var1168 == var1170 GOTO label859
-var1218 := #0
-GOTO label860
-LABEL label859 :
-var1218 := #1
-LABEL label860 :
-IF var1218 != #0 GOTO label861
-GOTO label862
-LABEL label861 :
-var1179 := #1
-LABEL label862 :
-IF var1179 != #0 GOTO label863
-var1219 := #1
-GOTO label864
-LABEL label863 :
-var1219 := #0
-LABEL label864 :
-IF var1219 != #0 GOTO label865
-GOTO label866
-LABEL label865 :
-var1220 := var1175 + #1
-var1175 := var1220
-LABEL label866 :
-GOTO label867
-LABEL label869 :
-IF var1179 != #0 GOTO label870
-var1221 := #1
-GOTO label871
-LABEL label870 :
-var1221 := #0
-LABEL label871 :
-IF var1221 != #0 GOTO label874
-GOTO label875
-LABEL label874 :
-var1222 := var1168 - #1
-var1166 := var1222
-var1223 := #20 * #0
-var1224 := var1160 + var1223
-var1225 := var1224 + #4
-ARG *var1225
-ARG var1166
-ARG &var1171
-var1226 := CALL inverse_mod
-IF var1226 != #0 GOTO label872
-GOTO label873
-LABEL label872 :
-var1180 := #0
-LABEL label873 :
-LABEL label875 :
-GOTO label876
-LABEL label878 :
-GOTO label879
-LABEL label881 :
-IF var1174 == #0 GOTO label882
-var1227 := #0
-GOTO label883
-LABEL label882 :
-var1227 := #1
-LABEL label883 :
-IF var1227 != #0 GOTO label884
-var1231 := #20 * #0
-var1232 := var1160 + var1231
-var1233 := var1232 + #16
-*var1233 := var1168
-GOTO label885
-LABEL label884 :
-var1228 := #20 * #0
-var1229 := var1160 + var1228
-var1230 := var1229 + #12
-*var1230 := var1168
-LABEL label885 :
-IF var1174 == #1 GOTO label886
-var1234 := #0
-GOTO label887
-LABEL label886 :
-var1234 := #1
-LABEL label887 :
-IF var1234 != #0 GOTO label888
-var1178 := #1
-GOTO label889
-LABEL label888 :
-var1235 := #20 * #0
-var1236 := var1160 + var1235
-var1237 := var1236 + #12
-var1238 := #20 * #0
-var1239 := var1160 + var1238
-var1240 := var1239 + #16
-var1241 := *var1237 * *var1240
-var1165 := var1241
-LABEL label889 :
-IF var1178 != #0 GOTO label890
-var1242 := #1
-GOTO label891
-LABEL label890 :
-var1242 := #0
-LABEL label891 :
-IF var1242 != #0 GOTO label892
-GOTO label893
-LABEL label892 :
-var1243 := #20 * #0
-var1244 := var1160 + var1243
-var1245 := var1244 + #0
-*var1245 := var1165
-LABEL label893 :
-var1246 := var1174 + #1
-var1174 := var1246
-GOTO label894
-LABEL label896 :
-var1247 := #20 * #0
-var1248 := var1160 + var1247
-var1249 := var1248 + #12
-var1250 := #20 * #0
-var1251 := var1160 + var1250
-var1252 := var1251 + #16
-IF *var1249 < *var1252 GOTO label897
-var1253 := #0
-GOTO label898
-LABEL label897 :
-var1253 := #1
-LABEL label898 :
-IF var1253 != #0 GOTO label899
-GOTO label900
-LABEL label899 :
-var1254 := #20 * #0
-var1255 := var1160 + var1254
-var1256 := var1255 + #12
-var1167 := *var1256
-var1257 := #20 * #0
-var1258 := var1160 + var1257
-var1259 := var1258 + #12
-var1260 := #20 * #0
-var1261 := var1160 + var1260
-var1262 := var1261 + #16
-*var1259 := *var1262
-var1263 := #20 * #0
-var1264 := var1160 + var1263
-var1265 := var1264 + #16
-*var1265 := var1167
-LABEL label900 :
-var1266 := #20 * #0
-var1267 := var1160 + var1266
-var1268 := var1267 + #12
-var1269 := *var1268 - #1
-var1165 := var1269
-var1270 := #20 * #0
-var1271 := var1160 + var1270
-var1272 := var1271 + #16
-var1273 := *var1272 - #1
-var1166 := var1273
-var1274 := var1165 * var1166
-var1164 := var1274
-var1275 := #20 * #0
-var1276 := var1160 + var1275
-var1277 := var1276 + #4
-ARG var1164
-ARG *var1277
-ARG &var1171
-var1278 := CALL inverse_mod
-IF var1278 != #0 GOTO label901
-var1279 := #1
-GOTO label902
-LABEL label901 :
-var1279 := #0
-LABEL label902 :
-IF var1279 != #0 GOTO label903
-GOTO label904
-LABEL label903 :
 RETURN #0
-LABEL label904 :
-var1280 := #20 * #0
-var1281 := var1160 + var1280
-var1282 := var1281 + #8
-var1283 := #4 * #0
-var1284 := &var1171 + var1283
-*var1282 := *var1284
+LABEL label857 :
+var1247 := #20 * #0
+var1248 := var1127 + var1247
+var1249 := var1248 + #8
+var1250 := #4 * #0
+var1251 := &var1138 + var1250
+*var1249 := *var1251
 RETURN #1
 FUNCTION main :
-DEC var1285 20
-DEC var1286 4
-var1287 := #4 * #0
-var1288 := &var1286 + var1287
-ARG *var1288
+DEC var1252 20
+DEC var1253 4
+var1254 := #4 * #0
+var1255 := &var1253 + var1254
+ARG *var1255
 CALL srand32
 CALL init_two_powers
 CALL init_primes
 ARG #65537
 ARG #31
-ARG &var1285
-var1289 := CALL rsa_keygen
-IF var1289 != #0 GOTO label905
-var1290 := #1
-GOTO label906
-LABEL label905 :
-var1290 := #0
-LABEL label906 :
-IF var1290 != #0 GOTO label907
-GOTO label908
-LABEL label907 :
+ARG &var1252
+var1256 := CALL rsa_keygen
+IF var1256 != #0 GOTO label858
+var1257 := #1
+GOTO label859
+LABEL label858 :
+var1257 := #0
+LABEL label859 :
+IF var1257 != #0 GOTO label860
+GOTO label861
+LABEL label860 :
 RETURN #1
-LABEL label908 :
-var1291 := #20 * #0
-var1292 := &var1285 + var1291
-var1293 := var1292 + #0
-WRITE *var1293
-var1294 := #20 * #0
-var1295 := &var1285 + var1294
-var1296 := var1295 + #4
-WRITE *var1296
-var1297 := #20 * #0
-var1298 := &var1285 + var1297
-var1299 := var1298 + #8
-WRITE *var1299
+LABEL label861 :
+var1258 := #20 * #0
+var1259 := &var1252 + var1258
+var1260 := var1259 + #0
+WRITE *var1260
+var1261 := #20 * #0
+var1262 := &var1252 + var1261
+var1263 := var1262 + #4
+WRITE *var1263
+var1264 := #20 * #0
+var1265 := &var1252 + var1264
+var1266 := var1265 + #8
+WRITE *var1266
 RETURN #0

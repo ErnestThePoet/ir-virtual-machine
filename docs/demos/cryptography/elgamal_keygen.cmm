@@ -1,14 +1,14 @@
 /*
- * RSA key generation algorithm
- * (1) Read odd integer e from input where e>1
- * (2) Generate (N,p,q) where N is 31-bit; p and q are primes.
- *  (N,p,q) also satisfy N=p*q and gcd(e,φ(N))=1 where φ(N)=(p-1)(q-1).
- * (3) Compute d=(e^(-1)) mod φ(N).
- * (4) Public key is <N,e> and private key is <N,d>.
- * (5) Output (N,e,d).
+ * El Gamal key generation algorithm
+ * (1) Generate parameters (g,p) where g is generator
+ * and p is a 31-bit safe prime (=2q+1);
+ * (2) Choose a uniform x∈Zq as private key, compute
+ * h=(g^x) mod p;
+ * (3) Public key is <g,p,h> and private key is <g,p,x>.
+ * (4) Output (g,p,h,x).
  *
  * This implementation is for demonstration purposes only.
- * This implementation is adapted from OpenSSL v3.3.0.
+ * Part of this implementation is adapted from OpenSSL v3.3.0.
  */
 
 int kNext;
@@ -16,13 +16,19 @@ int kNext;
 int kTwoPowers[32]; // [31] is negative
 int kPrimes[64];
 
-struct RSA
+struct FFCParams
 {
-    int n;
-    int e;
-    int d;
+    int g;
     int p;
     int q;
+};
+
+struct DH
+{
+    struct FFCParams params;
+
+    int pubkey;
+    int privkey;
 };
 
 int init_two_powers()
@@ -735,162 +741,6 @@ int exp_mod(int exp_mod_a, int exp_mod_b, int exp_mod_p)
     return exp_mod_prod64[1];
 }
 
-int nnmod(int nnmod_a, int nnmod_b)
-{
-    int nnmod_m = mod(nnmod_a, nnmod_b);
-    if (nnmod_m < 0)
-    {
-        if (nnmod_b < 0)
-        {
-            nnmod_m = nnmod_m - nnmod_b;
-        }
-        else
-        {
-            nnmod_m = nnmod_m + nnmod_b;
-        }
-    }
-
-    return nnmod_m;
-}
-
-// GCD-Related
-
-// Return 0 if no inv
-int inverse_mod(int invmod_inv[1], int invmod_a, int invmod_n)
-{
-    int invmod_A,
-        invmod_B,
-        invmod_X,
-        invmod_Y,
-        invmod_M,
-        invmod_D,
-        invmod_T,
-        invmod_R,
-        invmod_abits,
-        invmod_bbits,
-        invmod_tmp;
-
-    int invmod_sign;
-
-    if (invmod_n == 1 || invmod_n == 0)
-    {
-        return 0;
-    }
-
-    invmod_X = 1;
-    invmod_Y = 0;
-    invmod_B = invmod_a;
-    invmod_A = invmod_n;
-
-    if (invmod_A < 0)
-    {
-        invmod_A = -invmod_A;
-    }
-
-    if (invmod_B < 0 || cmp_uint32(invmod_B, invmod_A) >= 0)
-    {
-        invmod_B = nnmod(invmod_B, invmod_A);
-    }
-
-    invmod_sign = -1;
-
-    while (invmod_B)
-    {
-        invmod_abits = get_bits_uint32(invmod_A);
-        invmod_bbits = get_bits_uint32(invmod_B);
-
-        if (invmod_abits == invmod_bbits)
-        {
-            invmod_D = 1;
-            invmod_M = invmod_A - invmod_B;
-        }
-        else if (invmod_abits == invmod_bbits + 1)
-        {
-            invmod_T = invmod_B * 2;
-            if (cmp_uint32(invmod_A, invmod_T) < 0)
-            {
-                invmod_D = 1;
-                invmod_M = invmod_A - invmod_B;
-            }
-            else
-            {
-                invmod_M = invmod_A - invmod_T;
-                invmod_D = invmod_T + invmod_B;
-                if (cmp_uint32(invmod_A, invmod_D) < 0)
-                {
-                    invmod_D = 2;
-                }
-                else
-                {
-                    invmod_D = 3;
-                    invmod_M = invmod_M - invmod_B;
-                }
-            }
-        }
-        else
-        {
-            invmod_D = invmod_A / invmod_B;
-            invmod_M = mod(invmod_A, invmod_B);
-        }
-
-        invmod_tmp = invmod_A;
-        invmod_A = invmod_B;
-        invmod_B = invmod_M;
-
-        if (invmod_D == 1)
-        {
-            invmod_tmp = invmod_X + invmod_Y;
-        }
-        else
-        {
-            if (invmod_D == 2)
-            {
-                invmod_tmp = invmod_X * 2;
-            }
-            else if (invmod_D == 4)
-            {
-                invmod_tmp = invmod_X * 4;
-            }
-            else
-            {
-                invmod_tmp = invmod_D * invmod_X;
-            }
-
-            invmod_tmp = invmod_tmp + invmod_Y;
-        }
-
-        invmod_M = invmod_Y;
-        invmod_Y = invmod_X;
-        invmod_X = invmod_tmp;
-        invmod_sign = -invmod_sign;
-    }
-
-    if (invmod_sign < 0)
-    {
-        invmod_Y = invmod_n - invmod_Y;
-    }
-
-    if (invmod_A == 1)
-    {
-        if (invmod_Y >= 0 && cmp_uint32(invmod_Y, invmod_n) < 0)
-        {
-            invmod_R = invmod_Y;
-        }
-        else
-        {
-            invmod_R = nnmod(invmod_Y, invmod_n);
-        }
-    }
-    else
-    {
-        return 0;
-    }
-
-    invmod_inv[0] = invmod_R;
-
-    return 1;
-}
-
 // w must be >2 and odd
 int miller_rabin_is_prime(int mr_out[1], int mr_w, int mr_iterations)
 {
@@ -1516,156 +1366,129 @@ int generate_prime(
     return genprime_found;
 }
 
-int rsa_keygen(struct RSA rsa_keygen_rsa[1], int rsa_keygen_bits, int rsa_keygen_e)
+int dh_q_from_p(int dh_q_from_p_p)
 {
-    int rsa_keygen_primes = 2;
-    int rsa_keygen_r0,
-        rsa_keygen_r1,
-        rsa_keygen_r2,
-        rsa_keygen_tmp,
-        rsa_keygen_prime,
-        rsa_keygen_prime_out[1],
-        rsa_keygen_prev_prime,
-        rsa_keygen_inv[1];
-    int rsa_keygen_n = 0, rsa_keygen_bitsr[2];
-    int rsa_keygen_i = 0,
-        rsa_keygen_j,
-        rsa_keygen_quo = 0,
-        rsa_keygen_rmd = 0;
-    int rsa_keygen_continue_outer = 1;
-    int rsa_keygen_goto_redo = 1;
-    int rsa_keygen_loop_inner = 1;
+    return (dh_q_from_p_p - 1) / 2;
+}
 
-    if (mod(rsa_keygen_e, 2) == 0 || rsa_keygen_e <= 1)
+int dh_generate_paremeters(
+    struct DH dh_genparam_out[1],
+    int dh_genparam_prime_len,
+    int dh_genparam_generator)
+{
+    int dh_genparam_t1, dh_genparam_t2;
+    int dh_genparam_p[1];
+
+    if (dh_genparam_prime_len < 2 || dh_genparam_prime_len > 31)
     {
         return 0;
     }
 
-    rsa_keygen_quo = rsa_keygen_bits / rsa_keygen_primes;
-    rsa_keygen_rmd = mod(rsa_keygen_bits, rsa_keygen_primes);
-
-    rsa_keygen_i = 0;
-    while (rsa_keygen_i < rsa_keygen_primes)
-    {
-        if (rsa_keygen_i < rsa_keygen_rmd)
-        {
-            rsa_keygen_bitsr[rsa_keygen_i] = rsa_keygen_quo + 1;
-        }
-        else
-        {
-            rsa_keygen_bitsr[rsa_keygen_i] = rsa_keygen_quo;
-        }
-
-        rsa_keygen_i = rsa_keygen_i + 1;
-    }
-
-    rsa_keygen_rsa[0].e = rsa_keygen_e;
-
-    rsa_keygen_i = 0;
-    while (rsa_keygen_i < rsa_keygen_primes)
-    {
-        rsa_keygen_continue_outer = 0;
-
-        rsa_keygen_loop_inner = 1;
-        while (rsa_keygen_loop_inner)
-        {
-            // redo:
-            rsa_keygen_goto_redo = 1;
-            while (rsa_keygen_loop_inner && rsa_keygen_goto_redo)
-            {
-                rsa_keygen_goto_redo = 0;
-
-                if (!generate_prime(rsa_keygen_prime_out, rsa_keygen_bitsr[rsa_keygen_i], 0, -1, -1))
-                {
-                    return 0;
-                }
-
-                rsa_keygen_prime = rsa_keygen_prime_out[0];
-
-                rsa_keygen_j = 0;
-                while (!rsa_keygen_goto_redo && rsa_keygen_j < rsa_keygen_i)
-                {
-                    if (rsa_keygen_j == 0)
-                    {
-                        rsa_keygen_prev_prime = rsa_keygen_rsa[0].p;
-                    }
-                    else
-                    {
-                        rsa_keygen_prev_prime = rsa_keygen_rsa[0].q;
-                    }
-
-                    if (rsa_keygen_prime == rsa_keygen_prev_prime)
-                    {
-                        rsa_keygen_goto_redo = 1;
-                    }
-
-                    if (!rsa_keygen_goto_redo)
-                    {
-                        rsa_keygen_j = rsa_keygen_j + 1;
-                    }
-                }
-
-                if (!rsa_keygen_goto_redo)
-                {
-                    rsa_keygen_r2 = rsa_keygen_prime - 1;
-                    if (inverse_mod(rsa_keygen_inv, rsa_keygen_r2, rsa_keygen_rsa[0].e))
-                    {
-                        rsa_keygen_loop_inner = 0;
-                    }
-                }
-            }
-        }
-
-        if (rsa_keygen_i == 0)
-        {
-            rsa_keygen_rsa[0].p = rsa_keygen_prime;
-        }
-        else
-        {
-            rsa_keygen_rsa[0].q = rsa_keygen_prime;
-        }
-
-        if (rsa_keygen_i == 1)
-        {
-            rsa_keygen_r1 = rsa_keygen_rsa[0].p * rsa_keygen_rsa[0].q;
-        }
-        else
-        {
-            rsa_keygen_continue_outer = 1;
-        }
-
-        if (!rsa_keygen_continue_outer)
-        {
-            rsa_keygen_rsa[0].n = rsa_keygen_r1;
-        }
-
-        rsa_keygen_i = rsa_keygen_i + 1;
-    }
-
-    if (rsa_keygen_rsa[0].p < rsa_keygen_rsa[0].q)
-    {
-        rsa_keygen_tmp = rsa_keygen_rsa[0].p;
-        rsa_keygen_rsa[0].p = rsa_keygen_rsa[0].q;
-        rsa_keygen_rsa[0].q = rsa_keygen_tmp;
-    }
-
-    rsa_keygen_r1 = rsa_keygen_rsa[0].p - 1;
-    rsa_keygen_r2 = rsa_keygen_rsa[0].q - 1;
-    rsa_keygen_r0 = rsa_keygen_r1 * rsa_keygen_r2;
-
-    if (!inverse_mod(rsa_keygen_inv, rsa_keygen_rsa[0].e, rsa_keygen_r0))
+    if (dh_genparam_generator <= 1)
     {
         return 0;
     }
 
-    rsa_keygen_rsa[0].d = rsa_keygen_inv[0];
+    if (dh_genparam_generator == 2)
+    {
+        dh_genparam_t1 = 24;
+        dh_genparam_t2 = 23;
+        dh_genparam_out[0].params.g = 2;
+    }
+    else if (dh_genparam_generator == 5)
+    {
+        dh_genparam_t1 = 60;
+        dh_genparam_t2 = 59;
+        dh_genparam_out[0].params.g = 5;
+    }
+    else
+    {
+        dh_genparam_t1 = 12;
+        dh_genparam_t2 = 11;
+        dh_genparam_out[0].params.g = dh_genparam_generator;
+    }
+
+    if (!generate_prime(dh_genparam_p, dh_genparam_prime_len, 1, dh_genparam_t1, dh_genparam_t2))
+    {
+        return 0;
+    }
+
+    dh_genparam_out[0].params.p = dh_genparam_p[0];
+    dh_genparam_out[0].params.q = dh_q_from_p(dh_genparam_p[0]);
+
+    return 1;
+}
+
+// n must be either >=2 and <=qbits or -1
+int ffc_generate_privkey(
+    int ffc_genprivkey_privkey_out[1],
+    int ffc_genprivkey_q,
+    int ffc_genprivkey_n)
+{
+    int ffc_genprivkey_qbits = get_bits_uint32(ffc_genprivkey_q);
+    int ffc_genprivkey_two_power_n, ffc_genprivkey_m;
+
+    if (ffc_genprivkey_qbits < 2 || ffc_genprivkey_qbits > 31)
+    {
+        return 0;
+    }
+
+    if (ffc_genprivkey_n == -1)
+    {
+        ffc_genprivkey_n = ffc_genprivkey_qbits;
+    }
+
+    if (ffc_genprivkey_n < 2 || ffc_genprivkey_n > ffc_genprivkey_qbits)
+    {
+        return 0;
+    }
+
+    ffc_genprivkey_two_power_n = kTwoPowers[ffc_genprivkey_n];
+
+    if (ffc_genprivkey_q < ffc_genprivkey_two_power_n)
+    {
+        ffc_genprivkey_m = ffc_genprivkey_q;
+    }
+    else
+    {
+        ffc_genprivkey_m = ffc_genprivkey_two_power_n;
+    }
+
+    while (1)
+    {
+        if (!rand_range(ffc_genprivkey_privkey_out, ffc_genprivkey_two_power_n))
+        {
+            return 0;
+        }
+
+        ffc_genprivkey_privkey_out[0] = ffc_genprivkey_privkey_out[0] + 1;
+
+        if (ffc_genprivkey_privkey_out[0] < ffc_genprivkey_m)
+        {
+            return 1;
+        }
+    }
+}
+
+int dh_generate_key(struct DH dh_genkey_out[1])
+{
+    int dh_genkey_privkey[1];
+    if (!ffc_generate_privkey(dh_genkey_privkey, dh_genkey_out[0].params.q, -1))
+    {
+        return 0;
+    }
+
+    dh_genkey_out[0].privkey = dh_genkey_privkey[0];
+
+    dh_genkey_out[0].pubkey = exp_mod(
+        dh_genkey_out[0].params.g, dh_genkey_privkey[0], dh_genkey_out[0].params.p);
 
     return 1;
 }
 
 int main()
 {
-    struct RSA rsa[1];
+    struct DH dh[1];
     // Take advantage of Virtual Machine's randomized stack to provide
     // random seed. In C this is undefined behaviour and DON'T DO THIS.
     int seed[1];
@@ -1674,14 +1497,20 @@ int main()
     init_two_powers();
     init_primes();
 
-    if (!rsa_keygen(rsa, 31, 65537))
+    if (!dh_generate_paremeters(dh, 31, 2))
     {
         return 1;
     }
 
-    write(rsa[0].n);
-    write(rsa[0].e);
-    write(rsa[0].d);
+    if (!dh_generate_key(dh))
+    {
+        return 1;
+    }
+
+    write(dh[0].params.g);
+    write(dh[0].params.p);
+    write(dh[0].pubkey);
+    write(dh[0].privkey);
 
     return 0;
 }
