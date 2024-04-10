@@ -4024,6 +4024,10 @@ var1263 := var1262 + #4
 WRITE *var1263
 var1264 := #20 * #0
 var1265 := &var1252 + var1264
-var1266 := var1265 + #8
+var1266 := var1265 + #0
 WRITE *var1266
+var1267 := #20 * #0
+var1268 := &var1252 + var1267
+var1269 := var1268 + #8
+WRITE *var1269
 RETURN #0

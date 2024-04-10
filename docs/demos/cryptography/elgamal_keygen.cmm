@@ -5,7 +5,7 @@
  * (2) Choose a uniform x∈Zq as private key, compute
  * h=(g^x) mod p;
  * (3) Public key is <g,p,h> and private key is <g,p,x>.
- * (4) Output (g,p,h,x).
+ * (4) Output (g,p,h) and (g,p,x).
  *
  * This implementation is for demonstration purposes only.
  * Part of this implementation is adapted from OpenSSL v3.3.0.
@@ -1510,6 +1510,9 @@ int main()
     write(dh[0].params.g);
     write(dh[0].params.p);
     write(dh[0].pubkey);
+
+    write(dh[0].params.g);
+    write(dh[0].params.p);
     write(dh[0].privkey);
 
     return 0;

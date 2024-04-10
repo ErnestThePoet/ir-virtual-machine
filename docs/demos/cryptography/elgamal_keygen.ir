@@ -3672,6 +3672,16 @@ var1173 := var1172 + #12
 WRITE *var1173
 var1174 := #20 * #0
 var1175 := &var1155 + var1174
-var1176 := var1175 + #16
-WRITE *var1176
+var1176 := var1175 + #0
+var1177 := var1176 + #0
+WRITE *var1177
+var1178 := #20 * #0
+var1179 := &var1155 + var1178
+var1180 := var1179 + #0
+var1181 := var1180 + #4
+WRITE *var1181
+var1182 := #20 * #0
+var1183 := &var1155 + var1182
+var1184 := var1183 + #16
+WRITE *var1184
 RETURN #0

@@ -193,7 +193,7 @@
             {
                 "name": "El Gamal：密钥对生成",
                 "irUrl": "demos/cryptography/elgamal_keygen.ir",
-                "remark": "程序选取生成元g和31位的安全素数p (p=2q+1)，均匀随机地选取x∈Zq，计算h=(g^x) mod p。输出(g,p,h,x)，其中(g,p,h)为公钥，(g,p,x)为私钥。",
+                "remark": "程序选取生成元g和31位的安全素数p (p=2q+1)，均匀随机地选取x∈Zq，计算h=(g^x) mod p。输出公钥(g,p,h)和私钥(g,p,x)",
                 "vmOptions": {
                     "maxExecutionStepCount": 50000000
                 }
@@ -217,7 +217,7 @@
             {
                 "name": "Plain RSA：密钥对生成",
                 "irUrl": "demos/cryptography/rsa_keygen.ir",
-                "remark": "程序选取e=65537，生成(N,p,q)，其中N为31位，p和q为素数，N=p*q，并有gcd(e,φ(N))=1 (φ(N)=(p-1)(q-1))。计算d=(e^(-1)) mod φ(N)。输出(N,e,d)，其中(N,e)为公钥，(N,d)为私钥。",
+                "remark": "程序选取e=65537，生成(N,p,q)，其中N为31位，p和q为素数，N=p*q，并有gcd(e,φ(N))=1 (φ(N)=(p-1)(q-1))。计算d=(e^(-1)) mod φ(N)。输出公钥(N,e)和私钥(N,d)",
                 "vmOptions": {
                     "maxExecutionStepCount": 3000000
                 }

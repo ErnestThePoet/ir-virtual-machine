@@ -5,7 +5,7 @@
  *  (N,p,q) also satisfy N=p*q and gcd(e,φ(N))=1 where φ(N)=(p-1)(q-1).
  * (3) Compute d=(e^(-1)) mod φ(N).
  * (4) Public key is <N,e> and private key is <N,d>.
- * (5) Output (N,e,d).
+ * (5) Output (N,e) and (N,d).
  *
  * This implementation is for demonstration purposes only.
  * This implementation is adapted from OpenSSL v3.3.0.
@@ -1681,6 +1681,8 @@ int main()
 
     write(rsa[0].n);
     write(rsa[0].e);
+
+    write(rsa[0].n);
     write(rsa[0].d);
 
     return 0;
