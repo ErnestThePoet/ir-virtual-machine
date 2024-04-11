@@ -120,7 +120,7 @@ const en: AppLocale = {
     NO_MAIN_FUNCTION: "Function main is not defined",
 
     // Runtime error messages
-    RUNTIME_ERROR_PREFIX: "Runtime Error(Line{lineNumber}): ",
+    RUNTIME_ERROR_PREFIX: "Runtime Error(Line {lineNumber}): ",
     RUNTIME_ERROR_PREFIX_NO_LN: "Runtime Error: ",
     GLOBAL_VARIABLE_SEGMENT_OVERFLOW: "Global variable segment overflow",
     STACK_OVERFLOW: "Stack overflow",
