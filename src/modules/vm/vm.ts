@@ -33,7 +33,7 @@ import type {
 import { InstructionType, ExecutableInstructionType } from "./decoder";
 
 import type { FormattableMessage } from "@/locales";
-import _ from "lodash";
+import { cloneDeep } from "lodash";
 
 // VM Table element types
 interface VmLabel {
@@ -310,19 +310,19 @@ export class Vm {
 
     private decoder: Decoder = new Decoder();
 
-    private memory: VmMemory = _.cloneDeep(initialMemory);
-    private registers: VmRegisters = _.cloneDeep(this.initialRegisters);
-    private tables: VmTables = _.cloneDeep(initialTables);
-    private executionStatus: VmExecutionStatus = _.cloneDeep(
+    private memory: VmMemory = cloneDeep(initialMemory);
+    private registers: VmRegisters = cloneDeep(this.initialRegisters);
+    private tables: VmTables = cloneDeep(initialTables);
+    private executionStatus: VmExecutionStatus = cloneDeep(
         initialExecutionStatus
     );
 
-    private peakMemoryUsage: VmPeakMemoryUsage = _.cloneDeep(
+    private peakMemoryUsage: VmPeakMemoryUsage = cloneDeep(
         initialPeakMemoryUsage
     );
 
     // VM Options does not belong to its state
-    private options: VmOptions = _.cloneDeep(defaultOptions);
+    private options: VmOptions = cloneDeep(defaultOptions);
 
     private executionStartTime: Date = new Date();
 
@@ -424,15 +424,15 @@ export class Vm {
     }
 
     get staticErrors(): VmErrorItem[] {
-        return _.cloneDeep(this.executionStatus.staticErrors);
+        return cloneDeep(this.executionStatus.staticErrors);
     }
 
     get runtimeErrors(): VmErrorItem[] {
-        return _.cloneDeep(this.executionStatus.runtimeErrors);
+        return cloneDeep(this.executionStatus.runtimeErrors);
     }
 
     get currentOptions(): VmOptions {
-        return _.cloneDeep(this.options);
+        return cloneDeep(this.options);
     }
 
     get stepCount(): number {
@@ -562,10 +562,10 @@ export class Vm {
     reset() {
         this.memory.text = [];
         this.memory.memory = new Uint8Array();
-        this.registers = _.cloneDeep(this.initialRegisters);
-        this.tables = _.cloneDeep(initialTables);
-        this.executionStatus = _.cloneDeep(initialExecutionStatus);
-        this.peakMemoryUsage = _.cloneDeep(initialPeakMemoryUsage);
+        this.registers = cloneDeep(this.initialRegisters);
+        this.tables = cloneDeep(initialTables);
+        this.executionStatus = cloneDeep(initialExecutionStatus);
+        this.peakMemoryUsage = cloneDeep(initialPeakMemoryUsage);
         this.writeBuffer = [];
     }
 
