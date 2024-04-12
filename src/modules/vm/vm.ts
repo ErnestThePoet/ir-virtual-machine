@@ -132,7 +132,8 @@ export enum VmExecutionState {
     RUNTIME_ERROR,
     MAX_STEP_REACHED,
     EXITED_NORMALLY,
-    EXITED_ABNORMALLY
+    EXITED_ABNORMALLY,
+    CLOSED
 }
 
 export interface VmErrorItem {
@@ -566,6 +567,15 @@ export class Vm {
         this.executionStatus = _.cloneDeep(initialExecutionStatus);
         this.peakMemoryUsage = _.cloneDeep(initialPeakMemoryUsage);
         this.writeBuffer = [];
+    }
+
+    /**
+     * Set current VM's state to CLOSED. After calling this method, a VM
+     * shall no longer be operated, nor be read any state from.
+     * @public
+     */
+    close() {
+        this.executionStatus.state = VmExecutionState.CLOSED;
     }
 
     /**
@@ -1638,7 +1648,7 @@ export class Vm {
                         }
                     ]);
 
-                    // VM has been reset while waiting for input
+                    // VM has been closed/reset while waiting for input
                     if (this.state !== VmExecutionState.WAIT_INPUT) {
                         return;
                     }

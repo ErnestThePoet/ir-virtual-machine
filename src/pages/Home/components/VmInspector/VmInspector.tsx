@@ -15,11 +15,16 @@ import MemoryUsage from "./MemoryUsage";
 import VariableTable from "./VariableTable";
 import type { AppLocaleKey } from "@/locales";
 
+type VmExecutionStateNotClosed = Exclude<
+    VmExecutionState,
+    VmExecutionState.CLOSED
+>;
+
 interface VmInspectorProps {
     vmIndex: number;
 }
 
-function getVmStateLocaleKey(state: VmExecutionState): AppLocaleKey {
+function getVmStateLocaleKey(state: VmExecutionStateNotClosed): AppLocaleKey {
     switch (state) {
         case VmExecutionState.BUSY:
             return "STATE_BUSY";
@@ -135,7 +140,9 @@ const VmInspector: React.FC<VmInspectorProps> = ({
                                 vmState === VmExecutionState.EXITED_ABNORMALLY
                         })}>
                         {intl.formatMessage({
-                            id: getVmStateLocaleKey(vmState)
+                            id: getVmStateLocaleKey(
+                                vmState as VmExecutionStateNotClosed
+                            )
                         })}
                     </div>
                 </div>

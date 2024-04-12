@@ -25,6 +25,7 @@ const TabBar: React.FC = () => {
 
     const deleteVm = (index: number) => {
         dispatch(deleteVmPageState(index));
+        vmContainer.at(index).close();
         vmContainer.delete(index);
     };
 

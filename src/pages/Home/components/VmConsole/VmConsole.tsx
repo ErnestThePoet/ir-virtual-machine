@@ -107,6 +107,15 @@ const VmConsole: React.FC<VmConsoleProps> = ({ vmIndex }: VmConsoleProps) => {
                 });
             }
         });
+
+        return () => {
+            // When VM is closed when waiting for input,
+            // release the hung context
+            if (inputResolve.current !== null) {
+                inputResolve.current("");
+                inputResolve.current = null;
+            }
+        };
     }, []);
 
     useEffect(() => {
@@ -125,6 +134,15 @@ const VmConsole: React.FC<VmConsoleProps> = ({ vmIndex }: VmConsoleProps) => {
 
         dispatch(setShouldIndicateCurrentLineNumber(false));
         await currentVm.executeContinuously();
+
+        // VM has been closed when waiting for input.
+        // Tabbar first set VM state to CLOSED,
+        // then useEffect cleanup resolves VM's input Promise,
+        // then the above await returns and control flow reaches here.
+        if (currentVm.state === VmExecutionState.CLOSED) {
+            return;
+        }
+
         clearInputBuffer();
         dispatch(syncVmState());
     };
@@ -140,6 +158,7 @@ const VmConsole: React.FC<VmConsoleProps> = ({ vmIndex }: VmConsoleProps) => {
         isContinuousExecution.current = false;
 
         await currentVm.executeSingleStep();
+
         switch (currentVm.state) {
             case VmExecutionState.FREE:
                 dispatch(setShouldIndicateCurrentLineNumber(true));
@@ -149,6 +168,10 @@ const VmConsole: React.FC<VmConsoleProps> = ({ vmIndex }: VmConsoleProps) => {
                 clearInputBuffer();
                 dispatch(setShouldIndicateCurrentLineNumber(false));
                 break;
+            // VM has been closed when waiting for input.
+            // Same explanation as in runVm() above.
+            case VmExecutionState.CLOSED:
+                return;
         }
         dispatch(syncVmState());
     };
@@ -161,6 +184,7 @@ const VmConsole: React.FC<VmConsoleProps> = ({ vmIndex }: VmConsoleProps) => {
         currentVm.reset();
         currentVm.decodeInstructions(true);
 
+        // When VM is reset when waiting for input,
         // release the hung context
         if (inputResolve.current !== null) {
             inputResolve.current("");

@@ -223,8 +223,12 @@ if (args.timeElapsed) {
     console.log(vm.timeElapsed);
 }
 
+const vmState = vm.state;
+
+vm.close();
+
 /* eslint-disable no-fallthrough */
-switch (vm.state) {
+switch (vmState) {
     case VmExecutionState.EXITED_NORMALLY:
         process.exit(0);
     case VmExecutionState.EXITED_ABNORMALLY:
