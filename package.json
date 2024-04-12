@@ -10,6 +10,7 @@
         "build-all": "yarn build && yarn build-cli",
         "preview": "vite preview",
         "lint": "eslint . --ext ts,mts,tsx --report-unused-disable-directives --max-warnings 0",
+        "type-check": "tsc --noEmit && tsc --project cli --noEmit",
         "test": "jest"
     },
     "dependencies": {
