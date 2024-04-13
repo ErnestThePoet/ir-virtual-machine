@@ -60,7 +60,10 @@
             {
                 "name": "N皇后问题",
                 "irUrl": "demos/ordinary/nqueen.ir",
-                "remark": "输入整数n(1≤n≤10)，使用回溯法求解N皇后问题，打印所有解。在解的棋盘的每行中，数字2代表皇后的位置。"
+                "remark": "输入整数n(1≤n≤10)，使用回溯法求解N皇后问题，打印所有解。在解的棋盘的每行中，数字2代表皇后的位置。",
+                "vmOptions": {
+                    "maxExecutionStepCount": 60000000
+                }
             }
         ]
     },
