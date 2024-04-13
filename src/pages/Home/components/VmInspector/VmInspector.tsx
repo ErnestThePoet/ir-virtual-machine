@@ -7,7 +7,7 @@ import { useIntl } from "react-intl";
 import classNames from "classnames";
 import { VmExecutionState, vmOptionLimits } from "@/modules/vm/vm";
 import {
-    setLocalVariableTablePageIndex,
+    setLocalVariableTablesPagination,
     syncVmState
 } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
@@ -47,8 +47,6 @@ function getVmStateLocaleKey(state: VmExecutionStateNotClosed): AppLocaleKey {
     }
 }
 
-const LOCAL_VARIABLE_TABLE_PAGE_SIZE = 10;
-
 const VmInspector: React.FC<VmInspectorProps> = ({
     vmIndex
 }: VmInspectorProps) => {
@@ -76,8 +74,8 @@ const VmInspector: React.FC<VmInspectorProps> = ({
     const vmLocalVariableDetailsStack = useAppSelector(
         state => state.vm.vmPageStates[vmIndex].localVariableDetailsStack
     );
-    const vmLocalVariableTablePageIndex = useAppSelector(
-        state => state.vm.vmPageStates[vmIndex].localVariableTablePageIndex
+    const vmLocalVariableTablesPagination = useAppSelector(
+        state => state.vm.vmPageStates[vmIndex].localVariableTablesPagination
     );
 
     const [showBoxShadow, setShowBoxShadow] = useState(false);
@@ -261,10 +259,11 @@ const VmInspector: React.FC<VmInspectorProps> = ({
                     <div className={styles.divLocalVariableTableWrapper}>
                         {vmLocalVariableDetailsStack
                             .slice(
-                                LOCAL_VARIABLE_TABLE_PAGE_SIZE *
-                                    (vmLocalVariableTablePageIndex - 1),
-                                LOCAL_VARIABLE_TABLE_PAGE_SIZE *
-                                    vmLocalVariableTablePageIndex
+                                vmLocalVariableTablesPagination.size *
+                                    (vmLocalVariableTablesPagination.currentIndex -
+                                        1),
+                                vmLocalVariableTablesPagination.size *
+                                    vmLocalVariableTablesPagination.currentIndex
                             )
                             .map(x => (
                                 <div
@@ -289,12 +288,23 @@ const VmInspector: React.FC<VmInspectorProps> = ({
                             ))}
                         <Pagination
                             className={styles.paginationLocalVariableTable}
-                            current={vmLocalVariableTablePageIndex}
-                            onChange={e =>
-                                dispatch(setLocalVariableTablePageIndex(e))
+                            current={
+                                vmLocalVariableTablesPagination.currentIndex
                             }
-                            pageSize={LOCAL_VARIABLE_TABLE_PAGE_SIZE}
-                            showSizeChanger={false}
+                            onChange={(currentIndex, size) =>
+                                dispatch(
+                                    setLocalVariableTablesPagination({
+                                        currentIndex,
+                                        size
+                                    })
+                                )
+                            }
+                            defaultPageSize={
+                                vmLocalVariableTablesPagination.size
+                            }
+                            pageSizeOptions={[10, 20, 30, 50, 100]}
+                            showSizeChanger
+                            hideOnSinglePage
                             total={vmLocalVariableDetailsStack.length}
                             size="small"
                         />

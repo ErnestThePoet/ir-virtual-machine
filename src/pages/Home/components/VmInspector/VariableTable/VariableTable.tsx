@@ -66,7 +66,13 @@ const VariableTable: React.FC<VariableTableProps> = memo(
                         columns={columns}
                         dataSource={props.variables}
                         size="small"
-                        pagination={false}
+                        pagination={{
+                            defaultPageSize: 20,
+                            pageSizeOptions: [10, 20, 30, 50, 100],
+                            size: "small",
+                            showSizeChanger:true,
+                            hideOnSinglePage: true
+                        }}
                     />
                 )}
             </div>

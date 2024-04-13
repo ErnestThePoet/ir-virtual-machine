@@ -53,6 +53,8 @@ interface VmVariable {
     address: number;
     // Contract: truncated
     size: number;
+    // text line nubmer in original input instructions where this variable is created
+    lineNumber: number;
 }
 
 type VmText = DecodedExecutableInstruction & {
@@ -461,7 +463,7 @@ export class Vm {
     }
 
     get currentPeakMemoryUsage(): VmPeakMemoryUsage {
-        return this.peakMemoryUsage;
+        return cloneDeep(this.peakMemoryUsage);
     }
 
     get returnValue(): number {
@@ -470,14 +472,18 @@ export class Vm {
 
     updatePeakMemoryUsage() {
         const memoryUsage = this.memoryUsage;
-        this.peakMemoryUsage = {
-            total: Math.max(this.peakMemoryUsage.total, memoryUsage.used),
-            stack: Math.max(this.peakMemoryUsage.stack, memoryUsage.stackUsed),
-            globalVariable: Math.max(
-                this.peakMemoryUsage.globalVariable,
-                memoryUsage.globalVariableUsed
-            )
-        };
+        this.peakMemoryUsage.total = Math.max(
+            this.peakMemoryUsage.total,
+            memoryUsage.used
+        );
+        this.peakMemoryUsage.stack = Math.max(
+            this.peakMemoryUsage.stack,
+            memoryUsage.stackUsed
+        );
+        this.peakMemoryUsage.globalVariable = Math.max(
+            this.peakMemoryUsage.globalVariable,
+            memoryUsage.globalVariableUsed
+        );
     }
 
     /**
@@ -773,7 +779,14 @@ export class Vm {
                 if (decodedGlobalDec.id in this.tables.globalVariableTable) {
                     this.writeRuntimeError(
                         {
-                            key: "DUPLICATE_GLOBAL_DEC_ID"
+                            key: "DUPLICATE_GLOBAL_DEC_ID",
+                            values: {
+                                id: decodedGlobalDec.id,
+                                lastLineNumber:
+                                    this.tables.globalVariableTable[
+                                        decodedGlobalDec.id
+                                    ].lineNumber
+                            }
                         },
                         text.lineNumber
                     );
@@ -789,7 +802,8 @@ export class Vm {
 
                 this.tables.globalVariableTable[decodedGlobalDec.id] = {
                     size: decodedGlobalDec.size,
-                    address: this.registers.edx
+                    address: this.registers.edx,
+                    lineNumber: text.lineNumber
                 };
 
                 this.registers.edx = i32Add(
@@ -1163,7 +1177,8 @@ export class Vm {
 
         const variable: VmVariable = {
             address: this.registers.esp,
-            size
+            size,
+            lineNumber: this.memory.text[this.registers.eip].lineNumber
         };
 
         if (this.tables.variableTableStack.length === 0) {
@@ -1182,7 +1197,11 @@ export class Vm {
             this.writeRuntimeError({
                 key: "DUPLICATE_DEC_ID",
                 values: {
-                    id
+                    id,
+                    lastLineNumber:
+                        this.tables.variableTableStack[
+                            this.tables.variableTableStack.length - 1
+                        ][id].lineNumber
                 }
             });
 
@@ -1510,7 +1529,12 @@ export class Vm {
                         this.writeRuntimeError({
                             key: "DUPLICATE_PARAM_ID",
                             values: {
-                                id: paramId
+                                id: paramId,
+                                lastLineNumber:
+                                    this.tables.variableTableStack[
+                                        this.tables.variableTableStack.length -
+                                            1
+                                    ][paramId].lineNumber
                             }
                         });
 
@@ -1526,7 +1550,8 @@ export class Vm {
                         this.tables.variableTableStack.length - 1
                     ][paramId] = {
                         address: this.registers.ebx,
-                        size: 4
+                        size: 4,
+                        lineNumber: ir.lineNumber
                     };
 
                     this.registers.ebx = i32Add(this.registers.ebx, 4);

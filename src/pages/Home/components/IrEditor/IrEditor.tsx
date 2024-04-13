@@ -12,17 +12,16 @@ import {
     setShouldIndicateCurrentLineNumber,
     setConsoleInputPrompt,
     setConsoleInput,
-    setLocalVariableTablePageIndex
+    setLocalVariableTablesPagination
 } from "@/store/reducers/vm";
 import { Editor, Monaco } from "@monaco-editor/react";
 import * as monacoEditor from "monaco-editor";
 import { registerIr } from "@/modules/ir/registerIr";
+import { DECODE_INTERVAL_MS } from "@/modules/constants";
 
 interface IrEditorProps {
     vmIndex: number;
 }
-
-const DECODE_INTERVAL_MS = 100;
 
 const IrEditor: React.FC<IrEditorProps> = ({ vmIndex }: IrEditorProps) => {
     const intl = useIntl();
@@ -192,7 +191,11 @@ const IrEditor: React.FC<IrEditorProps> = ({ vmIndex }: IrEditorProps) => {
         dispatch(setShouldIndicateCurrentLineNumber(false));
         dispatch(setConsoleInputPrompt([]));
         dispatch(setConsoleInput(""));
-        dispatch(setLocalVariableTablePageIndex(1));
+        dispatch(
+            setLocalVariableTablesPagination({
+                currentIndex: 1
+            })
+        );
         dispatch(setIrString(newIr));
         dispatch(setIsIrChanged(true));
 

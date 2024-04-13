@@ -1,4 +1,5 @@
 import type { FormattableMessage } from "@/locales";
+import { MAX_CONSOLE_OUTPUT_COUNT } from "@/modules/constants";
 import type {
     ConsoleMessagePart,
     VmExecutionState,
@@ -13,8 +14,6 @@ import vmContainer from "@/modules/vmContainer/vmContainer";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
-
-const MAX_CONSOLE_OUTPUT_COUNT = 5000;
 
 export interface SingleVmPageState {
     // ID is used to definitely identify a VM
@@ -41,7 +40,10 @@ export interface SingleVmPageState {
     currentLineNumber: number;
     shouldIndicateCurrentLineNumber: boolean;
 
-    localVariableTablePageIndex: number;
+    localVariableTablesPagination: {
+        size: number;
+        currentIndex: number;
+    };
 }
 
 interface VmState {
@@ -200,13 +202,20 @@ export const vmSlice = createSlice({
                 state.activeVmIndex
             ].shouldIndicateCurrentLineNumber = action.payload;
         },
-        setLocalVariableTablePageIndex: (
+        setLocalVariableTablesPagination: (
             state,
-            action: PayloadAction<number>
+            action: PayloadAction<{
+                size?: number;
+                currentIndex?: number;
+            }>
         ) => {
             state.vmPageStates[
                 state.activeVmIndex
-            ].localVariableTablePageIndex = action.payload;
+            ].localVariableTablesPagination = {
+                ...state.vmPageStates[state.activeVmIndex]
+                    .localVariableTablesPagination,
+                ...action.payload
+            };
         },
         syncVmState: state => {
             const currentVm = vmContainer.at(state.activeVmIndex);
@@ -260,7 +269,7 @@ export const {
     setRuntimeErrors,
     setCurrentLineNumber,
     setShouldIndicateCurrentLineNumber,
-    setLocalVariableTablePageIndex,
+    setLocalVariableTablesPagination,
     syncVmState
 } = vmSlice.actions;
 

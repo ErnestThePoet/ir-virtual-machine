@@ -114,17 +114,20 @@ const zhCn = {
     RUNTIME_ERROR_PREFIX_NO_LN: "运行时错误：",
     GLOBAL_VARIABLE_SEGMENT_OVERFLOW: "全局变量空间溢出",
     STACK_OVERFLOW: "栈空间溢出",
-    VARIABLE_NOT_FOUND: "找不到变量{id}",
-    FUNCTION_NOT_FOUND: "找不到函数{id}",
-    LABEL_NOT_FOUND: "找不到标签{id}",
+    VARIABLE_NOT_FOUND: "找不到变量''{id}''",
+    FUNCTION_NOT_FOUND: "找不到函数''{id}''",
+    LABEL_NOT_FOUND: "找不到标签''{id}''",
     INSTRUCTION_READ_OUT_OF_BOUND:
         "从地址{address}处读入指令超出了指令地址空间",
     MEMORY_READ_OUT_OF_BOUND: "从地址{address}读入4字节时超出了地址空间",
     MEMORY_WRITE_OUT_OF_BOUND: "向地址{address}写入4字节时超出了地址空间",
     EMPTY_VARIABLE_TABLE_STACK: "局部变量符号表栈为空",
-    DUPLICATE_DEC_ID: "DEC指令声明的变量名已存在",
-    DUPLICATE_GLOBAL_DEC_ID: "GLOBAL_DEC指令声明的全局变量名已存在",
-    DUPLICATE_PARAM_ID: "PARAM指令声明的形参名已存在",
+    DUPLICATE_DEC_ID:
+        "DEC指令声明的变量名''{id}''已存在(上次声明在第{lastLineNumber}行)",
+    DUPLICATE_GLOBAL_DEC_ID:
+        "GLOBAL_DEC指令声明的全局变量名''{id}''已存在(上次声明在第{lastLineNumber}行)",
+    DUPLICATE_PARAM_ID:
+        "PARAM指令声明的形参名''{id}''已存在(上次声明在第{lastLineNumber}行)",
     DIVIDE_BY_ZERO: "不能除以0",
 
     // Other error messages

@@ -37,6 +37,7 @@ import {
     importIrFile,
     saveIr
 } from "@/modules/operations/import-export";
+import { DEFAULT_LOCAL_VARIABLE_TABLES_PAGINATION_SIZE } from "@/modules/constants";
 
 interface SideBarProps {
     vmIndex: number;
@@ -215,7 +216,10 @@ const SideBar: React.FC<SideBarProps> = ({ vmIndex }: SideBarProps) => {
                                 currentLineNumber: newVm.currentLineNumber,
                                 shouldIndicateCurrentLineNumber: false,
 
-                                localVariableTablePageIndex: 1
+                                localVariableTablesPagination: {
+                                    size: DEFAULT_LOCAL_VARIABLE_TABLES_PAGINATION_SIZE,
+                                    currentIndex: 1
+                                }
                             })
                         );
                     }}

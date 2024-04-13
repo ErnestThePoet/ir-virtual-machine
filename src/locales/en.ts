@@ -42,8 +42,8 @@ const en: AppLocale = {
     STATE_STATIC_CHECK_FAILED: "IR Static Check Error",
     STATE_RUNTIME_ERROR: "Runtime Error",
     STATE_MAX_STEP_REACHED: "Max Step Count Reached",
-    STATE_EXITED_NORMALLY: "Exited Normally(Return value 0)",
-    STATE_EXITED_ABNORMALLY: "Exited Abnormally(Return value not 0)",
+    STATE_EXITED_NORMALLY: "Exited Normally (Return value 0)",
+    STATE_EXITED_ABNORMALLY: "Exited Abnormally (Return value not 0)",
 
     MAX_EXECUTION_STEP_COUNT: "Max Steps",
     SET_0_MEANS_NO_STEP_LIMIT: "No step limit if set to 0",
@@ -71,7 +71,7 @@ const en: AppLocale = {
 
     // Static error check messages
     STATIC_ERROR_PREFIX: "Static Check Error: ",
-    DECODE_ERROR_PREFIX: "IR Decoding Error(Line {lineNumber}): ",
+    DECODE_ERROR_PREFIX: "IR Decoding Error (Line {lineNumber}): ",
     UNRECOGNIZED_INSTRUCTION: "Unrecognized IR instruction",
     ILLEGAL_INSTRUCTION_FORMAT: "Illegal IR format",
     FUNCTION_ILLEGAL_ID: "FUNCTION id illegal",
@@ -120,26 +120,29 @@ const en: AppLocale = {
     NO_MAIN_FUNCTION: "Function main is not defined",
 
     // Runtime error messages
-    RUNTIME_ERROR_PREFIX: "Runtime Error(Line {lineNumber}): ",
+    RUNTIME_ERROR_PREFIX: "Runtime Error (Line {lineNumber}): ",
     RUNTIME_ERROR_PREFIX_NO_LN: "Runtime Error: ",
     GLOBAL_VARIABLE_SEGMENT_OVERFLOW: "Global variable segment overflow",
     STACK_OVERFLOW: "Stack overflow",
-    VARIABLE_NOT_FOUND: "Can't find variable {id}",
-    FUNCTION_NOT_FOUND: "Can't find function {id}",
-    LABEL_NOT_FOUND: "Can't find label {id}",
+    VARIABLE_NOT_FOUND: "Can't find variable ''{id}''",
+    FUNCTION_NOT_FOUND: "Can't find function ''{id}''",
+    LABEL_NOT_FOUND: "Can't find label ''{id}''",
     INSTRUCTION_READ_OUT_OF_BOUND:
         "Reading instruction from {address} is out of bound",
     MEMORY_READ_OUT_OF_BOUND: "Reading 4 bytes from {address} is out of bound",
     MEMORY_WRITE_OUT_OF_BOUND: "Writing 4 bytes to {address} is out of bound",
     EMPTY_VARIABLE_TABLE_STACK: "Empty local variable stack",
-    DUPLICATE_DEC_ID: "DEC's variable id already declared",
-    DUPLICATE_GLOBAL_DEC_ID: "GLOBAL_DEC's global variable id already declared",
-    DUPLICATE_PARAM_ID: "PARAM's param id already declared",
+    DUPLICATE_DEC_ID:
+        "DEC's variable id ''{id}'' already declared (last declared at line {lastLineNumber})",
+    DUPLICATE_GLOBAL_DEC_ID:
+        "GLOBAL_DEC's global variable id ''{id}'' already declared (last declared at line {lastLineNumber})",
+    DUPLICATE_PARAM_ID:
+        "PARAM's param id ''{id}'' already declared (last declared at line {lastLineNumber})",
     DIVIDE_BY_ZERO: "Cannot divide by 0",
 
     // Other error messages
     MAX_STEP_REACHED:
-        "Maximum execution step count reached({maxExecutionStepCount, number})",
+        "Maximum execution step count reached ({maxExecutionStepCount, number})",
     INPUT_INT_ILLEGAL: "Illegal input integer",
     INPUT_INT_ABS_TOO_LARGE: "Absolute value of input integer too large",
 

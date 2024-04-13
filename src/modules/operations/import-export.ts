@@ -5,6 +5,7 @@ import vmContainer from "../vmContainer";
 import { addVmPageState } from "@/store/reducers/vm";
 import { IntlShape } from "react-intl";
 import { message } from "antd";
+import { DEFAULT_LOCAL_VARIABLE_TABLES_PAGINATION_SIZE } from "../constants";
 
 export const saveIr = (name: string, irString: string) => {
     const stringUrl = URL.createObjectURL(
@@ -59,7 +60,10 @@ export const importIr = (
             currentLineNumber: newVm.currentLineNumber,
             shouldIndicateCurrentLineNumber: false,
 
-            localVariableTablePageIndex: 1
+            localVariableTablesPagination: {
+                size: DEFAULT_LOCAL_VARIABLE_TABLES_PAGINATION_SIZE,
+                currentIndex: 1
+            }
         })
     );
 };
