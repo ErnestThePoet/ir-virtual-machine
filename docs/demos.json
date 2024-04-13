@@ -56,6 +56,11 @@
                 "name": "全排列",
                 "irUrl": "demos/ordinary/permu.ir",
                 "remark": "输入非负整数n，程序会打印{1,...,n}的所有排列，使用11111111分隔"
+            },
+            {
+                "name": "N皇后问题",
+                "irUrl": "demos/ordinary/nqueen.ir",
+                "remark": "输入整数n(1≤n≤10)，使用回溯法求解N皇后问题，打印所有解。在解的棋盘的每行中，数字2代表皇后的位置。"
             }
         ]
     },

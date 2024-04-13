@@ -1,0 +1,266 @@
+FUNCTION get_row_number_representation :
+PARAM var0
+PARAM var1
+var2 := #1
+var3 := #0
+var4 := var0 - #1
+IF var1 == var4 GOTO label0
+var5 := #0
+GOTO label1
+LABEL label0 :
+var5 := #1
+LABEL label1 :
+IF var5 != #0 GOTO label2
+LABEL label6 :
+var6 := var0 - #2
+var7 := var6 - var1
+IF var3 < var7 GOTO label4
+var8 := #0
+GOTO label5
+LABEL label4 :
+var8 := #1
+LABEL label5 :
+IF var8 != #0 GOTO label7
+GOTO label8
+LABEL label7 :
+var9 := var2 * #10
+var10 := var9 + #1
+var2 := var10
+var11 := var3 + #1
+var3 := var11
+GOTO label6
+LABEL label8 :
+var12 := var2 * #10
+var13 := var12 + #2
+var2 := var13
+GOTO label3
+LABEL label2 :
+var2 := #2
+LABEL label3 :
+var3 := #0
+LABEL label11 :
+IF var3 < var1 GOTO label9
+var14 := #0
+GOTO label10
+LABEL label9 :
+var14 := #1
+LABEL label10 :
+IF var14 != #0 GOTO label12
+GOTO label13
+LABEL label12 :
+var15 := var2 * #10
+var16 := var15 + #1
+var2 := var16
+var17 := var3 + #1
+var3 := var17
+GOTO label11
+LABEL label13 :
+RETURN var2
+FUNCTION print_solution :
+PARAM var18
+PARAM var19
+var20 := #0
+LABEL label16 :
+IF var20 < var18 GOTO label14
+var21 := #0
+GOTO label15
+LABEL label14 :
+var21 := #1
+LABEL label15 :
+IF var21 != #0 GOTO label17
+GOTO label18
+LABEL label17 :
+var22 := #4 * var20
+var23 := var19 + var22
+ARG *var23
+ARG var18
+var24 := CALL get_row_number_representation
+WRITE var24
+var25 := var20 + #1
+var20 := var25
+GOTO label16
+LABEL label18 :
+RETURN #0
+FUNCTION nqueen :
+PARAM var26
+PARAM var27
+PARAM var28
+PARAM var29
+IF var27 == var26 GOTO label19
+var34 := #0
+GOTO label20
+LABEL label19 :
+var34 := #1
+LABEL label20 :
+IF var34 != #0 GOTO label21
+GOTO label22
+LABEL label21 :
+var35 := #4 * #0
+var36 := var29 + var35
+var37 := #4 * #0
+var38 := var29 + var37
+var39 := *var38 + #1
+*var36 := var39
+var40 := #4 * #0
+var41 := var29 + var40
+WRITE *var41
+ARG var28
+ARG var26
+CALL print_solution
+RETURN #0
+LABEL label22 :
+var30 := #0
+LABEL label52 :
+IF var30 < var26 GOTO label23
+var42 := #0
+GOTO label24
+LABEL label23 :
+var42 := #1
+LABEL label24 :
+IF var42 != #0 GOTO label53
+GOTO label54
+LABEL label53 :
+IF var27 != #0 GOTO label25
+var43 := #1
+GOTO label26
+LABEL label25 :
+var43 := #0
+LABEL label26 :
+IF var43 != #0 GOTO label27
+GOTO label28
+LABEL label27 :
+var44 := #4 * var27
+var45 := var28 + var44
+*var45 := var30
+LABEL label28 :
+var32 := #1
+var31 := #0
+var33 := #1
+LABEL label47 :
+IF var31 < var27 GOTO label29
+var46 := #0
+GOTO label30
+LABEL label29 :
+var46 := #1
+LABEL label30 :
+IF var33 != #0 GOTO label32
+LABEL label33 :
+var47 := #0
+GOTO label34
+LABEL label32 :
+IF var46 != #0 GOTO label31
+GOTO label33
+LABEL label31 :
+var47 := #1
+LABEL label34 :
+IF var47 != #0 GOTO label48
+GOTO label49
+LABEL label48 :
+var48 := #4 * var31
+var49 := var28 + var48
+IF *var49 == var30 GOTO label35
+var50 := #0
+GOTO label36
+LABEL label35 :
+var50 := #1
+LABEL label36 :
+var51 := var27 - var30
+var52 := #4 * var31
+var53 := var28 + var52
+var54 := var31 - *var53
+IF var51 == var54 GOTO label37
+var55 := #0
+GOTO label38
+LABEL label37 :
+var55 := #1
+LABEL label38 :
+IF var50 != #0 GOTO label39
+IF var55 != #0 GOTO label39
+var56 := #0
+GOTO label40
+LABEL label39 :
+var56 := #1
+LABEL label40 :
+var57 := var27 + var30
+var58 := #4 * var31
+var59 := var28 + var58
+var60 := var31 + *var59
+IF var57 == var60 GOTO label41
+var61 := #0
+GOTO label42
+LABEL label41 :
+var61 := #1
+LABEL label42 :
+IF var56 != #0 GOTO label43
+IF var61 != #0 GOTO label43
+var62 := #0
+GOTO label44
+LABEL label43 :
+var62 := #1
+LABEL label44 :
+IF var62 != #0 GOTO label45
+GOTO label46
+LABEL label45 :
+var32 := #0
+var33 := #0
+LABEL label46 :
+var63 := var31 + #1
+var31 := var63
+GOTO label47
+LABEL label49 :
+IF var32 != #0 GOTO label50
+GOTO label51
+LABEL label50 :
+var64 := #4 * var27
+var65 := var28 + var64
+*var65 := var30
+var66 := var27 + #1
+ARG var29
+ARG var28
+ARG var66
+ARG var26
+CALL nqueen
+LABEL label51 :
+var67 := var30 + #1
+var30 := var67
+GOTO label52
+LABEL label54 :
+RETURN #0
+FUNCTION main :
+READ var69
+var68 := var69
+DEC var70 40
+DEC var71 4
+IF var68 < #1 GOTO label55
+var72 := #0
+GOTO label56
+LABEL label55 :
+var72 := #1
+LABEL label56 :
+IF var68 > #10 GOTO label57
+var73 := #0
+GOTO label58
+LABEL label57 :
+var73 := #1
+LABEL label58 :
+IF var72 != #0 GOTO label59
+IF var73 != #0 GOTO label59
+var74 := #0
+GOTO label60
+LABEL label59 :
+var74 := #1
+LABEL label60 :
+IF var74 != #0 GOTO label61
+GOTO label62
+LABEL label61 :
+RETURN #1
+LABEL label62 :
+var75 := #4 * #0
+var76 := &var71 + var75
+*var76 := #0
+ARG &var71
+ARG &var70
+ARG #0
+ARG var68
+CALL nqueen
+RETURN #0

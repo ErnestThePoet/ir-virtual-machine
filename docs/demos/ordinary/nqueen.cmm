@@ -1,0 +1,121 @@
+/*
+ * This program reads n (1<=n<=10) and solves the n queens problem.
+ * If there are solutions, all solutions will be printed
+ * with digit 2 representing queen positions.
+ */
+
+// Max col_count is 10
+int get_row_number_representation(int grnr_col_count, int grnr_col_to_set)
+{
+    int grnr_result = 1;
+    int grnr_i = 0;
+
+    if (grnr_col_to_set == grnr_col_count - 1)
+    {
+        grnr_result = 2;
+    }
+    else
+    {
+        while (grnr_i < (grnr_col_count - 2 - grnr_col_to_set))
+        {
+            grnr_result = grnr_result * 10 + 1;
+            grnr_i = grnr_i + 1;
+        }
+
+        grnr_result = grnr_result * 10 + 2;
+    }
+
+    grnr_i = 0;
+
+    while (grnr_i < grnr_col_to_set)
+    {
+        grnr_result = grnr_result * 10 + 1;
+        grnr_i = grnr_i + 1;
+    }
+
+    return grnr_result;
+}
+
+int print_solution(int ps_n, int ps_ans[10])
+{
+    int ps_row = 0;
+
+    while (ps_row < ps_n)
+    {
+        write(get_row_number_representation(ps_n, ps_ans[ps_row]));
+        ps_row = ps_row + 1;
+    }
+
+    return 0;
+}
+
+int nqueen(int nqueen_n, int nqueen_row, int nqueen_ans[10], int nqueen_ans_count[1])
+{
+    int nqueen_i, nqueen_j, nqueen_ok, nqueen_do_j_loop;
+
+    if (nqueen_row == nqueen_n)
+    {
+        nqueen_ans_count[0] = nqueen_ans_count[0] + 1;
+        write(nqueen_ans_count[0]);
+        print_solution(nqueen_n, nqueen_ans);
+        return 0;
+    }
+
+    nqueen_i = 0;
+
+    while (nqueen_i < nqueen_n)
+    {
+        if (!nqueen_row)
+        {
+            nqueen_ans[nqueen_row] = nqueen_i;
+        }
+
+        nqueen_ok = 1;
+
+        nqueen_j = 0;
+
+        nqueen_do_j_loop = 1;
+        while (nqueen_do_j_loop && nqueen_j < nqueen_row)
+        {
+            if (nqueen_ans[nqueen_j] == nqueen_i ||
+                (nqueen_row - nqueen_i) == nqueen_j - nqueen_ans[nqueen_j] ||
+                (nqueen_row + nqueen_i == nqueen_j + nqueen_ans[nqueen_j]))
+            {
+                nqueen_ok = 0;
+                // break
+                nqueen_do_j_loop = 0;
+            }
+
+            nqueen_j = nqueen_j + 1;
+        }
+
+        if (nqueen_ok)
+        {
+            nqueen_ans[nqueen_row] = nqueen_i;
+            nqueen(nqueen_n, nqueen_row + 1, nqueen_ans, nqueen_ans_count);
+        }
+
+        nqueen_i = nqueen_i + 1;
+    }
+
+    return 0;
+}
+
+int main()
+{
+    int n = read();
+
+    int ans[10];
+    int ans_count[1];
+
+    if (n < 1 || n > 10)
+    {
+        return 1;
+    }
+
+    ans_count[0] = 0;
+
+    nqueen(n, 0, ans, ans_count);
+
+    return 0;
+}
