@@ -5,15 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useIntl } from "react-intl";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { splitLines } from "@/modules/utils";
-import {
-    syncVmState,
-    setIrString,
-    setIsIrChanged,
-    setShouldIndicateCurrentLineNumber,
-    setConsoleInputPrompt,
-    setConsoleInput,
-    setLocalVariableTablesPagination
-} from "@/store/reducers/vm";
+import { syncVmState, resetAndSetIrString } from "@/store/reducers/vm";
 import { Editor, Monaco } from "@monaco-editor/react";
 import * as monacoEditor from "monaco-editor";
 import { registerIr } from "@/modules/ir/registerIr";
@@ -188,16 +180,7 @@ const IrEditor: React.FC<IrEditorProps> = ({ vmIndex }: IrEditorProps) => {
 
         currentVm.loadNewInstructions(splitLines(newIr));
 
-        dispatch(setShouldIndicateCurrentLineNumber(false));
-        dispatch(setConsoleInputPrompt([]));
-        dispatch(setConsoleInput(""));
-        dispatch(
-            setLocalVariableTablesPagination({
-                currentIndex: 1
-            })
-        );
-        dispatch(setIrString(newIr));
-        dispatch(setIsIrChanged(true));
+        dispatch(resetAndSetIrString(newIr));
 
         dispatch(syncVmState());
     };

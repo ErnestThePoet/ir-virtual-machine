@@ -5,11 +5,12 @@ import InputBlock from "./InputBlock/InputBlock";
 import {
     setConsoleInput,
     setConsoleInputPrompt,
-    clearConsoleOutputs,
     setShouldIndicateCurrentLineNumber,
     syncVmState,
     addConsoleOutputs,
-    setLocalVariableTablesPagination
+    reset,
+    clearConsoleInputAndOutput,
+    clearConsoleInputAndPrompt
 } from "@/store/reducers/vm";
 import vmContainer from "@/modules/vmContainer/vmContainer";
 import { ConsoleMessageType, VmExecutionState } from "@/modules/vm/vm";
@@ -177,14 +178,8 @@ const VmConsole: React.FC<VmConsoleProps> = ({ vmIndex }: VmConsoleProps) => {
     };
 
     const resetVm = () => {
-        dispatch(setShouldIndicateCurrentLineNumber(false));
-        dispatch(setConsoleInputPrompt([]));
-        dispatch(setConsoleInput(""));
-        dispatch(
-            setLocalVariableTablesPagination({
-                currentIndex: 1
-            })
-        );
+        dispatch(reset());
+
         currentVm.reset();
         currentVm.decodeInstructions(true);
 
@@ -201,8 +196,8 @@ const VmConsole: React.FC<VmConsoleProps> = ({ vmIndex }: VmConsoleProps) => {
     };
 
     const clearConsole = () => {
-        dispatch(clearConsoleOutputs());
-        dispatch(setConsoleInput(""));
+        dispatch(clearConsoleInputAndOutput());
+
         if (currentVm.state === VmExecutionState.WAIT_INPUT) {
             inVmInput.current?.focus();
         }
@@ -317,8 +312,7 @@ const VmConsole: React.FC<VmConsoleProps> = ({ vmIndex }: VmConsoleProps) => {
                             ])
                         );
 
-                        dispatch(setConsoleInputPrompt([]));
-                        dispatch(setConsoleInput(""));
+                        dispatch(clearConsoleInputAndPrompt());
                     }}
                 />
 

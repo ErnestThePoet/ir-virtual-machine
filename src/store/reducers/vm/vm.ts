@@ -125,51 +125,11 @@ export const vmSlice = createSlice({
             state.vmPageStates[state.activeVmIndex].isIrChanged =
                 action.payload;
         },
-        setIrString: (state, action: PayloadAction<string>) => {
-            state.vmPageStates[state.activeVmIndex].irString = action.payload;
-        },
-        setState: (state, action: PayloadAction<VmExecutionState>) => {
-            state.vmPageStates[state.activeVmIndex].state = action.payload;
-        },
-        setGlobalVariableDetails: (
-            state,
-            action: PayloadAction<VmVariableDetail[]>
-        ) => {
-            state.vmPageStates[state.activeVmIndex].globalVariableDetails =
-                action.payload;
-        },
-        setLocalVariableDetailsStack: (
-            state,
-            action: PayloadAction<VmLocalVariableDetail[]>
-        ) => {
-            state.vmPageStates[state.activeVmIndex].localVariableDetailsStack =
-                action.payload;
-        },
-        setOptions: (state, action: PayloadAction<VmOptions>) => {
-            state.vmPageStates[state.activeVmIndex].options = action.payload;
-        },
-        setStepCount: (state, action: PayloadAction<number>) => {
-            state.vmPageStates[state.activeVmIndex].stepCount = action.payload;
-        },
-        setMemoryUsage: (state, action: PayloadAction<VmMemoryUsage>) => {
-            state.vmPageStates[state.activeVmIndex].memoryUsage =
-                action.payload;
-        },
-        setPeakMemoryUsage: (
-            state,
-            action: PayloadAction<VmPeakMemoryUsage>
-        ) => {
-            state.vmPageStates[state.activeVmIndex].peakMemoryUsage =
-                action.payload;
-        },
         addConsoleOutputs: (
             state,
             action: PayloadAction<Array<ConsoleMessagePart[]>>
         ) => {
             addVmConsoleOutputs(state, action.payload);
-        },
-        clearConsoleOutputs: state => {
-            state.vmPageStates[state.activeVmIndex].consoleOutputs = [];
         },
         setConsoleInputPrompt: (
             state,
@@ -180,18 +140,6 @@ export const vmSlice = createSlice({
         },
         setConsoleInput: (state, action: PayloadAction<string>) => {
             state.vmPageStates[state.activeVmIndex].consoleInput =
-                action.payload;
-        },
-        setStaticErrors: (state, action: PayloadAction<VmErrorItem[]>) => {
-            state.vmPageStates[state.activeVmIndex].staticErrors =
-                action.payload;
-        },
-        setRuntimeErrors: (state, action: PayloadAction<VmErrorItem[]>) => {
-            state.vmPageStates[state.activeVmIndex].runtimeErrors =
-                action.payload;
-        },
-        setCurrentLineNumber: (state, action: PayloadAction<number>) => {
-            state.vmPageStates[state.activeVmIndex].currentLineNumber =
                 action.payload;
         },
         setShouldIndicateCurrentLineNumber: (
@@ -216,6 +164,44 @@ export const vmSlice = createSlice({
                     .localVariableTablesPagination,
                 ...action.payload
             };
+        },
+        reset: state => {
+            state.vmPageStates[
+                state.activeVmIndex
+            ].shouldIndicateCurrentLineNumber = false;
+            state.vmPageStates[state.activeVmIndex].consoleInputPrompt = [];
+            state.vmPageStates[state.activeVmIndex].consoleInput = "";
+            state.vmPageStates[
+                state.activeVmIndex
+            ].localVariableTablesPagination = {
+                ...state.vmPageStates[state.activeVmIndex]
+                    .localVariableTablesPagination,
+                currentIndex: 1
+            };
+        },
+        resetAndSetIrString: (state, action: PayloadAction<string>) => {
+            state.vmPageStates[
+                state.activeVmIndex
+            ].shouldIndicateCurrentLineNumber = false;
+            state.vmPageStates[state.activeVmIndex].consoleInputPrompt = [];
+            state.vmPageStates[state.activeVmIndex].consoleInput = "";
+            state.vmPageStates[
+                state.activeVmIndex
+            ].localVariableTablesPagination = {
+                ...state.vmPageStates[state.activeVmIndex]
+                    .localVariableTablesPagination,
+                currentIndex: 1
+            };
+            state.vmPageStates[state.activeVmIndex].irString = action.payload;
+            state.vmPageStates[state.activeVmIndex].isIrChanged = true;
+        },
+        clearConsoleInputAndPrompt: state => {
+            state.vmPageStates[state.activeVmIndex].consoleInputPrompt = [];
+            state.vmPageStates[state.activeVmIndex].consoleInput = "";
+        },
+        clearConsoleInputAndOutput: state => {
+            state.vmPageStates[state.activeVmIndex].consoleOutputs = [];
+            state.vmPageStates[state.activeVmIndex].consoleInput = "";
         },
         syncVmState: state => {
             const currentVm = vmContainer.at(state.activeVmIndex);
@@ -253,23 +239,15 @@ export const {
     addVmPageState,
     deleteVmPageState,
     setIsIrChanged,
-    setIrString,
-    setState,
-    setGlobalVariableDetails,
-    setLocalVariableDetailsStack,
-    setOptions,
-    setStepCount,
-    setMemoryUsage,
-    setPeakMemoryUsage,
     addConsoleOutputs,
-    clearConsoleOutputs,
     setConsoleInputPrompt,
     setConsoleInput,
-    setStaticErrors,
-    setRuntimeErrors,
-    setCurrentLineNumber,
     setShouldIndicateCurrentLineNumber,
     setLocalVariableTablesPagination,
+    reset,
+    resetAndSetIrString,
+    clearConsoleInputAndPrompt,
+    clearConsoleInputAndOutput,
     syncVmState
 } = vmSlice.actions;
 
