@@ -14,6 +14,7 @@ import vmContainer from "@/modules/vmContainer/vmContainer";
 import MemoryUsage from "./MemoryUsage";
 import VariableTable from "./VariableTable";
 import type { AppLocaleKey } from "@/locales";
+import { DEFAULT_LOCAL_VARIABLE_TABLES_PAGINATION_SIZE } from "@/modules/constants";
 
 type VmExecutionStateNotClosed = Exclude<
     VmExecutionState,
@@ -288,9 +289,6 @@ const VmInspector: React.FC<VmInspectorProps> = ({
                             ))}
                         <Pagination
                             className={styles.paginationLocalVariableTable}
-                            current={
-                                vmLocalVariableTablesPagination.currentIndex
-                            }
                             onChange={(currentIndex, size) =>
                                 dispatch(
                                     setLocalVariableTablesPagination({
@@ -299,13 +297,14 @@ const VmInspector: React.FC<VmInspectorProps> = ({
                                     })
                                 )
                             }
+                            total={vmLocalVariableDetailsStack.length}
+                            defaultCurrent={1}
                             defaultPageSize={
-                                vmLocalVariableTablesPagination.size
+                                DEFAULT_LOCAL_VARIABLE_TABLES_PAGINATION_SIZE
                             }
                             pageSizeOptions={[10, 20, 30, 50, 100]}
                             showSizeChanger
                             hideOnSinglePage
-                            total={vmLocalVariableDetailsStack.length}
                             size="small"
                         />
                     </div>
