@@ -1,6 +1,6 @@
 import type { Monaco } from "@monaco-editor/react";
 import * as monacoEditor from "monaco-editor";
-import { IR_KEYWORDS } from "../vm/decoder";
+import { IR_KEYWORDS, PATTERN_PIECE_ID } from "../vm/decoder";
 
 let isIrRegistered: boolean = false;
 
@@ -31,7 +31,7 @@ export function registerIr(monaco: Monaco) {
         colors: {}
     });
 
-    const irIdentifierPattern = "[a-zA-Z_]\\w*";
+    const irIdentifierPattern = PATTERN_PIECE_ID;
     const irWhiteSpacePattern = "[ \\t\\r\\n]+";
 
     monaco.languages.setMonarchTokensProvider(irLanguageId, {

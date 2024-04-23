@@ -221,21 +221,23 @@ export const IR_KEYWORDS = [
 
 const IR_KEYWORD_SET = new Set<string>(IR_KEYWORDS);
 
+export const PATTERN_PIECE_ID = "[a-zA-Z_$][\\w$]*";
+
 /**
  * Decoder breaks down an IR instruction
  */
 export class Decoder {
     // TODO: Named group is an ES2018 feature and we want some polyfill.
-    private readonly patternId = new RegExp(/^(?<id>[a-zA-Z_]\w*)$/);
+    private readonly patternId = new RegExp(`^(?<id>${PATTERN_PIECE_ID})$`);
 
     private readonly patternSize = new RegExp(/^(?<size>\d+)$/);
 
     private readonly patternSingular = new RegExp(
-        /^(#(?<imm>-?\d+))$|^(?<id>[a-zA-Z_]\w*)$|^(\*(?<derefId>[a-zA-Z_]\w*))$|^(&(?<addressId>[a-zA-Z_]\w*))$/
+        `^(#(?<imm>-?\\d+))$|^(?<id>${PATTERN_PIECE_ID})$|^(\\*(?<derefId>${PATTERN_PIECE_ID}))$|^(&(?<addressId>${PATTERN_PIECE_ID}))$`
     );
 
     private readonly patternLValue = new RegExp(
-        /^((?<id>[a-zA-Z_]\w*))$|^(\*(?<derefId>[a-zA-Z_]\w*))$/
+        `^((?<id>${PATTERN_PIECE_ID}))$|^(\\*(?<derefId>${PATTERN_PIECE_ID}))$`
     );
 
     private readonly illegalInstructionFormatError: DecodedInstructionNoMeta = {
