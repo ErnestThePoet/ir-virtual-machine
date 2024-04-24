@@ -1,6 +1,11 @@
 import type { Monaco } from "@monaco-editor/react";
 import * as monacoEditor from "monaco-editor";
-import { IR_KEYWORDS, PATTERN_PIECE_ID } from "../vm/decoder";
+import {
+    IR_KEYWORDS,
+    PATTERN_PIECE_ID,
+    PATTERN_PIECE_IMM,
+    PATTERN_PIECE_SIZE
+} from "../vm/decoder";
 
 let isIrRegistered: boolean = false;
 
@@ -31,18 +36,17 @@ export function registerIr(monaco: Monaco) {
         colors: {}
     });
 
-    const irIdentifierPattern = PATTERN_PIECE_ID;
     const irWhiteSpacePattern = "[ \\t\\r\\n]+";
 
     monaco.languages.setMonarchTokensProvider(irLanguageId, {
         keywords: IR_KEYWORDS,
-        identifier: irIdentifierPattern,
+        identifier: PATTERN_PIECE_ID,
         whitespace: irWhiteSpacePattern,
         defaultToken: "source",
         tokenizer: {
             root: [
-                [/#-?\d+/, "number"],
-                [/\d+/, "number.size"],
+                [`#${PATTERN_PIECE_IMM}`, "number"],
+                [PATTERN_PIECE_SIZE, "number.size"],
                 [
                     /(:=)|(\+)|(-)|(\*)|(\/)|(==)|(!=)|(<=)|(<)|(>=)|(>)|(&)/,
                     "operators"
@@ -134,7 +138,7 @@ export function registerIr(monaco: Monaco) {
                 if (
                     line.match(
                         `^FUNCTION${irWhiteSpacePattern}` +
-                            `${irIdentifierPattern}${irWhiteSpacePattern}:$`
+                            `${PATTERN_PIECE_ID}${irWhiteSpacePattern}:$`
                     )
                 ) {
                     if (functionLineNumber !== -1 && returnLineNumber !== -1) {
@@ -150,8 +154,9 @@ export function registerIr(monaco: Monaco) {
                 } else if (
                     line.match(
                         `^RETURN${irWhiteSpacePattern}` +
-                            // Singular pattern defined in VM decoder
-                            `((#-?\\d+)|([a-zA-Z_]\\w*)|(\\*[a-zA-Z_]\\w*)|(&[a-zA-Z_]\\w*))$`
+                            `((#${PATTERN_PIECE_IMM})|(${PATTERN_PIECE_ID})|` +
+                            `(\\*${PATTERN_PIECE_ID})|` +
+                            `(&${PATTERN_PIECE_ID}))$`
                     )
                 ) {
                     returnLineNumber = i + 1;

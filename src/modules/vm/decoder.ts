@@ -226,6 +226,8 @@ export const IR_KEYWORDS = [
 const IR_KEYWORD_SET = new Set<string>(IR_KEYWORDS);
 
 export const PATTERN_PIECE_ID = "[a-zA-Z_$][\\w$]*";
+export const PATTERN_PIECE_SIZE = "\\d+";
+export const PATTERN_PIECE_IMM = "-?\\d+";
 
 /**
  * Decoder breaks down an IR instruction
@@ -234,14 +236,20 @@ export class Decoder {
     // TODO: Named group is an ES2018 feature and we want some polyfill.
     private readonly patternId = new RegExp(`^(?<id>${PATTERN_PIECE_ID})$`);
 
-    private readonly patternSize = new RegExp(/^(?<size>\d+)$/);
+    private readonly patternSize = new RegExp(
+        `^(?<size>${PATTERN_PIECE_SIZE})$`
+    );
 
     private readonly patternSingular = new RegExp(
-        `^(#(?<imm>-?\\d+))$|^(?<id>${PATTERN_PIECE_ID})$|^(\\*(?<derefId>${PATTERN_PIECE_ID}))$|^(&(?<addressId>${PATTERN_PIECE_ID}))$`
+        `^(#(?<imm>${PATTERN_PIECE_IMM}))$|` +
+            `^(?<id>${PATTERN_PIECE_ID})$|` +
+            `^(\\*(?<derefId>${PATTERN_PIECE_ID}))$|` +
+            `^(&(?<addressId>${PATTERN_PIECE_ID}))$`
     );
 
     private readonly patternLValue = new RegExp(
-        `^((?<id>${PATTERN_PIECE_ID}))$|^(\\*(?<derefId>${PATTERN_PIECE_ID}))$`
+        `^((?<id>${PATTERN_PIECE_ID}))$|` +
+            `^(\\*(?<derefId>${PATTERN_PIECE_ID}))$`
     );
 
     private readonly illegalInstructionFormatError: DecodedInstructionNoMeta = {
@@ -251,10 +259,6 @@ export class Decoder {
 
     private purify(instruction: string): string {
         return instruction.trim().replaceAll(/[ \t]+/g, " ");
-    }
-
-    private splitWhiteSpace(instruction: string): string[] {
-        return instruction.replaceAll("\t", " ").split(" ");
     }
 
     /**
@@ -929,7 +933,7 @@ export class Decoder {
             };
         }
 
-        const splitResult = this.splitWhiteSpace(purified);
+        const splitResult = purified.split(" ");
 
         if (splitResult.length < 1) {
             return unrecognizedInstructionError;
