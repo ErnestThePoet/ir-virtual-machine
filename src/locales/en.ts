@@ -124,7 +124,7 @@ const en: AppLocale = {
     READ_ILLEGAL: "Illegal LValue for READ",
     WRITE_ILLEGAL: "Illegal Singular for WRITE",
     WRITE_IMM_TOO_LARGE: "Immediate number for WRITE too large",
-    NO_MAIN_FUNCTION: "Function main is not defined",
+    NO_MAIN_FUNCTION: "Function 'main' is not defined",
 
     // Runtime error messages
     RUNTIME_ERROR_PREFIX: "Runtime Error (Line {lineNumber}): ",

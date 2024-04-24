@@ -111,10 +111,10 @@ const zhCn = {
     PARAM_ILLEGAL_ID: "PARAM指令形参名非法",
     RETURN_ILLEGAL: "RETURN指令一元值返回值非法",
     RETURN_IMM_TOO_LARGE: "RETURN指令立即数返回值过大",
-    READ_ILLEGAL: "提供给READ函数的写入目标非法",
-    WRITE_ILLEGAL: "提供给WRITE函数的一元值非法",
-    WRITE_IMM_TOO_LARGE: "提供给WRITE函数的立即数过大",
-    NO_MAIN_FUNCTION: "未定义main函数",
+    READ_ILLEGAL: "提供给READ指令的写入目标非法",
+    WRITE_ILLEGAL: "提供给WRITE指令的一元值非法",
+    WRITE_IMM_TOO_LARGE: "提供给WRITE指令的立即数过大",
+    NO_MAIN_FUNCTION: "未定义'main'函数",
 
     // Runtime error messages
     RUNTIME_ERROR_PREFIX: "运行时错误(第{lineNumber}行)：",
