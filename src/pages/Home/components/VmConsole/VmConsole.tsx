@@ -38,7 +38,6 @@ const VmConsole: React.FC<VmConsoleProps> = ({ vmIndex }: VmConsoleProps) => {
         state => state.vm.vmPageStates[vmIndex].consoleOutputs
     );
 
-    // eslint-disable-next-line no-unused-vars
     const inputResolve = useRef<((_: string) => void) | null>(null);
     const inputBuffer = useRef<{ buffer: string[]; nextInputIndex: number }>({
         buffer: [],

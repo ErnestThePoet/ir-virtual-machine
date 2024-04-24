@@ -3,8 +3,6 @@ import { i32 } from "./alu";
 
 // Component types
 
-/* eslint-disable no-unused-vars */
-
 export enum SingularType {
     IMM,
     ID,
@@ -173,8 +171,6 @@ export enum ExecutableInstructionType {
     // COMMENT,
     // ERROR
 }
-
-/* eslint-enable no-unused-vars */
 
 type InstructionValue =
     | DecodedFunction

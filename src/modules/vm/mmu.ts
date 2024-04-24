@@ -1,7 +1,5 @@
 import { i32 } from "./alu";
 
-/* eslint-disable no-unused-vars */
-
 export enum MmuLoadStatus {
     SUCCESS,
     OUT_OF_BOUND
@@ -16,8 +14,6 @@ export enum MmuStoreStatus {
     SUCCESS,
     OUT_OF_BOUND
 }
-
-/* eslint-enable no-unused-vars */
 
 /**
  * Oh our MMU is so simple--only responsible for loading and storing data into memory!

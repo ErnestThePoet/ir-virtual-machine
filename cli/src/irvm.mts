@@ -165,7 +165,6 @@ vm.configure({
 const inputBuffer: string[] = [];
 let nextInputIndex: number = 0;
 
-// eslint-disable-next-line no-unused-vars
 let vmInputResolve: ((_: string) => void) | null = null;
 
 readlineInterface.on("line", line => {
