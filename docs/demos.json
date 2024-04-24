@@ -156,18 +156,12 @@
             {
                 "name": "朴素算法素性检验",
                 "irUrl": "demos/arithmetic/is_prime_naive.ir",
-                "remark": "输入正整数w，使用朴素算法判断w是否是素数。如果w是素数，输出1；如果w是合数，输出0。",
-                "vmOptions": {
-                    "maxExecutionStepCount": 5000000
-                }
+                "remark": "输入正整数w，使用朴素算法判断w是否是素数。如果w是素数，输出1；如果w是合数，输出0。"
             },
             {
                 "name": "Miller-Rabin素性检验",
                 "irUrl": "demos/arithmetic/miller_rabin.ir",
-                "remark": "输入正整数w，使用基于Miller-Rabin素性检验的算法判断w是否*可能*是素数。如果w可能是素数，输出1；如果w是合数，输出0。当w为素数且值达到5亿左右时，此算法对比朴素算法开始显示出执行步数上的优势；当w为合数时，此算法几乎总是非常快。",
-                "vmOptions": {
-                    "maxExecutionStepCount": 5000000
-                }
+                "remark": "输入正整数w，使用基于Miller-Rabin素性检验的算法判断w是否*可能*是素数。如果w可能是素数，输出1；如果w是合数，输出0。当w为素数且值达到5亿左右时，此算法对比朴素算法开始显示出执行步数上的优势；当w为合数时，此算法几乎总是非常快。"
             },
             {
                 "name": "随机素数生成",
@@ -209,10 +203,7 @@
             {
                 "name": "El Gamal：消息加密",
                 "irUrl": "demos/cryptography/elgamal_enc.ir",
-                "remark": "输入公钥(g,p,h)和明文m，均匀随机地选取x∈Zq (p=2q+1)，计算并输出密文c=(c1,c2)=((g^y) mod p, (h^y)*m mod p)",
-                "vmOptions": {
-                    "maxExecutionStepCount": 5000000
-                }
+                "remark": "输入公钥(g,p,h)和明文m，均匀随机地选取x∈Zq (p=2q+1)，计算并输出密文c=(c1,c2)=((g^y) mod p, (h^y)*m mod p)"
             },
             {
                 "name": "El Gamal：消息解密",
@@ -295,10 +286,7 @@
             {
                 "name": "Benchmark",
                 "irUrl": "demos/boring/benchmark.ir",
-                "remark": "性能测试，让虚拟机忙起来！",
-                "vmOptions": {
-                    "maxExecutionStepCount": 5000000
-                }
+                "remark": "性能测试，让虚拟机忙起来！"
             }
         ]
     }
