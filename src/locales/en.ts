@@ -70,7 +70,8 @@ const en: AppLocale = {
     CALL_STACK_DEPTH: "Call stack depth {depth}",
 
     // Static error check messages
-    STATIC_ERROR_PREFIX: "Static Check Error: ",
+    STATIC_ERROR_PREFIX: "Static Check Error (Line {lineNumber}): ",
+    STATIC_ERROR_PREFIX_NO_LINE_NUMBER: "Static Check Error: ",
     DECODE_ERROR_PREFIX: "IR Decoding Error (Line {lineNumber}): ",
     UNRECOGNIZED_INSTRUCTION: "Unrecognized IR instruction",
     ILLEGAL_INSTRUCTION_FORMAT: "Illegal IR format",
@@ -98,6 +99,12 @@ const en: AppLocale = {
     GLOBAL_DEC_SIZE_NOT_4_MULTIPLE: "GLOBAL_DEC's size not a multiple of 4",
     LABEL_ILLEGAL_ID: "LABEL's id illegal",
     GOTO_ILLEGAL_ID: "GOTO's id illegal",
+    DUPLICATE_LABEL_ID:
+        "LABEL's label id ''{id}'' already declared (last declared at line {lastLineNumber})",
+    DUPLICATE_FUNCTION_ID:
+        "FUNCTION's function id ''{id}'' already declared (last declared at line {lastLineNumber})",
+    FUNCTION_NOT_FOUND: "Can't find function ''{id}''",
+    LABEL_NOT_FOUND: "Can't find label ''{id}''",
     IF_ILLEGAL_COND_OPERATOR: "IF's relop illegal",
     IF_ILLEGAL_COND_OPERAND1:
         "IF's first Singular operand in condition illegal",
@@ -125,8 +132,6 @@ const en: AppLocale = {
     GLOBAL_VARIABLE_SEGMENT_OVERFLOW: "Global variable segment overflow",
     STACK_OVERFLOW: "Stack overflow",
     VARIABLE_NOT_FOUND: "Can't find variable ''{id}''",
-    FUNCTION_NOT_FOUND: "Can't find function ''{id}''",
-    LABEL_NOT_FOUND: "Can't find label ''{id}''",
     INSTRUCTION_READ_OUT_OF_BOUND:
         "Reading instruction from {address} is out of bound",
     MEMORY_READ_OUT_OF_BOUND: "Reading 4 bytes from {address} is out of bound",

@@ -69,7 +69,8 @@ const zhCn = {
     CALL_STACK_DEPTH: "调用栈第{depth}层",
 
     // Static error check messages
-    STATIC_ERROR_PREFIX: "静态分析错误：",
+    STATIC_ERROR_PREFIX: "静态分析错误(第{lineNumber}行)：",
+    STATIC_ERROR_PREFIX_NO_LINE_NUMBER: "静态分析错误：",
     DECODE_ERROR_PREFIX: "指令解码错误(第{lineNumber}行)：",
     UNRECOGNIZED_INSTRUCTION: "无法识别的IR指令",
     ILLEGAL_INSTRUCTION_FORMAT: "指令格式非法",
@@ -92,6 +93,12 @@ const zhCn = {
     GLOBAL_DEC_SIZE_NOT_4_MULTIPLE: "GLOBAL_DEC指令分配空间大小不是4的倍数",
     LABEL_ILLEGAL_ID: "LABEL指令标签名非法",
     GOTO_ILLEGAL_ID: "GOTO指令标签名非法",
+    DUPLICATE_LABEL_ID:
+        "LABEL指令声明的标签名''{id}''已存在(上次声明在第{lastLineNumber}行)",
+    DUPLICATE_FUNCTION_ID:
+        "FUNCTION指令声明的函数名''{id}''已存在(上次声明在第{lastLineNumber}行)",
+    FUNCTION_NOT_FOUND: "找不到函数''{id}''",
+    LABEL_NOT_FOUND: "找不到标签''{id}''",
     IF_ILLEGAL_COND_OPERATOR: "IF指令条件表达式的条件运算符非法",
     IF_ILLEGAL_COND_OPERAND1: "IF指令条件表达式的第一个一元值操作数非法",
     IF_COND_OPERAND1_IMM_TOO_LARGE: "IF指令条件表达式的第一个立即数操作数过大",
@@ -115,8 +122,6 @@ const zhCn = {
     GLOBAL_VARIABLE_SEGMENT_OVERFLOW: "全局变量空间溢出",
     STACK_OVERFLOW: "栈空间溢出",
     VARIABLE_NOT_FOUND: "找不到变量''{id}''",
-    FUNCTION_NOT_FOUND: "找不到函数''{id}''",
-    LABEL_NOT_FOUND: "找不到标签''{id}''",
     INSTRUCTION_READ_OUT_OF_BOUND:
         "从地址{address}处读入指令超出了指令地址空间",
     MEMORY_READ_OUT_OF_BOUND: "从地址{address}读入4字节时超出了地址空间",

@@ -91,11 +91,15 @@ export interface DecodedLabel {
 
 export interface DecodedGoto {
     id: string;
+    // Contract: truncated
+    gotoAddressBefore: number;
 }
 
 export interface DecodedIf {
     condition: CondValue;
     gotoId: string;
+    // Contract: truncated
+    gotoAddressBefore: number;
 }
 
 export interface DecodedArg {
@@ -104,11 +108,15 @@ export interface DecodedArg {
 
 export interface DecodedCall {
     id: string;
+    // Contract: truncated
+    functionAddressBefore: number;
 }
 
 export interface DecodedAssignCall {
     lValue: LValue;
     functionId: string;
+    // Contract: truncated
+    functionAddressBefore: number;
 }
 
 export interface DecodedLabel {

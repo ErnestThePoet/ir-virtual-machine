@@ -35,19 +35,6 @@ import { InstructionType, ExecutableInstructionType } from "./decoder";
 import type { FormattableMessage } from "@/locales";
 import { cloneDeep } from "lodash";
 
-// VM Table element types
-interface VmLabel {
-    // Equals actual address-1 because EIP increases after the address is set
-    // Contract: truncated
-    addressBefore: number;
-}
-
-interface VmFunction {
-    // Equals actual address-1 because EIP increases after the address is set
-    // Contract: truncated
-    addressBefore: number;
-}
-
 interface VmVariable {
     // Contract: truncated
     address: number;
@@ -116,14 +103,12 @@ export interface VmPeakMemoryUsage {
 }
 
 interface VmTables {
-    labelTable: { [id: string]: VmLabel };
-    functionTable: { [id: string]: VmFunction };
+    // Contract: truncated
+    mainFunctionAddressBefore: number;
     globalVariableTable: VmVariableTable;
     variableTableStack: VmVariableTable[];
     assignCallLValueStack: (LValue | null)[];
 }
-
-/* eslint-disable no-unused-vars */
 
 export enum VmExecutionState {
     INITIAL,
@@ -170,8 +155,7 @@ const initialPeakMemoryUsage: VmPeakMemoryUsage = {
 };
 
 const initialTables: VmTables = {
-    labelTable: {},
-    functionTable: {},
+    mainFunctionAddressBefore: -1,
     globalVariableTable: {},
     variableTableStack: [],
     assignCallLValueStack: []
@@ -232,8 +216,6 @@ export const vmOptionLimits: {
         max: 16 * 1024 * 1024 - 1024
     }
 };
-
-/* eslint-enable no-unused-vars */
 
 const defaultOptions: VmOptions = {
     maxExecutionStepCount: 1_000_000,
@@ -329,11 +311,8 @@ export class Vm {
     private executionStartTime: Date = new Date();
 
     private writeBuffer: Array<ConsoleMessagePart[]> = [];
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    /* eslint-disable no-unused-vars */
-    private readConsole: ReadConsoleFn = _ => Promise.resolve("");
-    /* eslint-enable no-unused-vars */
-    /* eslint-enable @typescript-eslint/no-unused-vars */
+
+    private readConsole: ReadConsoleFn = () => Promise.resolve("");
 
     private entryFunctionName = "main";
 
@@ -493,8 +472,6 @@ export class Vm {
      * @param action Action that accepts the current write buffer content.
      * @public
      */
-
-    // eslint-disable-next-line no-unused-vars
     flushWriteBuffer(action?: (_: Array<ConsoleMessagePart[]>) => void) {
         if (action !== undefined) {
             action(this.writeBuffer);
@@ -621,6 +598,22 @@ export class Vm {
      * @public
      */
     decodeInstructions(writeErrorItemsOnly?: boolean) {
+        const labelIdInfoMap: Map<
+            string,
+            {
+                addressBefore: number;
+                lineNumber: number;
+            }
+        > = new Map();
+
+        const functionIdInfoMap: Map<
+            string,
+            {
+                addressBefore: number;
+                lineNumber: number;
+            }
+        > = new Map();
+
         // Go through each line of IR code
         for (let i = 0; i < this.memory.instructions.length; i++) {
             const decoded = this.decoder.decode(this.memory.instructions[i]);
@@ -667,51 +660,264 @@ export class Vm {
                 continue;
             }
 
-            if (!writeErrorItemsOnly) {
-                switch (decoded.type) {
-                    case InstructionType.LABEL:
-                        this.tables.labelTable[
-                            (<DecodedLabel>decoded.value!).id
-                        ] = {
-                            addressBefore: i32(this.memory.text.length - 1)
-                        };
-                        break;
-                    case InstructionType.FUNCTION:
-                        this.tables.functionTable[
-                            (<DecodedFunction>decoded.value!).id
-                        ] = {
-                            addressBefore: i32(this.memory.text.length - 1)
-                        };
-                        break;
-                    default:
-                        this.memory.text.push({
-                            ...(decoded as unknown as DecodedExecutableInstruction),
-                            lineNumber: i + 1,
-                            instructionLength:
-                                this.memory.instructions[i].length
+            switch (decoded.type) {
+                case InstructionType.LABEL: {
+                    const labelId = (<DecodedLabel>decoded.value!).id;
+
+                    if (labelIdInfoMap.has(labelId)) {
+                        if (!writeErrorItemsOnly) {
+                            this.executionStatus.state =
+                                VmExecutionState.STATIC_CHECK_FAILED;
+
+                            this.writeBuffer.push([
+                                {
+                                    key: "STATIC_ERROR_PREFIX",
+                                    values: {
+                                        lineNumber: i + 1
+                                    },
+                                    type: ConsoleMessageType.ERROR
+                                },
+                                {
+                                    key: "DUPLICATE_LABEL_ID",
+                                    values: {
+                                        id: labelId,
+                                        lastLineNumber:
+                                            labelIdInfoMap.get(labelId)!
+                                                .lineNumber
+                                    },
+                                    type: ConsoleMessageType.ERROR
+                                }
+                            ]);
+                        }
+
+                        this.executionStatus.staticErrors.push({
+                            startLineNumber: i + 1,
+                            endLineNumber: i + 1,
+                            startColumn: 1, // starts from 1
+                            endColumn: this.memory.instructions[i].length,
+                            message: {
+                                key: "DUPLICATE_LABEL_ID",
+                                values: {
+                                    id: labelId,
+                                    lastLineNumber:
+                                        labelIdInfoMap.get(labelId)!.lineNumber
+                                }
+                            }
                         });
-                        break;
+
+                        continue;
+                    }
+
+                    labelIdInfoMap.set(labelId, {
+                        addressBefore: i32(this.memory.text.length - 1),
+                        lineNumber: i + 1
+                    });
+
+                    break;
+                }
+
+                case InstructionType.FUNCTION: {
+                    const functionId = (<DecodedFunction>decoded.value!).id;
+
+                    if (functionIdInfoMap.has(functionId)) {
+                        if (!writeErrorItemsOnly) {
+                            this.executionStatus.state =
+                                VmExecutionState.STATIC_CHECK_FAILED;
+
+                            this.writeBuffer.push([
+                                {
+                                    key: "STATIC_ERROR_PREFIX",
+                                    values: {
+                                        lineNumber: i + 1
+                                    },
+                                    type: ConsoleMessageType.ERROR
+                                },
+                                {
+                                    key: "DUPLICATE_FUNCTION_ID",
+                                    values: {
+                                        id: functionId,
+                                        lastLineNumber:
+                                            functionIdInfoMap.get(functionId)!
+                                                .lineNumber
+                                    },
+                                    type: ConsoleMessageType.ERROR
+                                }
+                            ]);
+                        }
+
+                        this.executionStatus.staticErrors.push({
+                            startLineNumber: i + 1,
+                            endLineNumber: i + 1,
+                            startColumn: 1, // starts from 1
+                            endColumn: this.memory.instructions[i].length,
+                            message: {
+                                key: "DUPLICATE_FUNCTION_ID",
+                                values: {
+                                    id: functionId,
+                                    lastLineNumber:
+                                        functionIdInfoMap.get(functionId)!
+                                            .lineNumber
+                                }
+                            }
+                        });
+
+                        continue;
+                    }
+
+                    functionIdInfoMap.set(
+                        (<DecodedFunction>decoded.value!).id,
+                        {
+                            addressBefore: i32(this.memory.text.length - 1),
+                            lineNumber: i + 1
+                        }
+                    );
+
+                    break;
+                }
+
+                default:
+                    this.memory.text.push({
+                        ...(decoded as unknown as DecodedExecutableInstruction),
+                        lineNumber: i + 1,
+                        instructionLength: this.memory.instructions[i].length
+                    });
+
+                    break;
+            }
+        }
+
+        // Fill addressBefore in IF, GOTO, CALL, ASSIGN_CALL
+        for (const text of this.memory.text) {
+            switch (text.type) {
+                case ExecutableInstructionType.IF:
+                case ExecutableInstructionType.GOTO: {
+                    const labelId =
+                        text.type === ExecutableInstructionType.IF
+                            ? (<DecodedIf>text.value).gotoId
+                            : (<DecodedGoto>text.value).id;
+
+                    if (!labelIdInfoMap.has(labelId)) {
+                        if (!writeErrorItemsOnly) {
+                            this.executionStatus.state =
+                                VmExecutionState.STATIC_CHECK_FAILED;
+
+                            this.writeBuffer.push([
+                                {
+                                    key: "STATIC_ERROR_PREFIX",
+                                    values: {
+                                        lineNumber: text.lineNumber
+                                    },
+                                    type: ConsoleMessageType.ERROR
+                                },
+                                {
+                                    key: "LABEL_NOT_FOUND",
+                                    values: {
+                                        id: labelId
+                                    },
+                                    type: ConsoleMessageType.ERROR
+                                }
+                            ]);
+                        }
+
+                        this.executionStatus.staticErrors.push({
+                            startLineNumber: text.lineNumber,
+                            endLineNumber: text.lineNumber,
+                            startColumn: 1, // starts from 1
+                            endColumn: text.instructionLength,
+                            message: {
+                                key: "LABEL_NOT_FOUND",
+                                values: {
+                                    id: labelId
+                                }
+                            }
+                        });
+
+                        continue;
+                    }
+
+                    (<DecodedIf>text.value).gotoAddressBefore =
+                        labelIdInfoMap.get(labelId)!.addressBefore;
+
+                    break;
+                }
+
+                case ExecutableInstructionType.CALL:
+                case ExecutableInstructionType.ASSIGN_CALL: {
+                    const functionId =
+                        text.type === ExecutableInstructionType.CALL
+                            ? (<DecodedCall>text.value).id
+                            : (<DecodedAssignCall>text.value).functionId;
+
+                    if (!functionIdInfoMap.has(functionId)) {
+                        if (!writeErrorItemsOnly) {
+                            this.executionStatus.state =
+                                VmExecutionState.STATIC_CHECK_FAILED;
+
+                            this.writeBuffer.push([
+                                {
+                                    key: "STATIC_ERROR_PREFIX",
+                                    values: {
+                                        lineNumber: text.lineNumber
+                                    },
+                                    type: ConsoleMessageType.ERROR
+                                },
+                                {
+                                    key: "FUNCTION_NOT_FOUND",
+                                    values: {
+                                        id: functionId
+                                    },
+                                    type: ConsoleMessageType.ERROR
+                                }
+                            ]);
+                        }
+
+                        this.executionStatus.staticErrors.push({
+                            startLineNumber: text.lineNumber,
+                            endLineNumber: text.lineNumber,
+                            startColumn: 1, // starts from 1
+                            endColumn: text.instructionLength,
+                            message: {
+                                key: "FUNCTION_NOT_FOUND",
+                                values: {
+                                    id: functionId
+                                }
+                            }
+                        });
+
+                        continue;
+                    }
+
+                    (<DecodedCall>text.value).functionAddressBefore =
+                        functionIdInfoMap.get(functionId)!.addressBefore;
+
+                    break;
                 }
             }
         }
 
-        if (
-            !(this.entryFunctionName in this.tables.functionTable) &&
-            !writeErrorItemsOnly
-        ) {
-            this.executionStatus.state = VmExecutionState.STATIC_CHECK_FAILED;
+        if (!functionIdInfoMap.has(this.entryFunctionName)) {
+            if (!writeErrorItemsOnly) {
+                this.executionStatus.state =
+                    VmExecutionState.STATIC_CHECK_FAILED;
 
-            this.writeBuffer.push([
-                {
-                    key: "STATIC_ERROR_PREFIX",
-                    type: ConsoleMessageType.ERROR
-                },
-                {
-                    key: "NO_MAIN_FUNCTION",
-                    type: ConsoleMessageType.ERROR
-                }
-            ]);
+                this.writeBuffer.push([
+                    {
+                        key: "STATIC_ERROR_PREFIX_NO_LINE_NUMBER",
+                        type: ConsoleMessageType.ERROR
+                    },
+                    {
+                        key: "NO_MAIN_FUNCTION",
+                        type: ConsoleMessageType.ERROR
+                    }
+                ]);
+            }
+
+            return;
         }
+
+        this.tables.mainFunctionAddressBefore = functionIdInfoMap.get(
+            this.entryFunctionName
+        )!.addressBefore;
     }
 
     /**
@@ -719,10 +925,7 @@ export class Vm {
      * randomize memory; allocate space for global variables and remove GLOBAL_DEC text.
      */
     private initializeMemoryRegister() {
-        this.registers.eip = i32Add(
-            this.tables.functionTable[this.entryFunctionName].addressBefore,
-            1
-        );
+        this.registers.eip = i32Add(this.tables.mainFunctionAddressBefore, 1);
 
         // Fill memory with a random number
         this.memory.memory = new Uint8Array(this.options.memorySize).fill(
@@ -1406,16 +1609,6 @@ export class Vm {
                         ir.type === ExecutableInstructionType.CALL
                             ? (<DecodedCall>ir.value).id
                             : (<DecodedAssignCall>ir.value).functionId;
-                    if (!(functionId in this.tables.functionTable)) {
-                        this.writeRuntimeError({
-                            key: "FUNCTION_NOT_FOUND",
-                            values: {
-                                id: functionId
-                            }
-                        });
-
-                        return;
-                    }
 
                     // Set first arg address
                     this.registers.ebx = this.registers.esp;
@@ -1454,8 +1647,9 @@ export class Vm {
                     // Push call stack
                     this.executionStatus.callStack.push(functionId);
 
-                    this.registers.eip =
-                        this.tables.functionTable[functionId].addressBefore;
+                    this.registers.eip = (<DecodedCall>(
+                        ir.value
+                    )).functionAddressBefore;
 
                     break;
                 }
@@ -1473,20 +1667,9 @@ export class Vm {
                 }
 
                 case ExecutableInstructionType.GOTO: {
-                    const labelId = (<DecodedGoto>ir.value).id;
-                    if (!(labelId in this.tables.labelTable)) {
-                        this.writeRuntimeError({
-                            key: "LABEL_NOT_FOUND",
-                            values: {
-                                id: labelId
-                            }
-                        });
-
-                        return;
-                    }
-
-                    this.registers.eip =
-                        this.tables.labelTable[labelId].addressBefore;
+                    this.registers.eip = (<DecodedGoto>(
+                        ir.value
+                    )).gotoAddressBefore;
 
                     break;
                 }
@@ -1498,21 +1681,10 @@ export class Vm {
                         return;
                     }
 
-                    const gotoLabelId = (<DecodedIf>ir.value).gotoId;
-                    if (!(gotoLabelId in this.tables.labelTable)) {
-                        this.writeRuntimeError({
-                            key: "LABEL_NOT_FOUND",
-                            values: {
-                                id: gotoLabelId
-                            }
-                        });
-
-                        return;
-                    }
-
                     if (condValue) {
-                        this.registers.eip =
-                            this.tables.labelTable[gotoLabelId].addressBefore;
+                        this.registers.eip = (<DecodedIf>(
+                            ir.value
+                        )).gotoAddressBefore;
                     }
 
                     break;
