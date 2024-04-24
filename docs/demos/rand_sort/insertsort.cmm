@@ -1,6 +1,6 @@
 /*
- * This program reads a random number seed and generates 50 random numbers.
- * Then it sorts the numbers using insert sort and prints the sorted array.
+ * This program sorts 50 randomly generated numbers 
+ * using insert sort and prints the sorted numbers.
  */
 
 int kNext;
