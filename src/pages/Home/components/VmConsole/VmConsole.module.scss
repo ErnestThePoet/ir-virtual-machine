@@ -20,7 +20,7 @@
     max-height: calc(100% - $control-panel-height);
 
     font-size: 15px;
-    line-height: 20px;
+    line-height: $vm-console-line-height;
 
     display: flex;
     flex-direction: column;

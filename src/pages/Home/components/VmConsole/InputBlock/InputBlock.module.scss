@@ -1,8 +1,8 @@
+@import "../../../../../styles/layout.module.scss";
+
 .divInputBlockWrapper {
     width: 100%;
     padding: 0 10px;
-    font-size: 15px;
-    line-height: 20px;
     display: flex;
 }
 
@@ -19,7 +19,7 @@
     flex-grow: 1;
     // With flex-grow only the input stays too wide
     min-width: 80px;
-    height: 20px;
+    height: $vm-console-line-height;
     padding: 0;
     border: 0;
     outline: 0;
