@@ -76,10 +76,10 @@ export function registerIr(monaco: Monaco) {
     });
 
     const irKeywordSnippetParts = [
-        "FUNCTION ${1:id} :\n",
+        "FUNCTION ${1:id} :",
         "DEC ${1:id} ${2:size}",
         "GLOBAL_DEC ${1:id} ${2:size}",
-        "LABEL ${1:id} :\n",
+        "LABEL ${1:id} :",
         "GOTO ${1:label}",
         "IF ${1:condition} GOTO ${2:label}",
         "ARG ${1:value}",
