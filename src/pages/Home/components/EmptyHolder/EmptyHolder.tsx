@@ -8,7 +8,11 @@ const EmptyHolder: React.FC = () => {
 
     return (
         <div className={styles.divEmptyHolder}>
-            <img className={styles.imgLogo} src="logo.svg" />
+            <img
+                className={styles.imgLogo}
+                src="logo.svg"
+                alt="IR Virtual Machine"
+            />
 
             <div className={styles.divEmptyHolderText}>
                 <span className={styles.spanDesc}>
