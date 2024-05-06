@@ -2,8 +2,9 @@
 ### 用于哈尔滨工业大学/南京大学《编译原理》实验的Web版中间代码虚拟机
 
 #### 虚拟机访问地址
-- [Github Pages访问](https://ernestthepoet.github.io/ir-virtual-machine/)
-- [Gitee Pages访问](https://ecui.gitee.io/ir-virtual-machine/)
+- [Github Pages镜像](https://ernestthepoet.github.io/ir-virtual-machine/)
+- [Gitee Pages镜像](https://ecui.gitee.io/ir-virtual-machine/)
+- [Netlify镜像](https://irvm.netlify.app/)
 #### 仓库地址
 - [Github仓库](https://github.com/ErnestThePoet/ir-virtual-machine)
 - [Gitee仓库](https://gitee.com/ecui/ir-virtual-machine)
