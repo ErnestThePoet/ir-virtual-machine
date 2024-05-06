@@ -370,6 +370,7 @@ const SideBar: React.FC<SideBarProps> = ({ vmIndex }: SideBarProps) => {
                         <a href="https://ecui.gitee.io/ir-virtual-machine/">
                             Gitee Pages镜像
                         </a>
+                        ·<a href="https://irvm.netlify.app/">Netlify镜像</a>
                     </p>
 
                     <p className="info">

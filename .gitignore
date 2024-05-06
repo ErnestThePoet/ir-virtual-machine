@@ -32,3 +32,5 @@ public/demos/all.py
 
 docs/demos/cc.exe
 docs/demos/all.py
+
+dist_netlify

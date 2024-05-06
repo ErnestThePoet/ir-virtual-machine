@@ -5,9 +5,10 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "tsc && vite build && touch docs/.nojekyll",
+        "build-ui": "tsc && vite build && touch docs/.nojekyll",
+        "build-ui-netlify": "tsc && vite build --config vite.config.netlify.ts",
         "build-cli": "tsc --project cli && cd cli && rollup -c",
-        "build-all": "yarn build && yarn build-cli",
+        "build-all": "yarn build-ui && yarn build-cli",
         "preview": "vite preview",
         "lint": "eslint . --ext ts,mts,tsx --report-unused-disable-directives --max-warnings 0",
         "type-check": "tsc --noEmit && tsc --project cli --noEmit",
