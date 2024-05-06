@@ -32,18 +32,18 @@ const EmptyHolder: React.FC = () => {
                             id: "EMPTY_PLACEHOLDER_HINT_1"
                         })}
                     </span>
-                    <span>
-                        {intl.formatMessage({
-                            id: "EMPTY_PLACEHOLDER_HINT_2"
-                        })}
-                    </span>
                     {!isMobileBrowser() && (
                         <span>
                             {intl.formatMessage({
-                                id: "EMPTY_PLACEHOLDER_HINT_3"
+                                id: "EMPTY_PLACEHOLDER_HINT_2"
                             })}
                         </span>
                     )}
+                    <span>
+                        {intl.formatMessage({
+                            id: "EMPTY_PLACEHOLDER_HINT_3"
+                        })}
+                    </span>
                 </div>
             </div>
         </div>
