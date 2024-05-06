@@ -9,6 +9,8 @@
 - [Github仓库](https://github.com/ErnestThePoet/ir-virtual-machine)
 - [Gitee仓库](https://gitee.com/ecui/ir-virtual-machine)
 
+记得点个Star哦~😘
+
 ## 为什么我要做这个项目？  
 - **实验指导书上没有给出的中间代码语法的严格定义**  
 在进行编译原理实验三的过程中，当我想尝试一些中间代码的优化方式时，我时常疑惑我想要用的那些写法是否合法。比如，`ARG`和`WRITE`指令的右边能不能直接写一个解引用或取地址，例如`WRITE *t1`？实验指导书对IR语法的描述已经比较详尽了，可惜一些细节上仍然没有说明白。为此，我不得不逐个编写IR文件，在虚拟机程序上验证我的猜想。
