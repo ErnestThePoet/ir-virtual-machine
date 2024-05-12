@@ -160,7 +160,7 @@ const vm = new Vm();
 vm.configure({
     maxExecutionStepCount: 0,
     memorySize: 32 * MB,
-    stackSize: 31 * MB
+    stackSize: 16 * MB
 });
 
 const inputBuffer: string[] = [];
