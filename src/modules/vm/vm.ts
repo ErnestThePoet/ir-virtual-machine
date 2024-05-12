@@ -1104,11 +1104,12 @@ export class Vm {
     ) {
         this.executionStatus.state = VmExecutionState.RUNTIME_ERROR;
 
+        const currentLineNumber =
+            this.memory.text[this.registers.eip].lineNumber;
+
         this.executionStatus.runtimeErrors.push({
-            startLineNumber:
-                lineNumber ?? this.memory.text[this.registers.eip].lineNumber,
-            endLineNumber:
-                lineNumber ?? this.memory.text[this.registers.eip].lineNumber,
+            startLineNumber: lineNumber ?? currentLineNumber,
+            endLineNumber: lineNumber ?? currentLineNumber,
             startColumn: 1,
             endColumn: this.memory.text[this.registers.eip].instructionLength,
             message
@@ -1118,9 +1119,7 @@ export class Vm {
             {
                 key: "RUNTIME_ERROR_PREFIX",
                 values: {
-                    lineNumber:
-                        lineNumber ??
-                        this.memory.text[this.registers.eip].lineNumber
+                    lineNumber: lineNumber ?? currentLineNumber
                 },
                 type: ConsoleMessageType.ERROR
             },
@@ -1376,39 +1375,56 @@ export class Vm {
             return null;
         }
 
-        this.registers.esp = i32Sub(this.registers.esp, size);
-        this.updatePeakMemoryUsage();
+        const currentLineNumber =
+            this.memory.text[this.registers.eip].lineNumber;
 
-        const variable: VmVariable = {
-            address: this.registers.esp,
-            size,
-            lineNumber: this.memory.text[this.registers.eip].lineNumber
-        };
-
-        if (this.tables.variableTableStack.length === 0) {
-            this.writeRuntimeError({
-                key: "EMPTY_VARIABLE_TABLE_STACK"
-            });
-            return null;
-        }
-
+        // Only DEC may enter this branch.
+        // If same DEC instruction is called multiple times, only first
+        // execution will create variable. Following executions will
+        // reuse its memory space.
         if (
             id in
             this.tables.variableTableStack[
                 this.tables.variableTableStack.length - 1
             ]
         ) {
-            this.writeRuntimeError({
-                key: "DUPLICATE_DEC_ID",
-                values: {
-                    id,
-                    lastLineNumber:
-                        this.tables.variableTableStack[
-                            this.tables.variableTableStack.length - 1
-                        ][id].lineNumber
-                }
-            });
+            if (
+                this.tables.variableTableStack[
+                    this.tables.variableTableStack.length - 1
+                ][id].lineNumber !== currentLineNumber
+            ) {
+                this.writeRuntimeError({
+                    key: "DUPLICATE_DEC_ID",
+                    values: {
+                        id,
+                        lastLineNumber:
+                            this.tables.variableTableStack[
+                                this.tables.variableTableStack.length - 1
+                            ][id].lineNumber
+                    }
+                });
 
+                return null;
+            } else {
+                return this.tables.variableTableStack[
+                    this.tables.variableTableStack.length - 1
+                ][id];
+            }
+        }
+
+        this.registers.esp = i32Sub(this.registers.esp, size);
+        this.updatePeakMemoryUsage();
+
+        const variable: VmVariable = {
+            address: this.registers.esp,
+            size,
+            lineNumber: currentLineNumber
+        };
+
+        if (this.tables.variableTableStack.length === 0) {
+            this.writeRuntimeError({
+                key: "EMPTY_VARIABLE_TABLE_STACK"
+            });
             return null;
         }
 
