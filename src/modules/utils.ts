@@ -1,3 +1,18 @@
+import { KB, MB } from "./constants";
+
+type BKBMB = "B" | "KB" | "MB";
+
+interface ArbitraryUnitSize {
+    size: number;
+    unit: BKBMB;
+}
+
+interface ArbitraryUnitMemoryUsage {
+    used: number;
+    total: number;
+    unit: BKBMB;
+}
+
 export function truncateString(title: string, length: number = 18) {
     let stringLengthAtDisplayLength = 0;
     let displayLength = 0;
@@ -41,8 +56,48 @@ export function splitStreamInputs(x: string): string[] {
         .filter(x => x.length > 0);
 }
 
-export function toKiB(b: number): number {
-    return b / 1024;
+export function getArbitraryUnitSize(size: number): ArbitraryUnitSize {
+    if (size < KB) {
+        return {
+            size,
+            unit: "B"
+        };
+    } else if (size < MB) {
+        return {
+            size: size / KB,
+            unit: "KB"
+        };
+    } else {
+        return {
+            size: size / MB,
+            unit: "MB"
+        };
+    }
+}
+
+export function getArbitraryUnitMemoryUsage(
+    used: number,
+    total: number
+): ArbitraryUnitMemoryUsage {
+    if (total < KB) {
+        return {
+            used,
+            total,
+            unit: "B"
+        };
+    } else if (total < MB) {
+        return {
+            used: used / KB,
+            total: total / KB,
+            unit: "KB"
+        };
+    } else {
+        return {
+            used: used / MB,
+            total: total / MB,
+            unit: "MB"
+        };
+    }
 }
 
 export function stringCompare(a: string, b: string): number {

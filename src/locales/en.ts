@@ -55,10 +55,11 @@ const en: AppLocale = {
     GLOBAL_VARIABLE_MEMORY_USAGE: "GlobalVar Memory Usage: ",
     PEAK_MEMORY_USAGE: "Peak Usage: ",
     PERCENTAGE_USAGE: "{percentage, number, ::.0}%",
-    B_USAGE: "{used}B/{total}B",
-    KB_USAGE: "{used, number, ::.0}KB/{total, number, ::.0}KB",
-    BYTES: "{bytes}B",
-    KB: "{kb, number, ::.0}KB",
+    BYTE_USAGE: "{used}B/{total}B",
+    ARBITRARY_UNIT_MEMORY_USAGE:
+        "{used, number, ::.0}{unit}/{total, number, ::.0}{unit}",
+    BYTE_SIZE: "{size}B",
+    ARBITRARY_UNIT_SIZE: "{size, number, ::.0}{unit}",
 
     GLOBAL_VARIABLE_TABLE: "Global Variable Table",
     LOCAL_VARIABLE_TABLE: "Local Variable Table",

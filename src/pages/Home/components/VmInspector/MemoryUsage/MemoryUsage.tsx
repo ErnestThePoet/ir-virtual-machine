@@ -2,7 +2,10 @@ import React from "react";
 import { useIntl } from "react-intl";
 import { Progress } from "antd";
 import styles from "./MemoryUsage.module.scss";
-import { toKiB } from "@/modules/utils";
+import {
+    getArbitraryUnitMemoryUsage,
+    getArbitraryUnitSize
+} from "@/modules/utils";
 
 interface MemoryUsageProps {
     title: string;
@@ -13,6 +16,13 @@ interface MemoryUsageProps {
 
 const MemoryUsage: React.FC<MemoryUsageProps> = (props: MemoryUsageProps) => {
     const intl = useIntl();
+
+    const usage = getArbitraryUnitMemoryUsage(
+        props.usedBytes,
+        props.totalBytes
+    );
+
+    const peakUsageSize = getArbitraryUnitSize(props.peakBytes);
 
     return (
         <div className={styles.divMemoryUsageWrapper}>
@@ -41,22 +51,20 @@ const MemoryUsage: React.FC<MemoryUsageProps> = (props: MemoryUsageProps) => {
                     </label>
                 </div>
                 <span>
-                    {intl.formatMessage(
-                        { id: "B_USAGE" },
-                        {
-                            used: props.usedBytes,
-                            total: props.totalBytes
-                        }
-                    )}
-                </span>
-                <span>
-                    {intl.formatMessage(
-                        { id: "KB_USAGE" },
-                        {
-                            used: toKiB(props.usedBytes),
-                            total: toKiB(props.totalBytes)
-                        }
-                    )}
+                    {usage.unit === "B"
+                        ? intl.formatMessage(
+                              { id: "BYTE_USAGE" },
+                              {
+                                  used: usage.used,
+                                  total: usage.total
+                              }
+                          )
+                        : intl.formatMessage(
+                              { id: "ARBITRARY_UNIT_MEMORY_USAGE" },
+                              {
+                                  ...usage
+                              }
+                          )}
                 </span>
             </div>
 
@@ -90,21 +98,19 @@ const MemoryUsage: React.FC<MemoryUsageProps> = (props: MemoryUsageProps) => {
                 </div>
 
                 <span>
-                    {intl.formatMessage(
-                        { id: "BYTES" },
-                        {
-                            bytes: props.peakBytes
-                        }
-                    )}
-                </span>
-
-                <span>
-                    {intl.formatMessage(
-                        { id: "KB" },
-                        {
-                            kb: toKiB(props.peakBytes)
-                        }
-                    )}
+                    {peakUsageSize.unit === "B"
+                        ? intl.formatMessage(
+                              { id: "BYTE_SIZE" },
+                              {
+                                  size: peakUsageSize.size
+                              }
+                          )
+                        : intl.formatMessage(
+                              { id: "ARBITRARY_UNIT_SIZE" },
+                              {
+                                  ...peakUsageSize
+                              }
+                          )}
                 </span>
             </div>
         </div>

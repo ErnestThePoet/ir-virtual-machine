@@ -34,6 +34,7 @@ import { InstructionType, ExecutableInstructionType } from "./decoder";
 
 import type { FormattableMessage } from "@/locales";
 import { cloneDeep } from "lodash";
+import { KB, MB } from "../constants";
 
 interface VmVariable {
     // Contract: truncated
@@ -208,19 +209,19 @@ export const vmOptionLimits: {
         max: 999_999_999
     },
     memorySize: {
-        min: 1024,
-        max: 16 * 1024 * 1024
+        min: 1 * KB,
+        max: 32 * MB
     },
     stackSize: {
         min: 512,
-        max: 16 * 1024 * 1024 - 1024
+        max: 32 * MB - 512
     }
 };
 
 const defaultOptions: VmOptions = {
     maxExecutionStepCount: 5_000_000,
-    memorySize: 16 * 1024,
-    stackSize: 8 * 1024
+    memorySize: 1536 * KB,
+    stackSize: 1 * MB
 };
 
 /**

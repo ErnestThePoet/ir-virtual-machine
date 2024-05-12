@@ -8,6 +8,7 @@ import {
     Vm,
     VmExecutionState
 } from "../../src/modules/vm/vm";
+import { MB } from "../../src/modules/constants";
 import { splitLines, splitStreamInputs } from "../../src/modules/utils";
 
 const argParser = new ArgumentParser({
@@ -158,8 +159,8 @@ const vm = new Vm();
 
 vm.configure({
     maxExecutionStepCount: 0,
-    memorySize: 16 * 1024 * 1024,
-    stackSize: 15 * 1024 * 1024
+    memorySize: 32 * MB,
+    stackSize: 31 * MB
 });
 
 const inputBuffer: string[] = [];
