@@ -929,9 +929,11 @@ export class Vm {
         this.registers.eip = i32Add(this.tables.mainFunctionAddressBefore, 1);
 
         // Fill memory with a random number
-        this.memory.memory = new Uint8Array(this.options.memorySize).fill(
-            Math.random() * 256
-        );
+        if (this.memory.memory.length !== this.options.memorySize) {
+            this.memory.memory = new Uint8Array(this.options.memorySize).fill(
+                Math.random() * 256
+            );
+        }
 
         // esp initially points to one byte up outside
         this.registers.esp = i32(this.options.memorySize);
